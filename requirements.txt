@@ -1,0 +1,25 @@
+# Core web framework
+Flask>=3.1.0
+
+# HTTP client (สำหรับเรียก Ollama API)
+httpx>=0.28
+
+# OCR / Document processing
+docling>=2.91.0           # Layout + table structure + OCR pipeline
+docling-core>=2.74.0
+docling-ibm-models>=3.13.0
+docling-parse>=5.10.0
+
+# Apple Vision OCR backend (macOS เท่านั้น) — ใช้กับ docling สำหรับ ja/th
+ocrmac>=1.0.1
+
+# Manga / vertical Japanese pipeline (comic-text-detector + manga-ocr)
+mokuro>=0.2.4
+manga-ocr>=0.1.14
+
+# Image utilities
+Pillow>=11.0
+opencv-python>=4.10
+
+# (Optional) Anthropic SDK สำหรับ Claude API correction — ปัจจุบันยังไม่ใช้ แต่ติดไว้เผื่อ
+anthropic>=0.97.0

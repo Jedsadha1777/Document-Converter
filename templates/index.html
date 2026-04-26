@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docling Converter</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #f4f5f7;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            padding: 28px;
+        }
+        h1 { margin: 0 0 8px; font-size: 22px; }
+        p.lead { margin: 0 0 20px; color: #6b7280; }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .controls label { font-weight: 600; }
+        input[type="file"], select, button {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+            background: #fff;
+        }
+        button {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #9ca3af; border-color: #9ca3af; cursor: not-allowed; }
+
+        .status {
+            margin: 12px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        .status.show { display: block; }
+        .status.info { background: #eff6ff; color: #1d4ed8; }
+        .status.error { background: #fef2f2; color: #b91c1c; }
+        .status.success { background: #ecfdf5; color: #047857; }
+
+        .tabs { display: flex; gap: 4px; border-bottom: 2px solid #e5e7eb; margin: 18px 0 12px; }
+        .tab {
+            padding: 9px 16px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-size: 14px;
+        }
+        .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        textarea {
+            width: 100%;
+            min-height: 480px;
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 13px;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #0b1021;
+            color: #e5e7eb;
+            resize: vertical;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+        }
+        .toolbar-actions { display: flex; gap: 8px; align-items: center; }
+        .ghost {
+            background: #fff;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
+        .ghost:hover { background: #f3f4f6; }
+
+        .preview-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .preview-controls label { font-weight: 600; font-size: 13px; }
+        .legend {
+            display: inline-flex;
+            gap: 12px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        .legend-item { display: inline-flex; align-items: center; gap: 4px; }
+        .legend-swatch {
+            width: 14px; height: 14px;
+            border: 2px solid;
+            border-radius: 2px;
+        }
+
+        .canvas-wrap {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f9fafb;
+        }
+        .canvas-wrap img { display: block; max-width: 100%; height: auto; }
+        .canvas-wrap canvas {
+            position: absolute;
+            top: 0; left: 0;
+            pointer-events: none;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(15,23,42,0.95);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            max-width: 360px;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            white-space: pre-wrap;
+        }
+        .empty {
+            padding: 40px;
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        table.compare {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        table.compare th, table.compare td {
+            border: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        table.compare th {
+            background: #f9fafb;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        table.compare td.col-no { width: 36px; color: #9ca3af; text-align: right; }
+        table.compare td.col-text { white-space: pre-wrap; word-break: normal; overflow-wrap: normal; }
+        table.compare tr.same td.col-corrected { color: #9ca3af; }
+        table.compare td.col-corrected.pending,
+        table.compare td.col-translated.pending { color: #9ca3af; font-style: italic; }
+        table.compare td.col-corrected.error,
+        table.compare td.col-translated.error { color: #b91c1c; font-style: italic; }
+        table.compare td.col-translated { background: #eff6ff; color: #1e40af; }
+        table.compare td.col-translated.pending { background: transparent; }
+        table.compare td.col-translated.error { background: transparent; }
+        table.compare tr.active { outline: 2px solid #2563eb; }
+        table.compare td.col-corrected { cursor: text; }
+        table.compare td.col-corrected:hover {
+            outline: 1px dashed #94a3b8; outline-offset: -1px;
+        }
+        table.compare td.col-corrected:focus {
+            outline: 2px solid #2563eb; outline-offset: -2px;
+            background: #fffbeb;
+        }
+        table.compare td.col-corrected.manual,
+        table.compare td.col-translated.manual {
+            background: #fef3c7;
+        }
+        table.compare td.col-corrected.manual::after,
+        table.compare td.col-translated.manual::after {
+            content: " ✏";
+            color: #d97706;
+            font-size: 11px;
+        }
+        table.compare td.col-translated { cursor: text; }
+        table.compare td.col-translated:hover {
+            outline: 1px dashed #94a3b8; outline-offset: -1px;
+        }
+        table.compare td.col-translated:focus {
+            outline: 2px solid #2563eb; outline-offset: -2px;
+        }
+        .diff-del { background: #fee2e2; color: #b91c1c; text-decoration: line-through; }
+        .diff-ins { background: #d1fae5; color: #047857; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Document Converter</h1>
+    <p class="lead">เลือกไฟล์ (PDF, DOCX, PPTX, HTML, รูปภาพ) เลือกประเภทข้อมูล กดแปลง — ดู JSON หรือ overlay กล่องข้อความบนภาพต้นฉบับ</p>
+
+    <form id="convertForm">
+        <div class="controls">
+            <label for="file">ไฟล์:</label>
+            <input type="file" id="file" name="file" required>
+
+            <label for="type">ประเภท:</label>
+            <select id="type" name="type">
+                {% for t in types %}
+                <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="lang">OCR ภาษา:</label>
+            <select id="lang" name="lang">
+                <option value="auto">auto (multi)</option>
+                <option value="en">English</option>
+                <option value="th_en">ไทย + English</option>
+                <option value="ja_en">日本語 + English</option>
+                <option value="manga">📖 Manga (ญี่ปุ่นแนวตั้ง — mokuro)</option>
+            </select>
+
+            <button type="submit" id="submitBtn">แปลงเป็น JSON</button>
+        </div>
+    </form>
+
+    <div id="status" class="status"></div>
+
+    <div class="tabs">
+        <button type="button" class="tab active" data-tab="json">JSON</button>
+        <button type="button" class="tab" data-tab="visual">Visual Preview</button>
+        <button type="button" class="tab" data-tab="compare">Compare (LLM)</button>
+    </div>
+
+    <!-- JSON tab -->
+    <div class="tab-panel active" id="panel-json">
+        <div class="toolbar">
+            <strong>ผลลัพธ์ JSON</strong>
+            <div class="toolbar-actions">
+                <button type="button" class="ghost" id="copyBtn">คัดลอก</button>
+                <button type="button" class="ghost" id="downloadBtn">ดาวน์โหลด</button>
+                <button type="button" class="ghost" id="clearBtn">ล้าง</button>
+            </div>
+        </div>
+        <textarea id="output" placeholder="ผลลัพธ์ JSON จะแสดงที่นี่..." readonly></textarea>
+    </div>
+
+    <!-- Compare tab -->
+    <div class="tab-panel" id="panel-compare">
+        <div class="preview-controls">
+            <button type="button" id="runCorrectBtn">✨ แก้ทั้งหมดด้วย LLM</button>
+            <button type="button" id="runTranslateBtn">🌐 แปลทั้งหมด</button>
+            <select id="translateTarget" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
+                <option value="th">→ ไทย</option>
+                <option value="en">→ English</option>
+            </select>
+            <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
+                <option value="qwen">🤖 Qwen 1.5B</option>
+                <option value="apple" selected>🍎 Apple Translate</option>
+            </select>
+            <a href="/apple-translate-setup" target="_blank" style="font-size:12px; color:#2563eb;">setup Apple →</a>
+            <button type="button" id="stopCorrectBtn" class="ghost" disabled>หยุด</button>
+            <button type="button" id="clearCorrectBtn" class="ghost">ล้าง</button>
+            <span id="correctProgress" style="color:#6b7280; font-size:13px;"></span>
+            <span style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b ผ่าน Ollama</span>
+        </div>
+        <div id="compareArea">
+            <div class="empty">อัพโหลดไฟล์ก่อน แล้วกดปุ่มเพื่อให้ LLM แก้</div>
+        </div>
+    </div>
+
+    <!-- Visual tab -->
+    <div class="tab-panel" id="panel-visual">
+        <div class="preview-controls">
+            <label for="pageSelect">หน้า:</label>
+            <select id="pageSelect"></select>
+
+            <label id="lblTexts"><input type="checkbox" id="showTexts" checked> texts</label>
+            <label id="lblTables"><input type="checkbox" id="showTables" checked> tables</label>
+            <label id="lblPictures"><input type="checkbox" id="showPictures" checked> pictures</label>
+            <label><input type="checkbox" id="showLabels" checked> labels</label>
+            <label style="margin-left:8px; padding:4px 8px; background:#fef3c7; border-radius:6px;">
+                <input type="checkbox" id="showOverlay"> 📝 ซ้อนคำแปลทับภาพ
+            </label>
+
+            <span class="legend">
+                <span class="legend-item" id="legendTexts"><span class="legend-swatch" style="border-color:#2563eb"></span>texts</span>
+                <span class="legend-item" id="legendTables"><span class="legend-swatch" style="border-color:#dc2626"></span>tables</span>
+                <span class="legend-item" id="legendPictures"><span class="legend-swatch" style="border-color:#059669"></span>pictures</span>
+            </span>
+        </div>
+        <div id="previewArea">
+            <div class="empty">อัพโหลดไฟล์เพื่อดู preview</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const form = document.getElementById("convertForm");
+const fileInput = document.getElementById("file");
+const typeSelect = document.getElementById("type");
+const submitBtn = document.getElementById("submitBtn");
+const statusEl = document.getElementById("status");
+const output = document.getElementById("output");
+const pageSelect = document.getElementById("pageSelect");
+const previewArea = document.getElementById("previewArea");
+const showTexts = document.getElementById("showTexts");
+const showTables = document.getElementById("showTables");
+const showPictures = document.getElementById("showPictures");
+const showLabels = document.getElementById("showLabels");
+
+let lastResult = null;
+let lastKind = "all";
+const corrections = {};   // self_ref → corrected text
+const translations = {};  // self_ref → translated text
+const manualEdits = new Set();         // self_ref ที่ผู้ใช้แก้คำเอง
+const manualTranslations = new Set();  // self_ref ที่ผู้ใช้แก้คำแปลเอง
+
+const COLOR = { texts: "#2563eb", tables: "#dc2626", pictures: "#059669" };
+
+// dropdown kind → ประเภทที่ควรเปิดใน Visual preview
+const KIND_CATEGORIES = {
+    all: ["texts", "tables", "pictures"],
+    texts: ["texts"],
+    tables: ["tables"],
+    pictures: ["pictures"],
+    pages: [],
+    groups: ["texts", "tables", "pictures"],
+    key_value_items: ["texts", "tables", "pictures"],
+    form_items: ["texts", "tables", "pictures"],
+};
+
+function syncCheckboxesToKind(kind) {
+    const allowed = KIND_CATEGORIES[kind] ?? ["texts", "tables", "pictures"];
+    const map = {
+        texts: { wrap: "lblTexts", input: "showTexts", legend: "legendTexts" },
+        tables: { wrap: "lblTables", input: "showTables", legend: "legendTables" },
+        pictures: { wrap: "lblPictures", input: "showPictures", legend: "legendPictures" },
+    };
+    Object.entries(map).forEach(([cat, ids]) => {
+        const visible = allowed.includes(cat);
+        document.getElementById(ids.wrap).style.display = visible ? "" : "none";
+        document.getElementById(ids.legend).style.display = visible ? "" : "none";
+        const input = document.getElementById(ids.input);
+        input.checked = visible;
+    });
+}
+
+function setStatus(msg, kind) {
+    statusEl.textContent = msg;
+    statusEl.className = "status show " + kind;
+}
+function clearStatus() { statusEl.className = "status"; statusEl.textContent = ""; }
+
+document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+        if (btn.dataset.tab === "visual") renderPreview();
+        if (btn.dataset.tab === "compare") buildCompareTable();
+    });
+});
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!fileInput.files.length) { setStatus("กรุณาเลือกไฟล์", "error"); return; }
+    const fd = new FormData();
+    fd.append("file", fileInput.files[0]);
+    fd.append("type", typeSelect.value);
+    fd.append("lang", document.getElementById("lang").value);
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "กำลังประมวลผล...";
+    setStatus("กำลังแปลงเอกสาร...", "info");
+    output.value = "";
+    lastResult = null;
+    Object.keys(corrections).forEach(k => delete corrections[k]);
+    Object.keys(translations).forEach(k => delete translations[k]);
+    manualEdits.clear();
+    manualTranslations.clear();
+    pageSelect.innerHTML = "";
+    previewArea.innerHTML = '<div class="empty">กำลังประมวลผล...</div>';
+    compareArea.innerHTML = '<div class="empty">กำลังประมวลผล...</div>';
+    correctProgress.textContent = "";
+
+    try {
+        const res = await fetch("/convert", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok) {
+            setStatus(data.error || "เกิดข้อผิดพลาด", "error");
+            previewArea.innerHTML = '<div class="empty">เกิดข้อผิดพลาด</div>';
+        } else {
+            lastResult = data;
+            lastKind = typeSelect.value;
+            output.value = data.json_text;
+            populatePages(data.preview.pages);
+            syncCheckboxesToKind(lastKind);
+            setStatus("แปลงสำเร็จ ✓", "success");
+            buildCompareTable(true);
+            if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+        }
+    } catch (err) {
+        setStatus("เกิดข้อผิดพลาด: " + err.message, "error");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "แปลงเป็น JSON";
+    }
+});
+
+function populatePages(pages) {
+    pageSelect.innerHTML = "";
+    pages.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.page_no;
+        opt.textContent = "หน้า " + p.page_no;
+        pageSelect.appendChild(opt);
+    });
+}
+
+[pageSelect, showTexts, showTables, showPictures, showLabels,
+ document.getElementById("showOverlay")].forEach(el =>
+    el.addEventListener("change", renderPreview)
+);
+
+// sync checkboxes ทันทีตอนเปลี่ยน dropdown — ไม่ต้องรอกดแปลง
+typeSelect.addEventListener("change", () => syncCheckboxesToKind(typeSelect.value));
+syncCheckboxesToKind(typeSelect.value);
+
+// wrap text ให้ไหลตามกล่อง — wrap ที่ space ก่อน ถ้าคำเดียวยังกว้างเกิน (เช่น Thai/JP)
+// จึงค่อย break ตามตัวอักษรเพื่อให้ขึ้นบรรทัดใหม่ได้
+function wrapTextSmart(ctx, text, maxWidth) {
+    if (!text) return [];
+    const tokens = text.split(/(\s+)/);
+    const lines = [];
+    let line = "";
+    const breakByChar = (chunk) => {
+        const out = [];
+        let cur = "";
+        for (const c of chunk) {
+            if (cur && ctx.measureText(cur + c).width > maxWidth) {
+                out.push(cur);
+                cur = c;
+            } else {
+                cur += c;
+            }
+        }
+        if (cur) out.push(cur);
+        return out;
+    };
+    for (const tok of tokens) {
+        const test = line + tok;
+        if (ctx.measureText(test).width > maxWidth) {
+            if (line.trim()) {
+                lines.push(line);
+                line = "";
+            }
+            // token เดี่ยวกว้างกว่ากล่อง (เช่น Thai/JP ไม่มี space) → break ตามอักษร
+            if (ctx.measureText(tok).width > maxWidth) {
+                const broken = breakByChar(tok);
+                lines.push(...broken.slice(0, -1));
+                line = broken[broken.length - 1] || "";
+            } else {
+                line = tok.trimStart();
+            }
+        } else {
+            line = test;
+        }
+    }
+    if (line.trim()) lines.push(line);
+    return lines;
+}
+
+// วาดคำแปลในกล่องเดิม (ไม่ขยายออก) — ถ้าเกินก็ตัด … ให้ดูเต็มจาก hover
+function drawTextInBox(ctx, text, x, y, w, h) {
+    if (!text || w < 6 || h < 6) return { x, y, w, h, truncated: false };
+    // ยุบ whitespace ทั้งหมดให้เป็น space เดียว — text จะไหลตาม wrap ของกล่องแทนที่จะมีเคาะบรรทัด
+    text = String(text).replace(/\s+/g, " ").trim();
+    if (!text) return { x, y, w, h, truncated: false };
+    const padding = 2;
+    const innerW = w - padding * 2;
+    const innerH = h - padding * 2;
+    const FONT_FAMILY = '-apple-system, "Helvetica Neue", "Sarabun", sans-serif';
+    const MIN_FONT = 7;
+    const startFont = Math.min(Math.max(Math.floor(h * 0.65), MIN_FONT), 22);
+
+    // line-height multiplier — Thai มีสระบน/ล่าง + วรรณยุกต์ ต้องเผื่อกว่า Latin
+    const hasThai = /[฀-๿]/.test(text);
+    const LH_MULT = hasThai ? 1.45 : 1.18;
+
+    // ลองขนาดฟอนต์จากใหญ่ → เล็ก จนกว่าทุกบรรทัดใส่ได้
+    let chosen = null;
+    for (let f = startFont; f >= MIN_FONT; f--) {
+        ctx.font = `${f}px ${FONT_FAMILY}`;
+        const lh = f * LH_MULT;
+        const lines = wrapTextSmart(ctx, text, innerW);
+        if (lines.length * lh <= innerH) {
+            chosen = { fontSize: f, lineHeight: lh, lines, overflow: false };
+            break;
+        }
+        chosen = { fontSize: f, lineHeight: lh, lines, overflow: true };
+    }
+    if (!chosen) return { x, y, w, h, truncated: false };
+
+    // พื้นหลัง + กรอบ — ใช้ขนาดเดิม
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "#1e40af";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+
+    // clip กันข้อความออกขอบ
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+
+    ctx.font = `${chosen.fontSize}px ${FONT_FAMILY}`;
+    ctx.fillStyle = "#0f172a";
+    ctx.textBaseline = "top";
+
+    const maxLines = Math.max(1, Math.floor(innerH / chosen.lineHeight));
+    const visibleLines = chosen.lines.slice(0, maxLines);
+    const truncated = chosen.lines.length > maxLines;
+
+    visibleLines.forEach((ln, i) => {
+        let toDraw = ln;
+        // บรรทัดสุดท้ายถ้ามีของถูกตัด → ใส่ … ปลายข้อความ
+        if (truncated && i === visibleLines.length - 1) {
+            while (toDraw && ctx.measureText(toDraw + "…").width > innerW) {
+                toDraw = toDraw.slice(0, -1);
+            }
+            toDraw += "…";
+        }
+        ctx.fillText(toDraw, x + padding, y + padding + i * chosen.lineHeight);
+    });
+
+    ctx.restore();
+    return { x, y, w, h, truncated };
+}
+
+function renderPreview() {
+    if (!lastResult || !lastResult.preview || !lastResult.preview.pages.length) {
+        previewArea.innerHTML = '<div class="empty">อัพโหลดไฟล์เพื่อดู preview</div>';
+        return;
+    }
+    const pageNo = parseInt(pageSelect.value || lastResult.preview.pages[0].page_no, 10);
+    const page = lastResult.preview.pages.find(p => p.page_no === pageNo);
+    if (!page || !page.image) {
+        previewArea.innerHTML = '<div class="empty">ไม่มีภาพสำหรับหน้านี้</div>';
+        return;
+    }
+
+    previewArea.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "canvas-wrap";
+    const img = new Image();
+    const canvas = document.createElement("canvas");
+    const tooltip = document.createElement("div");
+    tooltip.className = "tooltip";
+    wrap.appendChild(img); wrap.appendChild(canvas); wrap.appendChild(tooltip);
+    previewArea.appendChild(wrap);
+
+    img.onload = () => {
+        const dispW = img.clientWidth;
+        const dispH = img.clientHeight;
+        canvas.width = dispW;
+        canvas.height = dispH;
+        canvas.style.width = dispW + "px";
+        canvas.style.height = dispH + "px";
+
+        const pageW = page.width || img.naturalWidth;
+        const pageH = page.height || img.naturalHeight;
+        const sx = dispW / pageW;
+        const sy = dispH / pageH;
+
+        const items = lastResult.preview.items.filter(it => {
+            if (it.page_no !== pageNo) return false;
+            if (it.category === "texts" && !showTexts.checked) return false;
+            if (it.category === "tables" && !showTables.checked) return false;
+            if (it.category === "pictures" && !showPictures.checked) return false;
+            return true;
+        });
+
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, dispW, dispH);
+        ctx.lineWidth = 2;
+        ctx.font = "11px ui-monospace, Menlo, monospace";
+
+        const overlayMode = document.getElementById("showOverlay").checked;
+        const drawn = [];
+        items.forEach(it => {
+            const b = it.bbox;
+            const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
+            const x = b.l * sx;
+            const w = (b.r - b.l) * sx;
+            let y, h;
+            if (isBL) {
+                y = (pageH - b.t) * sy;
+                h = (b.t - b.b) * sy;
+            } else {
+                y = b.t * sy;
+                h = (b.b - b.t) * sy;
+            }
+            const color = COLOR[it.category] || "#6b7280";
+            const corr = it.self_ref ? corrections[it.self_ref] : undefined;
+            const tr = it.self_ref ? translations[it.self_ref] : undefined;
+            const wasCorrected = corr !== undefined && corr.trim() !== (it.text || "").trim();
+
+            if (overlayMode && tr) {
+                // ทับคำแปลในกล่องเดิม — ถ้าเกินจะตัด … ให้ดูเต็มจาก hover
+                drawTextInBox(ctx, tr, x, y, w, h);
+                drawn.push({ x, y, w, h, item: it });
+                return;
+            }
+            {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = wasCorrected ? 3 : 2;
+                ctx.fillStyle = wasCorrected ? "#fef3c744" : color + "22";
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
+                ctx.lineWidth = 2;
+                if (showLabels.checked) {
+                    const tag = tr ? "🌐 " : (wasCorrected ? "✨ " : "");
+                    const lbl = tag + it.label;
+                    ctx.fillStyle = tr ? "#1e40af" : (wasCorrected ? "#d97706" : color);
+                    ctx.fillRect(x, Math.max(0, y - 14), Math.min(140, w), 14);
+                    ctx.fillStyle = "#fff";
+                    ctx.fillText(lbl, x + 4, Math.max(11, y - 3));
+                }
+            }
+            drawn.push({ x, y, w, h, item: it });
+        });
+
+        // hover tooltip via overlay div (canvas is pointer-events: none)
+        wrap.style.cursor = "default";
+        wrap.onmousemove = (ev) => {
+            const rect = wrap.getBoundingClientRect();
+            const px = ev.clientX - rect.left;
+            const py = ev.clientY - rect.top;
+            const hit = [...drawn].reverse().find(d =>
+                px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
+            );
+            if (!hit) {
+                tooltip.style.display = "none";
+                return;
+            }
+            const ref = hit.item.self_ref;
+            const corr = ref ? corrections[ref] : undefined;
+            const tr = ref ? translations[ref] : undefined;
+            let html = "";
+
+            if (overlayMode) {
+                // โหมด overlay — ถ้ายังไม่มีคำแปลก็ไม่ต้องเปิด tooltip
+                if (!tr) {
+                    tooltip.style.display = "none";
+                    return;
+                }
+                // แสดงคำแปลเต็ม + เส้นคั่น + ต้นฉบับ
+                const origText = (corr !== undefined ? corr : hit.item.text) || "";
+                html =
+                    `<div style="color:#bfdbfe;">${escapeHtml(tr)}</div>` +
+                    `<div style="border-top:1px solid #475569; margin:6px 0;"></div>` +
+                    `<div style="opacity:.85;">${escapeHtml(origText)}</div>`;
+            } else {
+                // โหมดปกติ — แสดง OCR/corrected (+ translation ถ้ามี)
+                if (corr !== undefined && corr.trim() !== (hit.item.text || "").trim()) {
+                    const ops = diffChars(hit.item.text || "", corr);
+                    html =
+                        `<div style="opacity:.7; font-size:11px; margin-bottom:4px;">[${escapeHtml(hit.item.label)}] OCR:</div>` +
+                        `<div>${renderDiffSide(ops, "orig")}</div>` +
+                        `<div style="opacity:.7; font-size:11px; margin:6px 0 4px;">✨ corrected:</div>` +
+                        `<div>${renderDiffSide(ops, "corr")}</div>`;
+                } else if (corr !== undefined) {
+                    html = `<div style="opacity:.7; font-size:11px; margin-bottom:4px;">[${escapeHtml(hit.item.label)}] ✓ no change</div>` + escapeHtml(corr);
+                } else {
+                    html = `<div style="opacity:.7; font-size:11px; margin-bottom:4px;">[${escapeHtml(hit.item.label)}]</div>` + escapeHtml(hit.item.text || "");
+                }
+                if (tr) {
+                    html +=
+                        `<div style="opacity:.7; font-size:11px; margin:8px 0 4px;">🌐 translation:</div>` +
+                        `<div style="color:#bfdbfe;">${escapeHtml(tr)}</div>`;
+                }
+            }
+            tooltip.style.display = "block";
+            tooltip.style.left = (px + 12) + "px";
+            tooltip.style.top = (py + 12) + "px";
+            tooltip.innerHTML = html;
+        };
+        wrap.onmouseleave = () => tooltip.style.display = "none";
+    };
+    img.src = page.image;
+}
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+    if (!output.value) return;
+    await navigator.clipboard.writeText(output.value);
+    setStatus("คัดลอกแล้ว", "success");
+});
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    if (!output.value) return;
+    const blob = new Blob([output.value], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "docling-" + typeSelect.value + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+});
+document.getElementById("clearBtn").addEventListener("click", () => {
+    output.value = "";
+    clearStatus();
+});
+
+// ───────── Compare (LLM correction) ─────────
+const compareArea = document.getElementById("compareArea");
+const runCorrectBtn = document.getElementById("runCorrectBtn");
+const stopCorrectBtn = document.getElementById("stopCorrectBtn");
+const clearCorrectBtn = document.getElementById("clearCorrectBtn");
+const correctProgress = document.getElementById("correctProgress");
+
+let correctRunning = false;
+let correctAbort = false;
+
+function buildCompareTable(force = false) {
+    if (!lastResult) {
+        compareArea.innerHTML = '<div class="empty">อัพโหลดไฟล์ก่อน แล้วกดปุ่มเพื่อให้ LLM แก้</div>';
+        return;
+    }
+    // ถ้ามีตารางอยู่แล้วและไม่ได้บังคับ rebuild ไม่ต้องล้าง (เก็บคำที่แก้ไว้ระหว่างสลับแท็บ)
+    if (!force && compareArea.querySelector("table.compare")) return;
+
+    let parsed;
+    try { parsed = JSON.parse(output.value); } catch(_) { parsed = null; }
+    const texts = (parsed && parsed.texts) || [];
+    if (!texts.length) {
+        compareArea.innerHTML = '<div class="empty">ไม่พบข้อความใน JSON ปัจจุบัน</div>';
+        return;
+    }
+
+    const rows = texts.map((t, i) => {
+        const orig = t.text || '';
+        const ref = t.self_ref || '';
+        const cached = ref && corrections[ref];
+        const tr = ref && translations[ref];
+        const editAttrs = 'contenteditable="true" spellcheck="false" title="คลิกเพื่อแก้ไขด้วยตัวเอง"';
+        let corrCell = `<td class="col-corrected col-text pending" ${editAttrs}>—</td>`;
+        let origCellInner = escapeHtml(orig);
+        let rowCls = '';
+        if (cached !== undefined) {
+            const isManual = manualEdits.has(ref);
+            const cls = "col-corrected col-text" + (isManual ? " manual" : "");
+            if (cached.trim() !== orig.trim()) {
+                const ops = diffChars(orig, cached);
+                origCellInner = renderDiffSide(ops, "orig");
+                corrCell = `<td class="${cls}" ${editAttrs}>${renderDiffSide(ops, "corr")}</td>`;
+                rowCls = "changed";
+            } else {
+                corrCell = `<td class="${cls}" ${editAttrs}>${escapeHtml(cached)}</td>`;
+                rowCls = "same";
+            }
+        }
+        const trEditAttrs = 'contenteditable="true" spellcheck="false" title="คลิกเพื่อแก้ไขคำแปล"';
+        const trIsManual = manualTranslations.has(ref);
+        const trBaseCls = "col-translated col-text" + (trIsManual ? " manual" : "");
+        const trCell = (tr !== undefined)
+            ? `<td class="${trBaseCls}" ${trEditAttrs}>${escapeHtml(tr)}</td>`
+            : `<td class="col-translated col-text pending" ${trEditAttrs}>—</td>`;
+        return `
+            <tr data-idx="${i}" data-ref="${escapeHtml(ref)}" data-orig="${escapeHtml(orig)}" class="${rowCls}">
+                <td class="col-no">${i + 1}</td>
+                <td class="col-text col-original">${origCellInner}</td>
+                ${corrCell}
+                ${trCell}
+            </tr>
+        `;
+    }).join("");
+
+    compareArea.innerHTML = `
+        <table class="compare">
+            <thead><tr>
+                <th class="col-no">#</th>
+                <th>OCR (ต้นฉบับ)</th>
+                <th>หลังแก้ด้วย LLM</th>
+                <th>แปล</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+    `;
+    correctProgress.textContent = `${texts.length} ชิ้น`;
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+// LCS-based char diff → ops [['eq'|'del'|'ins', text], ...]
+function diffChars(a, b) {
+    const m = a.length, n = b.length;
+    if (!m) return n ? [["ins", b]] : [];
+    if (!n) return [["del", a]];
+    const dp = Array.from({length: m + 1}, () => new Uint32Array(n + 1));
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (a[i-1] === b[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+            else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+        }
+    }
+    const ops = [];
+    let i = m, j = n;
+    while (i > 0 && j > 0) {
+        if (a[i-1] === b[j-1]) { ops.push(["eq", a[i-1]]); i--; j--; }
+        else if (dp[i-1][j] >= dp[i][j-1]) { ops.push(["del", a[i-1]]); i--; }
+        else { ops.push(["ins", b[j-1]]); j--; }
+    }
+    while (i > 0) { ops.push(["del", a[i-1]]); i--; }
+    while (j > 0) { ops.push(["ins", b[j-1]]); j--; }
+    ops.reverse();
+    // merge adjacent same ops
+    const merged = [];
+    for (const [op, ch] of ops) {
+        if (merged.length && merged[merged.length-1][0] === op) merged[merged.length-1][1] += ch;
+        else merged.push([op, ch]);
+    }
+    return merged;
+}
+
+function renderDiffSide(ops, side) {
+    // side: 'orig' shows eq + del (red strike), 'corr' shows eq + ins (green)
+    return ops.map(([op, txt]) => {
+        if (op === "eq") return escapeHtml(txt);
+        if (op === "del" && side === "orig") return `<span class="diff-del">${escapeHtml(txt)}</span>`;
+        if (op === "ins" && side === "corr") return `<span class="diff-ins">${escapeHtml(txt)}</span>`;
+        return "";
+    }).join("");
+}
+
+async function correctOne(text, before, after) {
+    const res = await fetch("/correct", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            text,
+            context_before: before || [],
+            context_after: after || [],
+        }),
+    });
+    return res.json();
+}
+
+runCorrectBtn.addEventListener("click", async () => {
+    buildCompareTable();
+    const rows = compareArea.querySelectorAll("tbody tr");
+    if (!rows.length) return;
+
+    correctRunning = true;
+    correctAbort = false;
+    runCorrectBtn.disabled = true;
+    stopCorrectBtn.disabled = false;
+
+    const total = rows.length;
+    let done = 0, changed = 0, errors = 0;
+    const contextWindow = [];  // เก็บประโยคก่อนหน้า (corrected) เป็น context ให้ LLM
+    // เตรียม originals ทั้งหมดเพื่อใช้เป็น context หลังบรรทัดปัจจุบัน
+    const allOrigs = Array.from(rows).map(r => r.dataset.orig || '');
+
+    for (let idx = 0; idx < rows.length; idx++) {
+        if (correctAbort) break;
+        const row = rows[idx];
+        const ref = row.dataset.ref;
+        const orig = row.dataset.orig || row.querySelector(".col-original").textContent;
+        const origCell = row.querySelector(".col-original");
+        const cell = row.querySelector(".col-corrected");
+        cell.classList.add("pending");
+        cell.textContent = "กำลังแก้...";
+        row.classList.add("active");
+
+        try {
+            // before: 5 บรรทัดก่อนหน้าที่แก้แล้ว (หรือ original ถ้ายังไม่ได้แก้)
+            // after: 5 บรรทัดถัดไป (ต้นฉบับ — ยังไม่ผ่าน LLM)
+            const before = contextWindow.slice(-5);
+            const after = allOrigs.slice(idx + 1, idx + 6);
+            const data = await correctOne(orig, before, after);
+            cell.classList.remove("pending");
+            row.classList.remove("active");
+            if (data.error) {
+                cell.classList.add("error");
+                cell.textContent = "[error] " + data.error;
+                errors++;
+            } else {
+                const corr = data.corrected || "";
+                if (corr.trim() !== orig.trim()) {
+                    const ops = diffChars(orig, corr);
+                    origCell.innerHTML = renderDiffSide(ops, "orig");
+                    cell.innerHTML = renderDiffSide(ops, "corr");
+                    row.classList.add("changed");
+                    changed++;
+                } else {
+                    cell.textContent = corr;
+                    row.classList.add("same");
+                }
+                if (ref) corrections[ref] = corr;
+                contextWindow.push(corr);  // ใช้คำที่แก้แล้วเป็น context สำหรับแถวถัดไป
+            }
+        } catch (e) {
+            cell.classList.remove("pending");
+            cell.classList.add("error");
+            cell.textContent = "[error] " + e.message;
+            row.classList.remove("active");
+            errors++;
+            contextWindow.push(orig);  // fallback: ใช้ต้นฉบับ
+        }
+        done++;
+        correctProgress.textContent = `${done}/${total} — เปลี่ยน ${changed}, ผิด ${errors}`;
+    }
+    // sync visual preview to show corrections
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+
+    correctRunning = false;
+    runCorrectBtn.disabled = false;
+    stopCorrectBtn.disabled = true;
+});
+
+stopCorrectBtn.addEventListener("click", () => {
+    correctAbort = true;
+    stopCorrectBtn.disabled = true;
+});
+
+clearCorrectBtn.addEventListener("click", () => {
+    Object.keys(corrections).forEach(k => delete corrections[k]);
+    Object.keys(translations).forEach(k => delete translations[k]);
+    manualEdits.clear();
+    manualTranslations.clear();
+    buildCompareTable(true);
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+});
+
+// อัปเดตหน้าตา row หลังแก้ไข — re-render diff + state
+function updateRowDiff(row, orig, corrected) {
+    const origCell = row.querySelector(".col-original");
+    const cell = row.querySelector(".col-corrected");
+    row.classList.remove("changed", "same", "active");
+    cell.classList.remove("pending", "error");
+    if (corrected.trim() === orig.trim()) {
+        origCell.textContent = orig;
+        cell.textContent = corrected;
+        row.classList.add("same");
+    } else {
+        const ops = diffChars(orig, corrected);
+        origCell.innerHTML = renderDiffSide(ops, "orig");
+        cell.innerHTML = renderDiffSide(ops, "corr");
+        row.classList.add("changed");
+    }
+}
+
+// Event delegation: คลิก/แก้ cell ใน column corrected หรือ translated
+compareArea.addEventListener("focusin", (e) => {
+    const cell = e.target.closest("td.col-corrected, td.col-translated");
+    if (!cell) return;
+    if (cell.classList.contains("pending")) {
+        cell.textContent = "";
+        cell.classList.remove("pending");
+    } else {
+        // ถอด HTML diff ออก ให้เหลือ plain text เพื่อแก้ง่าย
+        cell.textContent = cell.textContent;
+    }
+});
+compareArea.addEventListener("focusout", (e) => {
+    const cell = e.target.closest("td.col-corrected, td.col-translated");
+    if (!cell) return;
+    const row = cell.closest("tr");
+    if (!row) return;
+    const ref = row.dataset.ref;
+    const orig = row.dataset.orig || "";
+    const newVal = (cell.textContent || "").replace(/\s+$/g, "");
+    const isCorrected = cell.classList.contains("col-corrected");
+
+    if (!newVal.trim()) {
+        // ว่าง → ลบค่า, คืน placeholder
+        if (ref) {
+            if (isCorrected) {
+                delete corrections[ref];
+                manualEdits.delete(ref);
+            } else {
+                delete translations[ref];
+                manualTranslations.delete(ref);
+            }
+        }
+        cell.textContent = "—";
+        cell.classList.add("pending");
+        cell.classList.remove("manual");
+        if (isCorrected) {
+            row.classList.remove("changed", "same");
+            row.querySelector(".col-original").textContent = orig;
+        }
+    } else {
+        if (ref) {
+            if (isCorrected) {
+                corrections[ref] = newVal;
+                manualEdits.add(ref);
+                updateRowDiff(row, orig, newVal);
+            } else {
+                translations[ref] = newVal;
+                manualTranslations.add(ref);
+                cell.textContent = newVal;
+            }
+            cell.classList.add("manual");
+        }
+    }
+
+    // sync visual preview ทันที (เผื่ออยู่แท็บนั้น)
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+});
+compareArea.addEventListener("keydown", (e) => {
+    const cell = e.target.closest && e.target.closest("td.col-corrected, td.col-translated");
+    if (!cell) return;
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        cell.blur();
+    } else if (e.key === "Escape") {
+        e.preventDefault();
+        cell.blur();
+    }
+});
+
+async function translateOne(text, target, engine) {
+    const res = await fetch("/translate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ text, target, engine: engine || "qwen" }),
+    });
+    return res.json();
+}
+
+document.getElementById("runTranslateBtn").addEventListener("click", async () => {
+    buildCompareTable();
+    const rows = compareArea.querySelectorAll("tbody tr");
+    if (!rows.length) return;
+    const target = document.getElementById("translateTarget").value;
+    const engine = document.getElementById("translateEngine").value;
+
+    correctRunning = true;
+    correctAbort = false;
+    runCorrectBtn.disabled = true;
+    document.getElementById("runTranslateBtn").disabled = true;
+    stopCorrectBtn.disabled = false;
+
+    const total = rows.length;
+    let done = 0, errors = 0;
+
+    for (const row of rows) {
+        if (correctAbort) break;
+        const ref = row.dataset.ref;
+        const orig = row.dataset.orig || '';
+        // ใช้คำที่แก้แล้วถ้ามี ถ้าไม่ใช้ต้นฉบับ
+        const source = (ref && corrections[ref] !== undefined) ? corrections[ref] : orig;
+        const cell = row.querySelector(".col-translated");
+        cell.classList.add("pending");
+        cell.classList.remove("error");
+        cell.textContent = "กำลังแปล...";
+        row.classList.add("active");
+
+        try {
+            const data = await translateOne(source, target, engine);
+            cell.classList.remove("pending");
+            row.classList.remove("active");
+            if (data.error) {
+                cell.classList.add("error");
+                cell.textContent = "[error] " + data.error;
+                errors++;
+            } else {
+                cell.textContent = data.translated;
+                if (ref) translations[ref] = data.translated;
+            }
+        } catch (e) {
+            cell.classList.remove("pending");
+            cell.classList.add("error");
+            cell.textContent = "[error] " + e.message;
+            row.classList.remove("active");
+            errors++;
+        }
+        done++;
+        correctProgress.textContent = `แปลแล้ว ${done}/${total}${errors ? ` — ผิด ${errors}` : ""}`;
+    }
+
+    correctRunning = false;
+    runCorrectBtn.disabled = false;
+    document.getElementById("runTranslateBtn").disabled = false;
+    stopCorrectBtn.disabled = true;
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+});
+
+window.addEventListener("resize", () => {
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+});
+</script>
+</body>
+</html>

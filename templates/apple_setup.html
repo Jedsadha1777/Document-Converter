@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Setup Apple Translate</title>
+    <style>
+        body {
+            font-family: -apple-system, "Helvetica Neue", sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+        h1 { margin-top: 0; }
+        h2 { margin-top: 28px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, Menlo, monospace;
+            font-size: 0.92em;
+        }
+        ol li { margin: 8px 0; }
+        .step {
+            background: #f9fafb;
+            padding: 14px 18px;
+            border-left: 3px solid #2563eb;
+            border-radius: 6px;
+            margin: 12px 0;
+        }
+        .note {
+            background: #fef3c7;
+            padding: 12px 16px;
+            border-left: 3px solid #d97706;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        a.back {
+            display: inline-block;
+            margin-top: 24px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍎 ตั้งค่า Apple Translate</h1>
+    <p>
+        Apple Translate ทำงานผ่าน <strong>macOS Shortcuts</strong> — คุณต้องสร้าง Shortcut 1–2 ตัว ที่ระบบจะเรียกใช้
+    </p>
+
+    <div class="note">
+        <strong>ข้อกำหนด:</strong> macOS 14.4 ขึ้นไป (มีภาษาไทย)
+        — เปิด <code>System Settings → Translation → Languages</code> แล้วดาวน์โหลด pack ของภาษาที่ต้องการ
+        (Japanese, Thai, English ฯลฯ) สำหรับใช้แบบ offline
+    </div>
+
+    <h2>ขั้นตอนสร้าง Shortcut สำหรับแปลเป็นไทย</h2>
+
+    <div class="step">
+        <ol>
+            <li>เปิดแอป <strong>Shortcuts</strong> (ค้นด้วย Spotlight: <code>Cmd+Space</code> → พิมพ์ "Shortcuts")</li>
+            <li>กดปุ่ม <strong>+</strong> ที่มุมบนขวา เพื่อสร้าง Shortcut ใหม่</li>
+            <li>ในช่อง action ค้นหา <strong>"Translate Text"</strong> แล้วลากมาวางในกระดานทำงาน</li>
+            <li>ตั้งค่า action:
+                <ul>
+                    <li><strong>From:</strong> Detect Language</li>
+                    <li><strong>To:</strong> ไทย (Thai)</li>
+                </ul>
+            </li>
+            <li>เพิ่ม action <strong>"Get Variable"</strong> หรือคลิก output ของ Translate Text → ตั้งให้เป็น output ของ Shortcut</li>
+            <li>ตั้งชื่อ Shortcut เป็น: <code>{{ sh_th }}</code> (ต้องตรงเป๊ะ ไม่มีเว้นวรรค)</li>
+            <li>กด <strong>Done</strong> มุมขวาบน</li>
+        </ol>
+    </div>
+
+    <h2>(ออปชัน) สร้างอีกตัวสำหรับแปลเป็นอังกฤษ</h2>
+    <div class="step">
+        <ol>
+            <li>ทำซ้ำขั้นตอนข้างบน เปลี่ยน <strong>To:</strong> เป็น <strong>English</strong></li>
+            <li>ตั้งชื่อเป็น: <code>{{ sh_en }}</code></li>
+        </ol>
+    </div>
+
+    <h2>ทดสอบจาก Terminal</h2>
+    <div class="step">
+        <code>echo "ブレザーとは" | shortcuts run "{{ sh_th }}"</code>
+        <p style="margin-top:8px; font-size:14px; color:#6b7280;">
+            ถ้ามีคำแปลออกมาเป็นภาษาไทย แสดงว่าพร้อมใช้งาน
+        </p>
+    </div>
+
+    <h2>ตรวจสอบจากแอป</h2>
+    <p>
+        เมื่อ Shortcut พร้อมแล้ว เลือก <strong>🍎 Apple Translate</strong> จาก dropdown engine ในหน้า Compare
+        ของแอปนี้ — ระบบจะเรียกใช้ Shortcut นี้ทุกครั้งที่กดแปล
+    </p>
+
+    <a href="/" class="back">← กลับหน้าหลัก</a>
+</body>
+</html>
