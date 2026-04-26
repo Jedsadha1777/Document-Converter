@@ -418,6 +418,14 @@ def _check_op(tag: str, i1: int, i2: int, j1: int, j2: int,
         if (j2 < len(corrected) and corrected[j2] in SENTENCE_ENDERS
                 and (j2 - j1) > (i2 - i1)):
             return f"replace expand before '{corrected[j2]}'"
+        # ห้าม replace whitespace ด้วย non-whitespace (โมเดล hallucinate)
+        # spurious space ใน Thai word ต้อง DELETE ไม่ใช่ REPLACE
+        orig_seg = orig[i1:i2]
+        new_seg = corrected[j1:j2]
+        if orig_seg.isspace() and not new_seg.isspace():
+            return f"replace whitespace with non-space {orig_seg!r} → {new_seg!r}"
+        if not orig_seg.isspace() and new_seg.isspace():
+            return f"replace non-space with whitespace {orig_seg!r} → {new_seg!r}"
     return None
 
 
@@ -441,22 +449,56 @@ def apply_partial_corrections(orig: str, corrected: str) -> tuple[str, int, list
     return "".join(out), accepted, rejected
 
 
-PROMPT_CONTEXT = (
+PROMPT_CONTEXT_BASE = (
     "You correct OCR errors in the line marked >>...<<. The other lines are CONTEXT — use them "
-    "to disambiguate (e.g., similar-looking kanji 人/入, character confusions, spacing) but do "
-    "NOT replace the marked line wholesale.\n\n"
-    "STRICT RULES (must follow ALL):\n"
-    "- Output ONLY the marked line's corrected value. No >> << markers, no labels, no explanation.\n"
-    "- NEVER translate.\n"
-    "- Numbers stay as Arabic digits (0-9).\n"
-    "- A real OCR fix changes 1–2 characters at most. Replace only.\n"
-    "- NEVER add new characters (no insertions).\n"
-    "- NEVER delete more than 2 characters in a row.\n"
-    "- NEVER conjugate verbs, change politeness form, change particles, or rewrite.\n"
-    "- The output length must equal input length ± 1.\n"
-    "- Most of the input characters must remain in the output.\n"
-    "- If unsure → output the marked line unchanged."
+    "to disambiguate but do NOT replace the marked line wholesale.\n\n"
+    "Output ONLY the marked line's corrected value. No >> << markers, no labels, no explanation.\n"
+    "NEVER translate.\n"
+    "Numbers stay as Arabic digits (0-9).\n"
+    "NEVER add new characters (no insertions).\n"
+    "NEVER conjugate verbs, change politeness form, change particles, or rewrite.\n"
+    "Most of the input characters must remain in the output.\n"
+    "If unsure → output the marked line unchanged."
 )
+
+PROMPT_CONTEXT_TH = PROMPT_CONTEXT_BASE + (
+    "\n\nTHAI-SPECIFIC PRIORITY:\n"
+    "- Thai does NOT use spaces between words in the same sentence/clause.\n"
+    "- AGGRESSIVELY remove spurious spaces that appear INSIDE a Thai word or between "
+    "Thai characters that should be joined. DELETE the space — do NOT replace it with any character.\n"
+    "  Example: 'การเพาะ เชื้อ' → 'การเพาะเชื้อ' (delete the space, NOT replace with letter)\n"
+    "  Example: 'เธอ พบกับ' → 'เธอพบกับ' (delete the space)\n"
+    "  Example: 'ทำให้สุขภาพ ของคน' → 'ทำให้สุขภาพของคน' (delete the space at line break)\n"
+    "- WRONG examples (do NOT do this):\n"
+    "    'เธอ พบกับ' → 'เธอดพบกับ' (replaced space with ด — FORBIDDEN, use deletion)\n"
+    "- KEEP normal spacing around English words, numbers, and dates.\n"
+    "- It is OK if the output is shorter than the input due to space removal — that is the desired correction.\n"
+    "- For non-space changes: replace at most 1 character, never delete more than 2 chars in a row."
+)
+
+PROMPT_CONTEXT_JA = PROMPT_CONTEXT_BASE + (
+    "\n\nJAPANESE-SPECIFIC RULES:\n"
+    "- A real OCR fix is replacing exactly 1 wrong kanji with 1 correct kanji.\n"
+    "- Output length must equal input length ± 1.\n"
+    "- NEVER delete more than 2 characters in a row.\n"
+    "- DO NOT translate katakana — leave katakana as-is."
+)
+
+
+def pick_context_prompt(text: str) -> str:
+    has_thai = _has(text, 0x0E00, 0x0E7F)
+    has_jp = (_has(text, 0x3040, 0x309F)
+              or _has(text, 0x30A0, 0x30FF)
+              or _has(text, 0x4E00, 0x9FAF))
+    if has_thai and not has_jp:
+        return PROMPT_CONTEXT_TH
+    if has_jp and not has_thai:
+        return PROMPT_CONTEXT_JA
+    return PROMPT_CONTEXT_BASE
+
+
+# legacy alias
+PROMPT_CONTEXT = PROMPT_CONTEXT_BASE
 
 
 def _build_context_user_msg(target: str, before: list[str], after: list[str]) -> str:
@@ -507,11 +549,21 @@ def correct_text_with_llm(
     try:
         if has_context:
             user_msg = _build_context_user_msg(text, context_before or [], context_after or [])
-            out = _call_ollama_correct(user_msg, PROMPT_CONTEXT, timeout)
-            # ตัด >> << ที่อาจ leak มา
+            out = _call_ollama_correct(user_msg, pick_context_prompt(text), timeout)
             out = out.strip()
             if out.startswith(">>"): out = out[2:].strip()
             if out.endswith("<<"): out = out[:-2].strip()
+            # ถ้า context-mode ออกผลที่ "ทุก op ถูก reject" → fallback ไป no-context (โมเดลมักทำผิดเมื่อมี context noise)
+            if out and out != text:
+                gerr_test = _global_guard(text, out)
+                if gerr_test:
+                    print(f"[correct/ctx→fb] context output failed global guard: {gerr_test}", flush=True)
+                    out = _call_ollama_correct(text, pick_prompt(text), timeout)
+                else:
+                    _, accepted_test, rejected_test = apply_partial_corrections(text, out)
+                    if accepted_test == 0 and rejected_test:
+                        print(f"[correct/ctx→fb] all ops rejected, retry no-context", flush=True)
+                        out = _call_ollama_correct(text, pick_prompt(text), timeout)
         else:
             out = _call_ollama_correct(text, pick_prompt(text), timeout)
 
@@ -798,6 +850,8 @@ def translate_text(text: str, target: str = "th",
     text = _join_lines(text or "")
     if not text:
         return "", None
+    # ป้องกัน URL / HTML / domain / email
+    text_protected, mapping = _protect_segments(text)
     prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
     # เพิ่มคำสั่ง "factual translation" — ลด safety refusal กับ medical/anatomical text
     prompt_factual = prompt + (
@@ -809,22 +863,19 @@ def translate_text(text: str, target: str = "th",
         "the content. Just translate."
     )
     try:
-        out = _call_ollama_translate(text, prompt_factual, timeout)
-        # 0. ตรวจ refusal — ถ้าโมเดลปฏิเสธ → คืนต้นฉบับ (ไม่ออก refusal message)
+        out = _call_ollama_translate(text_protected, prompt_factual, timeout)
         if out and _is_refusal(out):
             print(f"[translate] refusal detected: {out!r}", flush=True)
-            # retry ครั้งหนึ่งด้วย prompt ที่กล่าวถึงเฉพาะการแปลตรง ๆ
             retry_prompt = (
                 "Translate the input to "
                 + ("Thai" if target == "th" else "English")
                 + ". Output only the translation. No commentary, no warnings, no refusals."
             )
-            retry_out = _call_ollama_translate(text, retry_prompt, timeout)
+            retry_out = _call_ollama_translate(text_protected, retry_prompt, timeout)
             if retry_out and not _is_refusal(retry_out):
                 out = retry_out
             else:
-                return text, None  # ยังปฏิเสธอีก — คืนต้นฉบับ
-        # 1. ตรวจ script leakage
+                return text, None
         if out and _output_has_unwanted_script(target, out):
             print(f"[translate] leak detected ({target}): {out!r} — retry", flush=True)
             stricter = (
@@ -834,7 +885,7 @@ def translate_text(text: str, target: str = "th",
                    if target == "th" else
                    "DO NOT output any non-English characters — use only A-Z, 0-9, basic punctuation.")
             )
-            retry_out = _call_ollama_translate(text, stricter, timeout)
+            retry_out = _call_ollama_translate(text_protected, stricter, timeout)
             if retry_out and not _output_has_unwanted_script(target, retry_out):
                 out = retry_out
             else:
@@ -844,12 +895,11 @@ def translate_text(text: str, target: str = "th",
                     out = "".join(c for c in (retry_out or out) if not (_has_cjk(c) or _has_thai(c)))
                 out = re.sub(r"\s+", " ", out).strip()
                 print(f"[translate] forced-strip: {out!r}", flush=True)
-        out = out or text
-        # 1.5 รวมบรรทัดของผลแปลให้ติดกัน (เผื่อ LLM ใส่ \n เอง)
+        out = out or text_protected
         out = _join_lines(out)
-        # 2. แปลง Thai numerals กลับเป็น Arabic ก่อนตรวจ (เผื่อโมเดลแปลงไป)
         out = _normalize_numerals(out)
-        # 3. ตรวจตัวเลขใน input ปรากฏใน output ครบลำดับเดียวกัน — ถ้าไม่ → retry
+        # restore segments ที่ป้องกันไว้ก่อนเช็ค digit guard
+        out = _restore_segments(out, mapping)
         if _digits_changed(text, out):
             print(f"[translate] digit mismatch: orig={text!r} out={out!r} — retry", flush=True)
             digit_strict = (
@@ -858,13 +908,13 @@ def translate_text(text: str, target: str = "th",
                 "Every digit (0-9) in the input must appear EXACTLY THE SAME and in the SAME ORDER in the output. "
                 "Do NOT translate, convert, round, or change any number."
             )
-            retry_out = _call_ollama_translate(text, digit_strict, timeout)
+            retry_out = _call_ollama_translate(text_protected, digit_strict, timeout)
             retry_out = _normalize_numerals(retry_out or "")
+            retry_out = _restore_segments(retry_out, mapping)
             if retry_out and not _digits_changed(text, retry_out) and \
                     not _output_has_unwanted_script(target, retry_out):
                 out = retry_out
             else:
-                # ยอมแพ้ — return original text แทน เพื่อไม่ให้ตัวเลขผิด
                 print(f"[translate] digit retry failed, returning original", flush=True)
                 return text, None
         return out, None
@@ -897,6 +947,54 @@ def _list_shortcuts() -> set[str]:
 APPLE_MIN_INPUT_CHARS = 3  # < threshold นี้ Apple จับภาษาไม่ได้ → skip
 
 
+# ───────── ป้องกันส่วนที่ไม่ควรแปล ─────────
+# Pattern เรียงจากเฉพาะเจาะจงไปกว้าง — match ก่อนได้ก่อน
+_PROTECT_PATTERNS = [
+    r"<[^<>]{1,200}>",                                    # HTML/XML tags <a>, </tag>, <input ...>
+    r"https?://[^\s<>\"']+",                              # URL เต็ม
+    r"www\.[^\s<>\"']+",                                  # www.example.com/path
+    r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",   # email
+    # bare domain — เช่น example.com / sub.domain.co.th (ไม่ตามด้วย /)
+    r"\b[a-zA-Z][a-zA-Z0-9-]*\.(?:com|org|net|io|dev|app|co|edu|gov|info|me|ai|tech|xyz|biz)(?:\.[a-z]{2,3})?\b",
+    r"`[^`]+`",                                           # inline code `code`
+]
+
+
+def _protect_segments(text: str) -> tuple[str, dict[str, str]]:
+    """แทนที่ส่วนที่ไม่ควรแปล (URL/HTML/email/domain/code) ด้วย placeholder
+    return (protected_text, mapping เพื่อ restore กลับ)
+    """
+    mapping: dict[str, str] = {}
+    counter = [0]
+
+    def make_token(value: str) -> str:
+        # ใช้รูป "X9990X" — Apple Translate มักรักษาตัวเลข + uppercase หลัง preserve
+        key = f"X{9990 + counter[0]}X"
+        counter[0] += 1
+        mapping[key] = value
+        return key
+
+    out = text
+    for pat in _PROTECT_PATTERNS:
+        out = re.sub(pat, lambda m: make_token(m.group(0)), out)
+    return out, mapping
+
+
+def _restore_segments(text: str, mapping: dict[str, str]) -> str:
+    if not mapping:
+        return text
+    # restore — ทำหลายรอบในกรณี placeholder ถูก concat แปลก ๆ
+    for _ in range(3):
+        changed = False
+        for key, value in mapping.items():
+            if key in text:
+                text = text.replace(key, value)
+                changed = True
+        if not changed:
+            break
+    return text
+
+
 def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None]:
     """แปลผ่าน Apple Translate ใน macOS Shortcut ที่ผู้ใช้สร้างไว้
     ถ้า Apple ไม่รองรับ (เช่น text สั้นเกิน detect ภาษาไม่ได้) → คืนต้นฉบับ
@@ -920,10 +1018,13 @@ def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None
             f"ยังไม่ได้สร้าง Shortcut '{name}' — ดูคำแนะนำที่ /apple-translate-setup"
         )
 
+    # ป้องกัน URL / HTML tag / domain / email / code จากการแปลผิด
+    text_to_send, mapping = _protect_segments(text)
+
     in_path = None
     try:
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".txt", delete=False) as fin:
-            fin.write(text)
+            fin.write(text_to_send)
             in_path = fin.name
         r = subprocess.run(
             ["shortcuts", "run", name, "-i", in_path],
@@ -938,10 +1039,10 @@ def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None
         )
         if r.returncode != 0 or not out:
             if unsupported:
-                # Apple จับภาษาไม่ได้ → skip โดยคืนต้นฉบับ ไม่เป็น error
                 print(f"[apple] unsupported (skip): {text!r}", flush=True)
                 return text, None
             return text, (stderr or f"shortcuts exit {r.returncode}")
+        out = _restore_segments(out, mapping)
         out = _normalize_numerals(out)
         return out or text, None
     except subprocess.TimeoutExpired:
@@ -982,6 +1083,167 @@ def apple_translate_setup():
     )
 
 
+# ───────── Fast mode (ocrmac → bbox + text) ─────────
+def _merge_nearby_boxes(boxes: list[dict]) -> list[dict]:
+    """รวมกล่อง OCR ที่อยู่ใกล้กัน (น่าจะเป็น paragraph/block เดียวกัน) เป็นกล่องเดียว
+    เกณฑ์: vertical gap < median line height AND horizontal overlap > 30% ของกล่องที่แคบกว่า
+    boxes: [{text, l, t, r, b, conf}, ...] — coord_origin = TOPLEFT
+    """
+    if not boxes:
+        return boxes
+    n = len(boxes)
+    heights = sorted(b["b"] - b["t"] for b in boxes)
+    median_h = heights[n // 2] if heights else 20
+    v_gap_thresh = max(median_h * 0.7, 6)
+
+    # union-find สำหรับ cluster boxes
+    parent = list(range(n))
+
+    def find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a: int, b: int):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+
+    for i in range(n):
+        bi = boxes[i]
+        for j in range(i + 1, n):
+            bj = boxes[j]
+            # vertical gap (สมมติ TOPLEFT: t < b)
+            if bi["t"] > bj["b"]:
+                v_gap = bi["t"] - bj["b"]
+            elif bj["t"] > bi["b"]:
+                v_gap = bj["t"] - bi["b"]
+            else:
+                v_gap = 0
+            if v_gap >= v_gap_thresh:
+                continue
+            # horizontal overlap
+            h_overlap = min(bi["r"], bj["r"]) - max(bi["l"], bj["l"])
+            min_w = min(bi["r"] - bi["l"], bj["r"] - bj["l"])
+            if min_w <= 0:
+                continue
+            if h_overlap >= min_w * 0.3:
+                union(i, j)
+
+    # รวบรวมตาม cluster
+    groups: dict[int, list[int]] = {}
+    for i in range(n):
+        groups.setdefault(find(i), []).append(i)
+
+    merged: list[dict] = []
+    for idxs in groups.values():
+        cluster = [boxes[i] for i in idxs]
+        cluster.sort(key=lambda b: (b["t"], b["l"]))
+        l = min(c["l"] for c in cluster)
+        t = min(c["t"] for c in cluster)
+        r = max(c["r"] for c in cluster)
+        b = max(c["b"] for c in cluster)
+        # join text — ใช้ space ระหว่างชิ้น (ภายหลัง translate join_lines จะปรับให้)
+        text = " ".join(c["text"] for c in cluster if c.get("text"))
+        merged.append({
+            "text": text, "l": l, "t": t, "r": r, "b": b,
+            "conf": min(c.get("conf", 1.0) for c in cluster),
+        })
+    # เรียงตาม reading order (top → bottom, left → right)
+    merged.sort(key=lambda b: (b["t"], b["l"]))
+    return merged
+
+
+def run_fast_pipeline(path: Path, filename: str, lang: str = "auto"):
+    """ข้าม docling — ใช้ Apple Vision (ocrmac) ตรง ๆ เร็วกว่ามาก
+    เหมาะกับงานที่ต้องการ text + bbox อย่างเร็ว (เช่น camera-style preview)
+    """
+    from ocrmac import ocrmac as _ocrmac
+
+    pil = Image.open(path).convert("RGB")
+    img_w, img_h = pil.size
+
+    # เลือกภาษา OCR ตาม lang preset
+    langs_map = {
+        "auto":  ["en-US", "th-TH", "ja-JP", "zh-Hans"],
+        "en":    ["en-US"],
+        "th_en": ["th-TH", "en-US"],
+        "ja_en": ["ja-JP", "en-US"],
+    }
+    langs = langs_map.get(lang, langs_map["auto"])
+
+    ocr = _ocrmac.OCR(
+        pil,
+        recognition_level="accurate",
+        language_preference=langs,
+    )
+    results = ocr.recognize(px=True)
+    # results: list of (text, confidence, (x, y, w, h)) ใน pixel space
+    # bbox y origin = bottom-left ของรูป
+
+    # แปลงเป็น TOPLEFT เพื่อทำ clustering ง่ายขึ้น
+    raw_boxes = []
+    for txt, conf, (x, y, w, h) in results:
+        if not txt or not txt.strip():
+            continue
+        raw_boxes.append({
+            "text": txt,
+            "l": float(x),
+            "t": float(img_h - (y + h)),
+            "r": float(x + w),
+            "b": float(img_h - y),
+            "conf": float(conf),
+        })
+
+    # รวมกล่องที่อยู่ใกล้กัน เป็น paragraph/block
+    merged_boxes = _merge_nearby_boxes(raw_boxes)
+
+    texts = []
+    items = []
+    for i, mb in enumerate(merged_boxes):
+        ref = f"#/texts/{i}"
+        bbox = {
+            "l": mb["l"], "t": mb["t"], "r": mb["r"], "b": mb["b"],
+            "coord_origin": "TOPLEFT",
+        }
+        texts.append({
+            "self_ref": ref,
+            "label": "text",
+            "confidence": mb.get("conf", 1.0),
+            "bbox": bbox,
+            "text": mb["text"],
+            "orig": mb["text"],
+        })
+        items.append({
+            "self_ref": ref,
+            "category": "texts",
+            "label": "text",
+            "text": mb["text"],
+            "page_no": 1,
+            "bbox": bbox,
+        })
+
+    buf = io.BytesIO()
+    pil.save(buf, format="PNG", optimize=True)
+    image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    doc_dict = {
+        "schema_name": "FastOCR",
+        "version": "1.0",
+        "name": Path(filename).stem,
+        "img_width": img_w,
+        "img_height": img_h,
+        "engine": "ocrmac",
+        "texts": texts,
+    }
+    preview = {
+        "pages": [{"page_no": 1, "width": float(img_w), "height": float(img_h), "image": image_data}],
+        "items": items,
+    }
+    return doc_dict, preview
+
+
 @app.route("/translate", methods=["POST"])
 def translate_endpoint():
     payload = request.get_json(silent=True) or {}
@@ -1009,6 +1271,7 @@ def convert():
 
     kind = request.form.get("type", "all")
     lang = request.form.get("lang", "auto")
+    fast = request.form.get("fast", "0") in ("1", "true", "on", "yes")
     correct = request.form.get("correct", "0") in ("1", "true", "on", "yes")
 
     filename = secure_filename(uploaded.filename)
@@ -1017,7 +1280,10 @@ def convert():
         uploaded.save(path)
 
         try:
-            if lang == "manga":
+            if fast:
+                # โหมดเร็ว — ข้าม docling layout/table ใช้ Apple Vision ตรง ๆ
+                doc_dict, preview = run_fast_pipeline(path, filename, lang)
+            elif lang == "manga":
                 doc_dict, preview = run_manga_pipeline(path, filename)
             else:
                 result = get_converter(kind, lang).convert(str(path))
@@ -1032,7 +1298,7 @@ def convert():
         n, errs = apply_correction_to_doc(doc_dict, preview)
         correction_info = {"corrected": n, "errors": errs}
 
-    filtered = filter_document(doc_dict, kind) if lang != "manga" else doc_dict
+    filtered = doc_dict if (fast or lang == "manga") else filter_document(doc_dict, kind)
     return jsonify({
         "json_text": json.dumps(filtered, ensure_ascii=False, indent=2),
         "preview": preview,

@@ -242,6 +242,10 @@
                 <option value="manga">📖 Manga (ญี่ปุ่นแนวตั้ง — mokuro)</option>
             </select>
 
+            <label title="ข้าม docling layout/table ใช้ Apple Vision ตรง ๆ — เร็วกว่า ~10× แต่ไม่มี table/figure detection">
+                <input type="checkbox" id="fast"> ⚡ Fast (Apple Vision เท่านั้น)
+            </label>
+
             <button type="submit" id="submitBtn">แปลงเป็น JSON</button>
         </div>
     </form>
@@ -392,6 +396,7 @@ form.addEventListener("submit", async (e) => {
     fd.append("file", fileInput.files[0]);
     fd.append("type", typeSelect.value);
     fd.append("lang", document.getElementById("lang").value);
+    fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
 
     submitBtn.disabled = true;
     submitBtn.textContent = "กำลังประมวลผล...";
