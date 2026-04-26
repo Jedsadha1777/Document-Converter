@@ -1,6 +1,6 @@
-# Docling Document Converter
+# Document Converter
 
-Web UI สำหรับสกัดข้อความจากเอกสาร (PDF, DOCX, PPTX, รูปภาพ, มังงะ) ด้วย [docling](https://github.com/docling-project/docling) — พร้อมโมดูลเสริมสำหรับแก้คำหลัง OCR และแปลภาษา (ไทย/อังกฤษ)
+Web UI สำหรับสกัดข้อความจากเอกสาร (PDF, DOCX, PPTX, รูปภาพ, text แนวตั้ง (novel , manga) ) ด้วย [docling](https://github.com/docling-project/docling) — พร้อมโมดูลเสริมสำหรับแก้คำหลัง OCR และแปลภาษา (ไทย/อังกฤษ)
 
 ## Features
 
