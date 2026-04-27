@@ -34,6 +34,9 @@ TRANSLATE_BATCH_TIMEOUT = float(os.getenv("TRANSLATE_BATCH_TIMEOUT", "120"))
 TRANSLATE_BATCH_NUM_CTX = int(os.getenv("TRANSLATE_BATCH_NUM_CTX", "8192"))
 
 # Gemini config
+# sentinel — ผู้ใช้เลือก dropdown "ไม่แปล"
+SPEAKER_SKIP = "__skip__"
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 GEMINI_TIMEOUT = float(os.getenv("GEMINI_TIMEOUT", "120"))
@@ -327,7 +330,18 @@ def run_manga_pipeline(path: Path, filename: str):
 
 # ───────── LLM correction (Ollama + Qwen2.5 1.5B) ─────────
 
+OCR_CONTEXT_INTRO = (
+    "CONTEXT: The input is raw output from an OCR system, so it may contain unnatural-sounding "
+    "text caused by recognition errors — spurious spaces inserted inside or between words, "
+    "visually-similar character confusions, missing or extra small marks (vowel marks, small "
+    "ょ/ュ, dakuten). The ORIGINAL source was natural human-written language. If a passage reads "
+    "awkwardly, grammatically broken, or unnatural for a native speaker, it is most likely an "
+    "OCR error that you SHOULD fix (within the strict limits below).\n\n"
+)
+
+
 PROMPT_JA = (
+    OCR_CONTEXT_INTRO +
     "You are a Japanese OCR validator. Your DEFAULT is to return the input UNCHANGED.\n"
     "Only modify the text if you can point to a SPECIFIC SINGLE wrong kanji "
     "(common confusions: 人/入, 末/未, 戸/戶, 日/曰, 千/干).\n\n"
@@ -360,6 +374,7 @@ PROMPT_JA = (
 )
 
 PROMPT_TH = (
+    OCR_CONTEXT_INTRO +
     "You are a Thai OCR validator. Your DEFAULT is to return the input UNCHANGED.\n"
     "Only modify the text if you can point to a SPECIFIC error.\n\n"
     "What counts as an OCR error (you may fix these):\n"
@@ -387,6 +402,7 @@ PROMPT_TH = (
 )
 
 PROMPT_MIXED = (
+    OCR_CONTEXT_INTRO +
     "You are an OCR validator (Thai / Japanese). Your DEFAULT is to return the input UNCHANGED.\n"
     "Only modify if you can point to a SPECIFIC error:\n"
     "- Thai: a space inserted inside a single word.\n"
@@ -511,6 +527,7 @@ def apply_partial_corrections(orig: str, corrected: str) -> tuple[str, int, list
 
 
 PROMPT_CONTEXT_BASE = (
+    OCR_CONTEXT_INTRO +
     "You correct OCR errors in the line marked >>...<<. The other lines are CONTEXT — use them "
     "to disambiguate but do NOT replace the marked line wholesale.\n\n"
     "Output ONLY the marked line's corrected value. No >> << markers, no labels, no explanation.\n"
@@ -1286,18 +1303,25 @@ def translate_text(text: str, target: str = "th",
 # ใช้ JSON output (Ollama format=json) — schema เดียวกับที่จะใช้ใน Gemini response_schema
 
 
-def _build_batch_user_msg(texts: list[str]) -> tuple[str, list[dict]]:
+def _build_batch_user_msg(texts: list[str],
+                          speakers: list[str | None] | None = None
+                          ) -> tuple[str, list[dict]]:
     """สร้าง user message + per-item segment mapping (ไว้ restore ทีหลัง)
     user message เป็น [N]-prefixed lines (input ยังเป็น text format — ประหยัด token กว่า JSON)
+    speakers (option): list ความยาวเท่า texts — character id ของผู้พูดแต่ละชิ้น
+                       จะถูก append เป็น tag {speaker=X} หลัง [N]
     """
     lines = []
     per_item = []
     for i, t in enumerate(texts, 1):
         clean = _join_lines(t or "")
         protected, mapping = _protect_segments(clean)
-        # บังคับ single line เพื่อ readability
         protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
-        lines.append(f"[{i}] {protected}")
+        sp = (speakers[i - 1] if speakers and i - 1 < len(speakers) else None)
+        prefix = f"[{i}]"
+        if sp:
+            prefix = f"[{i}|speaker={sp}]"
+        lines.append(f"{prefix} {protected}")
         per_item.append({"original": t, "protected": protected, "mapping": mapping})
     return "\n".join(lines), per_item
 
@@ -1326,9 +1350,42 @@ def _parse_batch_json(raw: str, n: int) -> list[str | None]:
     return result
 
 
-def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None) -> str:
-    """รวม base prompt + custom rules + JSON schema instruction"""
+def _build_characters_section(characters: list[dict] | None) -> str:
+    """สร้าง character profiles section สำหรับ system prompt
+    characters: [{"id": "1", "name": "...", "gender": "...", "persona": "..."}, ...]
+    ส่งข้อมูลตรง ๆ ไม่ตีความ ไม่ map: gender = field, personality = field
+    """
+    if not characters:
+        return ""
+    lines = []
+    lines.append("\n\nCHARACTER PROFILES")
+    lines.append("Each input line tagged [N|speaker=X] MUST be translated using speaker X's profile.")
+    lines.append("Two different speakers MUST produce visibly different translation styles.")
+    lines.append("A line without a speaker tag → neutral voice.")
+    lines.append("")
+    for c in characters:
+        cid = c.get("id", "")
+        if not cid:
+            continue
+        name = (c.get("name") or "").strip()
+        gender = (c.get("gender") or "").strip()
+        persona = (c.get("persona") or "").strip()
+        lines.append(f"speaker={cid}:")
+        if name:
+            lines.append(f"   name: {name}")
+        if gender:
+            lines.append(f"   gender: {gender}")
+        if persona:
+            lines.append(f"   personality: {persona}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
+                               characters: list[dict] | None = None) -> str:
+    """รวม base prompt + custom rules + character profiles + JSON schema instruction"""
     base_prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
+    chars_section = _build_characters_section(characters)
     schema_instruction = (
         f"\n\nBATCH MODE: You will translate exactly {n} numbered items.\n"
         f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
@@ -1354,7 +1411,7 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None) ->
             "\n\nADDITIONAL TRANSLATION RULES (project-specific — follow these):\n"
             + custom_rules.strip() + "\n"
         )
-    return base_prompt + rules_section + schema_instruction + factual
+    return base_prompt + rules_section + chars_section + schema_instruction + factual
 
 
 def _post_process_batch(texts: list[str], parsed: list[str | None],
@@ -1411,12 +1468,14 @@ def _translate_temp_for_attempt(attempt: int) -> float:
 
 def _translate_batch_qwen(texts: list[str], target: str,
                           custom_rules: str | None,
-                          timeout: float, attempt: int = 0
+                          timeout: float, attempt: int = 0,
+                          speakers: list[str | None] | None = None,
+                          characters: list[dict] | None = None,
                           ) -> tuple[list[str], list[str | None]]:
     """แปลผ่าน Ollama (Qwen) — ถูกเรียกหลัง filter empty แล้ว ทุก text ไม่ว่าง"""
     n = len(texts)
-    user_msg, per_item = _build_batch_user_msg(texts)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters)
 
     try:
         resp = httpx.post(
@@ -1467,7 +1526,9 @@ _GEMINI_RESPONSE_SCHEMA = {
 
 def _translate_batch_gemini(texts: list[str], target: str,
                             custom_rules: str | None,
-                            timeout: float, attempt: int = 0
+                            timeout: float, attempt: int = 0,
+                            speakers: list[str | None] | None = None,
+                            characters: list[dict] | None = None,
                             ) -> tuple[list[str], list[str | None]]:
     """แปลผ่าน Gemini — ใช้ response_schema สำหรับ structured output"""
     n = len(texts)
@@ -1481,8 +1542,8 @@ def _translate_batch_gemini(texts: list[str], target: str,
     except ImportError as e:
         return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
 
-    user_msg, per_item = _build_batch_user_msg(texts)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters)
 
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
@@ -1508,44 +1569,73 @@ def translate_batch(texts: list[str], target: str = "th",
                     engine: str = "qwen",
                     custom_rules: str | None = None,
                     timeout: float | None = None,
-                    attempt: int = 0
+                    attempt: int = 0,
+                    speakers: list[str | None] | None = None,
+                    characters: list[dict] | None = None,
                     ) -> tuple[list[str], list[str | None]]:
     """แปลหลายข้อความใน 1 LLM call — dispatch ตาม engine
     - filter empty → return "" ทันที ไม่เปลือง token
     - engine=qwen → Ollama JSON mode
     - engine=gemini → Gemini response_schema
     - attempt > 0 → เพิ่ม temperature ให้ผลต่างจากเดิม (สำหรับ retry)
+    - speakers/characters → ใส่ persona voice ต่อชิ้น
     """
     if not texts:
         return [], []
 
     n = len(texts)
-    work_idxs: list[int] = []
-    work_texts: list[str] = []
-    for i, t in enumerate(texts):
-        if t and t.strip():
-            work_idxs.append(i)
-            work_texts.append(t)
-
+    # default = "" (ว่าง) — ผู้ใช้เห็นว่ายังไม่ถูกแปล
     translations: list[str] = ["" for _ in range(n)]
     errors: list[str | None] = [None] * n
 
+    work_idxs: list[int] = []
+    work_texts: list[str] = []
+    work_speakers: list[str | None] = []
+    skipped_user = 0  # ผู้ใช้เลือก "ไม่แปล" ใน dropdown
+    for i, t in enumerate(texts):
+        if not (t and t.strip()):
+            continue
+        sp = speakers[i] if speakers and i < len(speakers) else None
+        # ผู้ใช้เลือก "ไม่แปล" → ข้าม ไม่ส่ง LLM, cell แปลปล่อยว่าง
+        if sp == SPEAKER_SKIP:
+            skipped_user += 1
+            continue
+        work_idxs.append(i)
+        work_texts.append(t)
+        work_speakers.append(sp)
+
     if not work_texts:
+        if skipped_user:
+            print(f"[translate-batch] user skipped {skipped_user} (ไม่แปล)", flush=True)
         return translations, errors
+
+    has_speaker = any(s for s in work_speakers)
+    eff_speakers = work_speakers if has_speaker else None
+    eff_chars = characters if has_speaker else None
 
     if engine == "gemini":
         eff_timeout = timeout if timeout is not None else GEMINI_TIMEOUT
-        sub_t, sub_e = _translate_batch_gemini(work_texts, target, custom_rules, eff_timeout, attempt)
+        sub_t, sub_e = _translate_batch_gemini(
+            work_texts, target, custom_rules, eff_timeout, attempt,
+            speakers=eff_speakers, characters=eff_chars,
+        )
     else:
         eff_timeout = timeout if timeout is not None else TRANSLATE_BATCH_TIMEOUT
-        sub_t, sub_e = _translate_batch_qwen(work_texts, target, custom_rules, eff_timeout, attempt)
+        sub_t, sub_e = _translate_batch_qwen(
+            work_texts, target, custom_rules, eff_timeout, attempt,
+            speakers=eff_speakers, characters=eff_chars,
+        )
 
     for j, orig_idx in enumerate(work_idxs):
         translations[orig_idx] = sub_t[j]
         errors[orig_idx] = sub_e[j]
 
     n_ok = sum(1 for e in errors if e is None)
-    print(f"[translate-batch] engine={engine} n={n} ok={n_ok} fail={n - n_ok} attempt={attempt}", flush=True)
+    print(
+        f"[translate-batch] engine={engine} n={n} sent={len(work_texts)} "
+        f"skipped_user={skipped_user} ok={n_ok} fail={n - n_ok} attempt={attempt} speakers={has_speaker}",
+        flush=True,
+    )
     return translations, errors
 
 
@@ -1887,11 +1977,107 @@ def translate_endpoint():
     return jsonify({"translated": translated, "target": target, "engine": engine})
 
 
+@app.route("/translate-batch/preview", methods=["POST"])
+def translate_batch_preview():
+    """ดู prompt + payload ที่จะส่งไป LLM โดยไม่เรียก LLM จริง — เพื่อความโปร่งใส
+    Request: เหมือน /translate-batch
+    Response: {system_prompt, user_message, n_total, n_sent, skipped_user, skipped_empty,
+               speakers_used, characters_used, target, engine}
+    """
+    payload = request.get_json(silent=True) or {}
+    texts = payload.get("texts") or []
+    target = payload.get("target", "th")
+    engine = payload.get("engine", "qwen")
+    custom_rules = payload.get("custom_rules")
+    speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
+    characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
+
+    if not isinstance(texts, list) or not texts:
+        return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+
+    # filter เหมือน translate_batch — เพื่อให้ preview ตรงกับที่ส่งจริง
+    work_texts: list[str] = []
+    work_speakers: list[str | None] = []
+    skipped_user = 0
+    skipped_empty = 0
+    skipped_indexes: list[int] = []
+    for i, t in enumerate(texts):
+        if not (t and t.strip()):
+            skipped_empty += 1
+            skipped_indexes.append(i)
+            continue
+        sp = speakers[i] if speakers and i < len(speakers) else None
+        if sp == SPEAKER_SKIP:
+            skipped_user += 1
+            skipped_indexes.append(i)
+            continue
+        work_texts.append(t)
+        work_speakers.append(sp)
+
+    has_speaker = any(s for s in work_speakers)
+    eff_speakers = work_speakers if has_speaker else None
+    eff_chars = characters if has_speaker else None
+
+    user_msg, _ = _build_batch_user_msg(work_texts, eff_speakers)
+    system_prompt = _build_batch_system_prompt(target, len(work_texts), custom_rules, eff_chars)
+
+    speakers_used = sorted(set(s for s in work_speakers if s))
+    attempt = int(payload.get("attempt", 0) or 0)
+
+    # สร้าง request body ที่จะส่งจริง (ตาม engine) เพื่อความโปร่งใสเต็ม
+    if engine == "gemini":
+        request_body = {
+            "model": GEMINI_MODEL,
+            "contents": [user_msg],
+            "config": {
+                "system_instruction": system_prompt,
+                "response_mime_type": "application/json",
+                "response_schema": _GEMINI_RESPONSE_SCHEMA,
+                "temperature": _translate_temp_for_attempt(attempt),
+            },
+        }
+        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    else:
+        request_body = {
+            "model": OLLAMA_MODEL_TRANSLATE,
+            "stream": False,
+            "format": "json",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_msg},
+            ],
+            "options": {
+                "temperature": _translate_temp_for_attempt(attempt),
+                "num_ctx": TRANSLATE_BATCH_NUM_CTX,
+            },
+        }
+        endpoint = f"{OLLAMA_URL}/api/chat"
+
+    return jsonify({
+        "engine": engine,
+        "target": target,
+        "n_total": len(texts),
+        "n_sent": len(work_texts),
+        "skipped_empty": skipped_empty,
+        "skipped_user": skipped_user,
+        "skipped_indexes": skipped_indexes,
+        "speakers_used": speakers_used,
+        "characters_used": eff_chars or [],
+        "system_prompt": system_prompt,
+        "user_message": user_msg,
+        # request body จริงที่ backend จะส่งไป LLM API
+        "request_endpoint": endpoint,
+        "request_body": request_body,
+    })
+
+
 @app.route("/translate-batch", methods=["POST"])
 def translate_batch_endpoint():
     """แปลหลายข้อความใน 1 LLM call
     Request:  {texts: [str, ...], target: "th"|"en", engine: "qwen"|"gemini",
-               custom_rules?: str}
+               custom_rules?: str,
+               speakers?: [character_id|null, ...],
+               characters?: [{id, name, gender, persona}, ...]}
     Response: {translated: [...], errors: [None|str, ...], target, engine, batch_size}
     """
     try:
@@ -1901,6 +2087,8 @@ def translate_batch_endpoint():
         engine = payload.get("engine", "qwen")
         custom_rules = payload.get("custom_rules")
         attempt = int(payload.get("attempt", 0) or 0)
+        speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
+        characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
 
         if not isinstance(texts, list) or not texts:
             return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
@@ -1912,6 +2100,7 @@ def translate_batch_endpoint():
         translations, errors = translate_batch(
             texts, target=target, engine=engine,
             custom_rules=custom_rules, attempt=attempt,
+            speakers=speakers, characters=characters,
         )
         return jsonify({
             "translated": translations,

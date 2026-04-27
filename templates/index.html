@@ -159,6 +159,26 @@
             font-style: italic;
         }
 
+        /* Floating speaker popup สำหรับ Visual Preview */
+        .bbox-popup {
+            position: fixed;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            z-index: 50;
+            display: none;
+            min-width: 180px;
+        }
+        .bbox-popup .label {
+            font-size: 11px; color: #6b7280; margin-bottom: 4px;
+        }
+        .bbox-popup select {
+            width: 100%; padding: 5px 6px; font-size: 12px;
+            border: 1px solid #d1d5db; border-radius: 4px;
+        }
+
         table.compare {
             width: 100%;
             border-collapse: collapse;
@@ -177,6 +197,49 @@
             top: 0;
         }
         table.compare td.col-no { width: 36px; color: #9ca3af; text-align: right; }
+        table.compare td.col-speaker, table.compare th.col-speaker { width: 110px; padding: 4px 6px; }
+        table.compare select.speaker-select {
+            width: 100%; font-size: 12px; padding: 4px 6px;
+            border: 1px solid #d1d5db; border-radius: 4px; background: #fff;
+        }
+
+        /* Character editor modal */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+            display: none; align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal-card {
+            background: #fff; border-radius: 12px; padding: 22px 24px;
+            max-width: 720px; width: 90%; max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .modal-card h2 { margin: 0 0 8px; font-size: 18px; }
+        .modal-card .modal-foot {
+            display: flex; justify-content: space-between; gap: 8px;
+            margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb;
+        }
+        .char-row {
+            display: grid;
+            grid-template-columns: 32px 1fr 110px 2fr 28px;
+            gap: 8px; align-items: start; margin: 8px 0;
+        }
+        .char-row input, .char-row select, .char-row textarea {
+            padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px;
+            font-size: 13px; font-family: inherit;
+        }
+        .char-row textarea { resize: vertical; min-height: 32px; }
+        .char-row .char-id-pill {
+            display: flex; align-items: center; justify-content: center;
+            background: #f3f4f6; color: #6b7280; border-radius: 6px;
+            font-size: 11px; font-family: ui-monospace, Menlo, monospace;
+        }
+        .char-row button.del-char {
+            background: #fee2e2; color: #b91c1c; border-color: #fecaca;
+            padding: 4px 8px;
+        }
+        .char-row button.del-char:hover { background: #fca5a5; }
+        .char-default { background: #ecfdf5 !important; }
         table.compare td.col-text { white-space: pre-wrap; word-break: normal; overflow-wrap: normal; }
         table.compare tr.same td.col-corrected { color: #9ca3af; }
         table.compare td.col-corrected.pending,
@@ -256,8 +319,8 @@
             <label for="ocr_engine">OCR engine:</label>
             <select id="ocr_engine" name="ocr_engine"
                     title="เลือก OCR backend ใน docling pipeline — ocrmac ใช้ได้เฉพาะ macOS">
-                <option value="easyocr" selected>EasyOCR (cross-platform)</option>
-                <option value="ocrmac" {% if not ocrmac_available %}disabled{% endif %}>
+                <option value="easyocr" >EasyOCR (cross-platform)</option>
+                <option value="ocrmac" selected {% if not ocrmac_available %}disabled{% endif %}>
                     🍎 Apple Vision (ocrmac){% if not ocrmac_available %} — macOS only{% endif %}
                 </option>
             </select>
@@ -297,6 +360,8 @@
         <div class="preview-controls">
             <button type="button" id="runCorrectBtn">✨ แก้ทั้งหมดด้วย LLM</button>
             <button type="button" id="runTranslateBtn">🌐 แปลทั้งหมด</button>
+            <button type="button" id="charsBtn" class="ghost" title="ตั้งค่าตัวละครสำหรับ persona-aware translation">👥 ตัวละคร</button>
+            <button type="button" id="previewPromptBtn" class="ghost" title="ดู prompt ที่จะส่งไป LLM (ไม่เรียก API)">🔍 Preview prompt</button>
             <select id="translateTarget" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
                 <option value="th">→ ไทย</option>
                 <option value="en">→ English</option>
@@ -628,6 +693,63 @@ function drawTextInBox(ctx, text, x, y, w, h) {
     return { x, y, w, h, truncated };
 }
 
+// floating popup ที่ Visual Preview สำหรับเลือก speaker
+let _bboxPopup = null;
+
+function _ensureBboxPopup() {
+    if (_bboxPopup) return _bboxPopup;
+    _bboxPopup = document.createElement("div");
+    _bboxPopup.className = "bbox-popup";
+    _bboxPopup.innerHTML = `
+        <div class="label">ผู้พูด:</div>
+        <select class="speaker-select" data-bbox-popup="1"></select>
+    `;
+    document.body.appendChild(_bboxPopup);
+    // ปิดเมื่อคลิกนอก popup (กันชน wrap.onclick — ใช้ stopPropagation บน wrap)
+    document.addEventListener("click", (e) => {
+        if (_bboxPopup && _bboxPopup.style.display === "block"
+            && !_bboxPopup.contains(e.target)) {
+            _bboxPopup.style.display = "none";
+        }
+    });
+    return _bboxPopup;
+}
+
+function showBboxSpeakerPopup(hit, clientX, clientY) {
+    const pop = _ensureBboxPopup();
+    const ref = hit.item.self_ref;
+    if (!ref) return;
+    const cur = speakerByRef[ref] || (characters[0] && characters[0].id) || "";
+    const sel = pop.querySelector("select");
+    sel.dataset.ref = ref;
+    sel.innerHTML = renderSpeakerOptions()(cur);
+
+    // เปลี่ยน → save → redraw canvas + sync dropdown ในแท็บ Compare ด้วย
+    sel.onchange = () => {
+        speakerByRef[ref] = sel.value;
+        renderPreview();
+        // sync dropdown ของ row เดียวกันในตาราง Compare (ถ้าตารางถูกสร้างไว้แล้ว)
+        const compareSel = compareArea.querySelector(
+            `tr[data-ref="${CSS.escape(ref)}"] select.speaker-select`
+        );
+        if (compareSel && compareSel.value !== sel.value) {
+            compareSel.value = sel.value;
+        }
+        pop.style.display = "none";
+    };
+
+    // วางใกล้คลิก แต่ไม่ทะลุขอบจอ
+    const popW = 200, popH = 80;
+    let x = clientX + 8;
+    let y = clientY + 8;
+    if (x + popW > window.innerWidth) x = window.innerWidth - popW - 8;
+    if (y + popH > window.innerHeight) y = clientY - popH - 8;
+    pop.style.left = x + "px";
+    pop.style.top = y + "px";
+    pop.style.display = "block";
+    sel.focus();
+}
+
 function renderPreview() {
     if (!lastResult || !lastResult.preview || !lastResult.preview.pages.length) {
         previewArea.innerHTML = '<div class="empty">อัพโหลดไฟล์เพื่อดู preview</div>';
@@ -710,10 +832,14 @@ function renderPreview() {
                 ctx.strokeRect(x, y, w, h);
                 ctx.lineWidth = 2;
                 if (showLabels.checked) {
-                    const tag = tr ? "🌐 " : (wasCorrected ? "✨ " : "");
+                    const sp = it.self_ref ? speakerByRef[it.self_ref] : null;
+                    let spTag = "";
+                    if (sp === SPEAKER_SKIP) spTag = "🚫 ";
+                    else if (sp) spTag = `👤${sp} `;
+                    const tag = (tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag;
                     const lbl = tag + it.label;
                     ctx.fillStyle = tr ? "#1e40af" : (wasCorrected ? "#d97706" : color);
-                    ctx.fillRect(x, Math.max(0, y - 14), Math.min(140, w), 14);
+                    ctx.fillRect(x, Math.max(0, y - 14), Math.min(160, w), 14);
                     ctx.fillStyle = "#fff";
                     ctx.fillText(lbl, x + 4, Math.max(11, y - 3));
                 }
@@ -777,6 +903,21 @@ function renderPreview() {
             tooltip.innerHTML = html;
         };
         wrap.onmouseleave = () => tooltip.style.display = "none";
+
+        // คลิก bbox → popup เลือก speaker
+        wrap.style.cursor = "default";
+        wrap.onclick = (ev) => {
+            const rect = wrap.getBoundingClientRect();
+            const px = ev.clientX - rect.left;
+            const py = ev.clientY - rect.top;
+            const hit = [...drawn].reverse().find(d =>
+                px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
+            );
+            if (hit) {
+                ev.stopPropagation();
+                showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
+            }
+        };
     };
     img.src = page.image;
 }
@@ -827,6 +968,7 @@ function buildCompareTable(force = false) {
         return;
     }
 
+    const speakerOptions = renderSpeakerOptions();
     const rows = texts.map((t, i) => {
         const orig = t.text || '';
         const ref = t.self_ref || '';
@@ -855,9 +997,14 @@ function buildCompareTable(force = false) {
         const trCell = (tr !== undefined)
             ? `<td class="${trBaseCls}" ${trEditAttrs}>${escapeHtml(tr)}</td>`
             : `<td class="col-translated col-text pending" ${trEditAttrs}>—</td>`;
+        const curSpeaker = speakerByRef[ref] || (characters[0] && characters[0].id) || "";
+        const speakerCell = `<td class="col-speaker">
+            <select class="speaker-select" data-ref="${escapeHtml(ref)}">${speakerOptions(curSpeaker)}</select>
+        </td>`;
         return `
             <tr data-idx="${i}" data-ref="${escapeHtml(ref)}" data-orig="${escapeHtml(orig)}" class="${rowCls}">
                 <td class="col-no">${i + 1}</td>
+                ${speakerCell}
                 <td class="col-text col-original">${origCellInner}</td>
                 ${corrCell}
                 ${trCell}
@@ -869,6 +1016,7 @@ function buildCompareTable(force = false) {
         <table class="compare">
             <thead><tr>
                 <th class="col-no">#</th>
+                <th class="col-speaker">ผู้พูด</th>
                 <th>OCR (ต้นฉบับ)</th>
                 <th>หลังแก้ด้วย LLM</th>
                 <th>แปล</th>
@@ -1282,7 +1430,10 @@ async function translateOne(text, target, engine) {
     return res.json();
 }
 
-async function translateBatchCall(texts, target, engine, customRules, attempt) {
+async function translateBatchCall(texts, target, engine, customRules, attempt, speakers) {
+    // ถ้าไม่ส่ง speakers ให้ default = character แรก ทุกชิ้น
+    const defaultId = (characters[0] && characters[0].id) || "";
+    const speakerArr = speakers || texts.map(() => defaultId);
     const res = await fetch("/translate-batch", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -1291,6 +1442,8 @@ async function translateBatchCall(texts, target, engine, customRules, attempt) {
             engine: engine || "qwen",
             custom_rules: customRules || "",
             attempt: attempt || 0,
+            speakers: speakerArr,
+            characters: characters,
         }),
     });
     const ct = res.headers.get("content-type") || "";
@@ -1447,6 +1600,8 @@ async function _processBatch(rows, indexes, batchSz, target, engine, customRules
         const sliceIdxs = indexes.slice(start, start + batchSz);
         const sliceRows = sliceIdxs.map(i => rows[i]);
         const sources = sliceRows.map(_rowSource);
+        const defaultId = (characters[0] && characters[0].id) || "";
+        const sliceSpeakers = sliceRows.map(r => speakerByRef[r.dataset.ref] || defaultId);
         sliceRows.forEach(_markPending);
         // throttle Gemini (rate limit 5 RPM ของ free tier)
         await _geminiThrottle(engine);
@@ -1455,7 +1610,7 @@ async function _processBatch(rows, indexes, batchSz, target, engine, customRules
             break;
         }
         try {
-            const data = await translateBatchCall(sources, target, engine, customRules, attempt);
+            const data = await translateBatchCall(sources, target, engine, customRules, attempt, sliceSpeakers);
             _geminiTouch(engine);
             // 429 detection ระดับ batch
             const errSample = data.error || (data.errors || []).find(e => e);
@@ -1539,9 +1694,17 @@ document.getElementById("runTranslateBtn").addEventListener("click", async () =>
         errors = failed.length;
     } else {
         // path เดิม — ทีละ row (Apple หรือ batchSize=1)
-        let done = 0;
+        let done = 0, skipped = 0;
         for (const row of rows) {
             if (correctAbort) break;
+            const ref = row.dataset.ref;
+            // ข้าม "🚫 ไม่แปล" — ไม่ส่งไป Apple/Qwen/Gemini เลย
+            if (ref && speakerByRef[ref] === SPEAKER_SKIP) {
+                _applySuccess(row, "");
+                done++; skipped++;
+                correctProgress.textContent = `แปลแล้ว ${done}/${total} — ข้าม ${skipped}${errors ? `, ผิด ${errors}` : ""}`;
+                continue;
+            }
             const source = _rowSource(row);
             // ข้าม empty
             if (!source || !source.trim()) {
@@ -1559,7 +1722,7 @@ document.getElementById("runTranslateBtn").addEventListener("click", async () =>
                 _applyError(row, e.message); errors++;
             }
             done++;
-            correctProgress.textContent = `แปลแล้ว ${done}/${total}${errors ? ` — ผิด ${errors}` : ""}`;
+            correctProgress.textContent = `แปลแล้ว ${done}/${total}${skipped ? ` — ข้าม ${skipped}` : ""}${errors ? `, ผิด ${errors}` : ""}`;
         }
     }
 
@@ -1616,6 +1779,265 @@ retryFailedBtn.addEventListener("click", async () => {
 });
 
 window.addEventListener("resize", () => {
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+});
+
+// ───────── Character Persona (LocalStorage) ─────────
+const CHARS_STORAGE_KEY = "doclingCharacters";
+let characters = loadCharacters();
+const speakerByRef = {};  // {self_ref: character_id} — per-document, ไม่เก็บ LocalStorage
+
+function loadCharacters() {
+    try {
+        const raw = localStorage.getItem(CHARS_STORAGE_KEY);
+        if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr) && arr.length) return arr;
+        }
+    } catch (_) {}
+    // default — 1 character กลาง ๆ ไม่ระบุเพศ
+    return [{
+        id: "1",
+        name: "ทั่วไป",
+        gender: "",
+        persona: "พูดเป็นกลาง สุภาพปานกลาง ไม่ระบุเพศ ไม่ใช้ค่ะ/ครับ",
+    }];
+}
+
+function saveCharacters() {
+    try { localStorage.setItem(CHARS_STORAGE_KEY, JSON.stringify(characters)); } catch (_) {}
+}
+
+function nextCharId() {
+    const used = new Set(characters.map(c => c.id));
+    let n = 1;
+    while (used.has(String(n))) n++;
+    return String(n);
+}
+
+const SPEAKER_SKIP = "__skip__";  // ตรงกับฝั่ง backend
+
+// คืน function builder ที่ render <option> ให้ <select> โดยรับค่า selected
+function renderSpeakerOptions() {
+    return (selectedId) => {
+        const skipSel = selectedId === SPEAKER_SKIP ? " selected" : "";
+        const skipOpt = `<option value="${SPEAKER_SKIP}"${skipSel}>🚫 ไม่แปล</option>`;
+        const charOpts = characters.map(c => {
+            const sel = c.id === selectedId ? " selected" : "";
+            const meta = [c.name, c.gender].filter(Boolean).join(", ");
+            return `<option value="${escapeHtml(c.id)}"${sel}>${escapeHtml(c.id + (meta ? " — " + meta : ""))}</option>`;
+        }).join("");
+        return skipOpt + charOpts;
+    };
+}
+
+// ───────── Character editor modal ─────────
+const charsBtn = document.getElementById("charsBtn");
+let charModal = null;
+
+function openCharModal() {
+    if (!charModal) {
+        charModal = document.createElement("div");
+        charModal.className = "modal-backdrop";
+        charModal.innerHTML = `
+            <div class="modal-card" role="dialog">
+                <h2>👥 ตัวละคร / Speaker Persona</h2>
+                <div style="font-size:13px; color:#6b7280; margin-bottom:8px;">
+                    ตั้ง persona ของแต่ละตัวละคร — เมื่อเลือก speaker ใน Compare table
+                    LLM จะแปลด้วย voice นั้น (ค่ะ/ครับ/บุคคลิก)<br>
+                    ตัวละครแรกเป็น <strong>default</strong> สำหรับชิ้นที่ยังไม่ระบุ
+                </div>
+                <div id="charsList"></div>
+                <div class="modal-foot">
+                    <button type="button" id="charAddBtn" class="ghost">+ เพิ่มตัวละคร</button>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" id="charCancelBtn" class="ghost">ยกเลิก</button>
+                        <button type="button" id="charSaveBtn">บันทึก</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(charModal);
+        charModal.addEventListener("click", (e) => {
+            if (e.target === charModal) closeCharModal();
+        });
+        document.getElementById("charAddBtn").addEventListener("click", () => addCharRow());
+        document.getElementById("charCancelBtn").addEventListener("click", closeCharModal);
+        document.getElementById("charSaveBtn").addEventListener("click", saveCharsFromModal);
+    }
+    renderCharsList();
+    charModal.classList.add("show");
+}
+
+function closeCharModal() { if (charModal) charModal.classList.remove("show"); }
+
+function renderCharsList() {
+    const list = document.getElementById("charsList");
+    list.innerHTML = "";
+    characters.forEach((c, i) => addCharRow(c, i === 0));
+}
+
+function addCharRow(c, isDefault) {
+    const list = document.getElementById("charsList");
+    if (!c) c = { id: nextCharId(), name: "", gender: "", persona: "" };
+    const row = document.createElement("div");
+    row.className = "char-row" + (isDefault ? " char-default" : "");
+    row.dataset.id = c.id;
+    row.innerHTML = `
+        <span class="char-id-pill" title="character id">${escapeHtml(c.id)}</span>
+        <input type="text" class="char-name" value="${escapeHtml(c.name || '')}" placeholder="ชื่อ (เช่น นางเอก)">
+        <select class="char-gender">
+            <option value="" ${!c.gender ? "selected" : ""}>ไม่ระบุเพศ</option>
+            <option value="female" ${c.gender === "female" ? "selected" : ""}>หญิง</option>
+            <option value="male" ${c.gender === "male" ? "selected" : ""}>ชาย</option>
+            <option value="child" ${c.gender === "child" ? "selected" : ""}>เด็ก</option>
+            <option value="other" ${c.gender === "other" ? "selected" : ""}>อื่น ๆ</option>
+        </select>
+        <textarea class="char-persona" rows="2" placeholder="บุคคลิก/นิสัย/วิธีพูด">${escapeHtml(c.persona || '')}</textarea>
+        <button type="button" class="del-char" title="ลบ">✕</button>
+    `;
+    row.querySelector(".del-char").addEventListener("click", () => row.remove());
+    list.appendChild(row);
+}
+
+function saveCharsFromModal() {
+    const rows = charModal.querySelectorAll(".char-row");
+    const next = [];
+    rows.forEach((r) => {
+        const id = r.dataset.id;
+        const name = r.querySelector(".char-name").value.trim();
+        const gender = r.querySelector(".char-gender").value;
+        const persona = r.querySelector(".char-persona").value.trim();
+        if (id) next.push({ id, name, gender, persona });
+    });
+    if (!next.length) {
+        alert("ต้องมีตัวละครอย่างน้อย 1 ตัว");
+        return;
+    }
+    characters = next;
+    saveCharacters();
+    closeCharModal();
+    // re-render compare table เพื่อ update dropdown options
+    if (lastResult && document.querySelector(".tab.active").dataset.tab === "compare") {
+        buildCompareTable(true);
+    }
+}
+
+charsBtn.addEventListener("click", openCharModal);
+
+// ───────── Preview prompt modal ─────────
+const previewPromptBtn = document.getElementById("previewPromptBtn");
+let previewModal = null;
+
+function openPreviewModal(data) {
+    if (!previewModal) {
+        previewModal = document.createElement("div");
+        previewModal.className = "modal-backdrop";
+        previewModal.innerHTML = `
+            <div class="modal-card" role="dialog" style="max-width: 900px; max-height: 90vh;">
+                <h2>🔍 Preview prompt — payload ที่จะส่งไป LLM</h2>
+                <div id="previewMeta" style="font-size:12px; color:#374151; margin-bottom:8px; padding:8px 10px; background:#f9fafb; border-radius:6px;"></div>
+                <div style="display:flex; gap:6px; margin:8px 0;">
+                    <button type="button" id="previewCopyAllBtn" class="ghost" style="font-size:12px;">📋 คัดลอก request body</button>
+                </div>
+                <h3 style="font-size:13px; margin:12px 0 4px;">📤 RAW REQUEST BODY ที่ส่งไป LLM API</h3>
+                <div id="previewEndpoint" style="font-size:11px; color:#374151; margin-bottom:4px; font-family: ui-monospace, Menlo, monospace;"></div>
+                <pre id="previewBody" style="background:#0f172a; color:#86efac; padding:10px; border-radius:6px; font-size:11px; max-height:400px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
+                <h3 style="font-size:13px; margin:12px 0 4px;">CHARACTERS array (raw JSON)</h3>
+                <pre id="previewChars" style="background:#fef3c7; color:#78350f; padding:10px; border-radius:6px; font-size:11px; max-height:200px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
+                <h3 style="font-size:13px; margin:12px 0 4px;">SYSTEM PROMPT (อ่านง่าย)</h3>
+                <pre id="previewSystem" style="background:#0b1021; color:#e5e7eb; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
+                <h3 style="font-size:13px; margin:12px 0 4px;">USER MESSAGE (อ่านง่าย)</h3>
+                <pre id="previewUser" style="background:#0b1021; color:#bfdbfe; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
+                <div class="modal-foot">
+                    <span style="font-size:11px; color:#6b7280;">ผลนี้คือสิ่งที่ backend จะส่งไป LLM API จริงเมื่อกดปุ่มแปล</span>
+                    <button type="button" id="previewCloseBtn">ปิด</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(previewModal);
+        previewModal.addEventListener("click", (e) => {
+            if (e.target === previewModal) previewModal.classList.remove("show");
+        });
+        document.getElementById("previewCloseBtn").addEventListener("click", () => previewModal.classList.remove("show"));
+        document.getElementById("previewCopyAllBtn").addEventListener("click", async () => {
+            const body = document.getElementById("previewBody").textContent;
+            try {
+                await navigator.clipboard.writeText(body);
+                document.getElementById("previewCopyAllBtn").textContent = "✓ คัดลอกแล้ว";
+                setTimeout(() => { document.getElementById("previewCopyAllBtn").textContent = "📋 คัดลอก request body"; }, 1500);
+            } catch (_) {}
+        });
+    }
+    const meta = document.getElementById("previewMeta");
+    meta.innerHTML = `
+        <strong>engine:</strong> ${escapeHtml(data.engine)}
+        &nbsp;·&nbsp; <strong>target:</strong> ${escapeHtml(data.target)}
+        &nbsp;·&nbsp; <strong>total:</strong> ${data.n_total}
+        &nbsp;·&nbsp; <strong>จะส่ง LLM:</strong> ${data.n_sent}
+        &nbsp;·&nbsp; <strong>ข้าม (ว่าง):</strong> ${data.skipped_empty}
+        &nbsp;·&nbsp; <strong>ข้าม (🚫 ไม่แปล):</strong> ${data.skipped_user}
+        &nbsp;·&nbsp; <strong>speakers ในชุดนี้:</strong> ${(data.speakers_used || []).join(", ") || "(none)"}
+    `;
+    document.getElementById("previewEndpoint").textContent = "POST " + (data.request_endpoint || "");
+    document.getElementById("previewBody").textContent = JSON.stringify(data.request_body || {}, null, 2);
+    document.getElementById("previewChars").textContent = JSON.stringify(data.characters_used || [], null, 2);
+    document.getElementById("previewSystem").textContent = data.system_prompt || "(empty)";
+    document.getElementById("previewUser").textContent = data.user_message || "(empty)";
+    previewModal.classList.add("show");
+}
+
+async function fetchPreview() {
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
+    if (!rows.length) {
+        alert("ยังไม่มีข้อมูลในตาราง — อัพไฟล์ก่อน");
+        return;
+    }
+    const target = document.getElementById("translateTarget").value;
+    const engine = translateEngineSel.value;
+    const customRules = lastCustomRules || "";
+    const defaultId = (characters[0] && characters[0].id) || "";
+
+    const texts = rows.map(r => {
+        const ref = r.dataset.ref;
+        const orig = r.dataset.orig || "";
+        return (corrections[ref] !== undefined) ? corrections[ref] : orig;
+    });
+    const speakerArr = rows.map(r => speakerByRef[r.dataset.ref] || defaultId);
+
+    try {
+        const res = await fetch("/translate-batch/preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                texts, target, engine,
+                custom_rules: customRules,
+                speakers: speakerArr,
+                characters: characters,
+            }),
+        });
+        const data = await res.json();
+        if (data.error) {
+            alert("Error: " + data.error);
+            return;
+        }
+        openPreviewModal(data);
+    } catch (e) {
+        alert("Error: " + e.message);
+    }
+}
+
+previewPromptBtn.addEventListener("click", fetchPreview);
+
+// ───────── Speaker dropdown change → จดค่าไว้เฉย ๆ ไม่แปลอัตโนมัติ ─────────
+// แปลครั้งเดียวตอนกด "🌐 แปลทั้งหมด" — ไม่ trigger LLM call เปลือง token
+compareArea.addEventListener("change", (e) => {
+    const sel = e.target.closest("select.speaker-select");
+    if (!sel) return;
+    const ref = sel.dataset.ref;
+    if (!ref) return;
+    speakerByRef[ref] = sel.value;
+    // sync ไป Visual Preview ถ้ากำลังเปิดอยู่
     if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
 });
 </script>
