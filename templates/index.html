@@ -321,7 +321,7 @@
                     title="เลือก OCR backend ใน docling pipeline — ocrmac ใช้ได้เฉพาะ macOS">
                 <option value="easyocr" >EasyOCR (cross-platform)</option>
                 <option value="ocrmac" selected {% if not ocrmac_available %}disabled{% endif %}>
-                    🍎 Apple Vision (ocrmac){% if not ocrmac_available %} — macOS only{% endif %}
+                    Apple Vision (ocrmac){% if not ocrmac_available %} — macOS only{% endif %}
                 </option>
             </select>
 
@@ -367,10 +367,10 @@
                 <option value="en">→ English</option>
             </select>
             <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
-                <option value="qwen" selected>🤖 Qwen 1.5B</option>
-                <option value="apple">🍎 Apple Translate</option>
+                <option value="qwen" selected>Qwen 1.5B</option>
+                <option value="apple">Apple Translate</option>
                 <option value="gemini" {% if not gemini_available %}disabled{% endif %}>
-                    🌟 Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — ตั้ง GEMINI_API_KEY ใน .env{% endif %}
+                    Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — ตั้ง GEMINI_API_KEY ใน .env{% endif %}
                 </option>
             </select>
             <label id="batchSizeLabel" style="font-size:12px; color:#374151; display:inline-flex; align-items:center; gap:4px;"

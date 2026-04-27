@@ -136,7 +136,7 @@ python app.py
 
 **เครื่องมือ:**
 - **✨ แก้ทั้งหมด** — Qwen/Gemini ตรวจ OCR errors แบบ batch (พร้อม guard เข้ม)
-- **🌐 แปลทั้งหมด** — เลือก engine `🤖 Qwen` / `🍎 Apple` / `🌟 Gemini`
+- **🌐 แปลทั้งหมด** — เลือก engine `Qwen` / `Apple` / `Gemini`
 - **👥 ตัวละคร** — ตั้งค่าตัวละคร (เปิด modal):
   - เพิ่ม/ลบตัวละคร, ตั้ง name / gender / personality
   - ตัวละครแรก = default สำหรับชิ้นที่ยังไม่ระบุ
