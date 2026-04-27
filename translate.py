@@ -575,6 +575,61 @@ def _translate_batch_gemini(texts: list[str], target: str,
     return _post_process_batch(texts, parsed, per_item, target)
 
 
+def _strip_markdown_fence(raw: str) -> str:
+    """LLM web UIs (Gemini/ChatGPT) มัก wrap JSON ใน ```json ... ```"""
+    s = raw.strip()
+    if s.startswith("```"):
+        s = re.sub(r"^```\w*\s*\n?", "", s)
+        s = re.sub(r"\n?```\s*$", "", s)
+    # ถ้ามี prose ก่อน/หลัง — ดึง object แรกที่เจอ
+    if not s.startswith("{"):
+        i = s.find("{")
+        j = s.rfind("}")
+        if i >= 0 and j > i:
+            s = s[i:j + 1]
+    return s.strip()
+
+
+def apply_manual_batch(texts: list[str], target: str, raw_response: str,
+                       speakers: list[str | None] | None = None,
+                       characters: list[dict] | None = None,
+                       ) -> tuple[list[str], list[str | None]]:
+    """Parse LLM response ที่ user paste manual + post-process เหมือน batch ปกติ.
+    ใช้ filter + per_item mapping เดียวกับ translate_batch เพื่อให้ guard ทำงานครบ"""
+    n = len(texts)
+    translations: list[str] = ["" for _ in range(n)]
+    errors: list[str | None] = [None] * n
+
+    work_idxs: list[int] = []
+    work_texts: list[str] = []
+    work_speakers: list[str | None] = []
+    for i, t in enumerate(texts):
+        if not (t and t.strip()):
+            continue
+        sp = speakers[i] if speakers and i < len(speakers) else None
+        if sp == SPEAKER_SKIP:
+            continue
+        work_idxs.append(i)
+        work_texts.append(t)
+        work_speakers.append(sp)
+
+    if not work_texts:
+        return translations, errors
+
+    has_speaker = any(s for s in work_speakers)
+    eff_speakers = work_speakers if has_speaker else None
+    _, per_item = _build_batch_user_msg(work_texts, eff_speakers)
+
+    cleaned = _strip_markdown_fence(raw_response)
+    parsed = _parse_batch_json(cleaned, len(work_texts))
+    sub_t, sub_e = _post_process_batch(work_texts, parsed, per_item, target)
+
+    for j, orig_idx in enumerate(work_idxs):
+        translations[orig_idx] = sub_t[j]
+        errors[orig_idx] = sub_e[j]
+    return translations, errors
+
+
 def translate_batch(texts: list[str], target: str = "th",
                     engine: str = "qwen",
                     custom_rules: str | None = None,

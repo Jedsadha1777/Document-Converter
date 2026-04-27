@@ -1928,8 +1928,10 @@ charsBtn.addEventListener("click", openCharModal);
 // ───────── Preview prompt modal ─────────
 const previewPromptBtn = document.getElementById("previewPromptBtn");
 let previewModal = null;
+// state จาก fetchPreview ครั้งล่าสุด — ใช้ตอน manual apply ส่ง texts/speakers/target ชุดเดิม
+let _previewSource = null;
 
-function openPreviewModal(data) {
+function openPreviewModal(data, sourceState) {
     if (!previewModal) {
         previewModal = document.createElement("div");
         previewModal.className = "modal-backdrop";
@@ -1949,6 +1951,15 @@ function openPreviewModal(data) {
                 <pre id="previewSystem" style="background:#0b1021; color:#e5e7eb; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
                 <h3 style="font-size:13px; margin:12px 0 4px;">USER MESSAGE (อ่านง่าย)</h3>
                 <pre id="previewUser" style="background:#0b1021; color:#bfdbfe; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
+                <h3 style="font-size:13px; margin:16px 0 4px;">📥 วาง response จาก LLM (manual apply)</h3>
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">
+                    คัดลอก request body ด้านบน → วางใน Gemini/ChatGPT/Claude web UI → คัดลอก response กลับมาวางที่นี่ → กด "ใส่ผลแปลลงตาราง". รองรับ markdown fence (\`\`\`json ... \`\`\`).
+                </div>
+                <textarea id="previewManualResponse" rows="6" style="width:100%; font-family: ui-monospace, Menlo, monospace; font-size:11px; padding:8px; border:1px solid #d1d5db; border-radius:6px; resize:vertical; box-sizing:border-box;" placeholder='{"items":[{"id":1,"text":"..."}, {"id":2,"text":"..."}]}'></textarea>
+                <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+                    <button type="button" id="previewApplyManualBtn">ใส่ผลแปลลงตาราง</button>
+                    <span id="previewManualStatus" style="font-size:12px; color:#6b7280;"></span>
+                </div>
                 <div class="modal-foot">
                     <span style="font-size:11px; color:#6b7280;">ผลนี้คือสิ่งที่ backend จะส่งไป LLM API จริงเมื่อกดปุ่มแปล</span>
                     <button type="button" id="previewCloseBtn">ปิด</button>
@@ -1968,6 +1979,7 @@ function openPreviewModal(data) {
                 setTimeout(() => { document.getElementById("previewCopyAllBtn").textContent = "📋 คัดลอก request body"; }, 1500);
             } catch (_) {}
         });
+        document.getElementById("previewApplyManualBtn").addEventListener("click", applyManualResponse);
     }
     const meta = document.getElementById("previewMeta");
     meta.innerHTML = `
@@ -1984,7 +1996,80 @@ function openPreviewModal(data) {
     document.getElementById("previewChars").textContent = JSON.stringify(data.characters_used || [], null, 2);
     document.getElementById("previewSystem").textContent = data.system_prompt || "(empty)";
     document.getElementById("previewUser").textContent = data.user_message || "(empty)";
+    _previewSource = sourceState || null;
+    document.getElementById("previewManualResponse").value = "";
+    document.getElementById("previewManualStatus").textContent = "";
+    document.getElementById("previewManualStatus").style.color = "#6b7280";
     previewModal.classList.add("show");
+}
+
+async function applyManualResponse() {
+    const status = document.getElementById("previewManualStatus");
+    if (!_previewSource) {
+        status.style.color = "#dc2626";
+        status.textContent = "ไม่พบ preview state — เปิด preview ใหม่ก่อน";
+        return;
+    }
+    const raw = document.getElementById("previewManualResponse").value.trim();
+    if (!raw) {
+        status.style.color = "#dc2626";
+        status.textContent = "วาง response ก่อน";
+        return;
+    }
+    status.style.color = "#6b7280";
+    status.textContent = "กำลังประมวลผล...";
+    try {
+        const res = await fetch("/translate-batch/apply-manual", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                texts: _previewSource.texts,
+                target: _previewSource.target,
+                speakers: _previewSource.speakers,
+                characters: _previewSource.characters,
+                raw_response: raw,
+            }),
+        });
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            const body = (await res.text()).slice(0, 200);
+            throw new Error(`HTTP ${res.status}: ${body}`);
+        }
+        const data = await res.json();
+        if (data.error) {
+            status.style.color = "#dc2626";
+            status.textContent = "ผิดพลาด: " + data.error;
+            return;
+        }
+        const translations = data.translated || [];
+        const errors = data.errors || [];
+        const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
+        let ok = 0, fail = 0, skip = 0;
+        for (let i = 0; i < rows.length && i < translations.length; i++) {
+            const ref = rows[i].dataset.ref;
+            const isUserSkip = ref && speakerByRef[ref] === SPEAKER_SKIP;
+            const isEmptySource = !((_previewSource.texts[i] || "").trim());
+            if (errors[i]) {
+                _applyError(rows[i], errors[i]);
+                fail++;
+            } else if (isUserSkip || isEmptySource) {
+                skip++;
+            } else if (translations[i]) {
+                _applySuccess(rows[i], translations[i]);
+                ok++;
+            } else {
+                // ไม่มีผลแปลคืนมา + ไม่ใช่ skip → ถือว่าผิด
+                _applyError(rows[i], "ไม่มีผลแปลใน response");
+                fail++;
+            }
+        }
+        status.style.color = ok > 0 ? "#059669" : "#dc2626";
+        status.textContent = `ใส่ ${ok} รายการ${fail ? `, ผิด ${fail}` : ""}${skip ? `, ข้าม ${skip}` : ""}`;
+        if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+    } catch (e) {
+        status.style.color = "#dc2626";
+        status.textContent = "Error: " + e.message;
+    }
 }
 
 async function fetchPreview() {
@@ -2021,7 +2106,7 @@ async function fetchPreview() {
             alert("Error: " + data.error);
             return;
         }
-        openPreviewModal(data);
+        openPreviewModal(data, { texts, target, speakers: speakerArr, characters });
     } catch (e) {
         alert("Error: " + e.message);
     }

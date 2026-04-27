@@ -41,6 +41,7 @@ from translate import (
     _shortcuts_available,
     _translate_temp_for_attempt,
     apple_translate_text,
+    apply_manual_batch,
     translate_batch,
     translate_text,
 )
@@ -255,6 +256,38 @@ def translate_batch_preview():
         "request_endpoint": endpoint,
         "request_body": request_body,
     })
+
+
+@app.route("/translate-batch/apply-manual", methods=["POST"])
+def translate_batch_apply_manual():
+    """รับ raw response ที่ user paste จาก LLM web UI — parse + post-process ผ่าน guard เดียวกับ batch ปกติ"""
+    try:
+        payload = request.get_json(silent=True) or {}
+        texts = payload.get("texts") or []
+        target = payload.get("target", "th")
+        raw_response = payload.get("raw_response", "")
+        speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
+        characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
+
+        if not isinstance(texts, list) or not texts:
+            return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+        if not raw_response or not str(raw_response).strip():
+            return jsonify({"error": "raw_response ว่าง"}), 400
+
+        translations, errors = apply_manual_batch(
+            texts, target, raw_response,
+            speakers=speakers, characters=characters,
+        )
+        return jsonify({
+            "translated": translations,
+            "errors": errors,
+            "target": target,
+            "batch_size": len(texts),
+        })
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"server exception: {exc}"}), 500
 
 
 @app.route("/translate-batch", methods=["POST"])
