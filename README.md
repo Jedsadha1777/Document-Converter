@@ -56,8 +56,7 @@ pip install -r requirements.txt
 ```bash
 brew install ollama
 ollama serve &              # รัน daemon
-ollama pull qwen2.5:1.5b    # สำหรับ correction และ translation (เล็ก เร็ว)
-ollama pull qwen2.5:3b      # (เลือกได้) ถ้าต้อง correction ที่ context inference ดีกว่า
+ollama pull qwen2.5:1.5b    # สำหรับ correction และ translation
 ```
 
 ### 5. ตั้งค่า Apple Translate (เลือกได้ — แนะนำสำหรับการแปล)
@@ -137,8 +136,8 @@ docling/
 
 | ตัวแปร | บรรทัด | คำอธิบาย |
 |---|---|---|
-| `OLLAMA_MODEL_CORRECT` | ~14 | โมเดลสำหรับ correction (default: `qwen2.5:3b`) |
-| `OLLAMA_MODEL_TRANSLATE` | ~15 | โมเดลสำหรับ translation (default: `qwen2.5:1.5b`) |
+| `OLLAMA_MODEL_CORRECT` | ~24 | โมเดลสำหรับ correction (default: `qwen2.5:1.5b`) |
+| `OLLAMA_MODEL_TRANSLATE` | ~25 | โมเดลสำหรับ translation (default: `qwen2.5:1.5b`) |
 | `MAX_INSERT_RUN` / `MAX_DELETE_RUN` / `MAX_REPLACE_RUN` | ~250 | guard ความเข้มของ correction |
 | `APPLE_SHORTCUT_TH` / `APPLE_SHORTCUT_EN` | ~510 | ชื่อ Shortcut บน macOS |
 | `APPLE_MIN_INPUT_CHARS` | ~545 | ข้าม Apple ถ้า input สั้นกว่านี้ |
@@ -155,7 +154,7 @@ docling/
 **แก้:** input สั้นเกินไป (Apple ต้องการ ≥ 3 chars ถึงจะ detect ภาษาได้) — ระบบ skip ให้อัตโนมัติ
 
 **ปัญหา:** Qwen ไม่ทำตามกฎใน prompt
-**แก้:** เป็นข้อจำกัดของโมเดลขนาด 1.5B/3B — ลอง pull `qwen2.5:7b` แล้วเปลี่ยน `OLLAMA_MODEL_CORRECT`
+**แก้:** เป็นข้อจำกัดของโมเดล — แต่จากการทดสอบ `qwen2.5:1.5b` ทำตาม prompt ได้ดีกว่ารุ่นใหญ่ (3B/7B ฝืนกฎรัวกว่า) จึงเลือกใช้ 1.5B เป็นค่า default
 
 ## License
 

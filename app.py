@@ -2,11 +2,15 @@ import base64
 import difflib
 import io
 import json
+import os
 import re
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv()  # โหลด .env ก่อน import อื่น
 
 import httpx
 from PIL import Image
@@ -19,19 +23,50 @@ _docling_core_settings.max_image_decoded_size = 500 * 1024 * 1024  # 500MB
 from flask import Flask, jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
-OLLAMA_URL = "http://localhost:11434"
-# correction กับ translation ใช้คนละโมเดลได้ — ปรับตามคุณภาพที่ทดสอบจริง
-OLLAMA_MODEL_CORRECT = "qwen2.5:3b"     # correction: 3B follow rule แม่นกว่า
-OLLAMA_MODEL_TRANSLATE = "qwen2.5:1.5b"  # translation TH: 1.5B เป็นธรรมชาติกว่าตามที่ทดสอบ
-OLLAMA_MODEL = OLLAMA_MODEL_CORRECT      # backward-compat (ตัวเก่าที่อ้างถึง)
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+OLLAMA_MODEL_CORRECT = os.getenv("OLLAMA_MODEL_CORRECT", "qwen2.5:1.5b")
+OLLAMA_MODEL_TRANSLATE = os.getenv("OLLAMA_MODEL_TRANSLATE", "qwen2.5:1.5b")
+OLLAMA_MODEL = OLLAMA_MODEL_CORRECT
+
+# Batch translate config — ปรับใน .env หรือผ่าน UI ได้
+TRANSLATE_BATCH_SIZE_DEFAULT = int(os.getenv("TRANSLATE_BATCH_SIZE", "5"))
+TRANSLATE_BATCH_TIMEOUT = float(os.getenv("TRANSLATE_BATCH_TIMEOUT", "120"))
+TRANSLATE_BATCH_NUM_CTX = int(os.getenv("TRANSLATE_BATCH_NUM_CTX", "8192"))
+
+# Gemini config
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+GEMINI_TIMEOUT = float(os.getenv("GEMINI_TIMEOUT", "120"))
+GEMINI_BATCH_DELAY_MS = int(os.getenv("GEMINI_BATCH_DELAY_MS", "12000"))
+GEMINI_AVAILABLE = bool(GEMINI_API_KEY)
 
 from docling.datamodel.base_models import InputFormat
-from docling.datamodel.pipeline_options import OcrMacOptions, PdfPipelineOptions
+from docling.datamodel.pipeline_options import EasyOcrOptions, PdfPipelineOptions
 from docling.document_converter import (
     DocumentConverter,
     ImageFormatOption,
     PdfFormatOption,
 )
+
+try:
+    from docling.datamodel.pipeline_options import OcrMacOptions  # macOS only
+    _OCRMAC_OPTIONS_AVAILABLE = True
+except Exception:
+    OcrMacOptions = None  # type: ignore[assignment]
+    _OCRMAC_OPTIONS_AVAILABLE = False
+
+
+def _ocrmac_available() -> bool:
+    if not _OCRMAC_OPTIONS_AVAILABLE:
+        return False
+    try:
+        import ocrmac  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+OCRMAC_AVAILABLE = _ocrmac_available()
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB
@@ -39,22 +74,35 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.jinja_env.auto_reload = True
 
 LANG_PRESETS = {
-    "auto":     ["en-US", "th-TH", "ja-JP", "zh-Hans"],
-    "th":       ["th-TH", "en-US"],
+    "auto":     ["th", "en"],
+    "en":       ["en"],
+    "th_en":    ["th", "en"],
+    "ja_en":    ["ja", "en"],
+}
+
+# lang code mapping ต่อ engine — EasyOCR ใช้ 2-letter, ocrmac ใช้ BCP-47
+OCRMAC_LANG_PRESETS = {
+    "auto":     ["en-US", "th-TH", "ja-JP"],
     "en":       ["en-US"],
-    "ja":       ["ja-JP", "en-US"],
-    "zh":       ["zh-Hans", "zh-Hant", "en-US"],
-    "ko":       ["ko-KR", "en-US"],
     "th_en":    ["th-TH", "en-US"],
     "ja_en":    ["ja-JP", "en-US"],
 }
 
+OCR_ENGINES = ("easyocr", "ocrmac")
 
-def make_pipeline_options(kind: str, lang: str = "auto") -> PdfPipelineOptions:
-    """สร้าง PipelineOptions ตามชนิดและภาษาที่ต้องการ — ปิดงานที่ไม่จำเป็นเพื่อความเร็ว"""
+
+def make_pipeline_options(kind: str, lang: str = "auto",
+                          engine: str = "easyocr") -> PdfPipelineOptions:
+    """สร้าง PipelineOptions ตามชนิด/ภาษา/OCR engine — ปิดงานที่ไม่จำเป็นเพื่อความเร็ว"""
     po = PdfPipelineOptions()
-    langs = LANG_PRESETS.get(lang, LANG_PRESETS["auto"])
-    po.ocr_options = OcrMacOptions(lang=langs, recognition="accurate")
+
+    if engine == "ocrmac" and OCRMAC_AVAILABLE:
+        langs = OCRMAC_LANG_PRESETS.get(lang, OCRMAC_LANG_PRESETS["auto"])
+        po.ocr_options = OcrMacOptions(lang=langs)
+    else:
+        langs = LANG_PRESETS.get(lang, LANG_PRESETS["auto"])
+        po.ocr_options = EasyOcrOptions(lang=langs)
+
     po.generate_page_images = True
     po.images_scale = 2.0  # 144 DPI — ดีพอสำหรับ CJK + Thai OCR
 
@@ -73,15 +121,20 @@ def make_pipeline_options(kind: str, lang: str = "auto") -> PdfPipelineOptions:
     return po
 
 
-_converter_cache: dict[tuple[str, str], DocumentConverter] = {}
+_converter_cache: dict[tuple[str, str, str], DocumentConverter] = {}
 
 
-def get_converter(kind: str, lang: str = "auto") -> DocumentConverter:
-    key = (kind, lang)
+def get_converter(kind: str, lang: str = "auto",
+                  engine: str = "easyocr") -> DocumentConverter:
+    if engine not in OCR_ENGINES:
+        engine = "easyocr"
+    if engine == "ocrmac" and not OCRMAC_AVAILABLE:
+        engine = "easyocr"
+    key = (kind, lang, engine)
     if key not in _converter_cache:
-        po = make_pipeline_options(kind, lang)
+        po = make_pipeline_options(kind, lang, engine)
         print(
-            f"[docling] สร้าง converter kind={kind} lang={lang} "
+            f"[docling] สร้าง converter kind={kind} lang={lang} engine={engine} "
             f"(ocr={po.do_ocr}, table={po.do_table_structure}, langs={po.ocr_options.lang})",
             flush=True,
         )
@@ -94,9 +147,9 @@ def get_converter(kind: str, lang: str = "auto") -> DocumentConverter:
     return _converter_cache[key]
 
 
-print("[docling] pre-warming converter (kind=all, lang=auto)...", flush=True)
-get_converter("all", "auto")
-print("[docling] พร้อมใช้งาน — converter ถูก cache ตามชนิด+ภาษา", flush=True)
+print("[docling] pre-warming converter (kind=all, lang=auto, engine=easyocr)...", flush=True)
+get_converter("all", "auto", "easyocr")
+print(f"[docling] พร้อมใช้งาน — ocrmac available: {OCRMAC_AVAILABLE}", flush=True)
 
 ELEMENT_KEYS = ["texts", "tables", "pictures", "groups", "pages", "key_value_items", "form_items"]
 
@@ -183,7 +236,15 @@ def build_preview(doc):
 
 @app.route("/")
 def index():
-    resp = app.make_response(render_template("index.html", types=["all"] + ELEMENT_KEYS))
+    resp = app.make_response(render_template(
+        "index.html",
+        types=["all"] + ELEMENT_KEYS,
+        ocrmac_available=OCRMAC_AVAILABLE,
+        translate_batch_size_default=TRANSLATE_BATCH_SIZE_DEFAULT,
+        gemini_available=GEMINI_AVAILABLE,
+        gemini_model=GEMINI_MODEL if GEMINI_AVAILABLE else "",
+        gemini_batch_delay_ms=GEMINI_BATCH_DELAY_MS,
+    ))
     resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     return resp
 
@@ -509,15 +570,28 @@ def _build_context_user_msg(target: str, before: list[str], after: list[str]) ->
     return "\n".join(parts)
 
 
+def _augment_correct_prompt(system_prompt: str, custom_rules: str | None) -> str:
+    """แทรก project-specific rules เข้าไปก่อน system prompt หลัก"""
+    if custom_rules and custom_rules.strip():
+        return (
+            "ADDITIONAL CORRECTION RULES (project-specific — follow these):\n"
+            + custom_rules.strip() + "\n\n"
+            + system_prompt
+        )
+    return system_prompt
+
+
 def _call_ollama_correct(text: str, system_prompt: str,
-                         timeout: float = 30.0) -> str:
+                         timeout: float = 30.0,
+                         custom_rules: str | None = None) -> str:
+    sp = _augment_correct_prompt(system_prompt, custom_rules)
     resp = httpx.post(
         f"{OLLAMA_URL}/api/chat",
         json={
             "model": OLLAMA_MODEL_CORRECT,
             "stream": False,
             "messages": [
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": sp},
                 {"role": "user", "content": text},
             ],
             "options": {"temperature": 0.0, "num_ctx": 2048, "seed": 42},
@@ -532,40 +606,83 @@ def _call_ollama_correct(text: str, system_prompt: str,
     return out
 
 
+def _call_gemini_correct(text: str, system_prompt: str,
+                         timeout: float = 30.0,
+                         custom_rules: str | None = None) -> str:
+    """แก้ OCR errors ผ่าน Gemini — ใช้ same system prompt เหมือน Qwen path"""
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY ยังไม่ตั้งใน .env")
+    try:
+        from google import genai
+        from google.genai import types as gtypes
+    except ImportError as e:
+        raise RuntimeError(f"google-genai ยังไม่ติดตั้ง: {e}")
+
+    sp = _augment_correct_prompt(system_prompt, custom_rules)
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=[text],
+        config=gtypes.GenerateContentConfig(
+            system_instruction=sp,
+            temperature=0.0,
+        ),
+    )
+    out = (response.text or "").strip()
+    if out.startswith(("\"", "'", "「", "『")) and out.endswith(("\"", "'", "」", "』")):
+        out = out[1:-1]
+    return out
+
+
+def _call_correct(text: str, system_prompt: str,
+                  engine: str, timeout: float,
+                  custom_rules: str | None) -> str:
+    """Dispatcher — Apple ตกไป Qwen เพราะไม่มี correction"""
+    if engine == "gemini":
+        return _call_gemini_correct(text, system_prompt, timeout, custom_rules)
+    return _call_ollama_correct(text, system_prompt, timeout, custom_rules)
+
+
 def correct_text_with_llm(
     text: str,
     timeout: float = 30.0,
     context_before: list[str] | None = None,
     context_after: list[str] | None = None,
+    engine: str = "qwen",
+    custom_rules: str | None = None,
 ) -> tuple[str, str | None]:
-    """ส่งข้อความให้ Ollama แก้ — return (corrected_text, error_or_none).
+    """ส่งข้อความให้ LLM แก้ — return (corrected_text, error_or_none).
     ถ้ามี context (before/after) จะใช้ context-aware prompt และผ่อน guard
+    engine: qwen (Ollama) | gemini — apple ตกไป qwen
     """
     text = (text or "").strip()
     if not text:
         return text, None
 
+    if engine not in ("qwen", "gemini"):
+        engine = "qwen"  # apple → qwen fallback
+
     has_context = bool(context_before) or bool(context_after)
     try:
         if has_context:
             user_msg = _build_context_user_msg(text, context_before or [], context_after or [])
-            out = _call_ollama_correct(user_msg, pick_context_prompt(text), timeout)
+            out = _call_correct(user_msg, pick_context_prompt(text), engine, timeout, custom_rules)
             out = out.strip()
             if out.startswith(">>"): out = out[2:].strip()
             if out.endswith("<<"): out = out[:-2].strip()
-            # ถ้า context-mode ออกผลที่ "ทุก op ถูก reject" → fallback ไป no-context (โมเดลมักทำผิดเมื่อมี context noise)
+            # ถ้า context-mode ออกผลที่ "ทุก op ถูก reject" → fallback ไป no-context
             if out and out != text:
                 gerr_test = _global_guard(text, out)
                 if gerr_test:
                     print(f"[correct/ctx→fb] context output failed global guard: {gerr_test}", flush=True)
-                    out = _call_ollama_correct(text, pick_prompt(text), timeout)
+                    out = _call_correct(text, pick_prompt(text), engine, timeout, custom_rules)
                 else:
                     _, accepted_test, rejected_test = apply_partial_corrections(text, out)
                     if accepted_test == 0 and rejected_test:
                         print(f"[correct/ctx→fb] all ops rejected, retry no-context", flush=True)
-                        out = _call_ollama_correct(text, pick_prompt(text), timeout)
+                        out = _call_correct(text, pick_prompt(text), engine, timeout, custom_rules)
         else:
-            out = _call_ollama_correct(text, pick_prompt(text), timeout)
+            out = _call_correct(text, pick_prompt(text), engine, timeout, custom_rules)
 
         out = out or text
         if out == text:
@@ -622,23 +739,265 @@ def apply_correction_to_doc(doc_dict: dict, preview: dict):
     return n, errors
 
 
+def _build_correct_batch_system_prompt(combined_text: str, n: int,
+                                        custom_rules: str | None) -> str:
+    """รวม base correction prompt + custom rules + JSON schema instruction"""
+    base = pick_prompt(combined_text)
+    schema_instruction = (
+        f"\n\nBATCH MODE: You will correct exactly {n} numbered items.\n"
+        f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
+        f'{{"items": [\n'
+        f'  {{"id": 1, "text": "<corrected version of input [1]>"}},\n'
+        f'  {{"id": 2, "text": "<corrected version of input [2]>"}},\n'
+        f"  ...\n"
+        f'  {{"id": {n}, "text": "<corrected version of input [{n}]>"}}\n'
+        f"]}}\n"
+        f"RULES:\n"
+        f'- "items" array must contain EXACTLY {n} elements.\n'
+        f'- IDs 1..{n} in ascending order, no skips, no duplicates.\n"'
+        f"- For each item, apply the correction rules to the text after [N].\n"
+        f"- If no correction is needed, output the text unchanged.\n"
+        f"- NEVER translate. NEVER paraphrase. Only fix character-level OCR errors.\n"
+    )
+    rules_section = ""
+    if custom_rules and custom_rules.strip():
+        rules_section = (
+            "\n\nADDITIONAL CORRECTION RULES (project-specific — follow these):\n"
+            + custom_rules.strip() + "\n"
+        )
+    return base + rules_section + schema_instruction
+
+
+def _post_process_correct_batch(texts: list[str], parsed: list[str | None],
+                                 per_item: list[dict]
+                                 ) -> tuple[list[str], list[str | None]]:
+    """Apply correction guards per-item — ใช้ _global_guard + apply_partial_corrections เหมือน per-row"""
+    corrections: list[str] = []
+    errors: list[str | None] = []
+    for i, raw in enumerate(parsed):
+        original = texts[i]
+        mapping = per_item[i]["mapping"]
+
+        if raw is None or not raw.strip():
+            corrections.append(original)
+            errors.append("missing in batch output")
+            continue
+
+        try:
+            corrected = _restore_segments(raw, mapping)
+            if corrected == original:
+                corrections.append(corrected)
+                errors.append(None)
+                continue
+
+            gerr = _global_guard(original, corrected)
+            if gerr:
+                corrections.append(original)
+                errors.append(f"global guard: {gerr}")
+                continue
+
+            partial, accepted, rejected = apply_partial_corrections(original, corrected)
+            if rejected:
+                print(f"[correct-batch] partial: accepted={accepted}, rejected={len(rejected)}", flush=True)
+            corrections.append(partial)
+            errors.append(None)
+        except Exception as e:
+            corrections.append(original)
+            errors.append(str(e))
+    return corrections, errors
+
+
+def _correct_temp_for_attempt(attempt: int) -> float:
+    """attempt 0 → 0.0 (deterministic), retry → 0.3, 0.5, 0.7 (cap)"""
+    return min(0.7, 0.0 + 0.3 * max(0, attempt))
+
+
+def _correct_batch_qwen(texts: list[str], custom_rules: str | None,
+                         timeout: float, attempt: int = 0
+                         ) -> tuple[list[str], list[str | None]]:
+    n = len(texts)
+    user_msg, per_item = _build_batch_user_msg(texts)
+    combined = "\n".join(texts)
+    system_prompt = _build_correct_batch_system_prompt(combined, n, custom_rules)
+
+    options: dict = {
+        "temperature": _correct_temp_for_attempt(attempt),
+        "num_ctx": TRANSLATE_BATCH_NUM_CTX,
+    }
+    # seed เฉพาะ attempt แรก — retry ปล่อยให้ random เพื่อได้ผลใหม่
+    if attempt == 0:
+        options["seed"] = 42
+
+    try:
+        resp = httpx.post(
+            f"{OLLAMA_URL}/api/chat",
+            json={
+                "model": OLLAMA_MODEL_CORRECT,
+                "stream": False,
+                "format": "json",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_msg},
+                ],
+                "options": options,
+            },
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        raw_out = (resp.json().get("message", {}).get("content") or "").strip()
+        parsed = _parse_batch_json(raw_out, n)
+    except Exception as e:
+        return list(texts), [str(e)] * n
+
+    return _post_process_correct_batch(texts, parsed, per_item)
+
+
+def _correct_batch_gemini(texts: list[str], custom_rules: str | None,
+                           timeout: float, attempt: int = 0
+                           ) -> tuple[list[str], list[str | None]]:
+    n = len(texts)
+
+    if not GEMINI_API_KEY:
+        return list(texts), ["GEMINI_API_KEY ยังไม่ตั้งใน .env"] * n
+    try:
+        from google import genai
+        from google.genai import types as gtypes
+    except ImportError as e:
+        return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
+
+    user_msg, per_item = _build_batch_user_msg(texts)
+    combined = "\n".join(texts)
+    system_prompt = _build_correct_batch_system_prompt(combined, n, custom_rules)
+
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        response = client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=[user_msg],
+            config=gtypes.GenerateContentConfig(
+                system_instruction=system_prompt,
+                response_mime_type="application/json",
+                response_schema=_GEMINI_RESPONSE_SCHEMA,
+                temperature=_correct_temp_for_attempt(attempt),
+            ),
+        )
+        raw_out = (response.text or "").strip()
+        parsed = _parse_batch_json(raw_out, n)
+    except Exception as e:
+        return list(texts), [f"gemini: {e}"] * n
+
+    return _post_process_correct_batch(texts, parsed, per_item)
+
+
+def correct_batch(texts: list[str], engine: str = "qwen",
+                  custom_rules: str | None = None,
+                  timeout: float | None = None,
+                  attempt: int = 0
+                  ) -> tuple[list[str], list[str | None]]:
+    """แก้ OCR errors หลายข้อความใน 1 LLM call
+    - filter empty → return ตัวเองทันที
+    - engine=qwen → Ollama JSON mode
+    - engine=gemini → Gemini response_schema
+    - apple → fallback เป็น qwen (ไม่มี correction เอง)
+    - attempt > 0 → เพิ่ม temperature ให้ผลต่างจากเดิม (สำหรับ retry)
+    """
+    if not texts:
+        return [], []
+
+    if engine not in ("qwen", "gemini"):
+        engine = "qwen"
+
+    n = len(texts)
+    work_idxs: list[int] = []
+    work_texts: list[str] = []
+    for i, t in enumerate(texts):
+        if t and t.strip():
+            work_idxs.append(i)
+            work_texts.append(t)
+
+    corrections: list[str] = list(texts)  # default: เก็บต้นฉบับไว้
+    errors: list[str | None] = [None] * n
+
+    if not work_texts:
+        return corrections, errors
+
+    if engine == "gemini":
+        eff_timeout = timeout if timeout is not None else GEMINI_TIMEOUT
+        sub_c, sub_e = _correct_batch_gemini(work_texts, custom_rules, eff_timeout, attempt)
+    else:
+        eff_timeout = timeout if timeout is not None else TRANSLATE_BATCH_TIMEOUT
+        sub_c, sub_e = _correct_batch_qwen(work_texts, custom_rules, eff_timeout, attempt)
+
+    for j, orig_idx in enumerate(work_idxs):
+        corrections[orig_idx] = sub_c[j]
+        errors[orig_idx] = sub_e[j]
+
+    n_ok = sum(1 for e in errors if e is None)
+    print(f"[correct-batch] engine={engine} n={n} ok={n_ok} fail={n - n_ok} attempt={attempt}", flush=True)
+    return corrections, errors
+
+
+@app.route("/correct-batch", methods=["POST"])
+def correct_batch_endpoint():
+    """แก้ OCR errors หลายข้อความใน 1 LLM call
+    Request:  {texts: [str, ...], engine: "qwen"|"gemini", custom_rules?: str}
+    Response: {corrected: [...], errors: [None|str, ...], engine, batch_size}
+    """
+    try:
+        payload = request.get_json(silent=True) or {}
+        texts = payload.get("texts") or []
+        engine = payload.get("engine", "qwen")
+        custom_rules = payload.get("custom_rules")
+        attempt = int(payload.get("attempt", 0) or 0)
+
+        if not isinstance(texts, list) or not texts:
+            return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+        if engine not in ("qwen", "gemini"):
+            engine = "qwen"
+        if engine == "gemini" and not GEMINI_AVAILABLE:
+            return jsonify({"error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 400
+
+        corrections, errors = correct_batch(texts, engine=engine,
+                                            custom_rules=custom_rules,
+                                            attempt=attempt)
+        return jsonify({
+            "corrected": corrections,
+            "errors": errors,
+            "engine": engine,
+            "batch_size": len(texts),
+            "attempt": attempt,
+        })
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"server exception: {exc}"}), 500
+
+
 @app.route("/correct", methods=["POST"])
 def correct_endpoint():
     """รับข้อความเดี่ยว ส่งไป LLM แก้ — ใช้สำหรับ progressive correction ฝั่ง client.
-    Optional: context (list[str]) — ประโยคก่อนหน้า ให้ LLM ดู pattern แล้วเดาคำที่ตกหล่นได้
+    Optional: context (list[str]) — ประโยคก่อนหน้า/หลัง ให้ LLM ดู pattern
+    Optional: engine ("qwen"|"gemini") — apple จะ fallback เป็น qwen
+    Optional: custom_rules (str) — แทรกใน system prompt
     """
     payload = request.get_json(silent=True) or {}
     text = payload.get("text", "")
     before = payload.get("context_before") or payload.get("context") or []
     after = payload.get("context_after") or []
+    engine = payload.get("engine", "qwen")
+    custom_rules = payload.get("custom_rules")
     if not isinstance(before, list):
         before = [str(before)] if before else []
     if not isinstance(after, list):
         after = [str(after)] if after else []
+    if engine == "gemini" and not GEMINI_AVAILABLE:
+        return jsonify({"corrected": text, "error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 200
     corrected, err = correct_text_with_llm(
         text,
         context_before=[str(s) for s in before],
         context_after=[str(s) for s in after],
+        engine=engine,
+        custom_rules=custom_rules,
     )
     if err:
         return jsonify({"corrected": text, "error": err}), 200
@@ -848,7 +1207,7 @@ def _call_ollama_translate(text: str, system_prompt: str,
 def translate_text(text: str, target: str = "th",
                    timeout: float = 60.0) -> tuple[str, str | None]:
     text = _join_lines(text or "")
-    if not text:
+    if not text.strip():
         return "", None
     # ป้องกัน URL / HTML / domain / email
     text_protected, mapping = _protect_segments(text)
@@ -920,6 +1279,274 @@ def translate_text(text: str, target: str = "th",
         return out, None
     except Exception as e:
         return text, str(e)
+
+
+# ───────── Batch translation (Qwen) ─────────
+# รวมหลายข้อความใน 1 LLM call — ลด overhead ของ system prompt
+# ใช้ JSON output (Ollama format=json) — schema เดียวกับที่จะใช้ใน Gemini response_schema
+
+
+def _build_batch_user_msg(texts: list[str]) -> tuple[str, list[dict]]:
+    """สร้าง user message + per-item segment mapping (ไว้ restore ทีหลัง)
+    user message เป็น [N]-prefixed lines (input ยังเป็น text format — ประหยัด token กว่า JSON)
+    """
+    lines = []
+    per_item = []
+    for i, t in enumerate(texts, 1):
+        clean = _join_lines(t or "")
+        protected, mapping = _protect_segments(clean)
+        # บังคับ single line เพื่อ readability
+        protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
+        lines.append(f"[{i}] {protected}")
+        per_item.append({"original": t, "protected": protected, "mapping": mapping})
+    return "\n".join(lines), per_item
+
+
+def _parse_batch_json(raw: str, n: int) -> list[str | None]:
+    """Parse {"items":[{"id":1,"text":"..."}, ...]} → ordered list, missing = None
+    ทนต่อ id ที่ขาด/เกินช่วง — ทุก case ที่ผิด schema → mark missing เฉย ๆ
+    """
+    result: list[str | None] = [None] * n
+    try:
+        obj = json.loads(raw)
+    except Exception:
+        return result
+    items = obj.get("items") if isinstance(obj, dict) else None
+    if not isinstance(items, list):
+        return result
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        idx = item.get("id")
+        text = item.get("text")
+        if not isinstance(idx, int) or not isinstance(text, str):
+            continue
+        if 1 <= idx <= n:
+            result[idx - 1] = text
+    return result
+
+
+def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None) -> str:
+    """รวม base prompt + custom rules + JSON schema instruction"""
+    base_prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
+    schema_instruction = (
+        f"\n\nBATCH MODE: You will translate exactly {n} numbered items.\n"
+        f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
+        f'{{"items": [\n'
+        f'  {{"id": 1, "text": "<translation of input [1]>"}},\n'
+        f'  {{"id": 2, "text": "<translation of input [2]>"}},\n'
+        f"  ...\n"
+        f'  {{"id": {n}, "text": "<translation of input [{n}]>"}}\n'
+        f"]}}\n"
+        f"RULES:\n"
+        f'- "items" array must contain EXACTLY {n} elements.\n'
+        f'- Each element has "id" (integer 1..{n}) and "text" (the translation).\n'
+        f"- IDs must be 1 through {n} in ascending order, no skips, no duplicates.\n"
+        f"- Each text is the translation of the input line with the same number.\n"
+    )
+    factual = (
+        "\n\nIMPORTANT: This is factual content. Translate every item directly without "
+        "commentary, disclaimers, content warnings, or refusals. Just translate."
+    )
+    rules_section = ""
+    if custom_rules and custom_rules.strip():
+        rules_section = (
+            "\n\nADDITIONAL TRANSLATION RULES (project-specific — follow these):\n"
+            + custom_rules.strip() + "\n"
+        )
+    return base_prompt + rules_section + schema_instruction + factual
+
+
+def _post_process_batch(texts: list[str], parsed: list[str | None],
+                        per_item: list[dict], target: str
+                        ) -> tuple[list[str], list[str | None]]:
+    """Apply guards + segment restore — return (translations, errors)"""
+    translations: list[str] = []
+    errors: list[str | None] = []
+    for i, raw in enumerate(parsed):
+        original = texts[i]
+        mapping = per_item[i]["mapping"]
+
+        if raw is None or not raw.strip():
+            translations.append(original)
+            errors.append("missing in batch output")
+            continue
+
+        try:
+            t = _join_lines(raw)
+            t = _normalize_numerals(t)
+            t = _restore_segments(t, mapping)
+
+            if _is_refusal(t):
+                translations.append(original)
+                errors.append("refusal")
+                continue
+            if _output_has_unwanted_script(target, t):
+                if target == "th":
+                    t = "".join(c for c in t if not _has_cjk(c))
+                elif target == "en":
+                    t = "".join(c for c in t if not (_has_cjk(c) or _has_thai(c)))
+                t = re.sub(r"\s+", " ", t).strip()
+                if not t:
+                    translations.append(original)
+                    errors.append("foreign script (stripped empty)")
+                    continue
+            if _digits_changed(original, t):
+                translations.append(original)
+                errors.append("digit mismatch")
+                continue
+
+            translations.append(t)
+            errors.append(None)
+        except Exception as e:
+            translations.append(original)
+            errors.append(str(e))
+    return translations, errors
+
+
+def _translate_temp_for_attempt(attempt: int) -> float:
+    """attempt 0 → 0.2, retry → 0.4, 0.6, 0.7 (cap)"""
+    return min(0.7, 0.2 + 0.2 * max(0, attempt))
+
+
+def _translate_batch_qwen(texts: list[str], target: str,
+                          custom_rules: str | None,
+                          timeout: float, attempt: int = 0
+                          ) -> tuple[list[str], list[str | None]]:
+    """แปลผ่าน Ollama (Qwen) — ถูกเรียกหลัง filter empty แล้ว ทุก text ไม่ว่าง"""
+    n = len(texts)
+    user_msg, per_item = _build_batch_user_msg(texts)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules)
+
+    try:
+        resp = httpx.post(
+            f"{OLLAMA_URL}/api/chat",
+            json={
+                "model": OLLAMA_MODEL_TRANSLATE,
+                "stream": False,
+                "format": "json",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_msg},
+                ],
+                "options": {
+                    "temperature": _translate_temp_for_attempt(attempt),
+                    "num_ctx": TRANSLATE_BATCH_NUM_CTX,
+                },
+            },
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        raw_out = (resp.json().get("message", {}).get("content") or "").strip()
+        parsed = _parse_batch_json(raw_out, n)
+    except Exception as e:
+        return list(texts), [str(e)] * n
+
+    return _post_process_batch(texts, parsed, per_item, target)
+
+
+# Gemini batch — lazy import เพื่อไม่ให้ project พังถ้ายังไม่ลง google-genai
+_GEMINI_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer"},
+                    "text": {"type": "string"},
+                },
+                "required": ["id", "text"],
+            },
+        },
+    },
+    "required": ["items"],
+}
+
+
+def _translate_batch_gemini(texts: list[str], target: str,
+                            custom_rules: str | None,
+                            timeout: float, attempt: int = 0
+                            ) -> tuple[list[str], list[str | None]]:
+    """แปลผ่าน Gemini — ใช้ response_schema สำหรับ structured output"""
+    n = len(texts)
+
+    if not GEMINI_API_KEY:
+        return list(texts), ["GEMINI_API_KEY ยังไม่ตั้งใน .env"] * n
+
+    try:
+        from google import genai
+        from google.genai import types as gtypes
+    except ImportError as e:
+        return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
+
+    user_msg, per_item = _build_batch_user_msg(texts)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules)
+
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        response = client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=[user_msg],
+            config=gtypes.GenerateContentConfig(
+                system_instruction=system_prompt,
+                response_mime_type="application/json",
+                response_schema=_GEMINI_RESPONSE_SCHEMA,
+                temperature=_translate_temp_for_attempt(attempt),
+            ),
+        )
+        raw_out = (response.text or "").strip()
+        parsed = _parse_batch_json(raw_out, n)
+    except Exception as e:
+        return list(texts), [f"gemini: {e}"] * n
+
+    return _post_process_batch(texts, parsed, per_item, target)
+
+
+def translate_batch(texts: list[str], target: str = "th",
+                    engine: str = "qwen",
+                    custom_rules: str | None = None,
+                    timeout: float | None = None,
+                    attempt: int = 0
+                    ) -> tuple[list[str], list[str | None]]:
+    """แปลหลายข้อความใน 1 LLM call — dispatch ตาม engine
+    - filter empty → return "" ทันที ไม่เปลือง token
+    - engine=qwen → Ollama JSON mode
+    - engine=gemini → Gemini response_schema
+    - attempt > 0 → เพิ่ม temperature ให้ผลต่างจากเดิม (สำหรับ retry)
+    """
+    if not texts:
+        return [], []
+
+    n = len(texts)
+    work_idxs: list[int] = []
+    work_texts: list[str] = []
+    for i, t in enumerate(texts):
+        if t and t.strip():
+            work_idxs.append(i)
+            work_texts.append(t)
+
+    translations: list[str] = ["" for _ in range(n)]
+    errors: list[str | None] = [None] * n
+
+    if not work_texts:
+        return translations, errors
+
+    if engine == "gemini":
+        eff_timeout = timeout if timeout is not None else GEMINI_TIMEOUT
+        sub_t, sub_e = _translate_batch_gemini(work_texts, target, custom_rules, eff_timeout, attempt)
+    else:
+        eff_timeout = timeout if timeout is not None else TRANSLATE_BATCH_TIMEOUT
+        sub_t, sub_e = _translate_batch_qwen(work_texts, target, custom_rules, eff_timeout, attempt)
+
+    for j, orig_idx in enumerate(work_idxs):
+        translations[orig_idx] = sub_t[j]
+        errors[orig_idx] = sub_e[j]
+
+    n_ok = sum(1 for e in errors if e is None)
+    print(f"[translate-batch] engine={engine} n={n} ok={n_ok} fail={n - n_ok} attempt={attempt}", flush=True)
+    return translations, errors
 
 
 # ───────── Apple Translate (ผ่าน macOS Shortcuts CLI) ─────────
@@ -1260,6 +1887,46 @@ def translate_endpoint():
     return jsonify({"translated": translated, "target": target, "engine": engine})
 
 
+@app.route("/translate-batch", methods=["POST"])
+def translate_batch_endpoint():
+    """แปลหลายข้อความใน 1 LLM call
+    Request:  {texts: [str, ...], target: "th"|"en", engine: "qwen"|"gemini",
+               custom_rules?: str}
+    Response: {translated: [...], errors: [None|str, ...], target, engine, batch_size}
+    """
+    try:
+        payload = request.get_json(silent=True) or {}
+        texts = payload.get("texts") or []
+        target = payload.get("target", "th")
+        engine = payload.get("engine", "qwen")
+        custom_rules = payload.get("custom_rules")
+        attempt = int(payload.get("attempt", 0) or 0)
+
+        if not isinstance(texts, list) or not texts:
+            return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+        if engine not in ("qwen", "gemini"):
+            return jsonify({"error": f"batch ยังไม่รองรับ engine={engine}"}), 400
+        if engine == "gemini" and not GEMINI_AVAILABLE:
+            return jsonify({"error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 400
+
+        translations, errors = translate_batch(
+            texts, target=target, engine=engine,
+            custom_rules=custom_rules, attempt=attempt,
+        )
+        return jsonify({
+            "translated": translations,
+            "errors": errors,
+            "target": target,
+            "engine": engine,
+            "batch_size": len(texts),
+            "attempt": attempt,
+        })
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"server exception: {exc}"}), 500
+
+
 @app.route("/convert", methods=["POST"])
 def convert():
     if "file" not in request.files:
@@ -1273,6 +1940,18 @@ def convert():
     lang = request.form.get("lang", "auto")
     fast = request.form.get("fast", "0") in ("1", "true", "on", "yes")
     correct = request.form.get("correct", "0") in ("1", "true", "on", "yes")
+    ocr_engine = request.form.get("ocr_engine", "easyocr")
+    if ocr_engine not in OCR_ENGINES:
+        ocr_engine = "easyocr"
+    engine_fallback = None
+    if ocr_engine == "ocrmac" and not OCRMAC_AVAILABLE:
+        engine_fallback = "ocrmac → easyocr (ocrmac ใช้ได้เฉพาะบน macOS)"
+        ocr_engine = "easyocr"
+    # Fast mode พึ่ง ocrmac ตรง ๆ — ถ้าไม่มีก็ปิด
+    if fast and not OCRMAC_AVAILABLE:
+        fast = False
+        engine_fallback = (engine_fallback + "; " if engine_fallback else "") + \
+            "fast mode ปิดอัตโนมัติ (ต้องใช้ ocrmac)"
 
     filename = secure_filename(uploaded.filename)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1286,7 +1965,7 @@ def convert():
             elif lang == "manga":
                 doc_dict, preview = run_manga_pipeline(path, filename)
             else:
-                result = get_converter(kind, lang).convert(str(path))
+                result = get_converter(kind, lang, ocr_engine).convert(str(path))
                 doc = result.document
                 doc_dict = doc.export_to_dict()
                 preview = build_preview(doc)
@@ -1303,6 +1982,8 @@ def convert():
         "json_text": json.dumps(filtered, ensure_ascii=False, indent=2),
         "preview": preview,
         "correction": correction_info,
+        "ocr_engine": ocr_engine,
+        "engine_fallback": engine_fallback,
     })
 
 

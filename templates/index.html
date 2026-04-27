@@ -182,10 +182,21 @@
         table.compare td.col-corrected.pending,
         table.compare td.col-translated.pending { color: #9ca3af; font-style: italic; }
         table.compare td.col-corrected.error,
-        table.compare td.col-translated.error { color: #b91c1c; font-style: italic; }
+        table.compare td.col-translated.error {
+            position: relative;
+            background: #fef2f2 !important;
+            box-shadow: inset 0 0 0 1px #fecaca;
+        }
+        table.compare td.col-corrected.error::before,
+        table.compare td.col-translated.error::before {
+            content: "⚠";
+            position: absolute;
+            top: 2px; right: 4px;
+            font-size: 11px; color: #dc2626;
+            cursor: help;
+        }
         table.compare td.col-translated { background: #eff6ff; color: #1e40af; }
         table.compare td.col-translated.pending { background: transparent; }
-        table.compare td.col-translated.error { background: transparent; }
         table.compare tr.active { outline: 2px solid #2563eb; }
         table.compare td.col-corrected { cursor: text; }
         table.compare td.col-corrected:hover {
@@ -239,11 +250,21 @@
                 <option value="en">English</option>
                 <option value="th_en">ไทย + English</option>
                 <option value="ja_en">日本語 + English</option>
-                <option value="manga">📖 Manga (ญี่ปุ่นแนวตั้ง — mokuro)</option>
+                <option value="manga">日本語 Vertical (mokuro)</option>
             </select>
 
-            <label title="ข้าม docling layout/table ใช้ Apple Vision ตรง ๆ — เร็วกว่า ~10× แต่ไม่มี table/figure detection">
-                <input type="checkbox" id="fast"> ⚡ Fast (Apple Vision เท่านั้น)
+            <label for="ocr_engine">OCR engine:</label>
+            <select id="ocr_engine" name="ocr_engine"
+                    title="เลือก OCR backend ใน docling pipeline — ocrmac ใช้ได้เฉพาะ macOS">
+                <option value="easyocr" selected>EasyOCR (cross-platform)</option>
+                <option value="ocrmac" {% if not ocrmac_available %}disabled{% endif %}>
+                    🍎 Apple Vision (ocrmac){% if not ocrmac_available %} — macOS only{% endif %}
+                </option>
+            </select>
+
+            <label id="fastLabel" style="display:none;"
+                   title="ข้าม docling layout/table ใช้ Apple Vision ตรง ๆ — เร็วกว่า ~10× แต่ไม่มี table/figure detection">
+                <input type="checkbox" id="fast"> ⚡ Fast (ข้าม layout/table)
             </label>
 
             <button type="submit" id="submitBtn">แปลงเป็น JSON</button>
@@ -281,15 +302,40 @@
                 <option value="en">→ English</option>
             </select>
             <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
-                <option value="qwen">🤖 Qwen 1.5B</option>
-                <option value="apple" selected>🍎 Apple Translate</option>
+                <option value="qwen" selected>🤖 Qwen 1.5B</option>
+                <option value="apple">🍎 Apple Translate</option>
+                <option value="gemini" {% if not gemini_available %}disabled{% endif %}>
+                    🌟 Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — ตั้ง GEMINI_API_KEY ใน .env{% endif %}
+                </option>
             </select>
+            <label id="batchSizeLabel" style="font-size:12px; color:#374151; display:inline-flex; align-items:center; gap:4px;"
+                   title="จำนวนข้อความต่อ 1 LLM call — 0 = ทั้งไฟล์ใน 1 call, มากขึ้น = เร็วขึ้นแต่เสี่ยง parse fail">
+                batch:
+                <input type="number" id="batchSize" min="0" max="500"
+                       value="{{ translate_batch_size_default }}"
+                       style="width:54px; padding:4px 6px; border-radius:6px; border:1px solid #d1d5db;">
+                <span style="color:#9ca3af; font-size:11px;">(0=ทั้งไฟล์)</span>
+            </label>
+            <button type="button" id="retryFailedBtn" class="ghost" disabled
+                    title="แปลซ้ำเฉพาะ row ที่ fail ที่ batch/2">↻ retry fail</button>
             <a href="/apple-translate-setup" target="_blank" style="font-size:12px; color:#2563eb;">setup Apple →</a>
             <button type="button" id="stopCorrectBtn" class="ghost" disabled>หยุด</button>
             <button type="button" id="clearCorrectBtn" class="ghost">ล้าง</button>
             <span id="correctProgress" style="color:#6b7280; font-size:13px;"></span>
-            <span style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b ผ่าน Ollama</span>
+            <span id="engineHint" style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b ผ่าน Ollama</span>
         </div>
+        <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
+            <summary style="cursor:pointer; font-size:13px; color:#374151;">📝 กฎเพิ่มเติมสำหรับการแปล (optional)</summary>
+            <textarea id="customRules" rows="4"
+                style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
+                       font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
+                placeholder="เพิ่มกฎเฉพาะสำหรับเอกสารนี้ — ส่งให้ LLM พร้อม system prompt ทุก batch
+ตัวอย่าง:
+- Translate &quot;AI&quot; as &quot;ปัญญาประดิษฐ์&quot;
+- Keep brand names (Microsoft, Google) in English
+- Use formal tone (ใช้ ค่ะ/ครับ)
+- Glossary: API → API, framework → framework"></textarea>
+        </details>
         <div id="compareArea">
             <div class="empty">อัพโหลดไฟล์ก่อน แล้วกดปุ่มเพื่อให้ LLM แก้</div>
         </div>
@@ -334,6 +380,17 @@ const showTexts = document.getElementById("showTexts");
 const showTables = document.getElementById("showTables");
 const showPictures = document.getElementById("showPictures");
 const showLabels = document.getElementById("showLabels");
+const ocrEngineSelect = document.getElementById("ocr_engine");
+const fastLabel = document.getElementById("fastLabel");
+const fastCheckbox = document.getElementById("fast");
+
+function syncFastVisibility() {
+    const showFast = ocrEngineSelect.value === "ocrmac";
+    fastLabel.style.display = showFast ? "" : "none";
+    if (!showFast) fastCheckbox.checked = false;
+}
+ocrEngineSelect.addEventListener("change", syncFastVisibility);
+syncFastVisibility();
 
 let lastResult = null;
 let lastKind = "all";
@@ -396,6 +453,7 @@ form.addEventListener("submit", async (e) => {
     fd.append("file", fileInput.files[0]);
     fd.append("type", typeSelect.value);
     fd.append("lang", document.getElementById("lang").value);
+    fd.append("ocr_engine", document.getElementById("ocr_engine").value);
     fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
 
     submitBtn.disabled = true;
@@ -424,7 +482,10 @@ form.addEventListener("submit", async (e) => {
             output.value = data.json_text;
             populatePages(data.preview.pages);
             syncCheckboxesToKind(lastKind);
-            setStatus("แปลงสำเร็จ ✓", "success");
+            const successMsg = data.engine_fallback
+                ? `แปลงสำเร็จ ✓ (fallback: ${data.engine_fallback})`
+                : "แปลงสำเร็จ ✓";
+            setStatus(successMsg, data.engine_fallback ? "info" : "success");
             buildCompareTable(true);
             if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
         }
@@ -863,7 +924,7 @@ function renderDiffSide(ops, side) {
     }).join("");
 }
 
-async function correctOne(text, before, after) {
+async function correctOne(text, before, after, engine, customRules) {
     const res = await fetch("/correct", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -871,82 +932,243 @@ async function correctOne(text, before, after) {
             text,
             context_before: before || [],
             context_after: after || [],
+            engine: engine || "qwen",
+            custom_rules: customRules || "",
         }),
     });
     return res.json();
 }
 
+async function correctBatchCall(texts, engine, customRules, attempt) {
+    const res = await fetch("/correct-batch", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            texts,
+            engine: engine || "qwen",
+            custom_rules: customRules || "",
+            attempt: attempt || 0,
+        }),
+    });
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+        const body = (await res.text()).slice(0, 200);
+        throw new Error(`HTTP ${res.status} (non-JSON): ${body}`);
+    }
+    return res.json();
+}
+
+// helper สำหรับแสดง diff บน row ที่แก้แล้ว
+function _applyCorrectResult(row, orig, corrected) {
+    const origCell = row.querySelector(".col-original");
+    const cell = row.querySelector(".col-corrected");
+    cell.classList.remove("pending", "error");
+    cell.removeAttribute("title");
+    row.classList.remove("active");
+    let changed = false;
+    if (corrected.trim() !== orig.trim()) {
+        const ops = diffChars(orig, corrected);
+        origCell.innerHTML = renderDiffSide(ops, "orig");
+        cell.innerHTML = renderDiffSide(ops, "corr");
+        row.classList.add("changed");
+        changed = true;
+    } else {
+        cell.textContent = corrected;
+        row.classList.add("same");
+    }
+    const ref = row.dataset.ref;
+    if (ref) corrections[ref] = corrected;
+    return changed;
+}
+function _applyCorrectError(row, errMsg) {
+    const origCell = row.querySelector(".col-original");
+    const cell = row.querySelector(".col-corrected");
+    cell.classList.remove("pending");
+    cell.classList.add("error");
+    // คืน original ลง col-corrected (ถือว่า "ไม่มีการแก้") + reset diff display
+    const orig = row.dataset.orig || "";
+    cell.textContent = orig;
+    cell.title = "❌ " + errMsg;
+    origCell.textContent = orig;
+    row.classList.remove("active", "changed", "same");
+}
+function _markCorrectPending(row) {
+    const cell = row.querySelector(".col-corrected");
+    cell.classList.add("pending");
+    cell.classList.remove("error");
+    cell.removeAttribute("title");
+    cell.textContent = "กำลังแก้...";
+    row.classList.add("active");
+}
+
+// ส่ง correct batch สำหรับ index list — return list ของ index ที่ยัง fail
+async function _processCorrectBatch(rows, indexes, batchSz, engine, customRules, attempt, label) {
+    // pre-filter: empty source → set corrected = "" ทันที ไม่ส่ง LLM
+    const workIndexes = [];
+    let skippedEmpty = 0;
+    for (const idx of indexes) {
+        const orig = rows[idx].dataset.orig || "";
+        if (!orig || !orig.trim()) {
+            _applyCorrectResult(rows[idx], orig, orig);
+            skippedEmpty++;
+        } else {
+            workIndexes.push(idx);
+        }
+    }
+    indexes = workIndexes;
+    if (skippedEmpty > 0) {
+        console.log(`[correct] skipped ${skippedEmpty} empty rows`);
+    }
+
+    const stillFailed = [];
+    const total = rows.length;
+    let changed = 0;
+    for (let start = 0; start < indexes.length; start += batchSz) {
+        if (correctAbort) {
+            stillFailed.push(...indexes.slice(start));
+            break;
+        }
+        const sliceIdxs = indexes.slice(start, start + batchSz);
+        const sliceRows = sliceIdxs.map(i => rows[i]);
+        const sources = sliceRows.map(r => r.dataset.orig || "");
+        sliceRows.forEach(_markCorrectPending);
+        await _geminiThrottle(engine);
+        if (correctAbort) {
+            stillFailed.push(...indexes.slice(start));
+            break;
+        }
+        try {
+            const data = await correctBatchCall(sources, engine, customRules, attempt);
+            _geminiTouch(engine);
+            // 429 detection
+            const errSample = data.error || (data.errors || []).find(e => e);
+            const wait429 = _parse429RetrySec(errSample);
+            if (wait429 > 0) {
+                sliceIdxs.forEach((idx, k) => {
+                    _applyCorrectError(sliceRows[k], `quota เต็ม รอ ${(wait429/1000).toFixed(0)}s แล้วกด retry ใหม่`);
+                    stillFailed.push(idx);
+                });
+                correctProgress.textContent = `⛔ Gemini quota เต็ม — หยุด รอ ${(wait429/1000).toFixed(0)}s ก่อน retry`;
+                stillFailed.push(...indexes.slice(start + sliceIdxs.length));
+                break;
+            }
+            if (data.error) {
+                sliceIdxs.forEach((idx, k) => {
+                    _applyCorrectError(sliceRows[k], data.error);
+                    stillFailed.push(idx);
+                });
+            } else {
+                const arr = data.corrected || [];
+                const errs = data.errors || [];
+                sliceIdxs.forEach((idx, k) => {
+                    if (errs[k]) {
+                        _applyCorrectError(sliceRows[k], errs[k]);
+                        stillFailed.push(idx);
+                    } else {
+                        if (_applyCorrectResult(sliceRows[k], sources[k], arr[k] ?? sources[k])) {
+                            changed++;
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            _geminiTouch(engine);
+            sliceIdxs.forEach((idx, k) => {
+                _applyCorrectError(sliceRows[k], e.message);
+                stillFailed.push(idx);
+            });
+        }
+        const okCount = total - stillFailed.length - (indexes.length - start - sliceIdxs.length);
+        correctProgress.textContent =
+            `แก้แล้ว ${okCount}/${total} (${label}) — เปลี่ยน ${changed}${stillFailed.length ? `, fail ${stillFailed.length}` : ""}`;
+    }
+    return stillFailed;
+}
+
 runCorrectBtn.addEventListener("click", async () => {
     buildCompareTable();
-    const rows = compareArea.querySelectorAll("tbody tr");
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     if (!rows.length) return;
+
+    // ใช้ engine เดียวกับ translate (Apple → fallback เป็น qwen ฝั่ง backend)
+    const engine = translateEngineSel.value;
+    const customRules = (customRulesEl.value || "").trim();
+    const rawBatch = parseInt(document.getElementById("batchSize").value || "1", 10);
+    const effectiveBatch = (rawBatch === 0) ? rows.length : Math.max(1, rawBatch);
+    const useBatch = (engine === "qwen" || engine === "gemini") && effectiveBatch > 1;
+    const batchLabel = (rawBatch === 0) ? `ทั้งไฟล์ (${rows.length})` : String(effectiveBatch);
 
     correctRunning = true;
     correctAbort = false;
     runCorrectBtn.disabled = true;
+    document.getElementById("runTranslateBtn").disabled = true;
+    retryFailedBtn.disabled = true;
     stopCorrectBtn.disabled = false;
 
+    // reset retry state — ใช้ปุ่ม retry ตัวเดียวกับ translate
+    lastFailedIndexes = [];
+    lastBatchUsed = effectiveBatch;
+    lastCustomRules = customRules;
+    lastOperationType = "correct";
+    lastAttempt = 0;
+
     const total = rows.length;
-    let done = 0, changed = 0, errors = 0;
-    const contextWindow = [];  // เก็บประโยคก่อนหน้า (corrected) เป็น context ให้ LLM
-    // เตรียม originals ทั้งหมดเพื่อใช้เป็น context หลังบรรทัดปัจจุบัน
-    const allOrigs = Array.from(rows).map(r => r.dataset.orig || '');
 
-    for (let idx = 0; idx < rows.length; idx++) {
-        if (correctAbort) break;
-        const row = rows[idx];
-        const ref = row.dataset.ref;
-        const orig = row.dataset.orig || row.querySelector(".col-original").textContent;
-        const origCell = row.querySelector(".col-original");
-        const cell = row.querySelector(".col-corrected");
-        cell.classList.add("pending");
-        cell.textContent = "กำลังแก้...";
-        row.classList.add("active");
+    if (useBatch) {
+        const allIdx = Array.from({length: rows.length}, (_, i) => i);
+        const failed = await _processCorrectBatch(
+            rows, allIdx, effectiveBatch, engine, customRules, 0, `batch=${batchLabel}`
+        );
+        lastFailedIndexes = failed;
+    } else {
+        // path เดิม — ทีละ row พร้อม sequential context
+        let done = 0, changed = 0, errors = 0;
+        const contextWindow = [];
+        const allOrigs = rows.map(r => r.dataset.orig || '');
 
-        try {
-            // before: 5 บรรทัดก่อนหน้าที่แก้แล้ว (หรือ original ถ้ายังไม่ได้แก้)
-            // after: 5 บรรทัดถัดไป (ต้นฉบับ — ยังไม่ผ่าน LLM)
-            const before = contextWindow.slice(-5);
-            const after = allOrigs.slice(idx + 1, idx + 6);
-            const data = await correctOne(orig, before, after);
-            cell.classList.remove("pending");
-            row.classList.remove("active");
-            if (data.error) {
-                cell.classList.add("error");
-                cell.textContent = "[error] " + data.error;
-                errors++;
-            } else {
-                const corr = data.corrected || "";
-                if (corr.trim() !== orig.trim()) {
-                    const ops = diffChars(orig, corr);
-                    origCell.innerHTML = renderDiffSide(ops, "orig");
-                    cell.innerHTML = renderDiffSide(ops, "corr");
-                    row.classList.add("changed");
-                    changed++;
-                } else {
-                    cell.textContent = corr;
-                    row.classList.add("same");
-                }
-                if (ref) corrections[ref] = corr;
-                contextWindow.push(corr);  // ใช้คำที่แก้แล้วเป็น context สำหรับแถวถัดไป
+        for (let idx = 0; idx < rows.length; idx++) {
+            if (correctAbort) break;
+            const row = rows[idx];
+            const orig = row.dataset.orig || row.querySelector(".col-original").textContent;
+            // ข้าม empty
+            if (!orig || !orig.trim()) {
+                _applyCorrectResult(row, orig, orig);
+                contextWindow.push(orig);
+                done++;
+                continue;
             }
-        } catch (e) {
-            cell.classList.remove("pending");
-            cell.classList.add("error");
-            cell.textContent = "[error] " + e.message;
-            row.classList.remove("active");
-            errors++;
-            contextWindow.push(orig);  // fallback: ใช้ต้นฉบับ
+            _markCorrectPending(row);
+            try {
+                const before = contextWindow.slice(-5);
+                const after = allOrigs.slice(idx + 1, idx + 6);
+                const data = await correctOne(orig, before, after, engine, customRules);
+                if (data.error) {
+                    _applyCorrectError(row, data.error);
+                    errors++;
+                    contextWindow.push(orig);
+                } else {
+                    const corr = data.corrected || "";
+                    if (_applyCorrectResult(row, orig, corr)) changed++;
+                    contextWindow.push(corr);
+                }
+            } catch (e) {
+                _applyCorrectError(row, e.message);
+                errors++;
+                contextWindow.push(orig);
+            }
+            done++;
+            correctProgress.textContent = `${done}/${total} — เปลี่ยน ${changed}, ผิด ${errors}`;
         }
-        done++;
-        correctProgress.textContent = `${done}/${total} — เปลี่ยน ${changed}, ผิด ${errors}`;
     }
+
     // sync visual preview to show corrections
     if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
 
     correctRunning = false;
     runCorrectBtn.disabled = false;
+    document.getElementById("runTranslateBtn").disabled = false;
     stopCorrectBtn.disabled = true;
+    updateRetryButton();
 });
 
 stopCorrectBtn.addEventListener("click", () => {
@@ -1060,61 +1282,336 @@ async function translateOne(text, target, engine) {
     return res.json();
 }
 
+async function translateBatchCall(texts, target, engine, customRules, attempt) {
+    const res = await fetch("/translate-batch", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            texts, target,
+            engine: engine || "qwen",
+            custom_rules: customRules || "",
+            attempt: attempt || 0,
+        }),
+    });
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+        const body = (await res.text()).slice(0, 200);
+        throw new Error(`HTTP ${res.status} (non-JSON): ${body}`);
+    }
+    return res.json();
+}
+
+// แสดง/ซ่อน batch size + retry button ตาม engine (Apple ไม่รองรับ batch)
+const translateEngineSel = document.getElementById("translateEngine");
+const batchSizeLabel = document.getElementById("batchSizeLabel");
+const batchSizeInput = document.getElementById("batchSize");
+const retryFailedBtn = document.getElementById("retryFailedBtn");
+const engineHint = document.getElementById("engineHint");
+const customRulesEl = document.getElementById("customRules");
+
+const QWEN_DEFAULT_BATCH = parseInt("{{ translate_batch_size_default }}", 10) || 5;
+let _prevEngine = null;  // null = first run → apply engine default
+function syncBatchVisibility() {
+    const eng = translateEngineSel.value;
+    const supportsBatch = (eng === "qwen" || eng === "gemini");
+    batchSizeLabel.style.display = supportsBatch ? "inline-flex" : "none";
+    retryFailedBtn.style.display = supportsBatch ? "" : "none";
+    if (eng === "qwen") {
+        engineHint.textContent = "qwen2.5:1.5b ผ่าน Ollama";
+    } else if (eng === "gemini") {
+        engineHint.textContent = "Gemini ({{ gemini_model or 'gemini-2.5-flash' }})";
+    } else {
+        engineHint.textContent = "Apple Translate (Shortcuts CLI)";
+    }
+    // ปรับ batch default ตาม engine — Gemini ใช้ทั้งไฟล์ (context ใหญ่ + rate limit ตึง)
+    // ทำงานทั้งตอน initial load (_prevEngine === null) และตอนผู้ใช้เปลี่ยน engine
+    if (eng !== _prevEngine) {
+        if (eng === "gemini") {
+            batchSizeInput.value = "0";
+        } else if (eng === "qwen") {
+            batchSizeInput.value = String(QWEN_DEFAULT_BATCH);
+        }
+        _prevEngine = eng;
+    }
+}
+translateEngineSel.addEventListener("change", syncBatchVisibility);
+syncBatchVisibility();
+
+// state สำหรับ manual retry — เก็บไว้ระหว่าง click
+let lastFailedIndexes = [];   // row indexes ที่ fail หลัง run ล่าสุด
+let lastBatchUsed = 0;        // batch size ที่เพิ่งใช้
+let lastTranslateTarget = "th";
+let lastCustomRules = "";     // rules ที่ใช้ตอน run ล่าสุด — retry ใช้ตัวเดียวกัน
+let lastOperationType = "translate";  // "translate" | "correct"
+let lastAttempt = 0;          // attempt counter — เพิ่มขึ้นทุก retry → backend ปรับ temp ให้ result ต่าง
+
+// Gemini rate-limit (5 RPM free tier) — กัน quota หมด
+const GEMINI_BATCH_DELAY_MS = parseInt("{{ gemini_batch_delay_ms }}", 10) || 0;
+let _lastGeminiCallAt = 0;
+async function _geminiThrottle(engine) {
+    if (engine !== "gemini" || GEMINI_BATCH_DELAY_MS <= 0) return;
+    const elapsed = Date.now() - _lastGeminiCallAt;
+    if (elapsed < GEMINI_BATCH_DELAY_MS) {
+        const wait = GEMINI_BATCH_DELAY_MS - elapsed;
+        correctProgress.textContent = `⏳ wait ${(wait/1000).toFixed(1)}s (Gemini rate limit)...`;
+        await new Promise(r => setTimeout(r, wait));
+    }
+}
+function _geminiTouch(engine) {
+    if (engine === "gemini") _lastGeminiCallAt = Date.now();
+}
+
+// ตรวจ 429 จาก error string — return delay ms ที่ต้องรอ (0 = ไม่ใช่ 429)
+function _parse429RetrySec(errMsg) {
+    if (!errMsg || typeof errMsg !== "string") return 0;
+    if (!errMsg.includes("RESOURCE_EXHAUSTED") && !errMsg.includes("429")) return 0;
+    const m = errMsg.match(/retry in ([\d.]+)s/i) || errMsg.match(/retryDelay['"]?\s*[:=]\s*['"]?(\d+)s/i);
+    if (m) return Math.ceil(parseFloat(m[1])) * 1000 + 1000;  // +1s buffer
+    return 30000;  // fallback 30s
+}
+
+function updateRetryButton() {
+    const n = lastFailedIndexes.length;
+    if (n === 0) {
+        retryFailedBtn.disabled = true;
+        retryFailedBtn.textContent = "↻ retry fail";
+    } else {
+        retryFailedBtn.disabled = false;
+        const engine = translateEngineSel.value;
+        const nextBatch = engine === "gemini"
+            ? lastBatchUsed
+            : Math.max(2, Math.floor(lastBatchUsed / 2));
+        const opLabel = lastOperationType === "correct" ? "แก้" : "แปล";
+        retryFailedBtn.textContent = `↻ retry ${opLabel} (${n}) batch=${nextBatch}`;
+    }
+}
+
+function _rowSource(row) {
+    const ref = row.dataset.ref;
+    const orig = row.dataset.orig || "";
+    return (ref && corrections[ref] !== undefined) ? corrections[ref] : orig;
+}
+function _markPending(row) {
+    const cell = row.querySelector(".col-translated");
+    cell.classList.add("pending");
+    cell.classList.remove("error");
+    cell.removeAttribute("title");
+    cell.textContent = "กำลังแปล...";
+    row.classList.add("active");
+}
+function _applySuccess(row, translated) {
+    const cell = row.querySelector(".col-translated");
+    cell.classList.remove("pending", "error");
+    cell.removeAttribute("title");
+    row.classList.remove("active");
+    cell.textContent = translated;
+    const ref = row.dataset.ref;
+    if (ref) translations[ref] = translated;
+}
+function _applyError(row, errMsg) {
+    const cell = row.querySelector(".col-translated");
+    cell.classList.remove("pending");
+    cell.classList.add("error");
+    // ไม่กรอก error ลง field — เคลียร์เนื้อหาเหลือ placeholder, error ใส่ tooltip
+    cell.textContent = "—";
+    cell.title = "❌ " + errMsg;
+    row.classList.remove("active");
+}
+
+// ส่ง batch สำหรับ index list — return list ของ index ที่ยัง fail
+async function _processBatch(rows, indexes, batchSz, target, engine, customRules, attempt, label) {
+    // pre-filter: empty source → set translation = "" ไม่ต้องส่ง LLM (กัน token เปล่า)
+    const workIndexes = [];
+    let skippedEmpty = 0;
+    for (const idx of indexes) {
+        const src = _rowSource(rows[idx]);
+        if (!src || !src.trim()) {
+            _applySuccess(rows[idx], "");
+            skippedEmpty++;
+        } else {
+            workIndexes.push(idx);
+        }
+    }
+    indexes = workIndexes;
+    if (skippedEmpty > 0) {
+        console.log(`[translate] skipped ${skippedEmpty} empty rows`);
+    }
+
+    const stillFailed = [];
+    const total = rows.length;
+    for (let start = 0; start < indexes.length; start += batchSz) {
+        if (correctAbort) {
+            stillFailed.push(...indexes.slice(start));
+            break;
+        }
+        const sliceIdxs = indexes.slice(start, start + batchSz);
+        const sliceRows = sliceIdxs.map(i => rows[i]);
+        const sources = sliceRows.map(_rowSource);
+        sliceRows.forEach(_markPending);
+        // throttle Gemini (rate limit 5 RPM ของ free tier)
+        await _geminiThrottle(engine);
+        if (correctAbort) {
+            stillFailed.push(...indexes.slice(start));
+            break;
+        }
+        try {
+            const data = await translateBatchCall(sources, target, engine, customRules, attempt);
+            _geminiTouch(engine);
+            // 429 detection ระดับ batch
+            const errSample = data.error || (data.errors || []).find(e => e);
+            const wait429 = _parse429RetrySec(errSample);
+            if (wait429 > 0) {
+                sliceIdxs.forEach((idx, k) => {
+                    _applyError(sliceRows[k], `quota เต็ม รอ ${(wait429/1000).toFixed(0)}s แล้วกด retry ใหม่`);
+                    stillFailed.push(idx);
+                });
+                correctProgress.textContent = `⛔ Gemini quota เต็ม — หยุด รอ ${(wait429/1000).toFixed(0)}s ก่อน retry`;
+                stillFailed.push(...indexes.slice(start + sliceIdxs.length));
+                break;  // หยุดทันที กัน request เพิ่ม
+            }
+            if (data.error) {
+                sliceIdxs.forEach((idx, k) => {
+                    _applyError(sliceRows[k], data.error);
+                    stillFailed.push(idx);
+                });
+            } else {
+                const arr = data.translated || [];
+                const errs = data.errors || [];
+                sliceIdxs.forEach((idx, k) => {
+                    if (errs[k]) {
+                        _applyError(sliceRows[k], errs[k]);
+                        stillFailed.push(idx);
+                    } else {
+                        _applySuccess(sliceRows[k], arr[k] ?? "");
+                    }
+                });
+            }
+        } catch (e) {
+            _geminiTouch(engine);
+            sliceIdxs.forEach((idx, k) => {
+                _applyError(sliceRows[k], e.message);
+                stillFailed.push(idx);
+            });
+        }
+        const okCount = total - stillFailed.length - (indexes.length - start - sliceIdxs.length);
+        correctProgress.textContent =
+            `แปลแล้ว ${okCount}/${total} (${label})${stillFailed.length ? ` — fail ${stillFailed.length}` : ""}`;
+    }
+    return stillFailed;
+}
+
 document.getElementById("runTranslateBtn").addEventListener("click", async () => {
     buildCompareTable();
-    const rows = compareArea.querySelectorAll("tbody tr");
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     if (!rows.length) return;
     const target = document.getElementById("translateTarget").value;
-    const engine = document.getElementById("translateEngine").value;
+    const engine = translateEngineSel.value;
+    const rawBatch = parseInt(document.getElementById("batchSize").value || "1", 10);
+    const effectiveBatch = (rawBatch === 0) ? rows.length : Math.max(1, rawBatch);
+    const useBatch = (engine === "qwen" || engine === "gemini") && effectiveBatch > 1;
+    const batchLabel = (rawBatch === 0) ? `ทั้งไฟล์ (${rows.length})` : String(effectiveBatch);
 
     correctRunning = true;
     correctAbort = false;
     runCorrectBtn.disabled = true;
     document.getElementById("runTranslateBtn").disabled = true;
+    retryFailedBtn.disabled = true;
     stopCorrectBtn.disabled = false;
 
+    // reset state
+    const customRules = (customRulesEl.value || "").trim();
+    lastFailedIndexes = [];
+    lastBatchUsed = effectiveBatch;
+    lastTranslateTarget = target;
+    lastCustomRules = customRules;
+    lastOperationType = "translate";
+    lastAttempt = 0;
+
     const total = rows.length;
-    let done = 0, errors = 0;
+    let errors = 0;
 
-    for (const row of rows) {
-        if (correctAbort) break;
-        const ref = row.dataset.ref;
-        const orig = row.dataset.orig || '';
-        // ใช้คำที่แก้แล้วถ้ามี ถ้าไม่ใช้ต้นฉบับ
-        const source = (ref && corrections[ref] !== undefined) ? corrections[ref] : orig;
-        const cell = row.querySelector(".col-translated");
-        cell.classList.add("pending");
-        cell.classList.remove("error");
-        cell.textContent = "กำลังแปล...";
-        row.classList.add("active");
-
-        try {
-            const data = await translateOne(source, target, engine);
-            cell.classList.remove("pending");
-            row.classList.remove("active");
-            if (data.error) {
-                cell.classList.add("error");
-                cell.textContent = "[error] " + data.error;
-                errors++;
-            } else {
-                cell.textContent = data.translated;
-                if (ref) translations[ref] = data.translated;
+    if (useBatch) {
+        const allIdx = Array.from({length: rows.length}, (_, i) => i);
+        const failed = await _processBatch(
+            rows, allIdx, effectiveBatch, target, engine, customRules, 0, `batch=${batchLabel}`
+        );
+        lastFailedIndexes = failed;
+        errors = failed.length;
+    } else {
+        // path เดิม — ทีละ row (Apple หรือ batchSize=1)
+        let done = 0;
+        for (const row of rows) {
+            if (correctAbort) break;
+            const source = _rowSource(row);
+            // ข้าม empty
+            if (!source || !source.trim()) {
+                _applySuccess(row, "");
+                done++;
+                correctProgress.textContent = `แปลแล้ว ${done}/${total}${errors ? ` — ผิด ${errors}` : ""}`;
+                continue;
             }
-        } catch (e) {
-            cell.classList.remove("pending");
-            cell.classList.add("error");
-            cell.textContent = "[error] " + e.message;
-            row.classList.remove("active");
-            errors++;
+            _markPending(row);
+            try {
+                const data = await translateOne(source, target, engine);
+                if (data.error) { _applyError(row, data.error); errors++; }
+                else { _applySuccess(row, data.translated || ""); }
+            } catch (e) {
+                _applyError(row, e.message); errors++;
+            }
+            done++;
+            correctProgress.textContent = `แปลแล้ว ${done}/${total}${errors ? ` — ผิด ${errors}` : ""}`;
         }
-        done++;
-        correctProgress.textContent = `แปลแล้ว ${done}/${total}${errors ? ` — ผิด ${errors}` : ""}`;
     }
 
     correctRunning = false;
     runCorrectBtn.disabled = false;
     document.getElementById("runTranslateBtn").disabled = false;
     stopCorrectBtn.disabled = true;
+    updateRetryButton();
+    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+});
+
+// Retry button — ผู้ใช้กดเอง กัน token ระเบิด, dispatch ตาม operation ล่าสุด
+retryFailedBtn.addEventListener("click", async () => {
+    if (!lastFailedIndexes.length) return;
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
+    const engine = translateEngineSel.value;
+    // Gemini: ไม่หาร batch เพื่อกัน quota หมด — แค่เพิ่ม attempt (temp สูงขึ้น)
+    // Qwen: หารครึ่งเหมือนเดิม (free, ไม่มี rate limit)
+    const nextBatch = engine === "gemini"
+        ? lastBatchUsed
+        : Math.max(2, Math.floor(lastBatchUsed / 2));
+    const nextAttempt = lastAttempt + 1;
+
+    correctRunning = true;
+    correctAbort = false;
+    runCorrectBtn.disabled = true;
+    document.getElementById("runTranslateBtn").disabled = true;
+    retryFailedBtn.disabled = true;
+    stopCorrectBtn.disabled = false;
+
+    const idxs = lastFailedIndexes.slice();
+    let failed;
+    if (lastOperationType === "correct") {
+        failed = await _processCorrectBatch(
+            rows, idxs, nextBatch, engine, lastCustomRules, nextAttempt,
+            `retry#${nextAttempt} แก้ batch=${nextBatch}`
+        );
+    } else {
+        failed = await _processBatch(
+            rows, idxs, nextBatch, lastTranslateTarget, engine, lastCustomRules, nextAttempt,
+            `retry#${nextAttempt} แปล batch=${nextBatch}`
+        );
+    }
+    lastFailedIndexes = failed;
+    lastBatchUsed = nextBatch;
+    lastAttempt = nextAttempt;
+
+    correctRunning = false;
+    runCorrectBtn.disabled = false;
+    document.getElementById("runTranslateBtn").disabled = false;
+    stopCorrectBtn.disabled = true;
+    updateRetryButton();
     if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
 });
 
