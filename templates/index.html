@@ -258,6 +258,19 @@
             font-size: 11px; color: #dc2626;
             cursor: help;
         }
+        table.compare td.col-corrected.warning,
+        table.compare td.col-translated.warning {
+            background: #fefce8 !important;
+            box-shadow: inset 0 0 0 1px #fde68a;
+        }
+        table.compare td.col-corrected.warning::before,
+        table.compare td.col-translated.warning::before {
+            content: "!";
+            position: absolute;
+            top: 2px; right: 4px;
+            font-size: 11px; color: #ca8a04; font-weight: bold;
+            cursor: help;
+        }
         table.compare td.col-translated { background: #eff6ff; color: #1e40af; }
         table.compare td.col-translated.pending { background: transparent; }
         table.compare tr.active { outline: 2px solid #2563eb; }
@@ -289,6 +302,7 @@
         .diff-del { background: #fee2e2; color: #b91c1c; text-decoration: line-through; }
         .diff-ins { background: #d1fae5; color: #047857; font-weight: 600; }
     </style>
+    <script src="/static/pretext.bundle.js"></script>
 </head>
 <body>
 <div class="container">
@@ -455,6 +469,45 @@ function syncFastVisibility() {
     if (!showFast) fastCheckbox.checked = false;
 }
 ocrEngineSelect.addEventListener("change", syncFastVisibility);
+
+// ── จำค่า dropdown/checkbox ครั้งล่าสุดผ่าน localStorage ──
+const CONVERT_PREFS_KEY = "doclingConvertPrefs";
+const langSelect = document.getElementById("lang");
+function _loadConvertPrefs() {
+    try {
+        const raw = localStorage.getItem(CONVERT_PREFS_KEY);
+        if (!raw) return;
+        const p = JSON.parse(raw);
+        if (p.type) {
+            const opt = typeSelect.querySelector(`option[value="${p.type}"]`);
+            if (opt) typeSelect.value = p.type;
+        }
+        if (p.lang) {
+            const opt = langSelect.querySelector(`option[value="${p.lang}"]`);
+            if (opt) langSelect.value = p.lang;
+        }
+        if (p.ocr_engine) {
+            const opt = ocrEngineSelect.querySelector(`option[value="${p.ocr_engine}"]`);
+            if (opt && !opt.disabled) ocrEngineSelect.value = p.ocr_engine;
+        }
+        if (typeof p.fast === "boolean") fastCheckbox.checked = p.fast;
+    } catch (_) {}
+}
+function _saveConvertPrefs() {
+    try {
+        localStorage.setItem(CONVERT_PREFS_KEY, JSON.stringify({
+            type: typeSelect.value,
+            lang: langSelect.value,
+            ocr_engine: ocrEngineSelect.value,
+            fast: fastCheckbox.checked,
+        }));
+    } catch (_) {}
+}
+_loadConvertPrefs();
+[typeSelect, langSelect, ocrEngineSelect, fastCheckbox].forEach(el =>
+    el.addEventListener("change", _saveConvertPrefs)
+);
+
 syncFastVisibility();
 
 let lastResult = null;
@@ -528,8 +581,10 @@ form.addEventListener("submit", async (e) => {
     lastResult = null;
     Object.keys(corrections).forEach(k => delete corrections[k]);
     Object.keys(translations).forEach(k => delete translations[k]);
+    Object.keys(speakerByRef).forEach(k => delete speakerByRef[k]);
     manualEdits.clear();
     manualTranslations.clear();
+    lastFailedIndexes = [];
     pageSelect.innerHTML = "";
     previewArea.innerHTML = '<div class="empty">กำลังประมวลผล...</div>';
     compareArea.innerHTML = '<div class="empty">กำลังประมวลผล...</div>';
@@ -581,10 +636,40 @@ function populatePages(pages) {
 typeSelect.addEventListener("change", () => syncCheckboxesToKind(typeSelect.value));
 syncCheckboxesToKind(typeSelect.value);
 
-// wrap text ให้ไหลตามกล่อง — wrap ที่ space ก่อน ถ้าคำเดียวยังกว้างเกิน (เช่น Thai/JP)
-// จึงค่อย break ตามตัวอักษรเพื่อให้ขึ้นบรรทัดใหม่ได้
+// detect locale ที่ครอบคลุมตัวอักษรหลักของ text — ตัดสินจาก script ที่เจอเป็นหลัก
+function _detectLocale(text) {
+    if (/[฀-๿]/.test(text)) return "th";
+    if (/[぀-ゟ゠-ヿ]/.test(text)) return "ja";  // hiragana/katakana
+    if (/[가-힯]/.test(text)) return "ko";
+    if (/[一-鿿]/.test(text)) return "zh";
+    return undefined;
+}
+let _pretextLocale = null;
+function _ensurePretextLocale(text) {
+    if (typeof Pretext === "undefined") return;
+    const loc = _detectLocale(text);
+    if (loc !== _pretextLocale) {
+        Pretext.setLocale(loc);
+        _pretextLocale = loc;
+    }
+}
+
+// Pretext: word/grapheme segmentation + Unicode line-break rules (Thai/JP/CJK ถูก)
+// Fallback: split-by-space + break-by-char (ไม่รู้ขอบคำ Thai/JP)
 function wrapTextSmart(ctx, text, maxWidth) {
     if (!text) return [];
+    if (typeof Pretext !== "undefined") {
+        try {
+            _ensurePretextLocale(text);
+            // ต้องใช้ prepareWithSegments — layoutWithLines ต้องการ segments
+            const prepared = Pretext.prepareWithSegments(text, ctx.font);
+            const out = Pretext.layoutWithLines(prepared, maxWidth, 1);
+            return out.lines.map(l => l.text);
+        } catch (e) {
+            console.warn("[wrapTextSmart] Pretext failed, fallback:", e);
+        }
+    }
+    // ── fallback ถ้า Pretext ยังไม่โหลด ──
     const tokens = text.split(/(\s+)/);
     const lines = [];
     let line = "";
@@ -609,7 +694,6 @@ function wrapTextSmart(ctx, text, maxWidth) {
                 lines.push(line);
                 line = "";
             }
-            // token เดี่ยวกว้างกว่ากล่อง (เช่น Thai/JP ไม่มี space) → break ตามอักษร
             if (ctx.measureText(tok).width > maxWidth) {
                 const broken = breakByChar(tok);
                 lines.push(...broken.slice(0, -1));
@@ -633,7 +717,6 @@ function drawTextInBox(ctx, text, x, y, w, h) {
     if (!text) return { x, y, w, h, truncated: false };
     const padding = 2;
     const innerW = w - padding * 2;
-    const innerH = h - padding * 2;
     const FONT_FAMILY = '-apple-system, "Helvetica Neue", "Sarabun", sans-serif';
     const MIN_FONT = 7;
     const startFont = Math.min(Math.max(Math.floor(h * 0.65), MIN_FONT), 22);
@@ -641,18 +724,22 @@ function drawTextInBox(ctx, text, x, y, w, h) {
     // line-height multiplier — Thai มีสระบน/ล่าง + วรรณยุกต์ ต้องเผื่อกว่า Latin
     const hasThai = /[฀-๿]/.test(text);
     const LH_MULT = hasThai ? 1.45 : 1.18;
+    // top padding ใหญ่กว่าปกติสำหรับ Thai — สระบน + วรรณยุกต์ stack กันแล้ว extend นอก EM box
+    const topPadFor = (f) => hasThai ? Math.max(padding, Math.ceil(f * 0.25)) : padding;
 
     // ลองขนาดฟอนต์จากใหญ่ → เล็ก จนกว่าทุกบรรทัดใส่ได้
     let chosen = null;
     for (let f = startFont; f >= MIN_FONT; f--) {
         ctx.font = `${f}px ${FONT_FAMILY}`;
         const lh = f * LH_MULT;
+        const topPad = topPadFor(f);
+        const innerH = h - topPad - padding;
         const lines = wrapTextSmart(ctx, text, innerW);
         if (lines.length * lh <= innerH) {
-            chosen = { fontSize: f, lineHeight: lh, lines, overflow: false };
+            chosen = { fontSize: f, lineHeight: lh, lines, topPad, overflow: false };
             break;
         }
-        chosen = { fontSize: f, lineHeight: lh, lines, overflow: true };
+        chosen = { fontSize: f, lineHeight: lh, lines, topPad, overflow: true };
     }
     if (!chosen) return { x, y, w, h, truncated: false };
 
@@ -673,6 +760,7 @@ function drawTextInBox(ctx, text, x, y, w, h) {
     ctx.fillStyle = "#0f172a";
     ctx.textBaseline = "top";
 
+    const innerH = h - chosen.topPad - padding;
     const maxLines = Math.max(1, Math.floor(innerH / chosen.lineHeight));
     const visibleLines = chosen.lines.slice(0, maxLines);
     const truncated = chosen.lines.length > maxLines;
@@ -686,7 +774,7 @@ function drawTextInBox(ctx, text, x, y, w, h) {
             }
             toDraw += "…";
         }
-        ctx.fillText(toDraw, x + padding, y + padding + i * chosen.lineHeight);
+        ctx.fillText(toDraw, x + padding, y + chosen.topPad + i * chosen.lineHeight);
     });
 
     ctx.restore();
@@ -1429,7 +1517,7 @@ async function translateOne(text, target, engine) {
     return res.json();
 }
 
-async function translateBatchCall(texts, target, engine, customRules, attempt, speakers) {
+async function translateBatchCall(texts, target, engine, customRules, attempt, speakers, ids) {
     // ถ้าไม่ส่ง speakers ให้ default = character แรก ทุกชิ้น
     const defaultId = (characters[0] && characters[0].id) || "";
     const speakerArr = speakers || texts.map(() => defaultId);
@@ -1443,6 +1531,7 @@ async function translateBatchCall(texts, target, engine, customRules, attempt, s
             attempt: attempt || 0,
             speakers: speakerArr,
             characters: characters,
+            ids: ids || null,
         }),
     });
     const ct = res.headers.get("content-type") || "";
@@ -1551,10 +1640,15 @@ function _markPending(row) {
     cell.textContent = "กำลังแปล...";
     row.classList.add("active");
 }
-function _applySuccess(row, translated) {
+function _applySuccess(row, translated, warning) {
     const cell = row.querySelector(".col-translated");
-    cell.classList.remove("pending", "error");
-    cell.removeAttribute("title");
+    cell.classList.remove("pending", "error", "warning");
+    if (warning) {
+        cell.classList.add("warning");
+        cell.title = "⚠ " + warning;
+    } else {
+        cell.removeAttribute("title");
+    }
     row.classList.remove("active");
     cell.textContent = translated;
     const ref = row.dataset.ref;
@@ -1562,7 +1656,7 @@ function _applySuccess(row, translated) {
 }
 function _applyError(row, errMsg) {
     const cell = row.querySelector(".col-translated");
-    cell.classList.remove("pending");
+    cell.classList.remove("pending", "warning");
     cell.classList.add("error");
     // ไม่กรอก error ลง field — เคลียร์เนื้อหาเหลือ placeholder, error ใส่ tooltip
     cell.textContent = "—";
@@ -1609,7 +1703,8 @@ async function _processBatch(rows, indexes, batchSz, target, engine, customRules
             break;
         }
         try {
-            const data = await translateBatchCall(sources, target, engine, customRules, attempt, sliceSpeakers);
+            const sliceIds = sliceIdxs.map(idx => idx + 1);
+            const data = await translateBatchCall(sources, target, engine, customRules, attempt, sliceSpeakers, sliceIds);
             _geminiTouch(engine);
             // 429 detection ระดับ batch
             const errSample = data.error || (data.errors || []).find(e => e);
@@ -1632,11 +1727,16 @@ async function _processBatch(rows, indexes, batchSz, target, engine, customRules
                 const arr = data.translated || [];
                 const errs = data.errors || [];
                 sliceIdxs.forEach((idx, k) => {
-                    if (errs[k]) {
-                        _applyError(sliceRows[k], errs[k]);
+                    const tr = arr[k] ?? "";
+                    const er = errs[k];
+                    if (tr && er) {
+                        // warning — apply LLM output แต่ flag ให้ user เห็น
+                        _applySuccess(sliceRows[k], tr, er);
+                    } else if (er) {
+                        _applyError(sliceRows[k], er);
                         stillFailed.push(idx);
                     } else {
-                        _applySuccess(sliceRows[k], arr[k] ?? "");
+                        _applySuccess(sliceRows[k], tr);
                     }
                 });
             }
@@ -2127,7 +2227,8 @@ async function applyManualResponse() {
                 speakers: _previewSource.speakers,
                 characters: _previewSource.characters,
                 raw_response: raw,
-                id_start: (_previewSource.offset || 0) + 1,
+                id_start: _previewSource.id_start || 1,
+                ids: _previewSource.ids || null,
             }),
         });
         const ct = res.headers.get("content-type") || "";
@@ -2145,28 +2246,40 @@ async function applyManualResponse() {
         const errors = data.errors || [];
         const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
         const indices = _previewSource.indices || [];
-        let ok = 0, fail = 0, skip = 0;
+        let ok = 0, warn = 0, fail = 0, skip = 0, notInResp = 0;
         for (let i = 0; i < translations.length && i < indices.length; i++) {
             const row = rows[indices[i]];
             if (!row) break;
             const ref = row.dataset.ref;
             const isUserSkip = ref && speakerByRef[ref] === SPEAKER_SKIP;
             const isEmptySource = !((_previewSource.texts[i] || "").trim());
-            if (errors[i]) {
-                _applyError(row, errors[i]);
-                fail++;
-            } else if (isUserSkip || isEmptySource) {
+            const tr = translations[i];
+            const er = errors[i];
+            if (isUserSkip || isEmptySource) {
                 skip++;
-            } else if (translations[i]) {
-                _applySuccess(row, translations[i]);
+            } else if (tr && er) {
+                // warning — มี translation จาก LLM แต่ guard ทักท้วง — apply พร้อม flag
+                _applySuccess(row, tr, er);
+                warn++;
+            } else if (tr) {
+                _applySuccess(row, tr);
                 ok++;
-            } else {
-                _applyError(row, "ไม่มีผลแปลใน response");
+            } else if (er) {
+                // มี error แต่ไม่มี translation → LLM ไม่ส่ง id นี้กลับมาจริงๆ
+                _applyError(row, er);
                 fail++;
+            } else {
+                // empty + no error → id ไม่อยู่ใน paste, leave untouched
+                notInResp++;
             }
         }
-        status.style.color = ok > 0 ? "#059669" : "#dc2626";
-        status.textContent = `ใส่ ${ok} รายการ${fail ? `, ผิด ${fail}` : ""}${skip ? `, ข้าม ${skip}` : ""}`;
+        status.style.color = (ok + warn) > 0 ? "#059669" : "#dc2626";
+        const parts = [`ใส่ ${ok} รายการ`];
+        if (warn) parts.push(`เตือน ${warn}`);
+        if (fail) parts.push(`ผิด ${fail}`);
+        if (skip) parts.push(`ข้าม ${skip}`);
+        if (notInResp) parts.push(`ไม่อยู่ใน response ${notInResp}`);
+        status.textContent = parts.join(", ");
         if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
     } catch (e) {
         status.style.color = "#dc2626";
@@ -2186,7 +2299,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
     }
     const target = document.getElementById("translateTarget").value;
     const engine = translateEngineSel.value;
-    const customRules = lastCustomRules || "";
+    const customRules = (customRulesEl.value || "").trim();
     const defaultId = (characters[0] && characters[0].id) || "";
 
     let indices;
@@ -2224,6 +2337,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
         return (corrections[ref] !== undefined) ? corrections[ref] : orig;
     });
     const speakerArr = workRows.map(r => speakerByRef[r.dataset.ref] || defaultId);
+    const idsArr = indices.map(i => i + 1);  // ids = global row numbers (1-based)
 
     const refreshStatus = document.getElementById("previewRefreshStatus");
     if (refreshStatus) refreshStatus.textContent = "กำลังโหลด...";
@@ -2237,6 +2351,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
                 speakers: speakerArr,
                 characters: characters,
                 id_start: id_start,
+                ids: idsArr,
             }),
         });
         const data = await res.json();
@@ -2247,7 +2362,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
         }
         openPreviewModal(
             data,
-            { texts, target, speakers: speakerArr, characters, indices, id_start, mode: mode || "chunk", chunkSize: size, chunkIdx: idx },
+            { texts, target, speakers: speakerArr, characters, indices, ids: idsArr, id_start, mode: mode || "chunk", chunkSize: size, chunkIdx: idx },
             totalShown
         );
     } catch (e) {

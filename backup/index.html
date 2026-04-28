@@ -319,8 +319,8 @@
             <label for="ocr_engine">OCR engine:</label>
             <select id="ocr_engine" name="ocr_engine"
                     title="เลือก OCR backend ใน docling pipeline — ocrmac ใช้ได้เฉพาะ macOS">
-                <option value="easyocr" selected>EasyOCR (cross-platform)</option>
-                <option value="ocrmac"  {% if not ocrmac_available %}disabled{% endif %}>
+                <option value="easyocr" >EasyOCR (cross-platform)</option>
+                <option value="ocrmac"  selected{% if not ocrmac_available %}disabled{% endif %}>
                     Apple Vision (ocrmac){% if not ocrmac_available %} — macOS only{% endif %}
                 </option>
             </select>

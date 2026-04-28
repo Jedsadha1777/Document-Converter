@@ -182,36 +182,46 @@ def translate_batch_preview():
     speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
     characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
     id_start = int(payload.get("id_start", 1) or 1)
+    payload_ids = payload.get("ids") if isinstance(payload.get("ids"), list) else None
 
     if not isinstance(texts, list) or not texts:
         return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
 
-    work_texts: list[str] = []
-    work_speakers: list[str | None] = []
+    n = len(texts)
+    sp_list = list(speakers) if isinstance(speakers, list) else [None] * n
+    if len(sp_list) < n:
+        sp_list += [None] * (n - len(sp_list))
+    if payload_ids and len(payload_ids) == n:
+        ids = [int(x) for x in payload_ids]
+    else:
+        ids = [id_start + i for i in range(n)]
+
     skipped_user = 0
     skipped_empty = 0
     skipped_indexes: list[int] = []
     for i, t in enumerate(texts):
-        if not (t and t.strip()):
-            skipped_empty += 1
-            skipped_indexes.append(i)
-            continue
-        sp = speakers[i] if speakers and i < len(speakers) else None
+        sp = sp_list[i]
         if sp == SPEAKER_SKIP:
             skipped_user += 1
             skipped_indexes.append(i)
-            continue
-        work_texts.append(t)
-        work_speakers.append(sp)
+        elif not (t and t.strip()):
+            skipped_empty += 1
+            skipped_indexes.append(i)
 
-    has_speaker = any(s for s in work_speakers)
-    eff_speakers = work_speakers if has_speaker else None
-    eff_chars = characters if has_speaker else None
+    has_real_speaker = any(s for s in sp_list if s and s != SPEAKER_SKIP)
+    has_skip = any(s == SPEAKER_SKIP for s in sp_list)
+    # pass speakers ถ้ามี real speaker หรือ skip — เพื่อให้ _build_batch_user_msg ตัด content ของ SKIP
+    eff_speakers = sp_list if (has_real_speaker or has_skip) else None
+    if has_real_speaker and characters:
+        used_ids = {s for s in sp_list if s and s != SPEAKER_SKIP}
+        eff_chars = [c for c in characters if c.get("id") in used_ids]
+    else:
+        eff_chars = None
 
-    user_msg, _ = _build_batch_user_msg(work_texts, eff_speakers, id_start=id_start)
-    system_prompt = _build_batch_system_prompt(target, len(work_texts), custom_rules, eff_chars, id_start=id_start)
+    user_msg, _ = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, eff_chars, id_start=id_start, ids=ids)
 
-    speakers_used = sorted(set(s for s in work_speakers if s))
+    speakers_used = sorted(set(s for s in sp_list if s and s != SPEAKER_SKIP))
     attempt = int(payload.get("attempt", 0) or 0)
 
     if engine == "gemini":
@@ -245,8 +255,8 @@ def translate_batch_preview():
     return jsonify({
         "engine": engine,
         "target": target,
-        "n_total": len(texts),
-        "n_sent": len(work_texts),
+        "n_total": n,
+        "n_sent": n,
         "skipped_empty": skipped_empty,
         "skipped_user": skipped_user,
         "skipped_indexes": skipped_indexes,
@@ -270,16 +280,18 @@ def translate_batch_apply_manual():
         speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
         characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
         id_start = int(payload.get("id_start", 1) or 1)
+        ids_payload = payload.get("ids") if isinstance(payload.get("ids"), list) else None
 
         if not isinstance(texts, list) or not texts:
             return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
         if not raw_response or not str(raw_response).strip():
             return jsonify({"error": "raw_response ว่าง"}), 400
 
+        ids_arg = [int(x) for x in ids_payload] if ids_payload else None
         translations, errors = apply_manual_batch(
             texts, target, raw_response,
             speakers=speakers, characters=characters,
-            id_start=id_start,
+            id_start=id_start, ids=ids_arg,
         )
         return jsonify({
             "translated": translations,
@@ -302,6 +314,8 @@ def translate_batch_endpoint():
         engine = payload.get("engine", "qwen")
         custom_rules = payload.get("custom_rules")
         attempt = int(payload.get("attempt", 0) or 0)
+        id_start = int(payload.get("id_start", 1) or 1)
+        ids_payload = payload.get("ids") if isinstance(payload.get("ids"), list) else None
         speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
         characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
 
@@ -312,10 +326,12 @@ def translate_batch_endpoint():
         if engine == "gemini" and not GEMINI_AVAILABLE:
             return jsonify({"error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 400
 
+        ids_arg = [int(x) for x in ids_payload] if ids_payload else None
         translations, errors = translate_batch(
             texts, target=target, engine=engine,
             custom_rules=custom_rules, attempt=attempt,
             speakers=speakers, characters=characters,
+            id_start=id_start, ids=ids_arg,
         )
         return jsonify({
             "translated": translations,
