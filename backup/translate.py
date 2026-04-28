@@ -327,31 +327,27 @@ def translate_text(text: str, target: str = "th",
 
 
 def _build_batch_user_msg(texts: list[str],
-                          speakers: list[str | None] | None = None,
-                          id_start: int = 1,
+                          speakers: list[str | None] | None = None
                           ) -> tuple[str, list[dict]]:
     """[N]-prefixed lines (text format ประหยัด token กว่า JSON).
-    speakers (optional): tag {speaker=X} หลัง [N] เพื่อ persona voice.
-    id_start: chunk-aware numbering — ทำให้ id ไม่ชนกับ chunk อื่นเวลา paste
-    response กลับ"""
+    speakers (optional): tag {speaker=X} หลัง [N] เพื่อ persona voice"""
     lines = []
     per_item = []
-    for i, t in enumerate(texts):
+    for i, t in enumerate(texts, 1):
         clean = _join_lines(t or "")
         protected, mapping = _protect_segments(clean)
         protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
-        sp = (speakers[i] if speakers and i < len(speakers) else None)
-        gid = id_start + i
-        prefix = f"[{gid}]"
+        sp = (speakers[i - 1] if speakers and i - 1 < len(speakers) else None)
+        prefix = f"[{i}]"
         if sp:
-            prefix = f"[{gid}|speaker={sp}]"
+            prefix = f"[{i}|speaker={sp}]"
         lines.append(f"{prefix} {protected}")
         per_item.append({"original": t, "protected": protected, "mapping": mapping})
     return "\n".join(lines), per_item
 
 
-def _parse_batch_json(raw: str, n: int, id_start: int = 1) -> list[str | None]:
-    """รับ id ในช่วง [id_start, id_start+n-1] — นอกช่วง/ขาด → mark missing"""
+def _parse_batch_json(raw: str, n: int) -> list[str | None]:
+    """ทนต่อ id ที่ขาด/เกินช่วง — ทุก case ที่ผิด schema → mark missing"""
     result: list[str | None] = [None] * n
     try:
         obj = json.loads(raw)
@@ -360,7 +356,6 @@ def _parse_batch_json(raw: str, n: int, id_start: int = 1) -> list[str | None]:
     items = obj.get("items") if isinstance(obj, dict) else None
     if not isinstance(items, list):
         return result
-    id_end = id_start + n - 1
     for item in items:
         if not isinstance(item, dict):
             continue
@@ -368,8 +363,8 @@ def _parse_batch_json(raw: str, n: int, id_start: int = 1) -> list[str | None]:
         text = item.get("text")
         if not isinstance(idx, int) or not isinstance(text, str):
             continue
-        if id_start <= idx <= id_end:
-            result[idx - id_start] = text
+        if 1 <= idx <= n:
+            result[idx - 1] = text
     return result
 
 
@@ -402,24 +397,22 @@ def _build_characters_section(characters: list[dict] | None) -> str:
 
 
 def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
-                               characters: list[dict] | None = None,
-                               id_start: int = 1) -> str:
+                               characters: list[dict] | None = None) -> str:
     base_prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
     chars_section = _build_characters_section(characters)
-    id_end = id_start + n - 1
     schema_instruction = (
         f"\n\nBATCH MODE: You will translate exactly {n} numbered items.\n"
         f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
         f'{{"items": [\n'
-        f'  {{"id": {id_start}, "text": "<translation of input [{id_start}]>"}},\n'
-        f'  {{"id": {id_start + 1}, "text": "<translation of input [{id_start + 1}]>"}},\n'
+        f'  {{"id": 1, "text": "<translation of input [1]>"}},\n'
+        f'  {{"id": 2, "text": "<translation of input [2]>"}},\n'
         f"  ...\n"
-        f'  {{"id": {id_end}, "text": "<translation of input [{id_end}]>"}}\n'
+        f'  {{"id": {n}, "text": "<translation of input [{n}]>"}}\n'
         f"]}}\n"
         f"RULES:\n"
         f'- "items" array must contain EXACTLY {n} elements.\n'
-        f'- Each element has "id" (integer {id_start}..{id_end}) and "text" (the translation).\n'
-        f"- IDs must be {id_start} through {id_end} in ascending order, no skips, no duplicates.\n"
+        f'- Each element has "id" (integer 1..{n}) and "text" (the translation).\n'
+        f"- IDs must be 1 through {n} in ascending order, no skips, no duplicates.\n"
         f"- Each text is the translation of the input line with the same number.\n"
     )
     factual = (
@@ -491,11 +484,10 @@ def _translate_batch_qwen(texts: list[str], target: str,
                           timeout: float, attempt: int = 0,
                           speakers: list[str | None] | None = None,
                           characters: list[dict] | None = None,
-                          id_start: int = 1,
                           ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
-    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters)
 
     try:
         resp = httpx.post(
@@ -517,7 +509,7 @@ def _translate_batch_qwen(texts: list[str], target: str,
         )
         resp.raise_for_status()
         raw_out = (resp.json().get("message", {}).get("content") or "").strip()
-        parsed = _parse_batch_json(raw_out, n, id_start=id_start)
+        parsed = _parse_batch_json(raw_out, n)
     except Exception as e:
         return list(texts), [str(e)] * n
 
@@ -548,7 +540,6 @@ def _translate_batch_gemini(texts: list[str], target: str,
                             timeout: float, attempt: int = 0,
                             speakers: list[str | None] | None = None,
                             characters: list[dict] | None = None,
-                            id_start: int = 1,
                             ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
 
@@ -561,8 +552,8 @@ def _translate_batch_gemini(texts: list[str], target: str,
     except ImportError as e:
         return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
 
-    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters)
 
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
@@ -577,7 +568,7 @@ def _translate_batch_gemini(texts: list[str], target: str,
             ),
         )
         raw_out = (response.text or "").strip()
-        parsed = _parse_batch_json(raw_out, n, id_start=id_start)
+        parsed = _parse_batch_json(raw_out, n)
     except Exception as e:
         return list(texts), [f"gemini: {e}"] * n
 
@@ -602,7 +593,6 @@ def _strip_markdown_fence(raw: str) -> str:
 def apply_manual_batch(texts: list[str], target: str, raw_response: str,
                        speakers: list[str | None] | None = None,
                        characters: list[dict] | None = None,
-                       id_start: int = 1,
                        ) -> tuple[list[str], list[str | None]]:
     """Parse LLM response ที่ user paste manual + post-process เหมือน batch ปกติ.
     ใช้ filter + per_item mapping เดียวกับ translate_batch เพื่อให้ guard ทำงานครบ"""
@@ -628,10 +618,10 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
 
     has_speaker = any(s for s in work_speakers)
     eff_speakers = work_speakers if has_speaker else None
-    _, per_item = _build_batch_user_msg(work_texts, eff_speakers, id_start=id_start)
+    _, per_item = _build_batch_user_msg(work_texts, eff_speakers)
 
     cleaned = _strip_markdown_fence(raw_response)
-    parsed = _parse_batch_json(cleaned, len(work_texts), id_start=id_start)
+    parsed = _parse_batch_json(cleaned, len(work_texts))
     sub_t, sub_e = _post_process_batch(work_texts, parsed, per_item, target)
 
     for j, orig_idx in enumerate(work_idxs):
@@ -647,7 +637,6 @@ def translate_batch(texts: list[str], target: str = "th",
                     attempt: int = 0,
                     speakers: list[str | None] | None = None,
                     characters: list[dict] | None = None,
-                    id_start: int = 1,
                     ) -> tuple[list[str], list[str | None]]:
     if not texts:
         return [], []

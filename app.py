@@ -181,6 +181,7 @@ def translate_batch_preview():
     custom_rules = payload.get("custom_rules")
     speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
     characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
+    id_start = int(payload.get("id_start", 1) or 1)
 
     if not isinstance(texts, list) or not texts:
         return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
@@ -207,8 +208,8 @@ def translate_batch_preview():
     eff_speakers = work_speakers if has_speaker else None
     eff_chars = characters if has_speaker else None
 
-    user_msg, _ = _build_batch_user_msg(work_texts, eff_speakers)
-    system_prompt = _build_batch_system_prompt(target, len(work_texts), custom_rules, eff_chars)
+    user_msg, _ = _build_batch_user_msg(work_texts, eff_speakers, id_start=id_start)
+    system_prompt = _build_batch_system_prompt(target, len(work_texts), custom_rules, eff_chars, id_start=id_start)
 
     speakers_used = sorted(set(s for s in work_speakers if s))
     attempt = int(payload.get("attempt", 0) or 0)
@@ -268,6 +269,7 @@ def translate_batch_apply_manual():
         raw_response = payload.get("raw_response", "")
         speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
         characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
+        id_start = int(payload.get("id_start", 1) or 1)
 
         if not isinstance(texts, list) or not texts:
             return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
@@ -277,6 +279,7 @@ def translate_batch_apply_manual():
         translations, errors = apply_manual_batch(
             texts, target, raw_response,
             speakers=speakers, characters=characters,
+            id_start=id_start,
         )
         return jsonify({
             "translated": translations,
@@ -380,6 +383,7 @@ def convert():
     return jsonify({
         "json_text": json.dumps(filtered, ensure_ascii=False, indent=2),
         "preview": preview,
+        "texts": doc_dict.get("texts", []),
         "correction": correction_info,
         "ocr_engine": ocr_engine,
         "engine_fallback": engine_fallback,

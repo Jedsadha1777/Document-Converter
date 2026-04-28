@@ -1953,12 +1953,6 @@ function openPreviewModal(data, sourceState, totalRows) {
                     <span id="previewRangeNote" style="color:#374151;"></span>
                     <span id="previewRefreshStatus" style="color:#6b7280;"></span>
                 </div>
-                <div style="display:flex; gap:8px; align-items:center; margin:8px 0; padding:8px 10px; background:#fee2e2; border-radius:6px; font-size:12px;">
-                    <strong style="color:#991b1b;">retry fail:</strong>
-                    <span id="previewFailedNote" style="color:#374151;">— ยังไม่มี row ที่ fail</span>
-                    <button type="button" id="previewLoadFailedBtn" class="ghost" style="font-size:12px;" disabled>📍 โหลด retry fail ทั้งหมด</button>
-                    <span id="previewFailedMode" style="color:#991b1b; font-weight:600;"></span>
-                </div>
                 <div style="display:flex; gap:6px; margin:8px 0;">
                     <button type="button" id="previewCopyAllBtn" class="ghost" style="font-size:12px;">📋 คัดลอก request body</button>
                 </div>
@@ -2027,9 +2021,6 @@ function openPreviewModal(data, sourceState, totalRows) {
             reloadFromInputs();
         });
         document.getElementById("previewChunkIdx").addEventListener("change", reloadFromInputs);
-        document.getElementById("previewLoadFailedBtn").addEventListener("click", () => {
-            fetchPreview(null, 1, "failed");
-        });
     }
     const meta = document.getElementById("previewMeta");
     meta.innerHTML = `
@@ -2054,19 +2045,6 @@ function openPreviewModal(data, sourceState, totalRows) {
     const idxInput = document.getElementById("previewChunkIdx");
     const totalSpan = document.getElementById("previewChunkTotal");
     const rangeNote = document.getElementById("previewRangeNote");
-    const failedNote = document.getElementById("previewFailedNote");
-    const failedCount = lastFailedIndexes ? lastFailedIndexes.length : 0;
-    const failedBtn = document.getElementById("previewLoadFailedBtn");
-    const failedMode = document.getElementById("previewFailedMode");
-    if (failedNote) {
-        failedNote.textContent = failedCount
-            ? `${failedCount} row จาก translate-all ครั้งล่าสุด`
-            : "— ยังไม่มี row ที่ fail";
-    }
-    if (failedBtn) failedBtn.disabled = failedCount === 0;
-    if (failedMode) failedMode.textContent = (sourceState && sourceState.mode === "failed") ? "← กำลังดู retry fail" : "";
-
-    const isFailed = sourceState && sourceState.mode === "failed";
     const total = (typeof totalRows === "number") ? totalRows : data.n_total;
     const size = (sourceState && sourceState.chunkSize) || data.n_total || total;
     const idx = (sourceState && sourceState.chunkIdx) || 1;
@@ -2074,28 +2052,16 @@ function openPreviewModal(data, sourceState, totalRows) {
     if (sizeInput) {
         sizeInput.value = size;
         sizeInput.max = total;
-        sizeInput.disabled = !!isFailed;
     }
     if (idxInput) {
         idxInput.value = idx;
         idxInput.max = totalChunks;
-        idxInput.disabled = !!isFailed;
     }
     if (totalSpan) totalSpan.textContent = totalChunks;
-    const prevBtn = document.getElementById("previewPrevBtn");
-    const nextBtn = document.getElementById("previewNextBtn");
-    const refreshBtn = document.getElementById("previewRefreshBtn");
-    if (prevBtn) prevBtn.disabled = !!isFailed;
-    if (nextBtn) nextBtn.disabled = !!isFailed;
-    if (refreshBtn) refreshBtn.disabled = !!isFailed;
     if (rangeNote) {
-        if (isFailed) {
-            rangeNote.textContent = `(retry fail: ${total} rows)`;
-        } else {
-            const start = (idx - 1) * size + 1;
-            const end = Math.min(idx * size, total);
-            rangeNote.textContent = `(rows ${start}–${end} / ${total})`;
-        }
+        const start = (idx - 1) * size + 1;
+        const end = Math.min(idx * size, total);
+        rangeNote.textContent = `(rows ${start}–${end} / ${total})`;
     }
     const refreshStatus = document.getElementById("previewRefreshStatus");
     if (refreshStatus) refreshStatus.textContent = "";
@@ -2144,10 +2110,10 @@ async function applyManualResponse() {
         const translations = data.translated || [];
         const errors = data.errors || [];
         const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
-        const indices = _previewSource.indices || [];
+        const offset = _previewSource.offset || 0;
         let ok = 0, fail = 0, skip = 0;
-        for (let i = 0; i < translations.length && i < indices.length; i++) {
-            const row = rows[indices[i]];
+        for (let i = 0; i < translations.length; i++) {
+            const row = rows[offset + i];
             if (!row) break;
             const ref = row.dataset.ref;
             const isUserSkip = ref && speakerByRef[ref] === SPEAKER_SKIP;
@@ -2174,14 +2140,10 @@ async function applyManualResponse() {
     }
 }
 
-async function fetchPreview(chunkSize, chunkIdx, mode) {
+async function fetchPreview(chunkSize, chunkIdx) {
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     if (!rows.length) {
         alert("ยังไม่มีข้อมูลในตาราง — อัพไฟล์ก่อน");
-        return;
-    }
-    if (mode === "failed" && (!lastFailedIndexes || !lastFailedIndexes.length)) {
-        alert("ยังไม่มี row ที่ fail");
         return;
     }
     const target = document.getElementById("translateTarget").value;
@@ -2189,34 +2151,13 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
     const customRules = lastCustomRules || "";
     const defaultId = (characters[0] && characters[0].id) || "";
 
-    let indices;
-    let id_start;
-    let size;
-    let idx;
-    let totalChunks;
-    let offset;
-    let totalShown;
-    if (mode === "failed") {
-        indices = lastFailedIndexes.slice();
-        id_start = 1;
-        size = indices.length;
-        idx = 1;
-        totalChunks = 1;
-        offset = 0;
-        totalShown = indices.length;
-    } else {
-        const totalRows = rows.length;
-        size = (typeof chunkSize === "number" && chunkSize > 0) ? Math.min(chunkSize, totalRows) : totalRows;
-        totalChunks = Math.max(1, Math.ceil(totalRows / size));
-        idx = (typeof chunkIdx === "number" && chunkIdx > 0) ? chunkIdx : 1;
-        if (idx > totalChunks) idx = totalChunks;
-        offset = (idx - 1) * size;
-        indices = [];
-        for (let i = offset; i < Math.min(offset + size, totalRows); i++) indices.push(i);
-        id_start = offset + 1;
-        totalShown = totalRows;
-    }
-    const workRows = indices.map(i => rows[i]);
+    const totalRows = rows.length;
+    const size = (typeof chunkSize === "number" && chunkSize > 0) ? Math.min(chunkSize, totalRows) : totalRows;
+    const totalChunks = Math.max(1, Math.ceil(totalRows / size));
+    let idx = (typeof chunkIdx === "number" && chunkIdx > 0) ? chunkIdx : 1;
+    if (idx > totalChunks) idx = totalChunks;
+    const offset = (idx - 1) * size;
+    const workRows = rows.slice(offset, offset + size);
 
     const texts = workRows.map(r => {
         const ref = r.dataset.ref;
@@ -2236,7 +2177,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
                 custom_rules: customRules,
                 speakers: speakerArr,
                 characters: characters,
-                id_start: id_start,
+                id_start: offset + 1,
             }),
         });
         const data = await res.json();
@@ -2247,8 +2188,8 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
         }
         openPreviewModal(
             data,
-            { texts, target, speakers: speakerArr, characters, indices, id_start, mode: mode || "chunk", chunkSize: size, chunkIdx: idx },
-            totalShown
+            { texts, target, speakers: speakerArr, characters, offset, chunkSize: size, chunkIdx: idx },
+            totalRows
         );
     } catch (e) {
         if (refreshStatus) refreshStatus.textContent = "";
