@@ -14,6 +14,7 @@ import httpx
 from config import (
     APPLE_MIN_INPUT_CHARS,
     APPLE_SHORTCUT_EN,
+    APPLE_SHORTCUT_JA,
     APPLE_SHORTCUT_TH,
     GEMINI_API_KEY,
     GEMINI_MODEL,
@@ -128,6 +129,8 @@ def _output_has_unwanted_script(target: str, text: str) -> bool:
         return _has_cjk(text)
     if target == "en":
         return _has_cjk(text) or _has_thai(text)
+    if target == "ja":
+        return _has_thai(text)
     return False
 
 
@@ -260,6 +263,51 @@ TRANSLATE_PROMPTS = {
         "  Japanese kanji names → use the romanized reading; never keep kanji in English output.\n"
         "If the input is already English, return it unchanged."
     ),
+    "ja": (
+        "Translate the user's text to natural Japanese, following the JTF Style Guide for "
+        "Translators Working into Japanese (Ver. 1.5).\n"
+        "Output ONLY the Japanese translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES (per JTF Style Guide):\n"
+        "- Script (JTF §2.1): use hiragana, katakana, and kanji listed in the Jōyō Kanji "
+        "Hyō (Cabinet Notification No. 2, 2010-11-30). Common business kanji not in the "
+        "table (聡明, 推敲, 莫大, 罫線, 梱包, etc.) are also acceptable. If uncertain "
+        "whether a character is a Japanese kanji, use hiragana. Do NOT output "
+        "Chinese-only simplified or traditional characters (这, 们, 個, 麼, 沒, 來, 國, "
+        "etc.) — replace with the Japanese kanji or with hiragana.\n"
+        "- Punctuation (JTF §1.2): use double-byte 。 and 、 inside Japanese text. Use "
+        "single-byte ASCII (.) and (,) only inside Latin-script proper nouns and numbers "
+        "(e.g., '785,105'; '12.5'). Do not mix single-byte . , inside Japanese prose.\n"
+        "- Numbers (JTF §2.2.2 + §2.1.8): use single-byte Arabic numerals for quantities, "
+        "things that can be counted, and ordinal numerals. Use kanji numerals only for "
+        "set phrases / fixed expressions (世界一, 一時的, 一部分, 第三者, 一種の, 数百倍, "
+        "二次関数, 四捨五入, 四角い, 五大陸).\n"
+        "- ABSOLUTE NUMBER PRESERVATION: every digit (0–9) in the input MUST appear "
+        "EXACTLY the same and in the SAME ORDER in the output. Never convert Arabic "
+        "digits to kanji numerals (do NOT write '25' as 二十五). Never convert calendar "
+        "systems: a Western year stays a Western year ('1930' stays '1930'); never add "
+        "or invent 令和/平成/昭和/西暦/紀元前 prefixes the input did not have. If the "
+        "input has 令和7年, keep it; if the input has 2025, keep it. Never round, change "
+        "units, or spell digits as words (no にじゅうご).\n"
+        "- Number positioning (JTF §2.1.10): comma every 3 digits and a period for "
+        "decimals (36,333.333). Commas may be omitted for years and short codes "
+        "(2013, 11030).\n"
+        "- Counters (JTF §2.2.3): write the counter with hiragana か (3か月, 10か所, "
+        "5か年計画), not ヵ / カ / ヶ / 箇.\n"
+        "- Katakana (JTF §2.1.5–2.1.7): use double-byte katakana. Keep the chōon at the "
+        "end of katakana loanwords (コンピューター, ユーザー, プリンター, タイマー — "
+        "not コンピュータ, ユーザ). Separate katakana compound words with nakaguro (・) "
+        "or a single-byte space.\n"
+        "- Foreign / Thai loanwords and names: transliterate by SOUND into katakana "
+        "(Smith → スミス, Microsoft → マイクロソフト). Never translate a name by meaning. "
+        "Established Latin-script brand names (Microsoft, Google, iPhone) may stay in "
+        "Latin script when that is the conventional Japanese form.\n"
+        "- Style: pick keitai (ですます) or jōtai (である) and stay consistent within the "
+        "translation; do not mix.\n"
+        "- Forbidden in output: Thai script (ก-๛) and Korean Hangul. If the model is "
+        "about to emit a Chinese-only character, write hiragana instead.\n"
+        "If the input is already Japanese, return it unchanged."
+    ),
 }
 
 
@@ -304,10 +352,10 @@ def translate_text(text: str, target: str = "th",
         out = _call_ollama_translate(text_protected, prompt_factual, timeout)
         if out and _is_refusal(out):
             print(f"[translate] refusal detected: {out!r}", flush=True)
+            target_name = {"th": "Thai", "ja": "Japanese"}.get(target, "English")
             retry_prompt = (
-                "Translate the input to "
-                + ("Thai" if target == "th" else "English")
-                + ". Output only the translation. No commentary, no warnings, no refusals."
+                f"Translate the input to {target_name}. "
+                "Output only the translation. No commentary, no warnings, no refusals."
             )
             retry_out = _call_ollama_translate(text_protected, retry_prompt, timeout)
             if retry_out and not _is_refusal(retry_out):
@@ -316,13 +364,13 @@ def translate_text(text: str, target: str = "th",
                 return text, None
         if out and _output_has_unwanted_script(target, out):
             print(f"[translate] leak detected ({target}): {out!r} — retry", flush=True)
-            stricter = (
-                prompt
-                + "\n\nCRITICAL: Your previous attempt contained foreign script characters. "
-                + ("DO NOT output any Chinese (汉字) or Japanese (kana/kanji) — convert them to Thai sound."
-                   if target == "th" else
-                   "DO NOT output any non-English characters — use only A-Z, 0-9, basic punctuation.")
-            )
+            if target == "th":
+                strict_extra = "DO NOT output any Chinese (汉字) or Japanese (kana/kanji) — convert them to Thai sound."
+            elif target == "ja":
+                strict_extra = "DO NOT output any Thai (ก-๛) or Hangul characters — use only Japanese script (hiragana/katakana/kanji), Latin letters, and digits."
+            else:
+                strict_extra = "DO NOT output any non-English characters — use only A-Z, 0-9, basic punctuation."
+            stricter = prompt + "\n\nCRITICAL: Your previous attempt contained foreign script characters. " + strict_extra
             retry_out = _call_ollama_translate(text_protected, stricter, timeout)
             if retry_out and not _output_has_unwanted_script(target, retry_out):
                 out = retry_out
@@ -331,6 +379,8 @@ def translate_text(text: str, target: str = "th",
                     out = "".join(c for c in (retry_out or out) if not _has_cjk(c))
                 elif target == "en":
                     out = "".join(c for c in (retry_out or out) if not (_has_cjk(c) or _has_thai(c)))
+                elif target == "ja":
+                    out = "".join(c for c in (retry_out or out) if not _has_thai(c))
                 out = re.sub(r"\s+", " ", out).strip()
                 print(f"[translate] forced-strip: {out!r}", flush=True)
         out = out or text_protected
@@ -646,13 +696,13 @@ def _translate_batch_gemini(texts: list[str], target: str,
     n = len(texts)
 
     if not GEMINI_API_KEY:
-        return list(texts), ["GEMINI_API_KEY ยังไม่ตั้งใน .env"] * n
+        return list(texts), ["GEMINI_API_KEY is not set in .env"] * n
 
     try:
         from google import genai
         from google.genai import types as gtypes
     except ImportError as e:
-        return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
+        return list(texts), [f"google-genai is not installed: {e}"] * n
 
     user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start, ids=ids)
@@ -867,12 +917,15 @@ def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None
         return text, None
 
     if not _shortcuts_available():
-        return text, "ไม่พบ shortcuts CLI (ต้องใช้ macOS 12+)"
+        return text, "shortcuts CLI not found (requires macOS 12+)"
 
-    name = APPLE_SHORTCUT_TH if target == "th" else APPLE_SHORTCUT_EN
+    name = {
+        "th": APPLE_SHORTCUT_TH,
+        "ja": APPLE_SHORTCUT_JA,
+    }.get(target, APPLE_SHORTCUT_EN)
     if name not in _list_shortcuts():
         return text, (
-            f"ยังไม่ได้สร้าง Shortcut '{name}' — ดูคำแนะนำที่ /apple-translate-setup"
+            f"Shortcut '{name}' has not been created — see instructions at /apple-translate-setup"
         )
 
     text_to_send, mapping = _protect_segments(text)

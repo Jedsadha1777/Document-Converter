@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import unicodedata
 from pathlib import Path
 
 import httpx
@@ -13,6 +14,7 @@ import httpx
 from config import (
     APPLE_MIN_INPUT_CHARS,
     APPLE_SHORTCUT_EN,
+    APPLE_SHORTCUT_JA,
     APPLE_SHORTCUT_TH,
     GEMINI_API_KEY,
     GEMINI_MODEL,
@@ -69,11 +71,43 @@ def _restore_segments(text: str, mapping: dict[str, str]) -> str:
     return text
 
 
-THAI_TO_ARABIC = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
-
-
 def _normalize_numerals(text: str) -> str:
-    return text.translate(THAI_TO_ARABIC)
+    """แปลงเลขทุก script (Thai ๐-๙, full-width ０-９, Arabic-Indic ٠-٩,
+    Devanagari ०-९ ฯลฯ) → ASCII 0-9 ผ่าน Unicode standard digit value"""
+    if not text:
+        return text
+    out = []
+    for c in text:
+        if c.isdecimal():
+            try:
+                out.append(str(unicodedata.digit(c)))
+                continue
+            except (TypeError, ValueError):
+                pass
+        out.append(c)
+    return "".join(out)
+
+
+def _digit_runs(text: str) -> list[str]:
+    """ดึง run ของ digit (ตามที่ Unicode จัดเป็น decimal digit) — keep run boundary
+    เช่น '5km 3miles' → ['5','3'] vs '53cm' → ['53'] (ไม่ปนกัน)"""
+    if not text:
+        return []
+    runs: list[list[str]] = []
+    cur: list[str] = []
+    for c in text:
+        if c.isdecimal():
+            try:
+                cur.append(str(unicodedata.digit(c)))
+                continue
+            except (TypeError, ValueError):
+                pass
+        if cur:
+            runs.append(cur)
+            cur = []
+    if cur:
+        runs.append(cur)
+    return ["".join(r) for r in runs]
 
 
 def _has_cjk(s: str) -> bool:
@@ -95,13 +129,15 @@ def _output_has_unwanted_script(target: str, text: str) -> bool:
         return _has_cjk(text)
     if target == "en":
         return _has_cjk(text) or _has_thai(text)
+    if target == "ja":
+        return _has_thai(text)
     return False
 
 
 def _digits_changed(orig: str, out: str) -> bool:
-    a = "".join(re.findall(r"[0-9]+", orig or ""))
-    b = "".join(re.findall(r"[0-9]+", out or ""))
-    return a != b
+    """เทียบ run-by-run — ป้องกันเคส '5km 3miles' (runs=['5','3']) ปนกับ '53cm' (runs=['53']).
+    ใช้ Unicode standard decimal digit value → ครอบ Thai/JP/Arabic-Indic/Devanagari/Lao ฯลฯ"""
+    return _digit_runs(orig or "") != _digit_runs(out or "")
 
 
 _REFUSAL_PATTERNS_TH = (
@@ -227,6 +263,44 @@ TRANSLATE_PROMPTS = {
         "  Japanese kanji names → use the romanized reading; never keep kanji in English output.\n"
         "If the input is already English, return it unchanged."
     ),
+    "ja": (
+        "Translate the user's text to natural Japanese.\n"
+        "Output ONLY the Japanese translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES — STRICTLY FOLLOWED:\n"
+        "- The output MUST be in Japanese script (hiragana ひらがな, katakana カタカナ, kanji 漢字).\n"
+        "  Latin letters (A–Z, a–z) are allowed for brand names, abbreviations, and units.\n"
+        "  Arabic digits (0–9) are allowed and required (see NUMBERS below).\n"
+        "  FORBIDDEN in output: ANY Thai script (ก-๛) or Korean Hangul. If you find such "
+        "  characters in your output, rewrite them in Japanese before responding.\n"
+        "- SCRIPT CHOICE inside Japanese:\n"
+        "  Use kanji + hiragana for native Japanese words and standard vocabulary.\n"
+        "  Use katakana for foreign loanwords, foreign names, brand names borrowed by sound, "
+        "  and onomatopoeia.\n"
+        "  Particles, verb endings, and grammatical function words → hiragana.\n"
+        "- NUMBERS — ABSOLUTE RULE: NEVER translate, modify, convert, or 'normalize' any number.\n"
+        "  Every digit (0–9) in the input MUST appear EXACTLY THE SAME in the output, in the SAME ORDER.\n"
+        "  NEVER convert Arabic digits to kanji numerals (do NOT write '25' as 二十五).\n"
+        "  Keep '2025' as '2025', NOT 二千二十五 and NOT 令和7年 unless the input itself uses that form.\n"
+        "  NEVER round, simplify, or change units (5 km stays '5 km', not '5000 m').\n"
+        "  NEVER convert digits to words ('25' stays '25', NOT 'にじゅうご').\n"
+        "  This applies to: years, dates, times, prices, percentages, phone numbers, "
+        "  measurements, item counts, list numbers, version numbers — every numeric token.\n"
+        "- PERSON NAMES:\n"
+        "  Japanese names already in kanji or kana → keep them as written.\n"
+        "  Foreign names (Latin script) → transliterate by SOUND into katakana "
+        "  ('Smith' → 'スミス', 'Microsoft' → 'マイクロソフト'); do not translate by meaning.\n"
+        "  Thai names → transliterate by SOUND into katakana.\n"
+        "- LOANWORDS: foreign loanwords (English/Thai/etc.) should normally become katakana "
+        "  by sound. Use the established Japanese form when one exists "
+        "  (e.g., 'computer' → コンピューター).\n"
+        "- BRAND NAMES: established Latin-script brands may stay in Latin "
+        "  (Microsoft, Google, iPhone are commonly written in Latin in Japanese contexts). "
+        "  Use Latin if that is the conventional Japanese form; otherwise katakana.\n"
+        "- PUNCTUATION: prefer Japanese punctuation in flowing prose (。、「」) but keep ASCII "
+        "  punctuation (.,!?:) inside numeric or technical tokens (URLs, decimals, codes).\n"
+        "If the input is already Japanese, return it unchanged."
+    ),
 }
 
 
@@ -271,10 +345,10 @@ def translate_text(text: str, target: str = "th",
         out = _call_ollama_translate(text_protected, prompt_factual, timeout)
         if out and _is_refusal(out):
             print(f"[translate] refusal detected: {out!r}", flush=True)
+            target_name = {"th": "Thai", "ja": "Japanese"}.get(target, "English")
             retry_prompt = (
-                "Translate the input to "
-                + ("Thai" if target == "th" else "English")
-                + ". Output only the translation. No commentary, no warnings, no refusals."
+                f"Translate the input to {target_name}. "
+                "Output only the translation. No commentary, no warnings, no refusals."
             )
             retry_out = _call_ollama_translate(text_protected, retry_prompt, timeout)
             if retry_out and not _is_refusal(retry_out):
@@ -283,13 +357,13 @@ def translate_text(text: str, target: str = "th",
                 return text, None
         if out and _output_has_unwanted_script(target, out):
             print(f"[translate] leak detected ({target}): {out!r} — retry", flush=True)
-            stricter = (
-                prompt
-                + "\n\nCRITICAL: Your previous attempt contained foreign script characters. "
-                + ("DO NOT output any Chinese (汉字) or Japanese (kana/kanji) — convert them to Thai sound."
-                   if target == "th" else
-                   "DO NOT output any non-English characters — use only A-Z, 0-9, basic punctuation.")
-            )
+            if target == "th":
+                strict_extra = "DO NOT output any Chinese (汉字) or Japanese (kana/kanji) — convert them to Thai sound."
+            elif target == "ja":
+                strict_extra = "DO NOT output any Thai (ก-๛) or Hangul characters — use only Japanese script (hiragana/katakana/kanji), Latin letters, and digits."
+            else:
+                strict_extra = "DO NOT output any non-English characters — use only A-Z, 0-9, basic punctuation."
+            stricter = prompt + "\n\nCRITICAL: Your previous attempt contained foreign script characters. " + strict_extra
             retry_out = _call_ollama_translate(text_protected, stricter, timeout)
             if retry_out and not _output_has_unwanted_script(target, retry_out):
                 out = retry_out
@@ -298,6 +372,8 @@ def translate_text(text: str, target: str = "th",
                     out = "".join(c for c in (retry_out or out) if not _has_cjk(c))
                 elif target == "en":
                     out = "".join(c for c in (retry_out or out) if not (_has_cjk(c) or _has_thai(c)))
+                elif target == "ja":
+                    out = "".join(c for c in (retry_out or out) if not _has_thai(c))
                 out = re.sub(r"\s+", " ", out).strip()
                 print(f"[translate] forced-strip: {out!r}", flush=True)
         out = out or text_protected
@@ -326,28 +402,68 @@ def translate_text(text: str, target: str = "th",
         return text, str(e)
 
 
+def _is_translatable(text: str | None) -> bool:
+    """text มีตัวอักษร/ตัวเลขจริงไหม — คัดกรอง OCR garbage (dots-only `．．．．．．`, ellipsis, ฯลฯ)"""
+    if not text:
+        return False
+    s = text.strip()
+    if not s:
+        return False
+    return any(c.isalnum() for c in s)
+
+
 def _build_batch_user_msg(texts: list[str],
-                          speakers: list[str | None] | None = None
+                          speakers: list[str | None] | None = None,
+                          id_start: int = 1,
+                          ids: list[int] | None = None,
                           ) -> tuple[str, list[dict]]:
     """[N]-prefixed lines (text format ประหยัด token กว่า JSON).
-    speakers (optional): tag {speaker=X} หลัง [N] เพื่อ persona voice"""
+    speakers (optional): tag {speaker=X} หลัง [N] เพื่อ persona voice.
+    id_start: chunk-aware numbering สำหรับเคส ids ติดกัน
+    ids (optional): explicit per-text id list — รองรับ sparse / row id ตามจริง.
+    text ที่ไม่มีตัวอักษร/ตัวเลข (dots-only) ส่งเป็น empty `[N] ` กัน LLM แปล junk"""
     lines = []
     per_item = []
-    for i, t in enumerate(texts, 1):
-        clean = _join_lines(t or "")
-        protected, mapping = _protect_segments(clean)
-        protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
-        sp = (speakers[i - 1] if speakers and i - 1 < len(speakers) else None)
-        prefix = f"[{i}]"
-        if sp:
-            prefix = f"[{i}|speaker={sp}]"
+    for i, t in enumerate(texts):
+        sp = (speakers[i] if speakers and i < len(speakers) else None)
+        # SKIP / dots-only / empty → ส่ง content ว่าง (ประหยัด token, LLM ไม่แปล junk)
+        if sp == SPEAKER_SKIP or not _is_translatable(t):
+            protected = ""
+            mapping = {}
+        else:
+            clean = _join_lines(t or "")
+            protected, mapping = _protect_segments(clean)
+            protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
+        gid = ids[i] if ids else (id_start + i)
+        prefix = f"[{gid}]"
+        if sp and sp != SPEAKER_SKIP:
+            prefix = f"[{gid}|speaker={sp}]"
         lines.append(f"{prefix} {protected}")
         per_item.append({"original": t, "protected": protected, "mapping": mapping})
     return "\n".join(lines), per_item
 
 
-def _parse_batch_json(raw: str, n: int) -> list[str | None]:
-    """ทนต่อ id ที่ขาด/เกินช่วง — ทุก case ที่ผิด schema → mark missing"""
+def _coerce_int_id(v) -> int | None:
+    """LLM อาจส่ง id เป็น string ('9'), float (9.0), หรือ int ก็ได้ — coerce เป็น int.
+    bool ถือว่าไม่ใช่ id (Python: bool is subclass of int)"""
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, int):
+        return v
+    if isinstance(v, float):
+        return int(v) if v.is_integer() else None
+    if isinstance(v, str):
+        try:
+            return int(v.strip(), 10)
+        except (ValueError, TypeError):
+            return None
+    return None
+
+
+def _parse_batch_json(raw: str, n: int, id_start: int = 1,
+                      ids: list[int] | None = None) -> list[str | None]:
+    """ids: optional explicit list — รับเฉพาะ id ที่อยู่ใน list. ถ้าไม่ใส่ → ช่วง [id_start, id_start+n-1].
+    id ใน items รองรับทั้ง int และ string-of-int (LLM web UI ส่ง "9" บ่อย)"""
     result: list[str | None] = [None] * n
     try:
         obj = json.loads(raw)
@@ -356,15 +472,29 @@ def _parse_batch_json(raw: str, n: int) -> list[str | None]:
     items = obj.get("items") if isinstance(obj, dict) else None
     if not isinstance(items, list):
         return result
+    if ids:
+        id_to_pos = {gid: pos for pos, gid in enumerate(ids)}
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            idx = _coerce_int_id(item.get("id"))
+            text = item.get("text")
+            if idx is None or not isinstance(text, str):
+                continue
+            pos = id_to_pos.get(idx)
+            if pos is not None:
+                result[pos] = text
+        return result
+    id_end = id_start + n - 1
     for item in items:
         if not isinstance(item, dict):
             continue
-        idx = item.get("id")
+        idx = _coerce_int_id(item.get("id"))
         text = item.get("text")
-        if not isinstance(idx, int) or not isinstance(text, str):
+        if idx is None or not isinstance(text, str):
             continue
-        if 1 <= idx <= n:
-            result[idx - 1] = text
+        if id_start <= idx <= id_end:
+            result[idx - id_start] = text
     return result
 
 
@@ -397,24 +527,42 @@ def _build_characters_section(characters: list[dict] | None) -> str:
 
 
 def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
-                               characters: list[dict] | None = None) -> str:
+                               characters: list[dict] | None = None,
+                               id_start: int = 1,
+                               ids: list[int] | None = None) -> str:
     base_prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
     chars_section = _build_characters_section(characters)
-    schema_instruction = (
-        f"\n\nBATCH MODE: You will translate exactly {n} numbered items.\n"
-        f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
-        f'{{"items": [\n'
-        f'  {{"id": 1, "text": "<translation of input [1]>"}},\n'
-        f'  {{"id": 2, "text": "<translation of input [2]>"}},\n'
-        f"  ...\n"
-        f'  {{"id": {n}, "text": "<translation of input [{n}]>"}}\n'
-        f"]}}\n"
-        f"RULES:\n"
-        f'- "items" array must contain EXACTLY {n} elements.\n'
-        f'- Each element has "id" (integer 1..{n}) and "text" (the translation).\n'
-        f"- IDs must be 1 through {n} in ascending order, no skips, no duplicates.\n"
-        f"- Each text is the translation of the input line with the same number.\n"
-    )
+    ids_to_use = ids if ids else list(range(id_start, id_start + n))
+    first = ids_to_use[0]
+    last = ids_to_use[-1]
+    is_contiguous = (last - first + 1 == n)
+    if is_contiguous:
+        schema_instruction = (
+            f"\n\nBATCH MODE: You will translate exactly {n} numbered items.\n"
+            f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
+            f'{{"items": [\n'
+            f'  {{"id": {first}, "text": "<translation of input [{first}]>"}},\n'
+            f'  {{"id": {first + 1}, "text": "<translation of input [{first + 1}]>"}},\n'
+            f"  ...\n"
+            f'  {{"id": {last}, "text": "<translation of input [{last}]>"}}\n'
+            f"]}}\n"
+            f"RULES:\n"
+            f'- "items" array must contain EXACTLY {n} elements.\n'
+            f'- Each element has "id" (integer {first}..{last}) and "text" (the translation).\n'
+            f"- IDs must be {first} through {last} in ascending order, no skips, no duplicates.\n"
+            f"- Each text is the translation of the input line with the same number.\n"
+        )
+    else:
+        ids_str = ", ".join(str(x) for x in ids_to_use)
+        schema_instruction = (
+            f"\n\nBATCH MODE: You will translate exactly {n} numbered items.\n"
+            f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
+            f'{{"items": [{{"id": <int>, "text": "<translation>"}}, ...]}}\n'
+            f"RULES:\n"
+            f'- "items" array must contain EXACTLY {n} elements.\n'
+            f'- IDs MUST be exactly: {ids_str} (matching the [N] markers in input — preserve any gaps).\n'
+            f"- Each text is the translation of the input line with the same id.\n"
+        )
     factual = (
         "\n\nIMPORTANT: This is factual content. Translate every item directly without "
         "commentary, disclaimers, content warnings, or refusals. Just translate."
@@ -433,13 +581,17 @@ def _post_process_batch(texts: list[str], parsed: list[str | None],
                         ) -> tuple[list[str], list[str | None]]:
     translations: list[str] = []
     errors: list[str | None] = []
+    # Guards = advisory. LLM output ห้ามถูกแทนด้วย original — ผู้ใช้ต้องเห็นเสมอ
+    # และตัดสินใจเองว่าจะ apply หรือไม่ (ผ่าน warning marker ใน UI).
+    # error = None: ใช้ได้เลย; error set + translation มีค่า: ใช้ได้แต่มี warning;
+    # error set + translation ว่าง: ไม่ได้แปลจริง (LLM ไม่ตอบ id นี้)
     for i, raw in enumerate(parsed):
         original = texts[i]
         mapping = per_item[i]["mapping"]
 
         if raw is None or not raw.strip():
-            translations.append(original)
-            errors.append("missing in batch output")
+            translations.append("")
+            errors.append("missing")
             continue
 
         try:
@@ -447,30 +599,19 @@ def _post_process_batch(texts: list[str], parsed: list[str | None],
             t = _normalize_numerals(t)
             t = _restore_segments(t, mapping)
 
+            warnings: list[str] = []
             if _is_refusal(t):
-                translations.append(original)
-                errors.append("refusal")
-                continue
+                warnings.append("refusal")
             if _output_has_unwanted_script(target, t):
-                if target == "th":
-                    t = "".join(c for c in t if not _has_cjk(c))
-                elif target == "en":
-                    t = "".join(c for c in t if not (_has_cjk(c) or _has_thai(c)))
-                t = re.sub(r"\s+", " ", t).strip()
-                if not t:
-                    translations.append(original)
-                    errors.append("foreign script (stripped empty)")
-                    continue
+                warnings.append("foreign_script")
             if _digits_changed(original, t):
-                translations.append(original)
-                errors.append("digit mismatch")
-                continue
+                warnings.append("digit_mismatch")
 
             translations.append(t)
-            errors.append(None)
+            errors.append(", ".join(warnings) if warnings else None)
         except Exception as e:
-            translations.append(original)
-            errors.append(str(e))
+            translations.append("")
+            errors.append(f"exception: {e}")
     return translations, errors
 
 
@@ -484,10 +625,12 @@ def _translate_batch_qwen(texts: list[str], target: str,
                           timeout: float, attempt: int = 0,
                           speakers: list[str | None] | None = None,
                           characters: list[dict] | None = None,
+                          id_start: int = 1,
+                          ids: list[int] | None = None,
                           ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
-    user_msg, per_item = _build_batch_user_msg(texts, speakers)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start, ids=ids)
 
     try:
         resp = httpx.post(
@@ -509,7 +652,7 @@ def _translate_batch_qwen(texts: list[str], target: str,
         )
         resp.raise_for_status()
         raw_out = (resp.json().get("message", {}).get("content") or "").strip()
-        parsed = _parse_batch_json(raw_out, n)
+        parsed = _parse_batch_json(raw_out, n, id_start=id_start, ids=ids)
     except Exception as e:
         return list(texts), [str(e)] * n
 
@@ -540,20 +683,22 @@ def _translate_batch_gemini(texts: list[str], target: str,
                             timeout: float, attempt: int = 0,
                             speakers: list[str | None] | None = None,
                             characters: list[dict] | None = None,
+                            id_start: int = 1,
+                            ids: list[int] | None = None,
                             ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
 
     if not GEMINI_API_KEY:
-        return list(texts), ["GEMINI_API_KEY ยังไม่ตั้งใน .env"] * n
+        return list(texts), ["GEMINI_API_KEY is not set in .env"] * n
 
     try:
         from google import genai
         from google.genai import types as gtypes
     except ImportError as e:
-        return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
+        return list(texts), [f"google-genai is not installed: {e}"] * n
 
-    user_msg, per_item = _build_batch_user_msg(texts, speakers)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start, ids=ids)
 
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
@@ -568,65 +713,99 @@ def _translate_batch_gemini(texts: list[str], target: str,
             ),
         )
         raw_out = (response.text or "").strip()
-        parsed = _parse_batch_json(raw_out, n)
+        parsed = _parse_batch_json(raw_out, n, id_start=id_start, ids=ids)
     except Exception as e:
         return list(texts), [f"gemini: {e}"] * n
 
     return _post_process_batch(texts, parsed, per_item, target)
 
 
-def _strip_markdown_fence(raw: str) -> str:
-    """LLM web UIs (Gemini/ChatGPT) มัก wrap JSON ใน ```json ... ```"""
+def _extract_json_payload(raw: str) -> str:
+    """ดึง JSON object/array จาก response ของ LLM อย่าง robust:
+    1. ลอง parse ทั้งก้อนก่อน (fast path)
+    2. ถ้าเป็น markdown fence (```json ... ```) ลอก wrapper
+    3. หา `{` ตัวแรก แล้วใช้ json.JSONDecoder.raw_decode หาขอบเขต object ที่ valid
+    raw_decode คือ method มาตรฐานของ stdlib ที่ json library ใช้แยก concatenated JSON —
+    เชื่อถือได้กว่า regex / find('}') ที่จะหลุดเคส nested braces ใน string
+    """
+    if not raw:
+        return ""
     s = raw.strip()
+    if not s:
+        return ""
+    # fast path
+    try:
+        json.loads(s)
+        return s
+    except json.JSONDecodeError:
+        pass
+    # markdown fence wrapper
     if s.startswith("```"):
-        s = re.sub(r"^```\w*\s*\n?", "", s)
-        s = re.sub(r"\n?```\s*$", "", s)
-    # ถ้ามี prose ก่อน/หลัง — ดึง object แรกที่เจอ
-    if not s.startswith("{"):
-        i = s.find("{")
-        j = s.rfind("}")
-        if i >= 0 and j > i:
-            s = s[i:j + 1]
-    return s.strip()
+        nl = s.find("\n")
+        if nl > 0:
+            s = s[nl + 1:]
+        if s.rstrip().endswith("```"):
+            s = s.rstrip()[:-3].rstrip()
+        try:
+            json.loads(s)
+            return s
+        except json.JSONDecodeError:
+            pass
+    # raw_decode — เริ่มจาก `{` หรือ `[` ตัวแรก ที่ตามด้วย JSON ที่ valid
+    decoder = json.JSONDecoder()
+    for opener in ("{", "["):
+        idx = s.find(opener)
+        while idx >= 0:
+            try:
+                _, end = decoder.raw_decode(s, idx)
+                return s[idx:end]
+            except json.JSONDecodeError:
+                idx = s.find(opener, idx + 1)
+    return s
+
+
+# legacy alias เผื่อ caller เก่า
+_strip_markdown_fence = _extract_json_payload
 
 
 def apply_manual_batch(texts: list[str], target: str, raw_response: str,
                        speakers: list[str | None] | None = None,
                        characters: list[dict] | None = None,
+                       id_start: int = 1,
+                       ids: list[int] | None = None,
                        ) -> tuple[list[str], list[str | None]]:
-    """Parse LLM response ที่ user paste manual + post-process เหมือน batch ปกติ.
-    ใช้ filter + per_item mapping เดียวกับ translate_batch เพื่อให้ guard ทำงานครบ"""
+    """Parse manual response — apply ignore SKIP / empty source.
+    ids: explicit list (override id_start) — รองรับ slice ไม่ติดกัน"""
     n = len(texts)
     translations: list[str] = ["" for _ in range(n)]
     errors: list[str | None] = [None] * n
-
-    work_idxs: list[int] = []
-    work_texts: list[str] = []
-    work_speakers: list[str | None] = []
-    for i, t in enumerate(texts):
-        if not (t and t.strip()):
-            continue
-        sp = speakers[i] if speakers and i < len(speakers) else None
-        if sp == SPEAKER_SKIP:
-            continue
-        work_idxs.append(i)
-        work_texts.append(t)
-        work_speakers.append(sp)
-
-    if not work_texts:
+    if n == 0:
         return translations, errors
 
-    has_speaker = any(s for s in work_speakers)
-    eff_speakers = work_speakers if has_speaker else None
-    _, per_item = _build_batch_user_msg(work_texts, eff_speakers)
+    sp_list: list[str | None] = list(speakers) if speakers else [None] * n
+    if len(sp_list) < n:
+        sp_list += [None] * (n - len(sp_list))
+    if ids is None or len(ids) != n:
+        ids = [id_start + i for i in range(n)]
+
+    has_real_speaker = any(s for s in sp_list if s and s != SPEAKER_SKIP)
+    has_skip = any(s == SPEAKER_SKIP for s in sp_list)
+    eff_speakers = sp_list if (has_real_speaker or has_skip) else None
+    _, per_item = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
 
     cleaned = _strip_markdown_fence(raw_response)
-    parsed = _parse_batch_json(cleaned, len(work_texts))
-    sub_t, sub_e = _post_process_batch(work_texts, parsed, per_item, target)
+    parsed = _parse_batch_json(cleaned, n, id_start=id_start, ids=ids)
+    sub_t, sub_e = _post_process_batch(list(texts), parsed, per_item, target)
 
-    for j, orig_idx in enumerate(work_idxs):
-        translations[orig_idx] = sub_t[j]
-        errors[orig_idx] = sub_e[j]
+    for i in range(n):
+        if sp_list[i] == SPEAKER_SKIP:
+            continue
+        if not _is_translatable(texts[i]):
+            continue
+        if parsed[i] is None:
+            continue  # id ไม่อยู่ใน paste → ปล่อย row, ไม่ error
+        translations[i] = sub_t[i]
+        errors[i] = sub_e[i]
     return translations, errors
 
 
@@ -637,7 +816,11 @@ def translate_batch(texts: list[str], target: str = "th",
                     attempt: int = 0,
                     speakers: list[str | None] | None = None,
                     characters: list[dict] | None = None,
+                    id_start: int = 1,
+                    ids: list[int] | None = None,
                     ) -> tuple[list[str], list[str | None]]:
+    """ส่งทุก row ให้ LLM — ไม่ filter, apply step ignore SKIP / empty source.
+    ids: explicit list (override id_start) — รองรับ slice ที่ไม่ติดกัน เช่น retry fail"""
     if not texts:
         return [], []
 
@@ -645,55 +828,54 @@ def translate_batch(texts: list[str], target: str = "th",
     translations: list[str] = ["" for _ in range(n)]
     errors: list[str | None] = [None] * n
 
-    work_idxs: list[int] = []
-    work_texts: list[str] = []
-    work_speakers: list[str | None] = []
-    skipped_user = 0
-    for i, t in enumerate(texts):
-        if not (t and t.strip()):
-            continue
-        sp = speakers[i] if speakers and i < len(speakers) else None
-        if sp == SPEAKER_SKIP:
-            skipped_user += 1
-            continue
-        work_idxs.append(i)
-        work_texts.append(t)
-        work_speakers.append(sp)
+    sp_list: list[str | None] = list(speakers) if speakers else [None] * n
+    if len(sp_list) < n:
+        sp_list += [None] * (n - len(sp_list))
+    if ids is None or len(ids) != n:
+        ids = [id_start + i for i in range(n)]
 
-    if not work_texts:
-        if skipped_user:
-            print(f"[translate-batch] user skipped {skipped_user} (ไม่แปล)", flush=True)
-        return translations, errors
-
-    has_speaker = any(s for s in work_speakers)
-    eff_speakers = work_speakers if has_speaker else None
-    if has_speaker and characters:
-        used_ids = {s for s in work_speakers if s}
+    has_real_speaker = any(s for s in sp_list if s and s != SPEAKER_SKIP)
+    has_skip = any(s == SPEAKER_SKIP for s in sp_list)
+    eff_speakers = sp_list if (has_real_speaker or has_skip) else None
+    if has_real_speaker and characters:
+        used_ids = {s for s in sp_list if s and s != SPEAKER_SKIP}
         eff_chars = [c for c in characters if c.get("id") in used_ids]
     else:
         eff_chars = None
+    has_speaker = has_real_speaker
 
     if engine == "gemini":
         eff_timeout = timeout if timeout is not None else GEMINI_TIMEOUT
         sub_t, sub_e = _translate_batch_gemini(
-            work_texts, target, custom_rules, eff_timeout, attempt,
-            speakers=eff_speakers, characters=eff_chars,
+            texts, target, custom_rules, eff_timeout, attempt,
+            speakers=eff_speakers, characters=eff_chars, ids=ids,
         )
     else:
         eff_timeout = timeout if timeout is not None else TRANSLATE_BATCH_TIMEOUT
         sub_t, sub_e = _translate_batch_qwen(
-            work_texts, target, custom_rules, eff_timeout, attempt,
-            speakers=eff_speakers, characters=eff_chars,
+            texts, target, custom_rules, eff_timeout, attempt,
+            speakers=eff_speakers, characters=eff_chars, ids=ids,
         )
 
-    for j, orig_idx in enumerate(work_idxs):
-        translations[orig_idx] = sub_t[j]
-        errors[orig_idx] = sub_e[j]
+    skipped_user = 0
+    skipped_empty = 0
+    for i in range(n):
+        if sp_list[i] == SPEAKER_SKIP:
+            skipped_user += 1
+            continue
+        if not _is_translatable(texts[i]):
+            skipped_empty += 1
+            continue
+        translations[i] = sub_t[i]
+        errors[i] = sub_e[i]
 
-    n_ok = sum(1 for e in errors if e is None)
+    n_ok = sum(1 for i in range(n) if errors[i] is None
+               and sp_list[i] != SPEAKER_SKIP and _is_translatable(texts[i]))
+    n_real = n - skipped_user - skipped_empty
     print(
-        f"[translate-batch] engine={engine} n={n} sent={len(work_texts)} "
-        f"skipped_user={skipped_user} ok={n_ok} fail={n - n_ok} attempt={attempt} speakers={has_speaker}",
+        f"[translate-batch] engine={engine} n={n} real={n_real} "
+        f"skipped_user={skipped_user} skipped_empty={skipped_empty} "
+        f"ok={n_ok} fail={n_real - n_ok} attempt={attempt} speakers={has_speaker}",
         flush=True,
     )
     return translations, errors
@@ -728,12 +910,15 @@ def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None
         return text, None
 
     if not _shortcuts_available():
-        return text, "ไม่พบ shortcuts CLI (ต้องใช้ macOS 12+)"
+        return text, "shortcuts CLI not found (requires macOS 12+)"
 
-    name = APPLE_SHORTCUT_TH if target == "th" else APPLE_SHORTCUT_EN
+    name = {
+        "th": APPLE_SHORTCUT_TH,
+        "ja": APPLE_SHORTCUT_JA,
+    }.get(target, APPLE_SHORTCUT_EN)
     if name not in _list_shortcuts():
         return text, (
-            f"ยังไม่ได้สร้าง Shortcut '{name}' — ดูคำแนะนำที่ /apple-translate-setup"
+            f"Shortcut '{name}' has not been created — see instructions at /apple-translate-setup"
         )
 
     text_to_send, mapping = _protect_segments(text)

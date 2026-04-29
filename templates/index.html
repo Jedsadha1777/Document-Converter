@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -159,7 +159,7 @@
             font-style: italic;
         }
 
-        /* Floating speaker popup สำหรับ Visual Preview */
+        /* Floating speaker popup for Visual Preview */
         .bbox-popup {
             position: fixed;
             background: #fff;
@@ -307,32 +307,32 @@
 <body>
 <div class="container">
     <h1>Document Converter</h1>
-    <p class="lead">เลือกไฟล์ (PDF, DOCX, PPTX, XLSX, CSV, HTML, รูปภาพ) เลือกประเภทข้อมูล กดแปลง — ดู JSON หรือ overlay กล่องข้อความบนภาพต้นฉบับ</p>
+    <p class="lead">Pick a file (PDF, DOCX, PPTX, XLSX, CSV, HTML, image), choose a data type, click convert — view JSON or an overlay of text boxes on the source image.</p>
 
     <form id="convertForm">
         <div class="controls">
-            <label for="file">ไฟล์:</label>
+            <label for="file">File:</label>
             <input type="file" id="file" name="file" required>
 
-            <label for="type">ประเภท:</label>
+            <label for="type">Type:</label>
             <select id="type" name="type">
                 {% for t in types %}
                 <option value="{{ t }}">{{ t }}</option>
                 {% endfor %}
             </select>
 
-            <label for="lang">OCR ภาษา:</label>
+            <label for="lang">OCR language:</label>
             <select id="lang" name="lang">
                 <option value="auto">auto (multi)</option>
                 <option value="en">English</option>
-                <option value="th_en">ไทย + English</option>
-                <option value="ja_en">日本語 + English</option>
-                <option value="manga">日本語 Vertical (mokuro)</option>
+                <option value="th_en">Thai + English</option>
+                <option value="ja_en">Japanese + English</option>
+                <option value="manga">Japanese Vertical (mokuro)</option>
             </select>
 
             <label for="ocr_engine">OCR engine:</label>
             <select id="ocr_engine" name="ocr_engine"
-                    title="เลือก OCR backend ใน docling pipeline — ocrmac ใช้ได้เฉพาะ macOS">
+                    title="Choose the OCR backend in the docling pipeline — ocrmac is macOS-only">
                 <option value="easyocr" selected>EasyOCR (cross-platform)</option>
                 <option value="ocrmac"  {% if not ocrmac_available %}disabled{% endif %}>
                     Apple Vision (ocrmac){% if not ocrmac_available %} — macOS only{% endif %}
@@ -340,11 +340,11 @@
             </select>
 
             <label id="fastLabel" style="display:none;"
-                   title="ข้าม docling layout/table ใช้ Apple Vision ตรง ๆ — เร็วกว่า ~10× แต่ไม่มี table/figure detection">
-                <input type="checkbox" id="fast"> ⚡ Fast (ข้าม layout/table)
+                   title="Skip docling layout/table; use Apple Vision directly — ~10× faster but no table/figure detection">
+                <input type="checkbox" id="fast"> ⚡ Fast (skip layout/table)
             </label>
 
-            <button type="submit" id="submitBtn">แปลงเป็น JSON</button>
+            <button type="submit" id="submitBtn">Convert to JSON</button>
         </div>
     </form>
 
@@ -359,71 +359,72 @@
     <!-- JSON tab -->
     <div class="tab-panel active" id="panel-json">
         <div class="toolbar">
-            <strong>ผลลัพธ์ JSON</strong>
+            <strong>JSON output</strong>
             <div class="toolbar-actions">
-                <button type="button" class="ghost" id="copyBtn">คัดลอก</button>
-                <button type="button" class="ghost" id="downloadBtn">ดาวน์โหลด</button>
-                <button type="button" class="ghost" id="clearBtn">ล้าง</button>
+                <button type="button" class="ghost" id="copyBtn">Copy</button>
+                <button type="button" class="ghost" id="downloadBtn">Download</button>
+                <button type="button" class="ghost" id="clearBtn">Clear</button>
             </div>
         </div>
-        <textarea id="output" placeholder="ผลลัพธ์ JSON จะแสดงที่นี่..." readonly></textarea>
+        <textarea id="output" placeholder="JSON output will appear here..." readonly></textarea>
     </div>
 
     <!-- Compare tab -->
     <div class="tab-panel" id="panel-compare">
         <div class="preview-controls">
-            <button type="button" id="runCorrectBtn">✨ แก้ทั้งหมดด้วย LLM</button>
-            <button type="button" id="runTranslateBtn">🌐 แปลทั้งหมด</button>
-            <button type="button" id="charsBtn" class="ghost" title="ตั้งค่าตัวละครสำหรับ persona-aware translation">👥 ตัวละคร</button>
-            <button type="button" id="previewPromptBtn" class="ghost" title="ดู prompt ที่จะส่งไป LLM (ไม่เรียก API)">🔍 Preview prompt</button>
+            <button type="button" id="runCorrectBtn">✨ Correct all with LLM</button>
+            <button type="button" id="runTranslateBtn">🌐 Translate all</button>
+            <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation">👥 Characters</button>
+            <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)">🔍 Preview prompt</button>
             <select id="translateTarget" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
-                <option value="th">→ ไทย</option>
+                <option value="th">→ Thai</option>
                 <option value="en">→ English</option>
+                <option value="ja">→ Japanese</option>
             </select>
             <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
                 <option value="qwen" selected>Qwen 1.5B</option>
                 <option value="apple">Apple Translate</option>
                 <option value="gemini" {% if not gemini_available %}disabled{% endif %}>
-                    Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — ตั้ง GEMINI_API_KEY ใน .env{% endif %}
+                    Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — set GEMINI_API_KEY in .env{% endif %}
                 </option>
             </select>
             <label id="batchSizeLabel" style="font-size:12px; color:#374151; display:inline-flex; align-items:center; gap:4px;"
-                   title="จำนวนข้อความต่อ 1 LLM call — 0 = ทั้งไฟล์ใน 1 call, มากขึ้น = เร็วขึ้นแต่เสี่ยง parse fail">
+                   title="Texts per LLM call — 0 = entire file in 1 call; larger = faster but higher parse-fail risk">
                 batch:
                 <input type="number" id="batchSize" min="0" max="500"
                        value="{{ translate_batch_size_default }}"
                        style="width:54px; padding:4px 6px; border-radius:6px; border:1px solid #d1d5db;">
-                <span style="color:#9ca3af; font-size:11px;">(0=ทั้งไฟล์)</span>
+                <span style="color:#9ca3af; font-size:11px;">(0=entire file)</span>
             </label>
             <button type="button" id="retryFailedBtn" class="ghost" disabled
-                    title="แปลซ้ำเฉพาะ row ที่ fail ที่ batch/2">↻ retry fail</button>
+                    title="Retry only failed rows at batch/2">↻ retry fail</button>
             <a href="/apple-translate-setup" target="_blank" style="font-size:12px; color:#2563eb;">setup Apple →</a>
-            <button type="button" id="stopCorrectBtn" class="ghost" disabled>หยุด</button>
-            <button type="button" id="clearCorrectBtn" class="ghost">ล้าง</button>
+            <button type="button" id="stopCorrectBtn" class="ghost" disabled>Stop</button>
+            <button type="button" id="clearCorrectBtn" class="ghost">Clear</button>
             <span id="correctProgress" style="color:#6b7280; font-size:13px;"></span>
-            <span id="engineHint" style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b ผ่าน Ollama</span>
+            <span id="engineHint" style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b via Ollama</span>
         </div>
         <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
-            <summary style="cursor:pointer; font-size:13px; color:#374151;">📝 กฎเพิ่มเติมสำหรับการแปล (optional)</summary>
+            <summary style="cursor:pointer; font-size:13px; color:#374151;">📝 Additional translation rules (optional)</summary>
             <textarea id="customRules" rows="4"
                 style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
                        font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
-                placeholder="เพิ่มกฎเฉพาะสำหรับเอกสารนี้ — ส่งให้ LLM พร้อม system prompt ทุก batch
-ตัวอย่าง:
-- Translate &quot;AI&quot; as &quot;ปัญญาประดิษฐ์&quot;
+                placeholder="Document-specific rules — sent to the LLM with the system prompt for every batch.
+Examples:
+- Translate &quot;AI&quot; consistently as one term
 - Keep brand names (Microsoft, Google) in English
-- Use formal tone (ใช้ ค่ะ/ครับ)
+- Use a formal tone
 - Glossary: API → API, framework → framework"></textarea>
         </details>
         <div id="compareArea">
-            <div class="empty">อัพโหลดไฟล์ก่อน แล้วกดปุ่มเพื่อให้ LLM แก้</div>
+            <div class="empty">Upload a file first, then click a button to have the LLM correct it.</div>
         </div>
     </div>
 
     <!-- Visual tab -->
     <div class="tab-panel" id="panel-visual">
         <div class="preview-controls">
-            <label for="pageSelect">หน้า:</label>
+            <label for="pageSelect">Page:</label>
             <select id="pageSelect"></select>
 
             <label id="lblTexts"><input type="checkbox" id="showTexts" checked> texts</label>
@@ -431,7 +432,7 @@
             <label id="lblPictures"><input type="checkbox" id="showPictures" checked> pictures</label>
             <label><input type="checkbox" id="showLabels" checked> labels</label>
             <label style="margin-left:8px; padding:4px 8px; background:#fef3c7; border-radius:6px;">
-                <input type="checkbox" id="showOverlay"> 📝 ซ้อนคำแปลทับภาพ
+                <input type="checkbox" id="showOverlay"> 📝 Overlay translation on image
             </label>
 
             <span class="legend">
@@ -441,7 +442,7 @@
             </span>
         </div>
         <div id="previewArea">
-            <div class="empty">อัพโหลดไฟล์เพื่อดู preview</div>
+            <div class="empty">Upload a file to see the preview.</div>
         </div>
     </div>
 </div>
@@ -566,7 +567,7 @@ document.querySelectorAll(".tab").forEach(btn => {
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!fileInput.files.length) { setStatus("กรุณาเลือกไฟล์", "error"); return; }
+    if (!fileInput.files.length) { setStatus("Please choose a file", "error"); return; }
     const fd = new FormData();
     fd.append("file", fileInput.files[0]);
     fd.append("type", typeSelect.value);
@@ -575,8 +576,8 @@ form.addEventListener("submit", async (e) => {
     fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "กำลังประมวลผล...";
-    setStatus("กำลังแปลงเอกสาร...", "info");
+    submitBtn.textContent = "Processing...";
+    setStatus("Converting document...", "info");
     output.value = "";
     lastResult = null;
     Object.keys(corrections).forEach(k => delete corrections[k]);
@@ -586,16 +587,16 @@ form.addEventListener("submit", async (e) => {
     manualTranslations.clear();
     lastFailedIndexes = [];
     pageSelect.innerHTML = "";
-    previewArea.innerHTML = '<div class="empty">กำลังประมวลผล...</div>';
-    compareArea.innerHTML = '<div class="empty">กำลังประมวลผล...</div>';
+    previewArea.innerHTML = '<div class="empty">Processing...</div>';
+    compareArea.innerHTML = '<div class="empty">Processing...</div>';
     correctProgress.textContent = "";
 
     try {
         const res = await fetch("/convert", { method: "POST", body: fd });
         const data = await res.json();
         if (!res.ok) {
-            setStatus(data.error || "เกิดข้อผิดพลาด", "error");
-            previewArea.innerHTML = '<div class="empty">เกิดข้อผิดพลาด</div>';
+            setStatus(data.error || "An error occurred", "error");
+            previewArea.innerHTML = '<div class="empty">An error occurred</div>';
         } else {
             lastResult = data;
             lastKind = typeSelect.value;
@@ -603,17 +604,17 @@ form.addEventListener("submit", async (e) => {
             populatePages(data.preview.pages);
             syncCheckboxesToKind(lastKind);
             const successMsg = data.engine_fallback
-                ? `แปลงสำเร็จ ✓ (fallback: ${data.engine_fallback})`
-                : "แปลงสำเร็จ ✓";
+                ? `Converted ✓ (fallback: ${data.engine_fallback})`
+                : "Converted ✓";
             setStatus(successMsg, data.engine_fallback ? "info" : "success");
             buildCompareTable(true);
             if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
         }
     } catch (err) {
-        setStatus("เกิดข้อผิดพลาด: " + err.message, "error");
+        setStatus("An error occurred: " + err.message, "error");
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "แปลงเป็น JSON";
+        submitBtn.textContent = "Convert to JSON";
     }
 });
 
@@ -622,7 +623,7 @@ function populatePages(pages) {
     pages.forEach(p => {
         const opt = document.createElement("option");
         opt.value = p.page_no;
-        opt.textContent = "หน้า " + p.page_no;
+        opt.textContent = "Page " + p.page_no;
         pageSelect.appendChild(opt);
     });
 }
@@ -789,7 +790,7 @@ function _ensureBboxPopup() {
     _bboxPopup = document.createElement("div");
     _bboxPopup.className = "bbox-popup";
     _bboxPopup.innerHTML = `
-        <div class="label">ผู้พูด:</div>
+        <div class="label">Speaker:</div>
         <select class="speaker-select" data-bbox-popup="1"></select>
     `;
     document.body.appendChild(_bboxPopup);
@@ -840,13 +841,13 @@ function showBboxSpeakerPopup(hit, clientX, clientY) {
 
 function renderPreview() {
     if (!lastResult || !lastResult.preview || !lastResult.preview.pages.length) {
-        previewArea.innerHTML = '<div class="empty">อัพโหลดไฟล์เพื่อดู preview</div>';
+        previewArea.innerHTML = '<div class="empty">Upload a file to see the preview.</div>';
         return;
     }
     const pageNo = parseInt(pageSelect.value || lastResult.preview.pages[0].page_no, 10);
     const page = lastResult.preview.pages.find(p => p.page_no === pageNo);
     if (!page || !page.image) {
-        previewArea.innerHTML = '<div class="empty">ไม่มีภาพสำหรับหน้านี้</div>';
+        previewArea.innerHTML = '<div class="empty">No image for this page.</div>';
         return;
     }
 
@@ -1014,7 +1015,7 @@ function renderPreview() {
 document.getElementById("copyBtn").addEventListener("click", async () => {
     if (!output.value) return;
     await navigator.clipboard.writeText(output.value);
-    setStatus("คัดลอกแล้ว", "success");
+    setStatus("Copied", "success");
 });
 document.getElementById("downloadBtn").addEventListener("click", () => {
     if (!output.value) return;
@@ -1043,15 +1044,14 @@ let correctAbort = false;
 
 function buildCompareTable(force = false) {
     if (!lastResult) {
-        compareArea.innerHTML = '<div class="empty">อัพโหลดไฟล์ก่อน แล้วกดปุ่มเพื่อให้ LLM แก้</div>';
+        compareArea.innerHTML = '<div class="empty">Upload a file first, then click a button to have the LLM correct it.</div>';
         return;
     }
-    // ถ้ามีตารางอยู่แล้วและไม่ได้บังคับ rebuild ไม่ต้องล้าง (เก็บคำที่แก้ไว้ระหว่างสลับแท็บ)
     if (!force && compareArea.querySelector("table.compare")) return;
 
     const texts = (lastResult && lastResult.texts) || [];
     if (!texts.length) {
-        compareArea.innerHTML = '<div class="empty">ไม่พบข้อความใน JSON ปัจจุบัน</div>';
+        compareArea.innerHTML = '<div class="empty">No text found in the current JSON.</div>';
         return;
     }
 
@@ -1061,7 +1061,7 @@ function buildCompareTable(force = false) {
         const ref = t.self_ref || '';
         const cached = ref && corrections[ref];
         const tr = ref && translations[ref];
-        const editAttrs = 'contenteditable="true" spellcheck="false" title="คลิกเพื่อแก้ไขด้วยตัวเอง"';
+        const editAttrs = 'contenteditable="true" spellcheck="false" title="Click to edit manually"';
         let corrCell = `<td class="col-corrected col-text pending" ${editAttrs}>—</td>`;
         let origCellInner = escapeHtml(orig);
         let rowCls = '';
@@ -1078,7 +1078,7 @@ function buildCompareTable(force = false) {
                 rowCls = "same";
             }
         }
-        const trEditAttrs = 'contenteditable="true" spellcheck="false" title="คลิกเพื่อแก้ไขคำแปล"';
+        const trEditAttrs = 'contenteditable="true" spellcheck="false" title="Click to edit the translation"';
         const trIsManual = manualTranslations.has(ref);
         const trBaseCls = "col-translated col-text" + (trIsManual ? " manual" : "");
         const trCell = (tr !== undefined)
@@ -1103,15 +1103,15 @@ function buildCompareTable(force = false) {
         <table class="compare">
             <thead><tr>
                 <th class="col-no">#</th>
-                <th class="col-speaker">ผู้พูด</th>
-                <th>OCR (ต้นฉบับ)</th>
-                <th>หลังแก้ด้วย LLM</th>
-                <th>แปล</th>
+                <th class="col-speaker">Speaker</th>
+                <th>OCR (original)</th>
+                <th>Corrected by LLM</th>
+                <th>Translation</th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>
     `;
-    correctProgress.textContent = `${texts.length} ชิ้น`;
+    correctProgress.textContent = `${texts.length} items`;
 }
 
 function escapeHtml(s) {
@@ -1232,7 +1232,7 @@ function _markCorrectPending(row) {
     cell.classList.add("pending");
     cell.classList.remove("error");
     cell.removeAttribute("title");
-    cell.textContent = "กำลังแก้...";
+    cell.textContent = "Correcting...";
     row.classList.add("active");
 }
 
@@ -1280,10 +1280,10 @@ async function _processCorrectBatch(rows, indexes, batchSz, engine, customRules,
             const wait429 = _parse429RetrySec(errSample);
             if (wait429 > 0) {
                 sliceIdxs.forEach((idx, k) => {
-                    _applyCorrectError(sliceRows[k], `quota เต็ม รอ ${(wait429/1000).toFixed(0)}s แล้วกด retry ใหม่`);
+                    _applyCorrectError(sliceRows[k], `quota exceeded — wait ${(wait429/1000).toFixed(0)}s then click retry`);
                     stillFailed.push(idx);
                 });
-                correctProgress.textContent = `⛔ Gemini quota เต็ม — หยุด รอ ${(wait429/1000).toFixed(0)}s ก่อน retry`;
+                correctProgress.textContent = `⛔ Gemini quota exceeded — stopping; wait ${(wait429/1000).toFixed(0)}s before retry`;
                 stillFailed.push(...indexes.slice(start + sliceIdxs.length));
                 break;
             }
@@ -1315,7 +1315,7 @@ async function _processCorrectBatch(rows, indexes, batchSz, engine, customRules,
         }
         const okCount = total - stillFailed.length - (indexes.length - start - sliceIdxs.length);
         correctProgress.textContent =
-            `แก้แล้ว ${okCount}/${total} (${label}) — เปลี่ยน ${changed}${stillFailed.length ? `, fail ${stillFailed.length}` : ""}`;
+            `Corrected ${okCount}/${total} (${label}) — changed ${changed}${stillFailed.length ? `, fail ${stillFailed.length}` : ""}`;
     }
     return stillFailed;
 }
@@ -1331,7 +1331,7 @@ runCorrectBtn.addEventListener("click", async () => {
     const rawBatch = parseInt(document.getElementById("batchSize").value || "1", 10);
     const effectiveBatch = (rawBatch === 0) ? rows.length : Math.max(1, rawBatch);
     const useBatch = (engine === "qwen" || engine === "gemini") && effectiveBatch > 1;
-    const batchLabel = (rawBatch === 0) ? `ทั้งไฟล์ (${rows.length})` : String(effectiveBatch);
+    const batchLabel = (rawBatch === 0) ? `entire file (${rows.length})` : String(effectiveBatch);
 
     correctRunning = true;
     correctAbort = false;
@@ -1340,7 +1340,6 @@ runCorrectBtn.addEventListener("click", async () => {
     retryFailedBtn.disabled = true;
     stopCorrectBtn.disabled = false;
 
-    // reset retry state — ใช้ปุ่ม retry ตัวเดียวกับ translate
     lastFailedIndexes = [];
     lastBatchUsed = effectiveBatch;
     lastCustomRules = customRules;
@@ -1392,7 +1391,7 @@ runCorrectBtn.addEventListener("click", async () => {
                 contextWindow.push(orig);
             }
             done++;
-            correctProgress.textContent = `${done}/${total} — เปลี่ยน ${changed}, ผิด ${errors}`;
+            correctProgress.textContent = `${done}/${total} — changed ${changed}, fail ${errors}`;
         }
     }
 
@@ -1558,7 +1557,7 @@ function syncBatchVisibility() {
     batchSizeLabel.style.display = supportsBatch ? "inline-flex" : "none";
     retryFailedBtn.style.display = supportsBatch ? "" : "none";
     if (eng === "qwen") {
-        engineHint.textContent = "qwen2.5:1.5b ผ่าน Ollama";
+        engineHint.textContent = "qwen2.5:1.5b via Ollama";
     } else if (eng === "gemini") {
         engineHint.textContent = "Gemini ({{ gemini_model or 'gemini-2.5-flash' }})";
     } else {
@@ -1622,7 +1621,7 @@ function updateRetryButton() {
         const nextBatch = engine === "gemini"
             ? lastBatchUsed
             : Math.max(2, Math.floor(lastBatchUsed / 2));
-        const opLabel = lastOperationType === "correct" ? "แก้" : "แปล";
+        const opLabel = lastOperationType === "correct" ? "correct" : "translate";
         retryFailedBtn.textContent = `↻ retry ${opLabel} (${n}) batch=${nextBatch}`;
     }
 }
@@ -1637,7 +1636,7 @@ function _markPending(row) {
     cell.classList.add("pending");
     cell.classList.remove("error");
     cell.removeAttribute("title");
-    cell.textContent = "กำลังแปล...";
+    cell.textContent = "Translating...";
     row.classList.add("active");
 }
 function _applySuccess(row, translated, warning) {
@@ -1711,12 +1710,12 @@ async function _processBatch(rows, indexes, batchSz, target, engine, customRules
             const wait429 = _parse429RetrySec(errSample);
             if (wait429 > 0) {
                 sliceIdxs.forEach((idx, k) => {
-                    _applyError(sliceRows[k], `quota เต็ม รอ ${(wait429/1000).toFixed(0)}s แล้วกด retry ใหม่`);
+                    _applyError(sliceRows[k], `quota exceeded — wait ${(wait429/1000).toFixed(0)}s then click retry`);
                     stillFailed.push(idx);
                 });
-                correctProgress.textContent = `⛔ Gemini quota เต็ม — หยุด รอ ${(wait429/1000).toFixed(0)}s ก่อน retry`;
+                correctProgress.textContent = `⛔ Gemini quota exceeded — stopping; wait ${(wait429/1000).toFixed(0)}s before retry`;
                 stillFailed.push(...indexes.slice(start + sliceIdxs.length));
-                break;  // หยุดทันที กัน request เพิ่ม
+                break;
             }
             if (data.error) {
                 sliceIdxs.forEach((idx, k) => {
@@ -1749,7 +1748,7 @@ async function _processBatch(rows, indexes, batchSz, target, engine, customRules
         }
         const okCount = total - stillFailed.length - (indexes.length - start - sliceIdxs.length);
         correctProgress.textContent =
-            `แปลแล้ว ${okCount}/${total} (${label})${stillFailed.length ? ` — fail ${stillFailed.length}` : ""}`;
+            `Translated ${okCount}/${total} (${label})${stillFailed.length ? ` — fail ${stillFailed.length}` : ""}`;
     }
     return stillFailed;
 }
@@ -1763,7 +1762,7 @@ document.getElementById("runTranslateBtn").addEventListener("click", async () =>
     const rawBatch = parseInt(document.getElementById("batchSize").value || "1", 10);
     const effectiveBatch = (rawBatch === 0) ? rows.length : Math.max(1, rawBatch);
     const useBatch = (engine === "qwen" || engine === "gemini") && effectiveBatch > 1;
-    const batchLabel = (rawBatch === 0) ? `ทั้งไฟล์ (${rows.length})` : String(effectiveBatch);
+    const batchLabel = (rawBatch === 0) ? `entire file (${rows.length})` : String(effectiveBatch);
 
     correctRunning = true;
     correctAbort = false;
@@ -1772,7 +1771,6 @@ document.getElementById("runTranslateBtn").addEventListener("click", async () =>
     retryFailedBtn.disabled = true;
     stopCorrectBtn.disabled = false;
 
-    // reset state
     const customRules = (customRulesEl.value || "").trim();
     lastFailedIndexes = [];
     lastBatchUsed = effectiveBatch;
@@ -1792,24 +1790,21 @@ document.getElementById("runTranslateBtn").addEventListener("click", async () =>
         lastFailedIndexes = failed;
         errors = failed.length;
     } else {
-        // path เดิม — ทีละ row (Apple หรือ batchSize=1)
         let done = 0, skipped = 0;
         for (const row of rows) {
             if (correctAbort) break;
             const ref = row.dataset.ref;
-            // ข้าม "🚫 ไม่แปล" — ไม่ส่งไป Apple/Qwen/Gemini เลย
             if (ref && speakerByRef[ref] === SPEAKER_SKIP) {
                 _applySuccess(row, "");
                 done++; skipped++;
-                correctProgress.textContent = `แปลแล้ว ${done}/${total} — ข้าม ${skipped}${errors ? `, ผิด ${errors}` : ""}`;
+                correctProgress.textContent = `Translated ${done}/${total} — skipped ${skipped}${errors ? `, fail ${errors}` : ""}`;
                 continue;
             }
             const source = _rowSource(row);
-            // ข้าม empty
             if (!source || !source.trim()) {
                 _applySuccess(row, "");
                 done++;
-                correctProgress.textContent = `แปลแล้ว ${done}/${total}${errors ? ` — ผิด ${errors}` : ""}`;
+                correctProgress.textContent = `Translated ${done}/${total}${errors ? ` — fail ${errors}` : ""}`;
                 continue;
             }
             _markPending(row);
@@ -1821,7 +1816,7 @@ document.getElementById("runTranslateBtn").addEventListener("click", async () =>
                 _applyError(row, e.message); errors++;
             }
             done++;
-            correctProgress.textContent = `แปลแล้ว ${done}/${total}${skipped ? ` — ข้าม ${skipped}` : ""}${errors ? `, ผิด ${errors}` : ""}`;
+            correctProgress.textContent = `Translated ${done}/${total}${skipped ? ` — skipped ${skipped}` : ""}${errors ? `, fail ${errors}` : ""}`;
         }
     }
 
@@ -1838,8 +1833,8 @@ retryFailedBtn.addEventListener("click", async () => {
     if (!lastFailedIndexes.length) return;
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     const engine = translateEngineSel.value;
-    // Gemini: ไม่หาร batch เพื่อกัน quota หมด — แค่เพิ่ม attempt (temp สูงขึ้น)
-    // Qwen: หารครึ่งเหมือนเดิม (free, ไม่มี rate limit)
+    const target = document.getElementById("translateTarget").value;
+    lastTranslateTarget = target;
     const nextBatch = engine === "gemini"
         ? lastBatchUsed
         : Math.max(2, Math.floor(lastBatchUsed / 2));
@@ -1857,12 +1852,12 @@ retryFailedBtn.addEventListener("click", async () => {
     if (lastOperationType === "correct") {
         failed = await _processCorrectBatch(
             rows, idxs, nextBatch, engine, lastCustomRules, nextAttempt,
-            `retry#${nextAttempt} แก้ batch=${nextBatch}`
+            `retry#${nextAttempt} correct batch=${nextBatch}`
         );
     } else {
         failed = await _processBatch(
-            rows, idxs, nextBatch, lastTranslateTarget, engine, lastCustomRules, nextAttempt,
-            `retry#${nextAttempt} แปล batch=${nextBatch}`
+            rows, idxs, nextBatch, target, engine, lastCustomRules, nextAttempt,
+            `retry#${nextAttempt} translate batch=${nextBatch}`
         );
     }
     lastFailedIndexes = failed;
@@ -1920,7 +1915,7 @@ const SPEAKER_SKIP = "__skip__";  // ตรงกับฝั่ง backend
 function renderSpeakerOptions() {
     return (selectedId) => {
         const skipSel = selectedId === SPEAKER_SKIP ? " selected" : "";
-        const skipOpt = `<option value="${SPEAKER_SKIP}"${skipSel}>🚫 ไม่แปล</option>`;
+        const skipOpt = `<option value="${SPEAKER_SKIP}"${skipSel}>🚫 Don't translate</option>`;
         const charOpts = characters.map(c => {
             const sel = c.id === selectedId ? " selected" : "";
             const meta = [c.name, c.gender].filter(Boolean).join(", ");
@@ -1940,18 +1935,18 @@ function openCharModal() {
         charModal.className = "modal-backdrop";
         charModal.innerHTML = `
             <div class="modal-card" role="dialog">
-                <h2>👥 ตัวละคร / Speaker Persona</h2>
+                <h2>👥 Characters / Speaker Persona</h2>
                 <div style="font-size:13px; color:#6b7280; margin-bottom:8px;">
-                    ตั้ง persona ของแต่ละตัวละคร — เมื่อเลือก speaker ใน Compare table
-                    LLM จะแปลด้วย voice นั้น (ค่ะ/ครับ/บุคคลิก)<br>
-                    ตัวละครแรกเป็น <strong>default</strong> สำหรับชิ้นที่ยังไม่ระบุ
+                    Set the persona for each character — when a speaker is chosen in the Compare table,
+                    the LLM will translate using that voice (tone, mannerisms).<br>
+                    The first character is the <strong>default</strong> for items without a speaker assigned.
                 </div>
                 <div id="charsList"></div>
                 <div class="modal-foot">
-                    <button type="button" id="charAddBtn" class="ghost">+ เพิ่มตัวละคร</button>
+                    <button type="button" id="charAddBtn" class="ghost">+ Add character</button>
                     <div style="display:flex; gap:6px;">
-                        <button type="button" id="charCancelBtn" class="ghost">ยกเลิก</button>
-                        <button type="button" id="charSaveBtn">บันทึก</button>
+                        <button type="button" id="charCancelBtn" class="ghost">Cancel</button>
+                        <button type="button" id="charSaveBtn">Save</button>
                     </div>
                 </div>
             </div>
@@ -1984,16 +1979,16 @@ function addCharRow(c, isDefault) {
     row.dataset.id = c.id;
     row.innerHTML = `
         <span class="char-id-pill" title="character id">${escapeHtml(c.id)}</span>
-        <input type="text" class="char-name" value="${escapeHtml(c.name || '')}" placeholder="ชื่อ (เช่น นางเอก)">
+        <input type="text" class="char-name" value="${escapeHtml(c.name || '')}" placeholder="Name (e.g. heroine)">
         <select class="char-gender">
-            <option value="" ${!c.gender ? "selected" : ""}>ไม่ระบุเพศ</option>
-            <option value="female" ${c.gender === "female" ? "selected" : ""}>หญิง</option>
-            <option value="male" ${c.gender === "male" ? "selected" : ""}>ชาย</option>
-            <option value="child" ${c.gender === "child" ? "selected" : ""}>เด็ก</option>
-            <option value="other" ${c.gender === "other" ? "selected" : ""}>อื่น ๆ</option>
+            <option value="" ${!c.gender ? "selected" : ""}>Unspecified</option>
+            <option value="female" ${c.gender === "female" ? "selected" : ""}>Female</option>
+            <option value="male" ${c.gender === "male" ? "selected" : ""}>Male</option>
+            <option value="child" ${c.gender === "child" ? "selected" : ""}>Child</option>
+            <option value="other" ${c.gender === "other" ? "selected" : ""}>Other</option>
         </select>
-        <textarea class="char-persona" rows="2" placeholder="บุคคลิก/นิสัย/วิธีพูด">${escapeHtml(c.persona || '')}</textarea>
-        <button type="button" class="del-char" title="ลบ">✕</button>
+        <textarea class="char-persona" rows="2" placeholder="Personality / mannerisms / speech style">${escapeHtml(c.persona || '')}</textarea>
+        <button type="button" class="del-char" title="Delete">✕</button>
     `;
     row.querySelector(".del-char").addEventListener("click", () => row.remove());
     list.appendChild(row);
@@ -2010,7 +2005,7 @@ function saveCharsFromModal() {
         if (id) next.push({ id, name, gender, persona });
     });
     if (!next.length) {
-        alert("ต้องมีตัวละครอย่างน้อย 1 ตัว");
+        alert("At least 1 character is required");
         return;
     }
     characters = next;
@@ -2036,10 +2031,10 @@ function openPreviewModal(data, sourceState, totalRows) {
         previewModal.className = "modal-backdrop";
         previewModal.innerHTML = `
             <div class="modal-card" role="dialog" style="max-width: 900px; max-height: 90vh;">
-                <h2>🔍 Preview prompt — payload ที่จะส่งไป LLM</h2>
+                <h2>🔍 Preview prompt — payload that will be sent to the LLM</h2>
                 <div id="previewMeta" style="font-size:12px; color:#374151; margin-bottom:8px; padding:8px 10px; background:#f9fafb; border-radius:6px;"></div>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:8px 0; padding:8px 10px; background:#fef3c7; border-radius:6px; font-size:12px;">
-                    <label>ขนาด chunk:
+                    <label>chunk size:
                         <input type="number" id="previewChunkSize" min="1" style="width:80px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;" />
                     </label>
                     <span style="color:#374151;">·</span>
@@ -2049,40 +2044,40 @@ function openPreviewModal(data, sourceState, totalRows) {
                     </label>
                     <button type="button" id="previewPrevBtn" class="ghost" style="font-size:12px; padding:4px 8px;">◀</button>
                     <button type="button" id="previewNextBtn" class="ghost" style="font-size:12px; padding:4px 8px;">▶</button>
-                    <button type="button" id="previewRefreshBtn" class="ghost" style="font-size:12px;">↻ รีโหลด</button>
+                    <button type="button" id="previewRefreshBtn" class="ghost" style="font-size:12px;">↻ Reload</button>
                     <span id="previewRangeNote" style="color:#374151;"></span>
                     <span id="previewRefreshStatus" style="color:#6b7280;"></span>
                 </div>
                 <div style="display:flex; gap:8px; align-items:center; margin:8px 0; padding:8px 10px; background:#fee2e2; border-radius:6px; font-size:12px;">
                     <strong style="color:#991b1b;">retry fail:</strong>
-                    <span id="previewFailedNote" style="color:#374151;">— ยังไม่มี row ที่ fail</span>
-                    <button type="button" id="previewLoadFailedBtn" class="ghost" style="font-size:12px;" disabled>📍 โหลด retry fail ทั้งหมด</button>
+                    <span id="previewFailedNote" style="color:#374151;">— No failed rows yet</span>
+                    <button type="button" id="previewLoadFailedBtn" class="ghost" style="font-size:12px;" disabled>📍 Load all retry-fail rows</button>
                     <span id="previewFailedMode" style="color:#991b1b; font-weight:600;"></span>
                 </div>
                 <div style="display:flex; gap:6px; margin:8px 0;">
-                    <button type="button" id="previewCopyAllBtn" class="ghost" style="font-size:12px;">📋 คัดลอก request body</button>
+                    <button type="button" id="previewCopyAllBtn" class="ghost" style="font-size:12px;">📋 Copy request body</button>
                 </div>
-                <h3 style="font-size:13px; margin:12px 0 4px;">📤 RAW REQUEST BODY ที่ส่งไป LLM API</h3>
+                <h3 style="font-size:13px; margin:12px 0 4px;">📤 RAW REQUEST BODY sent to LLM API</h3>
                 <div id="previewEndpoint" style="font-size:11px; color:#374151; margin-bottom:4px; font-family: ui-monospace, Menlo, monospace;"></div>
                 <pre id="previewBody" style="background:#0f172a; color:#86efac; padding:10px; border-radius:6px; font-size:11px; max-height:400px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
                 <h3 style="font-size:13px; margin:12px 0 4px;">CHARACTERS array (raw JSON)</h3>
                 <pre id="previewChars" style="background:#fef3c7; color:#78350f; padding:10px; border-radius:6px; font-size:11px; max-height:200px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
-                <h3 style="font-size:13px; margin:12px 0 4px;">SYSTEM PROMPT (อ่านง่าย)</h3>
+                <h3 style="font-size:13px; margin:12px 0 4px;">SYSTEM PROMPT (readable)</h3>
                 <pre id="previewSystem" style="background:#0b1021; color:#e5e7eb; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
-                <h3 style="font-size:13px; margin:12px 0 4px;">USER MESSAGE (อ่านง่าย)</h3>
+                <h3 style="font-size:13px; margin:12px 0 4px;">USER MESSAGE (readable)</h3>
                 <pre id="previewUser" style="background:#0b1021; color:#bfdbfe; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
-                <h3 style="font-size:13px; margin:16px 0 4px;">📥 วาง response จาก LLM (manual apply)</h3>
+                <h3 style="font-size:13px; margin:16px 0 4px;">📥 Paste LLM response (manual apply)</h3>
                 <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">
-                    คัดลอก request body ด้านบน → วางใน Gemini/ChatGPT/Claude web UI → คัดลอก response กลับมาวางที่นี่ → กด "ใส่ผลแปลลงตาราง". รองรับ markdown fence (\`\`\`json ... \`\`\`).
+                    Copy the request body above → paste into Gemini/ChatGPT/Claude web UI → copy the response back here → click "Apply to table". Markdown fences (\`\`\`json ... \`\`\`) are supported.
                 </div>
                 <textarea id="previewManualResponse" rows="6" style="width:100%; font-family: ui-monospace, Menlo, monospace; font-size:11px; padding:8px; border:1px solid #d1d5db; border-radius:6px; resize:vertical; box-sizing:border-box;" placeholder='{"items":[{"id":1,"text":"..."}, {"id":2,"text":"..."}]}'></textarea>
                 <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
-                    <button type="button" id="previewApplyManualBtn">ใส่ผลแปลลงตาราง</button>
+                    <button type="button" id="previewApplyManualBtn">Apply to table</button>
                     <span id="previewManualStatus" style="font-size:12px; color:#6b7280;"></span>
                 </div>
                 <div class="modal-foot">
-                    <span style="font-size:11px; color:#6b7280;">ผลนี้คือสิ่งที่ backend จะส่งไป LLM API จริงเมื่อกดปุ่มแปล</span>
-                    <button type="button" id="previewCloseBtn">ปิด</button>
+                    <span style="font-size:11px; color:#6b7280;">This is the actual payload the backend will send to the LLM API when you click translate.</span>
+                    <button type="button" id="previewCloseBtn">Close</button>
                 </div>
             </div>
         `;
@@ -2095,8 +2090,8 @@ function openPreviewModal(data, sourceState, totalRows) {
             const body = document.getElementById("previewBody").textContent;
             try {
                 await navigator.clipboard.writeText(body);
-                document.getElementById("previewCopyAllBtn").textContent = "✓ คัดลอกแล้ว";
-                setTimeout(() => { document.getElementById("previewCopyAllBtn").textContent = "📋 คัดลอก request body"; }, 1500);
+                document.getElementById("previewCopyAllBtn").textContent = "✓ Copied";
+                setTimeout(() => { document.getElementById("previewCopyAllBtn").textContent = "📋 Copy request body"; }, 1500);
             } catch (_) {}
         });
         document.getElementById("previewApplyManualBtn").addEventListener("click", applyManualResponse);
@@ -2136,10 +2131,10 @@ function openPreviewModal(data, sourceState, totalRows) {
         <strong>engine:</strong> ${escapeHtml(data.engine)}
         &nbsp;·&nbsp; <strong>target:</strong> ${escapeHtml(data.target)}
         &nbsp;·&nbsp; <strong>total:</strong> ${data.n_total}
-        &nbsp;·&nbsp; <strong>จะส่ง LLM:</strong> ${data.n_sent}
-        &nbsp;·&nbsp; <strong>ข้าม (ว่าง):</strong> ${data.skipped_empty}
-        &nbsp;·&nbsp; <strong>ข้าม (🚫 ไม่แปล):</strong> ${data.skipped_user}
-        &nbsp;·&nbsp; <strong>speakers ในชุดนี้:</strong> ${(data.speakers_used || []).join(", ") || "(none)"}
+        &nbsp;·&nbsp; <strong>sent to LLM:</strong> ${data.n_sent}
+        &nbsp;·&nbsp; <strong>skipped (empty):</strong> ${data.skipped_empty}
+        &nbsp;·&nbsp; <strong>skipped (🚫 don't translate):</strong> ${data.skipped_user}
+        &nbsp;·&nbsp; <strong>speakers in this batch:</strong> ${(data.speakers_used || []).join(", ") || "(none)"}
     `;
     document.getElementById("previewEndpoint").textContent = "POST " + (data.request_endpoint || "");
     document.getElementById("previewBody").textContent = JSON.stringify(data.request_body || {}, null, 2);
@@ -2160,11 +2155,11 @@ function openPreviewModal(data, sourceState, totalRows) {
     const failedMode = document.getElementById("previewFailedMode");
     if (failedNote) {
         failedNote.textContent = failedCount
-            ? `${failedCount} row จาก translate-all ครั้งล่าสุด`
-            : "— ยังไม่มี row ที่ fail";
+            ? `${failedCount} rows from the last translate-all`
+            : "— No failed rows yet";
     }
     if (failedBtn) failedBtn.disabled = failedCount === 0;
-    if (failedMode) failedMode.textContent = (sourceState && sourceState.mode === "failed") ? "← กำลังดู retry fail" : "";
+    if (failedMode) failedMode.textContent = (sourceState && sourceState.mode === "failed") ? "← viewing retry fail" : "";
 
     const isFailed = sourceState && sourceState.mode === "failed";
     const total = (typeof totalRows === "number") ? totalRows : data.n_total;
@@ -2206,17 +2201,17 @@ async function applyManualResponse() {
     const status = document.getElementById("previewManualStatus");
     if (!_previewSource) {
         status.style.color = "#dc2626";
-        status.textContent = "ไม่พบ preview state — เปิด preview ใหม่ก่อน";
+        status.textContent = "No preview state — open the preview again";
         return;
     }
     const raw = document.getElementById("previewManualResponse").value.trim();
     if (!raw) {
         status.style.color = "#dc2626";
-        status.textContent = "วาง response ก่อน";
+        status.textContent = "Paste a response first";
         return;
     }
     status.style.color = "#6b7280";
-    status.textContent = "กำลังประมวลผล...";
+    status.textContent = "Processing...";
     try {
         const res = await fetch("/translate-batch/apply-manual", {
             method: "POST",
@@ -2239,7 +2234,7 @@ async function applyManualResponse() {
         const data = await res.json();
         if (data.error) {
             status.style.color = "#dc2626";
-            status.textContent = "ผิดพลาด: " + data.error;
+            status.textContent = "Error: " + data.error;
             return;
         }
         const translations = data.translated || [];
@@ -2274,11 +2269,11 @@ async function applyManualResponse() {
             }
         }
         status.style.color = (ok + warn) > 0 ? "#059669" : "#dc2626";
-        const parts = [`ใส่ ${ok} รายการ`];
-        if (warn) parts.push(`เตือน ${warn}`);
-        if (fail) parts.push(`ผิด ${fail}`);
-        if (skip) parts.push(`ข้าม ${skip}`);
-        if (notInResp) parts.push(`ไม่อยู่ใน response ${notInResp}`);
+        const parts = [`applied ${ok}`];
+        if (warn) parts.push(`warn ${warn}`);
+        if (fail) parts.push(`fail ${fail}`);
+        if (skip) parts.push(`skipped ${skip}`);
+        if (notInResp) parts.push(`not in response ${notInResp}`);
         status.textContent = parts.join(", ");
         if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
     } catch (e) {
@@ -2290,11 +2285,11 @@ async function applyManualResponse() {
 async function fetchPreview(chunkSize, chunkIdx, mode) {
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     if (!rows.length) {
-        alert("ยังไม่มีข้อมูลในตาราง — อัพไฟล์ก่อน");
+        alert("No rows in the table — upload a file first");
         return;
     }
     if (mode === "failed" && (!lastFailedIndexes || !lastFailedIndexes.length)) {
-        alert("ยังไม่มี row ที่ fail");
+        alert("No failed rows yet");
         return;
     }
     const target = document.getElementById("translateTarget").value;
@@ -2340,7 +2335,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
     const idsArr = indices.map(i => i + 1);  // ids = global row numbers (1-based)
 
     const refreshStatus = document.getElementById("previewRefreshStatus");
-    if (refreshStatus) refreshStatus.textContent = "กำลังโหลด...";
+    if (refreshStatus) refreshStatus.textContent = "Loading...";
     try {
         const res = await fetch("/translate-batch/preview", {
             method: "POST",

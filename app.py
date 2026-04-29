@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 from config import (
     APPLE_SHORTCUT_EN,
+    APPLE_SHORTCUT_JA,
     APPLE_SHORTCUT_TH,
     ELEMENT_KEYS,
     GEMINI_AVAILABLE,
@@ -55,7 +56,7 @@ app.jinja_env.auto_reload = True
 
 print("[docling] pre-warming converter (kind=all, lang=auto, engine=easyocr)...", flush=True)
 get_converter("all", "auto", "easyocr")
-print(f"[docling] พร้อมใช้งาน — ocrmac available: {OCRMAC_AVAILABLE}", flush=True)
+print(f"[docling] ready — ocrmac available: {OCRMAC_AVAILABLE}", flush=True)
 
 
 @app.route("/")
@@ -83,11 +84,11 @@ def correct_batch_endpoint():
         attempt = int(payload.get("attempt", 0) or 0)
 
         if not isinstance(texts, list) or not texts:
-            return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+            return jsonify({"error": "texts must be a non-empty list"}), 400
         if engine not in ("qwen", "gemini"):
             engine = "qwen"
         if engine == "gemini" and not GEMINI_AVAILABLE:
-            return jsonify({"error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 400
+            return jsonify({"error": "GEMINI_API_KEY is not set in .env"}), 400
 
         corrections, errors = correct_batch(texts, engine=engine,
                                             custom_rules=custom_rules,
@@ -118,7 +119,7 @@ def correct_endpoint():
     if not isinstance(after, list):
         after = [str(after)] if after else []
     if engine == "gemini" and not GEMINI_AVAILABLE:
-        return jsonify({"corrected": text, "error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 200
+        return jsonify({"corrected": text, "error": "GEMINI_API_KEY is not set in .env"}), 200
     corrected, err = correct_text_with_llm(
         text,
         context_before=[str(s) for s in before],
@@ -141,8 +142,9 @@ def apple_translate_status():
         "shortcuts": {
             "th": APPLE_SHORTCUT_TH in sc,
             "en": APPLE_SHORTCUT_EN in sc,
+            "ja": APPLE_SHORTCUT_JA in sc,
         },
-        "required": {"th": APPLE_SHORTCUT_TH, "en": APPLE_SHORTCUT_EN},
+        "required": {"th": APPLE_SHORTCUT_TH, "en": APPLE_SHORTCUT_EN, "ja": APPLE_SHORTCUT_JA},
     })
 
 
@@ -152,6 +154,7 @@ def apple_translate_setup():
         "apple_setup.html",
         sh_th=APPLE_SHORTCUT_TH,
         sh_en=APPLE_SHORTCUT_EN,
+        sh_ja=APPLE_SHORTCUT_JA,
     )
 
 
@@ -185,7 +188,7 @@ def translate_batch_preview():
     payload_ids = payload.get("ids") if isinstance(payload.get("ids"), list) else None
 
     if not isinstance(texts, list) or not texts:
-        return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+        return jsonify({"error": "texts must be a non-empty list"}), 400
 
     n = len(texts)
     sp_list = list(speakers) if isinstance(speakers, list) else [None] * n
@@ -283,9 +286,9 @@ def translate_batch_apply_manual():
         ids_payload = payload.get("ids") if isinstance(payload.get("ids"), list) else None
 
         if not isinstance(texts, list) or not texts:
-            return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+            return jsonify({"error": "texts must be a non-empty list"}), 400
         if not raw_response or not str(raw_response).strip():
-            return jsonify({"error": "raw_response ว่าง"}), 400
+            return jsonify({"error": "raw_response is empty"}), 400
 
         ids_arg = [int(x) for x in ids_payload] if ids_payload else None
         translations, errors = apply_manual_batch(
@@ -320,11 +323,11 @@ def translate_batch_endpoint():
         characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
 
         if not isinstance(texts, list) or not texts:
-            return jsonify({"error": "texts ต้องเป็น list ที่ไม่ว่าง"}), 400
+            return jsonify({"error": "texts must be a non-empty list"}), 400
         if engine not in ("qwen", "gemini"):
-            return jsonify({"error": f"batch ยังไม่รองรับ engine={engine}"}), 400
+            return jsonify({"error": f"batch is not supported for engine={engine}"}), 400
         if engine == "gemini" and not GEMINI_AVAILABLE:
-            return jsonify({"error": "GEMINI_API_KEY ยังไม่ตั้งใน .env"}), 400
+            return jsonify({"error": "GEMINI_API_KEY is not set in .env"}), 400
 
         ids_arg = [int(x) for x in ids_payload] if ids_payload else None
         translations, errors = translate_batch(
@@ -350,11 +353,11 @@ def translate_batch_endpoint():
 @app.route("/convert", methods=["POST"])
 def convert():
     if "file" not in request.files:
-        return jsonify({"error": "ไม่พบไฟล์ที่อัพโหลด"}), 400
+        return jsonify({"error": "no uploaded file found"}), 400
 
     uploaded = request.files["file"]
     if not uploaded.filename:
-        return jsonify({"error": "กรุณาเลือกไฟล์"}), 400
+        return jsonify({"error": "Please choose a file"}), 400
 
     kind = request.form.get("type", "all")
     lang = request.form.get("lang", "auto")
@@ -365,12 +368,12 @@ def convert():
         ocr_engine = "easyocr"
     engine_fallback = None
     if ocr_engine == "ocrmac" and not OCRMAC_AVAILABLE:
-        engine_fallback = "ocrmac → easyocr (ocrmac ใช้ได้เฉพาะบน macOS)"
+        engine_fallback = "ocrmac → easyocr (ocrmac is macOS-only)"
         ocr_engine = "easyocr"
     if fast and not OCRMAC_AVAILABLE:
         fast = False
         engine_fallback = (engine_fallback + "; " if engine_fallback else "") + \
-            "fast mode ปิดอัตโนมัติ (ต้องใช้ ocrmac)"
+            "fast mode disabled automatically (requires ocrmac)"
 
     filename = secure_filename(uploaded.filename)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -388,7 +391,7 @@ def convert():
                 doc_dict = doc.export_to_dict()
                 preview = build_preview(doc)
         except Exception as exc:
-            return jsonify({"error": f"แปลงไฟล์ไม่สำเร็จ: {exc}"}), 500
+            return jsonify({"error": f"conversion failed: {exc}"}), 500
 
     correction_info = None
     if correct:

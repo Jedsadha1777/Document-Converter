@@ -307,12 +307,12 @@ def _call_gemini_correct(text: str, system_prompt: str,
                          timeout: float = 30.0,
                          custom_rules: str | None = None) -> str:
     if not GEMINI_API_KEY:
-        raise RuntimeError("GEMINI_API_KEY is not set in .env")
+        raise RuntimeError("GEMINI_API_KEY ยังไม่ตั้งใน .env")
     try:
         from google import genai
         from google.genai import types as gtypes
     except ImportError as e:
-        raise RuntimeError(f"google-genai is not installed: {e}")
+        raise RuntimeError(f"google-genai ยังไม่ติดตั้ง: {e}")
 
     sp = _augment_correct_prompt(system_prompt, custom_rules)
     client = genai.Client(api_key=GEMINI_API_KEY)
@@ -543,12 +543,12 @@ def _correct_batch_gemini(texts: list[str], custom_rules: str | None,
     n = len(texts)
 
     if not GEMINI_API_KEY:
-        return list(texts), ["GEMINI_API_KEY is not set in .env"] * n
+        return list(texts), ["GEMINI_API_KEY ยังไม่ตั้งใน .env"] * n
     try:
         from google import genai
         from google.genai import types as gtypes
     except ImportError as e:
-        return list(texts), [f"google-genai is not installed: {e}"] * n
+        return list(texts), [f"google-genai ยังไม่ติดตั้ง: {e}"] * n
 
     user_msg, per_item = _build_batch_user_msg(texts)
     combined = "\n".join(texts)

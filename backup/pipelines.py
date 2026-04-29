@@ -84,7 +84,7 @@ def get_converter(kind: str, lang: str = "auto",
     if key not in _converter_cache:
         po = make_pipeline_options(kind, lang, engine)
         print(
-            f"[docling] creating converter kind={kind} lang={lang} engine={engine} "
+            f"[docling] สร้าง converter kind={kind} lang={lang} engine={engine} "
             f"(ocr={po.do_ocr}, table={po.do_table_structure}, langs={po.ocr_options.lang})",
             flush=True,
         )
@@ -185,10 +185,10 @@ def get_manga_ocr():
     """lazy-load mokuro's MangaPageOcr (~400MB model download ครั้งแรก)"""
     global _manga_ocr
     if _manga_ocr is None:
-        print("[manga] loading MangaPageOcr (model may download on first run)...", flush=True)
+        print("[manga] กำลังโหลด MangaPageOcr (อาจดาวน์โหลดโมเดลครั้งแรก)...", flush=True)
         from mokuro.manga_page_ocr import MangaPageOcr
         _manga_ocr = MangaPageOcr(force_cpu=False)
-        print("[manga] ready", flush=True)
+        print("[manga] พร้อมใช้งาน", flush=True)
     return _manga_ocr
 
 
