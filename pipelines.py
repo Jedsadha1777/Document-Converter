@@ -110,6 +110,72 @@ def filter_document(doc_dict: dict, kind: str) -> dict:
     }
 
 
+def parse_page_spec(spec: str) -> set[int] | None:
+    """Parse "1-3,5,7-10" → {1,2,3,5,7,8,9,10}. Returns None if spec is empty/all
+    (= no filtering). Raises ValueError on bad syntax or non-positive numbers."""
+    if not spec:
+        return None
+    s = spec.strip().lower()
+    if s in ("", "all", "*"):
+        return None
+    out: set[int] = set()
+    for part in s.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            a, _, b = part.partition("-")
+            start, end = int(a.strip()), int(b.strip())
+            if start < 1 or end < 1 or start > end:
+                raise ValueError(f"invalid range: {part!r}")
+            out.update(range(start, end + 1))
+        else:
+            n = int(part)
+            if n < 1:
+                raise ValueError(f"invalid page: {part!r}")
+            out.add(n)
+    return out or None
+
+
+def filter_pages(doc_dict: dict, preview: dict, pages: set[int]) -> None:
+    """In-place filter — drop pages/items whose page_no is not in `pages`.
+    Items with prov spanning multiple pages are kept if ANY prov hits a selected page."""
+    if not pages:
+        return
+
+    raw_pages = doc_dict.get("pages")
+    if isinstance(raw_pages, dict):
+        for k in list(raw_pages.keys()):
+            try:
+                if int(k) not in pages:
+                    del raw_pages[k]
+            except (TypeError, ValueError):
+                pass
+    elif isinstance(raw_pages, list):
+        doc_dict["pages"] = [p for p in raw_pages
+                             if isinstance(p, dict) and p.get("page_no") in pages]
+
+    for key in ("texts", "tables", "pictures", "groups"):
+        items = doc_dict.get(key)
+        if not isinstance(items, list):
+            continue
+        kept = []
+        for it in items:
+            provs = it.get("prov") if isinstance(it, dict) else None
+            if not provs:
+                kept.append(it)
+                continue
+            if any(p.get("page_no") in pages for p in provs if isinstance(p, dict)):
+                kept.append(it)
+        doc_dict[key] = kept
+
+    if isinstance(preview, dict):
+        preview["pages"] = [p for p in preview.get("pages", [])
+                            if p.get("page_no") in pages]
+        preview["items"] = [it for it in preview.get("items", [])
+                            if it.get("page_no") in pages]
+
+
 def _bbox_dict(bbox):
     return {
         "l": float(bbox.l),

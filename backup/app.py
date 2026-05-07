@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 from config import (
     APPLE_SHORTCUT_EN,
+    APPLE_SHORTCUT_JA,
     APPLE_SHORTCUT_TH,
     ELEMENT_KEYS,
     GEMINI_AVAILABLE,
@@ -141,8 +142,9 @@ def apple_translate_status():
         "shortcuts": {
             "th": APPLE_SHORTCUT_TH in sc,
             "en": APPLE_SHORTCUT_EN in sc,
+            "ja": APPLE_SHORTCUT_JA in sc,
         },
-        "required": {"th": APPLE_SHORTCUT_TH, "en": APPLE_SHORTCUT_EN},
+        "required": {"th": APPLE_SHORTCUT_TH, "en": APPLE_SHORTCUT_EN, "ja": APPLE_SHORTCUT_JA},
     })
 
 
@@ -152,6 +154,7 @@ def apple_translate_setup():
         "apple_setup.html",
         sh_th=APPLE_SHORTCUT_TH,
         sh_en=APPLE_SHORTCUT_EN,
+        sh_ja=APPLE_SHORTCUT_JA,
     )
 
 

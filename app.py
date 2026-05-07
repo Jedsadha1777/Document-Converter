@@ -30,7 +30,9 @@ from pipelines import (
     OCRMAC_AVAILABLE,
     build_preview,
     filter_document,
+    filter_pages,
     get_converter,
+    parse_page_spec,
     run_fast_pipeline,
     run_manga_pipeline,
 )
@@ -222,7 +224,8 @@ def translate_batch_preview():
         eff_chars = None
 
     user_msg, _ = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, eff_chars, id_start=id_start, ids=ids)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, eff_chars,
+                                               id_start=id_start, ids=ids, texts=texts)
 
     speakers_used = sorted(set(s for s in sp_list if s and s != SPEAKER_SKIP))
     attempt = int(payload.get("attempt", 0) or 0)
@@ -364,6 +367,11 @@ def convert():
     fast = request.form.get("fast", "0") in ("1", "true", "on", "yes")
     correct = request.form.get("correct", "0") in ("1", "true", "on", "yes")
     ocr_engine = request.form.get("ocr_engine", "easyocr")
+    pages_spec = (request.form.get("pages") or "").strip()
+    try:
+        selected_pages = parse_page_spec(pages_spec)
+    except ValueError as exc:
+        return jsonify({"error": f"invalid pages: {exc}"}), 400
     if ocr_engine not in OCR_ENGINES:
         ocr_engine = "easyocr"
     engine_fallback = None
@@ -374,6 +382,13 @@ def convert():
         fast = False
         engine_fallback = (engine_fallback + "; " if engine_fallback else "") + \
             "fast mode disabled automatically (requires ocrmac)"
+
+    page_range = (min(selected_pages), max(selected_pages)) if selected_pages else None
+    pages_warning = None
+    if selected_pages and (fast or lang == "manga"):
+        pages_warning = "page selection ignored (fast/manga modes are single-page)"
+        selected_pages = None
+        page_range = None
 
     filename = secure_filename(uploaded.filename)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -386,12 +401,19 @@ def convert():
             elif lang == "manga":
                 doc_dict, preview = run_manga_pipeline(path, filename)
             else:
-                result = get_converter(kind, lang, ocr_engine).convert(str(path))
+                converter = get_converter(kind, lang, ocr_engine)
+                if page_range:
+                    result = converter.convert(str(path), page_range=page_range)
+                else:
+                    result = converter.convert(str(path))
                 doc = result.document
                 doc_dict = doc.export_to_dict()
                 preview = build_preview(doc)
         except Exception as exc:
             return jsonify({"error": f"conversion failed: {exc}"}), 500
+
+    if selected_pages:
+        filter_pages(doc_dict, preview, selected_pages)
 
     correction_info = None
     if correct:
@@ -399,14 +421,17 @@ def convert():
         correction_info = {"corrected": n, "errors": errs}
 
     filtered = doc_dict if (fast or lang == "manga") else filter_document(doc_dict, kind)
-    return jsonify({
+    resp = {
         "json_text": json.dumps(filtered, ensure_ascii=False, indent=2),
         "preview": preview,
         "texts": doc_dict.get("texts", []),
         "correction": correction_info,
         "ocr_engine": ocr_engine,
         "engine_fallback": engine_fallback,
-    })
+    }
+    if pages_warning:
+        resp["pages_warning"] = pages_warning
+    return jsonify(resp)
 
 
 if __name__ == "__main__":

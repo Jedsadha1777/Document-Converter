@@ -1833,8 +1833,8 @@ retryFailedBtn.addEventListener("click", async () => {
     if (!lastFailedIndexes.length) return;
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     const engine = translateEngineSel.value;
-    // Gemini: ไม่หาร batch เพื่อกัน quota หมด — แค่เพิ่ม attempt (temp สูงขึ้น)
-    // Qwen: หารครึ่งเหมือนเดิม (free, ไม่มี rate limit)
+    const target = document.getElementById("translateTarget").value;
+    lastTranslateTarget = target;
     const nextBatch = engine === "gemini"
         ? lastBatchUsed
         : Math.max(2, Math.floor(lastBatchUsed / 2));
@@ -1856,7 +1856,7 @@ retryFailedBtn.addEventListener("click", async () => {
         );
     } else {
         failed = await _processBatch(
-            rows, idxs, nextBatch, lastTranslateTarget, engine, lastCustomRules, nextAttempt,
+            rows, idxs, nextBatch, target, engine, lastCustomRules, nextAttempt,
             `retry#${nextAttempt} translate batch=${nextBatch}`
         );
     }

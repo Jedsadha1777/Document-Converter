@@ -134,6 +134,32 @@ def _output_has_unwanted_script(target: str, text: str) -> bool:
     return False
 
 
+def _detect_source_language(texts: str | list[str]) -> str | None:
+    """Pick a source language code ('ja'/'th'/'en') for prompt selection.
+    Any CJK kana/kanji → 'ja' (JP rules matter even for mixed text).
+    Else 'th' if Thai dominates Latin, 'en' if Latin only, None if no script chars."""
+    if isinstance(texts, str):
+        texts = [texts]
+    cjk = thai = latin = 0
+    for t in texts:
+        if not t:
+            continue
+        for c in t:
+            if _has_cjk(c):
+                cjk += 1
+            elif _has_thai(c):
+                thai += 1
+            elif c.isascii() and c.isalpha():
+                latin += 1
+    if cjk > 0:
+        return "ja"
+    if thai > 0 and thai >= latin:
+        return "th"
+    if latin > 0:
+        return "en"
+    return None
+
+
 def _digits_changed(orig: str, out: str) -> bool:
     """เทียบ run-by-run — ป้องกันเคส '5km 3miles' (runs=['5','3']) ปนกับ '53cm' (runs=['53']).
     ใช้ Unicode standard decimal digit value → ครอบ Thai/JP/Arabic-Indic/Devanagari/Lao ฯลฯ"""
@@ -311,6 +337,62 @@ TRANSLATE_PROMPTS = {
 }
 
 
+# Source-tailored prompts — picked when the input batch is clearly mono-script
+# (e.g., pure English → Thai). Trims the JP-source-specific rules (katakana
+# transliteration, kanji-name handling, Chinese-leak guards) that bloat the JSON.
+# Fallback for unknown / mixed / Japanese source is TRANSLATE_PROMPTS above.
+TRANSLATE_PROMPTS_BY_PAIR = {
+    ("en", "th"): (
+        "Translate the user's text from English to natural Thai.\n"
+        "Output ONLY the Thai translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES — STRICTLY FOLLOWED:\n"
+        "- The output MUST be in Thai script ONLY.\n"
+        "  Allowed: Thai (ก-๛), Latin letters (A-Z, a-z) for brand names, "
+        "  Arabic digits (0-9), and basic punctuation.\n"
+        "  FORBIDDEN: any non-Thai script in the output.\n"
+        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear "
+        "  EXACTLY THE SAME and in the SAME ORDER in the output.\n"
+        "  NEVER convert to Thai numerals (no ๐๑๒๓๔๕๖๗๘๙).\n"
+        "  NEVER convert calendars, units, or currency.\n"
+        "  NEVER round, simplify, or spell digits as words ('25' stays '25', NOT 'ยี่สิบห้า').\n"
+        "  Applies to: years, dates, times, prices, percentages, phone numbers, "
+        "  measurements, list/version numbers — every numeric token.\n"
+        "- PROPER NOUNS / NAMES: transliterate by sound into Thai (Smith → สมิธ). "
+        "  Established Latin-script brand names (Microsoft, Google, iPhone) may "
+        "  stay in Latin script when that is the conventional form.\n"
+        "If the input is already Thai, return it unchanged."
+    ),
+    ("th", "en"): (
+        "Translate the user's text from Thai to natural English.\n"
+        "Output ONLY the English translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES — STRICTLY FOLLOWED:\n"
+        "- Output MUST be in English (Latin script) ONLY.\n"
+        "  FORBIDDEN: any non-Latin script in the output.\n"
+        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear "
+        "  EXACTLY THE SAME and in the SAME ORDER in the output.\n"
+        "  NEVER convert digits to words ('25' stays '25', NOT 'twenty-five').\n"
+        "  NEVER convert calendars, units, or currency.\n"
+        "  NEVER round or simplify.\n"
+        "  Applies to: years, dates, times, prices, percentages, phone numbers, "
+        "  measurements, list/version numbers — every numeric token.\n"
+        "- PROPER NOUNS / THAI NAMES: romanize by sound (สมชาย → 'Somchai'). "
+        "  Never translate the meaning of a name.\n"
+        "If the input is already English, return it unchanged."
+    ),
+}
+
+
+def _resolve_prompt(source: str | None, target: str) -> str:
+    """Pick source-tailored prompt if available, else fall back to the universal one."""
+    if source:
+        pair_prompt = TRANSLATE_PROMPTS_BY_PAIR.get((source, target))
+        if pair_prompt:
+            return pair_prompt
+    return TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
+
+
 def _call_ollama_translate(text: str, system_prompt: str, timeout: float = 60.0) -> str:
     resp = httpx.post(
         f"{OLLAMA_URL}/api/chat",
@@ -338,7 +420,8 @@ def translate_text(text: str, target: str = "th",
     if not text.strip():
         return "", None
     text_protected, mapping = _protect_segments(text)
-    prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
+    source = _detect_source_language(text)
+    prompt = _resolve_prompt(source, target)
     # factual hint — ลด safety refusal กับ medical/anatomical text
     prompt_factual = prompt + (
         "\n\nIMPORTANT: This is a factual document (educational, medical, technical, or "
@@ -536,8 +619,12 @@ def _build_characters_section(characters: list[dict] | None) -> str:
 def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
                                characters: list[dict] | None = None,
                                id_start: int = 1,
-                               ids: list[int] | None = None) -> str:
-    base_prompt = TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
+                               ids: list[int] | None = None,
+                               texts: list[str] | None = None,
+                               source: str | None = None) -> str:
+    if source is None and texts is not None:
+        source = _detect_source_language(texts)
+    base_prompt = _resolve_prompt(source, target)
     chars_section = _build_characters_section(characters)
     ids_to_use = ids if ids else list(range(id_start, id_start + n))
     first = ids_to_use[0]
@@ -637,7 +724,8 @@ def _translate_batch_qwen(texts: list[str], target: str,
                           ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
     user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start, ids=ids)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
+                                               id_start=id_start, ids=ids, texts=texts)
 
     try:
         resp = httpx.post(
@@ -705,7 +793,8 @@ def _translate_batch_gemini(texts: list[str], target: str,
         return list(texts), [f"google-genai is not installed: {e}"] * n
 
     user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
-    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters, id_start=id_start, ids=ids)
+    system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
+                                               id_start=id_start, ids=ids, texts=texts)
 
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
@@ -879,10 +968,15 @@ def translate_batch(texts: list[str], target: str = "th",
     n_ok = sum(1 for i in range(n) if errors[i] is None
                and sp_list[i] != SPEAKER_SKIP and _is_translatable(texts[i]))
     n_real = n - skipped_user - skipped_empty
+    detected_source = _detect_source_language([texts[i] for i in range(n)
+                                               if sp_list[i] != SPEAKER_SKIP
+                                               and _is_translatable(texts[i])])
+    using_pair = (detected_source, target) in TRANSLATE_PROMPTS_BY_PAIR
     print(
         f"[translate-batch] engine={engine} n={n} real={n_real} "
         f"skipped_user={skipped_user} skipped_empty={skipped_empty} "
-        f"ok={n_ok} fail={n_real - n_ok} attempt={attempt} speakers={has_speaker}",
+        f"ok={n_ok} fail={n_real - n_ok} attempt={attempt} speakers={has_speaker} "
+        f"source={detected_source or 'unknown'} prompt={'pair' if using_pair else 'default'}",
         flush=True,
     )
     return translations, errors

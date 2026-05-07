@@ -344,6 +344,13 @@
                 <input type="checkbox" id="fast"> ⚡ Fast (skip layout/table)
             </label>
 
+            <label for="pages" title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages">
+                Pages:
+            </label>
+            <input type="text" id="pages" name="pages" placeholder="all"
+                   style="width:110px; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px;"
+                   title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages">
+
             <button type="submit" id="submitBtn">Convert to JSON</button>
         </div>
     </form>
@@ -574,6 +581,7 @@ form.addEventListener("submit", async (e) => {
     fd.append("lang", document.getElementById("lang").value);
     fd.append("ocr_engine", document.getElementById("ocr_engine").value);
     fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
+    fd.append("pages", document.getElementById("pages").value.trim());
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Processing...";
@@ -603,10 +611,13 @@ form.addEventListener("submit", async (e) => {
             output.value = data.json_text;
             populatePages(data.preview.pages);
             syncCheckboxesToKind(lastKind);
-            const successMsg = data.engine_fallback
-                ? `Converted ✓ (fallback: ${data.engine_fallback})`
+            const notes = [];
+            if (data.engine_fallback) notes.push(`fallback: ${data.engine_fallback}`);
+            if (data.pages_warning) notes.push(data.pages_warning);
+            const successMsg = notes.length
+                ? `Converted ✓ (${notes.join("; ")})`
                 : "Converted ✓";
-            setStatus(successMsg, data.engine_fallback ? "info" : "success");
+            setStatus(successMsg, notes.length ? "info" : "success");
             buildCompareTable(true);
             if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
         }
