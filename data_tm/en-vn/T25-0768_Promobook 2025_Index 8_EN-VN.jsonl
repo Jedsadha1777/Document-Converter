@@ -1,0 +1,722 @@
+{"tu_id": 1, "source": "EWhen purchasing, please note that L dimension fixed type is both ends machined and L dimension configurable type is one end machined.", "target": "ELoại kích thước L cố định được gia công ở cả hai đầu, trong khi đó, loại kích thước L tùy chỉnh được gia công ở một đầu, vui lòng lưu ý khi chọn mua."}
+{"tu_id": 2, "source": "Keyway (Shape A)", "target": "Rãnh then (Hình dạng A)"}
+{"tu_id": 3, "source": "Rep Part:", "target": "Mã đại diện:"}
+{"tu_id": 4, "source": "L", "target": "L"}
+{"tu_id": 5, "source": "Mounting dimensions are optimized to suit local production environments", "target": "Kích thước lắp ráp được tối ưu để phù hợp với môi trường sản xuất địa phương"}
+{"tu_id": 6, "source": "This series is ISO Standard 08A sprocket, which cannot be used in combination with 08B chain!", "target": "Dòng này là đĩa xích 08A theo tiêu chuẩn ISO, không thể kết hợp với xích 08B!"}
+{"tu_id": 7, "source": "L Dimension Fixed", "target": "Kích thước L cố định"}
+{"tu_id": 8, "source": "L Dimension Configurable", "target": "Kích thước L tùy chỉnh"}
+{"tu_id": 9, "source": "IL Dimension Fixed", "target": "IKích thước L cố định"}
+{"tu_id": 10, "source": "IL Dimension Configurable", "target": "IKích thước L tùy chỉnh"}
+{"tu_id": 11, "source": "New JIS B1702-1", "target": "JIS B1702-1 mới"}
+{"tu_id": 12, "source": "(4.68)", "target": "(4.68)"}
+{"tu_id": 13, "source": "12.2(12.1)", "target": "12.2(12.1)"}
+{"tu_id": 15, "source": "15.5(13.5)", "target": "15.5(13.5)"}
+{"tu_id": 16, "source": "Index:", "target": "Chương:"}
+{"tu_id": 17, "source": "DC", "target": "Chiết khấu"}
+{"tu_id": 18, "source": "VS Standard", "target": "So với Dòng Tiêu Chuẩn"}
+{"tu_id": 19, "source": "88% OFF", "target": "TIẾT KIỆM 88% "}
+{"tu_id": 20, "source": "Sprockets Nominal No.12B", "target": "Đĩa Xích mã danh nghĩa 12B"}
+{"tu_id": 21, "source": "Chains Nominal No.12B / Joint Links", "target": "Xích mã danh nghĩa 12B và mắt nối xích"}
+{"tu_id": 22, "source": "Chains Nominal No.50 / Joint Links", "target": "Xích mã danh nghĩa 50 và mắt nối xích"}
+{"tu_id": 23, "source": "Chains Nominal No.60 / Joint Links", "target": "Xích mã danh nghĩa 60 và mắt nối xích"}
+{"tu_id": 24, "source": "Sprockets Nominal No.40", "target": "Đĩa Xích mã danh nghĩa 40"}
+{"tu_id": 25, "source": "Sprockets Nominal No.50", "target": "Đĩa Xích mã danh nghĩa 50"}
+{"tu_id": 26, "source": "Sprockets Nominal No.60", "target": "Đĩa Xích mã danh nghĩa 60"}
+{"tu_id": 27, "source": "Chains Nominal No.25/Joint Links", "target": "Xích mã danh nghĩa 25/Mắt Nối Xích"}
+{"tu_id": 28, "source": "Chains Nominal No.35/Joint Links", "target": "Xích mã danh nghĩa 35/Mắt Nối xXích"}
+{"tu_id": 29, "source": "Chains Nominal No.10B/Joint Links", "target": "Xích mã danh nghĩa 10B/Mắt Nối Xích"}
+{"tu_id": 30, "source": "Sprockets Nominal No.16B", "target": "Đĩa Xích mã danh nghĩa 16B"}
+{"tu_id": 31, "source": "*Joint Links are provided and needed to be installed by yourself.", "target": "*Với Mắt Nối Xích đi kèm, khách hàng vui lòng tự lắp ráp."}
+{"tu_id": 32, "source": "P.08-007", "target": "T.08-007"}
+{"tu_id": 33, "source": "P.06-006", "target": "T.06-006"}
+{"tu_id": 34, "source": "P.09-010", "target": "T.09-010"}
+{"tu_id": 35, "source": "P.16-021", "target": "T.16-021"}
+{"tu_id": 37, "source": "QDifference in performance &amp; specifications between Economy series and generic products on the market", "target": "QSự khác biệt về thông số kỹ thuật và hiệu suất giữa sản phẩm dòng MISUMI Economy và sản phẩm lưu thông trên thị trường"}
+{"tu_id": 39, "source": "QMISUMI Economy series sprockets / chains with 12 series of European standard type and Japanese standard type are available to meet your design needs", "target": "QĐĩa Xích và Xích dòng MISUMI Economy với 12 dòng sản phẩm đạt tiêu chuẩn Nhật Bản và Châu Âu thích hợp cho nhiều yêu cầu thiết kế"}
+{"tu_id": 40, "source": "MISUMI Economy series sprockets and chains with the same nominal number can be used in combination.", "target": "Đĩa Xích và Xích dòng MISUMI Economy có cùng mã danh nghĩa có thể kết hợp với nhau."}
+{"tu_id": 41, "source": "d1 Through Hole, d2 Counterbore Depth Z1", "target": "d1 Lỗ thông, d2 Lỗ bậc chiều sâu Z1"}
+{"tu_id": 42, "source": "Shape K", "target": "Hình dạng K"}
+{"tu_id": 43, "source": "Only Japanese standard type 25~100", "target": "Chỉ có tiêu chuẩn Nhật Bản 25~100"}
+{"tu_id": 44, "source": "Only European standard type 06B~08B", "target": "Chỉ có tiêu chuẩn Châu Âu 06B~08B"}
+{"tu_id": 45, "source": "Easy to rustEasy to get stuck", "target": "Dễ gỉ sétDễ bị kẹt"}
+{"tu_id": 46, "source": "2Nominal Model", "target": "2Mã danh nghĩa"}
+{"tu_id": 47, "source": "3Hub Type", "target": "3Loại vành đĩa"}
+{"tu_id": 48, "source": "N (No Hole)HT (Bottom Tapped)ST (Side Tapped)Z (Side Counterbored)", "target": "N (Không gia công lỗ)HT (Lỗ ren đáy)ST (Lỗ ren bên)Z(Lỗ bậc bên)"}
+{"tu_id": 49, "source": "HT(Bottom Tapped) ST(Side Tapped)Z(Side Counterbored)", "target": "HT(Lỗ ren đáy) ST(Lỗ ren bên)Z(Lỗ bậc bên)"}
+{"tu_id": 50, "source": "K (Number of Holes)", "target": "K (Số lỗ)"}
+{"tu_id": 51, "source": "N(No Hole) HT(Bottom Tapped) ST(Side Tapped) Z(Side Counterbored)", "target": "N(Không gia công lỗ) HT(Lỗ ren đáy) ST(Lỗ ren bên) Z(Lỗ bậc bên)"}
+{"tu_id": 53, "source": "New Products", "target": "Sản phẩm mới"}
+{"tu_id": 54, "source": "K (Number of Holes)", "target": "K (Số lỗ)"}
+{"tu_id": 55, "source": "###", "target": "###"}
+{"tu_id": 56, "source": "Economy series Gears", "target": "Dòng Economy Bánh Răng"}
+{"tu_id": 57, "source": "Economy series - Racks", "target": "Dòng Economy - Thanh Răng"}
+{"tu_id": 59, "source": "Compliant with New JIS Class 8/GB Class 8 standards", "target": "Đáp ứng tiêu chuẩn JIS mới cấp 8/GB cấp 8"}
+{"tu_id": 61, "source": "Tooth surface is hardened for enhanced abrasion resistance", "target": "Bề mặt răng được tôi cứng cho khả năng chịu mài mòn tốt hơn"}
+{"tu_id": 62, "source": "More materials and gear shapes available", "target": "Nhiều tùy chọn vật liệu và hình dạng bánh răng hơn"}
+{"tu_id": 63, "source": "Multiple fixing hole machining options available", "target": "Có sẵn nhiều tùy chọn gia công lỗ cố định"}
+{"tu_id": 64, "source": "QAccuracy Guarantee", "target": "QBảo đảm độ chính xác"}
+{"tu_id": 65, "source": "Conceptual Diagram of Tooth Profile and Tooth Direction", "target": "Sơ đồ ý tưởng về biên dạng răng và hướng răng"}
+{"tu_id": 66, "source": "Photo of Detection Equipment", "target": "Ảnh thiết bị kiểm tra"}
+{"tu_id": 67, "source": "Detection is performed using a professional gear accuracy tester.", "target": "Sử dụng thiết bị kiểm tra độ chính xác bánh răng chuyên dụng để tiến hành kiểm tra."}
+{"tu_id": 68, "source": "Test standard:", "target": "Tiêu chuẩn kiểm tra:"}
+{"tu_id": 69, "source": "GB/T10095-2001", "target": "GB/T10095-2001"}
+{"tu_id": 70, "source": "Tooth Profile", "target": "Biên dạng răng"}
+{"tu_id": 71, "source": "Tooth Direction", "target": "Hướng răng"}
+{"tu_id": 72, "source": "Generic products on the market *", "target": "Sản phẩm lưu thông trên thị trường*"}
+{"tu_id": 73, "source": "Tooth Profile Detection", "target": "Kiểm tra biên dạng răng"}
+{"tu_id": 74, "source": "Reference Line", "target": "Đường tham chiếu"}
+{"tu_id": 75, "source": "Measured Line", "target": "Đường đo thực tế"}
+{"tu_id": 76, "source": "Left 28", "target": "Trái 28"}
+{"tu_id": 77, "source": "Right 1", "target": "Phải 1"}
+{"tu_id": 78, "source": "· Small deformation of tooth profile, with the measured line and the reference line basically overlapped", "target": "· Biên dạng răng bị biến dạng nhẹ, đường đo thực tế gần như trùng với đường tham chiếu"}
+{"tu_id": 79, "source": "· Large deformation of tooth profile, with large deviation between the measured line and the reference line", "target": "· Biên dạng răng bị biến dạng lớn, đường đo thực tế lệch đáng kể so với đường tham chiếu"}
+{"tu_id": 80, "source": "Tooth Direction Detection", "target": "Kiểm tra hướng răng"}
+{"tu_id": 81, "source": "(-)", "target": "(-)"}
+{"tu_id": 82, "source": "(+)", "target": "(+)"}
+{"tu_id": 83, "source": "· Excellent tooth direction uniformity, with the measured line basically vertical", "target": "· Hướng răng có độ đồng đều tốt, đường đo thực tế gần như thẳng đứng"}
+{"tu_id": 84, "source": "· Poor tooth direction uniformity, with the measured line obviously inclined", "target": "· Hướng răng có độ đồng đều kém, đường đo thực tế bị nghiêng rõ rệt"}
+{"tu_id": 85, "source": "Judgment Result", "target": "Kết quả đánh giá"}
+{"tu_id": 86, "source": "· Accuracy grade compliant with New JIS Class 8/GB Class 8 standards", "target": "· Cấp độ chính xác đáp ứng tiêu chuẩn JIS mới cấp 8/GB cấp 8"}
+{"tu_id": 87, "source": "· Design accuracy guaranteed, low vibration and noise, long service life", "target": "· Đảm bảo độ chính xác thiết kế, độ rung nhỏ, tiếng ồn thấp, tuổi thọ cao"}
+{"tu_id": 88, "source": "· Accuracy grade not compliant with New JIS Class 8/GB Class 8 standards", "target": "· Cấp độ chính xác không đáp ứng tiêu chuẩn JIS mới cấp 8/GB cấp 8"}
+{"tu_id": 89, "source": "· Poor engagement accuracy, low transmission accuracy, prone to vibration, large noise, short service life", "target": "· Độ chính xác ăn khớp kém, độ chính xác truyền động thấp, dễ gây rung, tiếng ồn lớn, tuổi thọ ngắn"}
+{"tu_id": 90, "source": "* Generic products on the market are similar products randomly purchased by our company from online or offline markets", "target": "* Sản phẩm lưu thông trên thị trường là sản phẩm tương tự được công ty chúng tôi mua ngẫu nhiên từ thị trường"}
+{"tu_id": 91, "source": "* The test data are obtained through testing by our company, which are for reference only", "target": "* Dữ liệu thử nghiệm được thu thập từ kết quả kiểm nghiệm của công ty và chỉ mang tính chất tham khảo"}
+{"tu_id": 92, "source": "QMultiple Materials Available", "target": "QĐa dạng các lựa chọn vật liệu"}
+{"tu_id": 93, "source": "Note:", "target": "Lưu ý:"}
+{"tu_id": 94, "source": "G Excellent performance, △ Good performance, × Poor performance", "target": "G Hiệu suất rất tốt, △ Hiệu suất tốt, × Hiệu suất kém"}
+{"tu_id": 95, "source": "Important Item", "target": "Thông số quan trọng"}
+{"tu_id": 96, "source": "Non-Heat Treated Steel", "target": "Thép không qua xử lý nhiệt"}
+{"tu_id": 97, "source": "Induction Hardened Steel", "target": "Thép tôi cao tần"}
+{"tu_id": 98, "source": "Stainless Steel", "target": "Thép không gỉ"}
+{"tu_id": 99, "source": "Hardness", "target": "Độ cứng"}
+{"tu_id": 100, "source": "Surface Hardness", "target": "Độ cứng bề mặt"}
+{"tu_id": 101, "source": "≤25HRC", "target": "≤25HRC"}
+{"tu_id": 102, "source": "45~55HRC", "target": "45~55HRC"}
+{"tu_id": 103, "source": "Hardening Layer Depth", "target": "Độ sâu lớp tôi cứng"}
+{"tu_id": 104, "source": "0.5~1.0mm", "target": "0.5~1.0mm"}
+{"tu_id": 105, "source": "Core Hardness", "target": "Độ cứng phần lõi"}
+{"tu_id": 106, "source": "35HRC or less", "target": "35HRC trở xuống"}
+{"tu_id": 107, "source": "Performance", "target": "Hiệu suất"}
+{"tu_id": 108, "source": "a. Abrasion Resistance", "target": "a. Khả năng chịu mài mòn"}
+{"tu_id": 109, "source": "×", "target": "×"}
+{"tu_id": 110, "source": "G", "target": "G"}
+{"tu_id": 111, "source": "△", "target": "△"}
+{"tu_id": 112, "source": "b. Fracture Resistance", "target": "b. Khả năng chống gãy"}
+{"tu_id": 113, "source": "c. Corrosion Resistance", "target": "c. Khả năng chống ăn mòn"}
+{"tu_id": 114, "source": "QMachined End Racks", "target": "QGia công đầu Thanh Răng"}
+{"tu_id": 115, "source": "Both Ends Machined", "target": "Loại gia công hai đầu"}
+{"tu_id": 116, "source": "One End Machined", "target": "Loại gia công một đầu"}
+{"tu_id": 117, "source": "Cutting is performed based on the length of effective teeth (tooth bottom).", "target": "Cắt theo chiều dài dựa trên số răng hiệu dụng (đáy răng)."}
+{"tu_id": 118, "source": "Cutting is performed based on the specified length measured from the reference plane, regardless of tooth completeness.", "target": "Cắt theo chiều dài chỉ định được đo từ mặt phẳng tham chiếu, không phụ thuộc vào việc răng có hoàn chỉnh hay không."}
+{"tu_id": 119, "source": "Cut", "target": "Cắt"}
+{"tu_id": 121, "source": "Length Configurable", "target": "Chiều dài tùy chỉnh"}
+{"tu_id": 122, "source": "QHow to Connect Racks", "target": "QPhương pháp kết nối thanh răng"}
+{"tu_id": 123, "source": "Since length control accuracy is lower than pitch accuracy, there is no guarantee that an effective tooth can be formed for use when directly connecting tooth profiles at machined surfaces.", "target": "Do độ chính xác kiểm soát chiều dài thấp hơn độ chính xác bước răng nên khi nối trực tiếp các biên dạng răng tại bề mặt gia công, không thể đảm bảo là sẽ tạo thành một răng hiệu dụng để sử dụng."}
+{"tu_id": 124, "source": "Therefore, as shown in the figure, before connecting the racks, provide some clearance and use mounted racks (or racks with the same module) to properly adjust the pitch.", "target": "Do đó, như trong hình minh họa, trước khi nối thanh răng, cần để lại một khoảng hở và sử dụng thanh răng lắp đặt (hoặc thanh răng có cùng mô-đun) để điều chỉnh bước răng đúng cách."}
+{"tu_id": 125, "source": "Combined Racks", "target": "Thanh răng kết hợp"}
+{"tu_id": 126, "source": "Example of Use", "target": "Ví dụ ứng dụng"}
+{"tu_id": 127, "source": "QMechanism Name", "target": "QTên cơ cấu"}
+{"tu_id": 128, "source": "n-Times Speed and Stroke Mechanism", "target": "Cơ cấu tốc độ và hành trình gấp n lần"}
+{"tu_id": 129, "source": "QMechanism Features", "target": "QĐặc điểm của cơ cấu"}
+{"tu_id": 130, "source": "Feature 1:", "target": "Đặc điểm 1:"}
+{"tu_id": 131, "source": "The transmission and conveyance structure of gears and racks is integrated, achieving n times the distance of the cylinder stroke.", "target": "Kết hợp sử dụng cấu trúc truyền động và vận chuyểnbằng bánh răng và thanh răng, giúp tăng gấp n lần quãng đường di chuyển của hành trình xylanh."}
+{"tu_id": 132, "source": "The stroke can be converted to n times the original value by setting the ratio of small to large gear to 1:n.", "target": "Hành trình có thể được chuyển đổi thành gấp n lần giá trị ban đầu bằng cách thiết lập tỷ lệ giữa bánh răng nhỏ và bánh răng lớn là 1:n."}
+{"tu_id": 133, "source": "Force deviation can be eliminated by mounting gears on movable base side in the center line of the cylinder and then mounting gears on fixed rack side evenly to the left and right.", "target": "Có thể loại bỏ sai lệch lực bằng cách lắp đặt bánh răng ở phía đế di chuyển dọc theo đường trung tâm của xylanh, sau đó lắp đặt bánh răng ở phía thanh răng cố định đều ở hai bên trái và phải."}
+{"tu_id": 134, "source": "The position of rack and gear can be adjusted by mounting lower racks (size configurable holes) or increasing/decreasing shims.", "target": "Có thể điều chỉnh vị trí của thanh răng và bánh răng bằng cách lắp các thanh răng dưới (với lỗ kích thước tùy chỉnh) hoặc tăng/giảm số lượng miếng chêm."}
+{"tu_id": 135, "source": "Height Adjusting Blocks for Linear Guides", "target": "Khối chỉnh độ cao thanh dẫn hướng"}
+{"tu_id": 136, "source": "Rack Gears", "target": "Thanh Răng"}
+{"tu_id": 137, "source": "Spur Gears", "target": "Bánh Răng thẳng"}
+{"tu_id": 138, "source": "C-CHE25-240", "target": "C-CHE25-240"}
+{"tu_id": 139, "source": "8 / Page:", "target": "8 / Trang:"}
+{"tu_id": 140, "source": "08-007", "target": "08-007"}
+{"tu_id": 141, "source": "Standard roller chains engineered for durability and precision fit, ideal for demanding applications.", "target": "Dòng xích con lăn tiêu chuẩn được thiết kế đảm bảo độ bền và vừa vặn chính xác, là lựa chọn lý tưởng cho các ứng dụng có yêu cầu cao."}
+{"tu_id": 142, "source": "Compatible with sprockets and systems, they ensure reliable power transmission.", "target": "Tương thích với đĩa xích và hệ xích, đảm bảo truyền lực đáng tin cậy."}
+{"tu_id": 143, "source": "Stocked for fast delivery to keep your projects on schedule.", "target": "Sản phẩm có sẵn tồn kho, giao hàng nhanh, đảm bảo dự án của bạn luôn đúng hẹn."}
+{"tu_id": 144, "source": "78,336 VND/pc", "target": "78,336 VND/chiếc"}
+{"tu_id": 145, "source": "Qty", "target": "Số lượng"}
+{"tu_id": 146, "source": "50~", "target": "50~"}
+{"tu_id": 147, "source": "20%", "target": "20%"}
+{"tu_id": 148, "source": "Supports high tension for reliable performance in demanding applications.", "target": "Chịu được lực căng cao, đảm bảo hiệu suất đáng tin cậy trong các ứng dụng có yêu cầu cao."}
+{"tu_id": 149, "source": "Offered in fixed or customizable lengths to suit various setups.", "target": "Có sẵn phiên bản với chiều dài cố định hoặc tùy chỉnh, phù hợp với nhiều cách thiết lập khác nhau."}
+{"tu_id": 150, "source": "Precisely engineered for smooth operation with compatible sprockets and systems.", "target": "Thiết kế chính xác giúp vận hành trơn tru với các loại đĩa xích và hệ xích tương thích."}
+{"tu_id": 151, "source": "Chain-driven sprockets offer multi-tooth load bearing for reliable operation and shock absorption.", "target": "Đĩa xích dẫn động bằng xích với ổ trục nhiều răng, đảm bảo vận hành ổn địnhvà giảm xóc hiệu quả."}
+{"tu_id": 152, "source": "They are suitable for long center distances and perform better than belt drives in terms of accuracy and efficiency.", "target": "Phù hợp với khoảng cách tâm lớn và hoạt động tốt hơn đai truyền động về độ chính xác và hiệu suất."}
+{"tu_id": 153, "source": "Ideal for harsh environments, including high-temperature, dusty, or humid conditions.", "target": "Lựa chọn lý tưởng cho môi trường khắc nghiệt, bao gồm nhiệt độ cao, bụi bặm hoặc ẩm ướt."}
+{"tu_id": 154, "source": "The Economy series roller chain provides dependable performance for tough industrial tasks.", "target": "Xích con lăn dòng Economy mang lại hiệu suất đáng tin cậy cho các ứng dụng công nghiệp khó khăn."}
+{"tu_id": 155, "source": "Available in fixed or customizable lengths, fully compatible with MISUMI standards.", "target": "Có sẵn với chiều dài cố định hoặc tùy chỉnh, hoàn toàn tương thích với tiêu chuẩn MISUMI."}
+{"tu_id": 156, "source": "Built with high-strength steel for heavy loads, ideal for power transmission and workpiece transport.", "target": "Chế tạo từ thép có độ bền cao giúp chịu tải nặng, là lựa chọn lý tưởng cho ứng dụng truyền lực và vận chuyển phôi."}
+{"tu_id": 157, "source": "Spoked gears designed to engage roller chains for power or motion transfer", "target": "Đĩa xích được thiết kế ăn khớp với xích con lăn khi truyền lực hoặc chuyển động"}
+{"tu_id": 158, "source": "Widely used in chemical, textile, food processing, instrumentation, and petroleum industries", "target": "Được ứng dụng rộng rãi trong các ngành hóa chất, dệt may, chế biến thực phẩm, thiết bị đo lường và dầu khí"}
+{"tu_id": 159, "source": "Must be paired with chains of matching specifications", "target": "Cần kết hợp với xích có thông số kỹ thuật phù hợp"}
+{"tu_id": 160, "source": "Compatible with MISUMI 40B series roller chains", "target": "Tương thích với xích con lăn dòng 40B của MISUMI"}
+{"tu_id": 162, "source": "E-GEAHBG1.0-12-10-K-6", "target": "E-GEAHBG1.0-12-10-K-6"}
+{"tu_id": 163, "source": "Module 1.0 spur gears suitable for high-torque transmission with stable instantaneous transmission ratio", "target": "Bánh răng mô-đun 1.0 phù hợp cho truyền động với lực xoắn cao và hệ số truyền động tức thời ổn định."}
+{"tu_id": 164, "source": "Fixed center distance and long service life, ideal for compact, reliable mechanisms", "target": "Khoảng cách tâm cố định và tuổi thọ lâu dài, là giải pháp lý tưởng cho các cơ cấu nhỏ gọn, đáng tin cậy."}
+{"tu_id": 165, "source": "Precision-ground teeth meeting JIS B 1702-18 grade", "target": "Răng được mài chính xác, đáp ứng tiêu chuẩn hạng JIS B 1702-18"}
+{"tu_id": 166, "source": "Shaft hole diameter with H8 tolerance for accurate fitting", "target": "Đường kính lỗ trục với dung sai H8 cho phép lắp ghép chính xác."}
+{"tu_id": 167, "source": "Rack Gears Square Section, Pressure Angle 20°, Length Fixed", "target": "Thanh Răng Vuông, góc áp lực 20°, chiều dài cố định"}
+{"tu_id": 168, "source": "Rack gears convert rotary motion into linear motion and vice versa.", "target": "Thanh răng chuyển đổi chuyển động quay thành chuyển động tuyến tính và ngược lại."}
+{"tu_id": 169, "source": "Features a fixed-length square cross section with selectable hole machining options: none, reverse thread, side countersink, or side thread.", "target": "Mặt cắt ngang vuông với chiều dài cố định và các tùy chọn gia công lỗ linh hoạt, bao gồm không gia công lỗ, gia công lỗ ren ngược, gia công lỗ côn bên hoặc gia công lỗ ren bên."}
+{"tu_id": 170, "source": "Available in steel or stainless steel to suit various working conditions.", "target": "Có sẵn phiên bản bằng thép hoặc thép không gỉ, phù hợp với nhiều điều kiện làm việc khác nhau."}
+{"tu_id": 171, "source": "Induction Hardened Rack Gears Square Section, Pressure Angle 20°, Length Fixed", "target": "Thanh Răng Vuông, góc áp lực 20°, tôi cao tần, chiều dài cố định"}
+{"tu_id": 172, "source": "Rack gears enable conversion between rotary and linear motion.", "target": "Thanhrăng cho phép chuyển đổi giữa chuyển động quay và chuyển động tuyến tính."}
+{"tu_id": 173, "source": "They feature a square cross-section with selectable lengths and mounting hole processing methods.", "target": "Mặt cắt ngang vuông với chiều dài tùy chọn và các phương pháp gia công lỗ gắn."}
+{"tu_id": 174, "source": "Available in steel or stainless steel with options such as reverse thread, side countersink, and side thread.", "target": "Có sẵn phiên bản bằng thép hoặc thép không gỉ, với các tùy chọn gia công như gia công lỗ ren ngược, gia công lỗ côn bên và gia công lỗ ren bên."}
+{"tu_id": 175, "source": "Rack Gears Round Section, Pressure Angle 20°, Length Fixed / Configurable", "target": "Thanh Răng Tròn, góc áp lực 20°, chiều dài cố định / tùy chỉnh"}
+{"tu_id": 176, "source": "E-RGMA1.0-300", "target": "E-RGMA1.0-300"}
+{"tu_id": 177, "source": "Rack gear can be converted between rotary motion and linear motion.", "target": "Thanh răng cho phép chuyển đổi giữa chuyển động quay và chuyển động tuyến tính."}
+{"tu_id": 178, "source": "Available in ordinary steel or stainless steel to suit working conditions", "target": "Có sẵn phiên bản bằng thép thông thường và thép không gỉ, phù hợp với nhiều điều kiện làm việc khác nhau."}
+{"tu_id": 179, "source": "Hole processing options include none, reverse thread, side countersink, and side thread", "target": "Các tùy chọn gia công lỗ bao gồm không gia công lỗ, gia công lỗ ren ngược, gia công lỗ côn bên hoặc gia công lỗ ren bên."}
+{"tu_id": 180, "source": "Optimized cross-sectional shape for better performance in local environments", "target": "Hình dạng mặt cắt ngang tối ưu giúp nâng cao hiệu suất trong môi trường làm việc tại địa phương"}
+{"tu_id": 181, "source": "Chain Conveyors", "target": "Cơ cấu xích băng tải"}
+{"tu_id": 182, "source": "Reference price", "target": "Giá tham khảo"}
+{"tu_id": 183, "source": "Application Industries:", "target": "Lĩnh vực ứng dụng:"}
+{"tu_id": 184, "source": "Automotive part", "target": "Linh kiện ô tô"}
+{"tu_id": 185, "source": "Electronic &amp; Electrical", "target": "Điện, điện tử"}
+{"tu_id": 186, "source": "This figure is a case of a chain conveying device using a combination of flat profiles and chain drives to achieve high versatility.", "target": "Hình ảnh dưới đây mô tả cơ cấu truyền tải dạng xích có tính linh hoạt cao khi di chuyển phôi có dạng phẳng bằng truyền động xích."}
+{"tu_id": 187, "source": "The classic chain drive unit is widely used in all types of conveyor &amp; conveyor line equipment and can cope with harsh environmental conditions.", "target": "Cơ cấu truyền tải dạng xích được ứng dụng rộng rãi trong các loại thiết bị dây chuyền băng tải ngay cả trong điều kiện làm việc khắc nghiệt."}
+{"tu_id": 188, "source": "Sprockets 25×4", "target": "Đĩa Xích 25×4"}
+{"tu_id": 189, "source": "Chains 25×2", "target": "Xích 25×2"}
+{"tu_id": 190, "source": "Chains 25×2", "target": "Xích 25×2"}
+{"tu_id": 191, "source": "Sprockets 25×4", "target": "Đĩa Xích 25×4"}
+{"tu_id": 192, "source": "Bearings ×2", "target": "Vòng Bi ×2"}
+{"tu_id": 193, "source": "Number of Teeth 17", "target": "Số răng 17"}
+{"tu_id": 194, "source": "Shaft Dia. 9mm", "target": "Đường kính trục 9mm"}
+{"tu_id": 195, "source": "Fixed number of links", "target": "Loại có số mắt xích cố định"}
+{"tu_id": 196, "source": "Number of Links 240", "target": "Số mắt xích 240"}
+{"tu_id": 197, "source": "78,336", "target": "78,336"}
+{"tu_id": 198, "source": "VND/pc", "target": "VND/chiếc"}
+{"tu_id": 199, "source": "Quantity", "target": "Số lượng"}
+{"tu_id": 200, "source": "Total price", "target": "Tổng tiền"}
+{"tu_id": 201, "source": "Unit price", "target": "Đơn giá"}
+{"tu_id": 202, "source": "Bearings ×2", "target": "Vòng Bi ×2"}
+{"tu_id": 203, "source": "Motor ×1", "target": "Động Cơ ×1"}
+{"tu_id": 204, "source": "Type Motor + Driver 20 Series", "target": "Loại Động cơ + Bộ điều khiển Series 20"}
+{"tu_id": 205, "source": "Body Length 33mm", "target": "Chiều dài thân 33mm"}
+{"tu_id": 206, "source": "Number of Leads 4", "target": "Dây dẫn 4 sợi"}
+{"tu_id": 207, "source": "Holding Torque 0.018N·m", "target": "Mô-men xoắn 0.018N·m"}
+{"tu_id": 208, "source": "C-20STM01+DR42A", "target": "C-20STM01+DR42A"}
+{"tu_id": 209, "source": "I.D.", "target": "Đường kính trong"}
+{"tu_id": 210, "source": "8mm", "target": "8mm"}
+{"tu_id": 211, "source": "O.D.", "target": "Đường kính ngoài"}
+{"tu_id": 212, "source": "Width 5mm", "target": "Chiều rộng 5mm"}
+{"tu_id": 213, "source": "Unit", "target": "Đơn vị"}
+{"tu_id": 214, "source": "Spur Gear ×1", "target": "Bánh Răng ×1"}
+{"tu_id": 215, "source": "Hex Posts ×4", "target": "Trụ Đỡ loại lục giác ×4"}
+{"tu_id": 216, "source": "Module 2.0", "target": "Mô-đun 2.0"}
+{"tu_id": 217, "source": "Keyway", "target": "Rãnh then"}
+{"tu_id": 218, "source": "Opposite Distance 10mm", "target": "Khoảng cách hai bên 10mm"}
+{"tu_id": 219, "source": "Length 50mm", "target": "Chiều dài 50mm"}
+{"tu_id": 220, "source": "Hex Posts ×4", "target": "Trụ Đỡ loại lục giác ×4"}
+{"tu_id": 221, "source": "Spur Gear ×1", "target": "Bánh Răng ×1"}
+{"tu_id": 222, "source": "Motor ×1", "target": "Động Cơ ×1"}
+{"tu_id": 223, "source": "Total Price", "target": "Tổng tiền"}
+{"tu_id": 224, "source": "* Product prices are without tax, please refer to quote on MISUMI official website for more details.", "target": "* Giá các sản phẩm đều chưa bao gồm thuế, vui lòng tham khảo báo giá trên trang web chính thức để biết thêm chi tiết."}
+{"tu_id": 225, "source": "Economy series Sprockets &amp; Chains", "target": "Dòng Economy Đĩa Xích / Xích"}
+{"tu_id": 226, "source": "Generic products on the market *", "target": "Sản phẩm lưu thông trên thị trường*"}
+{"tu_id": 227, "source": "MISUMI Standard product", "target": "Dòng tiêu chuẩn MISUMI"}
+{"tu_id": 228, "source": "Sprocket Hardness", "target": "Độ cứng của Đĩa Xích"}
+{"tu_id": 229, "source": "Life Conversion of Sprocket", "target": "Vòng đời thay Đĩa Xích"}
+{"tu_id": 230, "source": "Over 3 years", "target": "3 năm trở lên"}
+{"tu_id": 231, "source": "12 series of Japanese Standard Type and European Standard Type", "target": "12 dòng sản phẩm đạt tiêu chuẩn Nhật Bản và Châu Âu"}
+{"tu_id": 232, "source": "Chain Roller Hardness", "target": "Độ cứng của Con Lăn Xích"}
+{"tu_id": 233, "source": "More assured with complete set purchase", "target": "Dễ dàng hơn khi mua trọn bộ"}
+{"tu_id": 234, "source": "Chain Tensile Strength (GB Reference 8.9KN)", "target": "Độ bền kéo của Xích (Tiêu chuẩn GB 8.9KN)"}
+{"tu_id": 235, "source": "12.5KN", "target": "12.5KN"}
+{"tu_id": 236, "source": "Joint links can be purchased separately for high flexibility", "target": "Linh hoạt hơn khi mua lẻ mắt nối"}
+{"tu_id": 237, "source": "Japanese Standard 25~80 European Standard 06B~20B", "target": "Tiêu chuẩn Nhật Bản 25~80 Tiêu chuẩn Châu Âu 06B~20B"}
+{"tu_id": 238, "source": "Specification Model", "target": "Thông số mã sản phẩm"}
+{"tu_id": 239, "source": "* Economy series product is different in strength compared to the standard product, and at the same time the price drops significantly", "target": "* So với dòng tiêu chuẩn MISUMI, độ bền của dòng Economy có thể không bằng nhưng giá thành lại cạnh tranh hơn"}
+{"tu_id": 240, "source": "* Products circulating on the market are similar products randomly purchased by our company from online or offline markets", "target": "* Sản phẩm lưu thông trên thị trường là sản phẩm tương tự được công ty chúng tôi mua ngẫu nhiên từ thị trường"}
+{"tu_id": 241, "source": "QSprocket Strength Comparison", "target": "QSo sánh độ bền của Đĩa Xích"}
+{"tu_id": 242, "source": "QCustomer Voice", "target": "QÝ kiến khách hàng"}
+{"tu_id": 243, "source": "Generic products on the market *", "target": "Sản phẩm lưu thông trên thị trường*"}
+{"tu_id": 244, "source": "Customer", "target": "Khách hàng"}
+{"tu_id": 245, "source": "We purchased a set of 3/8\" sprockets from company A and a set of 3/8\" chains from company B, but the engineer said they could not be installed due to mismatch.", "target": "Tôi mua của công ty A một bộ đĩa xích số 3, rồi lại mua của công ty B xích số 3. Không ngờ kỹ sư nói rằng không thể lắp được vì nó không đồng bộ."}
+{"tu_id": 246, "source": "Later it was found that the chain pins were too short and the width was less than 5.7, so the sprocket teeth failed to snap in. We had to go back to the market to find matchable products, and it took 3 days, which was very time-consuming and labor intensive.", "target": "Sau đó nhận thấy các chốt của xích quá ngắn, chiều ngang nhỏ hơn 5.7 khiến răng đĩa xích không ăn khớp được. Tôi phải tìm sản phẩm phù hợp trên thị trường mất 3 ngày, rất tốn thời gian và công sức."}
+{"tu_id": 247, "source": "Hardness 20HRC Serious wear of toothed face", "target": "Độ cứng 20HRC Mặt răng bị mài mòn nghiêm trọng"}
+{"tu_id": 248, "source": "Induction hardening of toothed face Hardness 40HRC or more", "target": "Mặt răng được tôi cao tần Độ cứng 40HRC trở lên"}
+{"tu_id": 249, "source": "Abrasion", "target": "Chịu"}
+{"tu_id": 250, "source": "resistantLong life", "target": "mài mòn tốtTuổi thọ dài"}
+{"tu_id": 251, "source": "Customer Service", "target": "Chăm sóc khách hàng"}
+{"tu_id": 252, "source": "At MISUMI, you can purchase complete sets of 06B sprockets/ chains, eliminating the mismatch problem, and you can use them directly upon arrival.", "target": "Tại MISUMI, bạn có thể mua trọn bộ đĩa xích và xích 06B, tránh được vấn đề sản phẩm không ăn khớp và có thể sử dụng được luôn sau khi nhận hàng."}
+{"tu_id": 253, "source": "* Generic products on the market, which make customers confused on usage", "target": "* Các sản phẩm lưu thông trên thị trường mà khách hàng sử dụng và gặp khó khăn"}
+{"tu_id": 254, "source": "QSprocket and chain fit comparison (Fit tolerance 0.03 to 0.08 means smooth fit)", "target": "QSo sánh độ ăn khớp của Đĩa Xích và Xích (Dung sai độ ăn khớp trơn tru là 0.03~0.08)"}
+{"tu_id": 255, "source": "QEuropean standard type (6 series)", "target": "QTiêu chuẩn Châu Âu (6 dòng)"}
+{"tu_id": 256, "source": "The fit tolerance 0 to 0.024 is too small, causing poor fit Sometimes tooth skipping occurs", "target": "Dung sai ăn khớp 0~0.024 là quá nhỏ, khiến cho sự ăn khớp kém Đôi lúc sẽ bị nhảy răng"}
+{"tu_id": 257, "source": "Dimensions comply with GB standard Fit tolerance is kept between 0.04 and 0.06 for smooth fitting", "target": "Kích thước đều phù hợp với tiêu chuẩn GB Sai số ăn khớp kiểm soát trong phạm vi 0.04~0.06, ăn khớp trơn tru"}
+{"tu_id": 258, "source": "06B", "target": "06B"}
+{"tu_id": 259, "source": "Nominal Model", "target": "Mã danh nghĩa"}
+{"tu_id": 260, "source": "Sprocket", "target": "Đĩa Xích"}
+{"tu_id": 261, "source": "Number of Teeth", "target": "Số răng"}
+{"tu_id": 262, "source": "Chain", "target": "Xích"}
+{"tu_id": 263, "source": "4 and more links are customizable", "target": "4 mắt xích ~ có thể tùy chỉnh"}
+{"tu_id": 264, "source": "Number of links", "target": "Số mắt xích"}
+{"tu_id": 265, "source": "QJapanese standard type (6 series)", "target": "QTiêu chuẩn Nhật Bản (6 dòng)"}
+{"tu_id": 266, "source": "* Cases of poor quality of products circulating on the market", "target": "* Các trường hợp sản phẩm lưu thông trên thị trường kém chất lượng"}
+{"tu_id": 267, "source": "QSprocket", "target": "QĐĩa Xích"}
+{"tu_id": 268, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 269, "source": "A Attachments", "target": "A Phụ kiện"}
+{"tu_id": 270, "source": "S45C Equivalent", "target": "Tương đương S45C"}
+{"tu_id": 271, "source": "Set Screw (Only Shaft Bore Specs.", "target": "Vít chặn (Đối với riêng lỗ trục"}
+{"tu_id": 272, "source": "N)", "target": "N)"}
+{"tu_id": 273, "source": "Link Pitch 6.35", "target": "Khoảng cách giữa các mắt xích 6.35"}
+{"tu_id": 274, "source": "QShaft Bore Machining Size Table", "target": "QBảng kích thước gia công lỗ trục"}
+{"tu_id": 275, "source": "N", "target": "N"}
+{"tu_id": 276, "source": "S", "target": "S"}
+{"tu_id": 277, "source": "Shaft Bore Specs.", "target": "Thông số lỗ trục"}
+{"tu_id": 278, "source": "(Through Hole)", "target": "(Lỗ thông)"}
+{"tu_id": 279, "source": "(New JIS Keyway+Tap)", "target": "(Rãnh then JIS mới + Ren)"}
+{"tu_id": 280, "source": "Shaft Bore Dia. D", "target": "Đường kính lỗ trục D"}
+{"tu_id": 281, "source": "Keyway b2×t2", "target": "Rãnh then b2×t2"}
+{"tu_id": 282, "source": "Set Screw M", "target": "Vít chặn M"}
+{"tu_id": 283, "source": "3×1.4", "target": "3×1.4"}
+{"tu_id": 284, "source": "This series is ISO Standard 04C sprocket", "target": "Dòng này là đĩa xích 04C theo tiêu chuẩn ISO"}
+{"tu_id": 285, "source": "EProcess issue:", "target": "EVấn đề gia công:"}
+{"tu_id": 286, "source": "There is no guarantee that the tooth tip of multiple products is consistent with each other", "target": "Do tính phức tạp của sản phẩm, không thể đảm bảo sự đồng nhất giữa các đầu răng"}
+{"tu_id": 287, "source": "EOffset between tooth top and keyway ±0.5mm", "target": "ESai lệch giữa đầu răng và rãnh then là ±0.5mm"}
+{"tu_id": 288, "source": "*For keyway size, refer to GB/T 1095", "target": "*Kích thước rãnh then tham khảo GB/T 1095"}
+{"tu_id": 289, "source": "Part Number", "target": "Mã sản phẩm"}
+{"tu_id": 290, "source": "5Hole Specifications", "target": "5Thông số lỗ trục"}
+{"tu_id": 291, "source": "6Shaft Bore Dia. (D)", "target": "6Đường kính lỗ trục (D)"}
+{"tu_id": 292, "source": "Dp", "target": "Dp"}
+{"tu_id": 293, "source": "DO", "target": "DO"}
+{"tu_id": 294, "source": "H", "target": "H"}
+{"tu_id": 295, "source": "1Type", "target": "1Loại"}
+{"tu_id": 296, "source": "3Hub Type", "target": "3Loại vành đĩa"}
+{"tu_id": 297, "source": "4Number of Teeth (T)", "target": "4Số răng (T)"}
+{"tu_id": 298, "source": "S Specifications (H8)", "target": "Lỗ trục S (H8)"}
+{"tu_id": 299, "source": "N Specifications (H7)", "target": "Lỗ trục N (H7)"}
+{"tu_id": 300, "source": "C-SPA", "target": "C-SPA"}
+{"tu_id": 301, "source": "B", "target": "B"}
+{"tu_id": 302, "source": "10K", "target": "10K"}
+{"tu_id": 303, "source": "EPlease visit MISUMI website for details of the models available for sale.", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 304, "source": "Part Number (1Type · 2Nominal Model · 3Hub Type · 4Number of Teeth)", "target": "Mã sản phẩm (1Loại · 2Mã danh nghĩa · 3Loại vành đĩa · 4Số răng)"}
+{"tu_id": 305, "source": "6Shaft Bore Dia.", "target": "6Đường kính lỗ trục"}
+{"tu_id": 306, "source": "QChain", "target": "QXích"}
+{"tu_id": 307, "source": "Steel", "target": "Thép"}
+{"tu_id": 308, "source": "QSprocket and Chain Selection", "target": "QLựa chọn Đĩa Xích, Xích"}
+{"tu_id": 309, "source": "This series is ISO Standard 04C (ANSI 25) roller chain, which can be used in combination with our 25B series sprocket.", "target": "Dòng xích con lăn này đạt tiêu chuẩn ISO 04C (ANSI 25), có thể tương thích với đĩa xích dòng 25B."}
+{"tu_id": 310, "source": "Do not use in combination with 04B series sprocket, which may cause the chain sprocket mechanism to fail to function properly!", "target": "Vui lòng không kết hợp sử dụng với đĩa xích dòng 04B vì có thể khiến cho đĩa xích và xích hoạt động không ổn định."}
+{"tu_id": 311, "source": "Please choose Joint Links nominal No.25.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 25."}
+{"tu_id": 312, "source": "2Number of Links", "target": "2Số mắt xích"}
+{"tu_id": 313, "source": "Allowable Maximum Tension (kN)", "target": "Lực căng tối đa cho phép (kN)"}
+{"tu_id": 314, "source": "Configurable Type", "target": "Loại cấu hình"}
+{"tu_id": 315, "source": "Fixed Type", "target": "Loại cố định"}
+{"tu_id": 317, "source": "(2-link increments)", "target": "(Số mắt xích là số chẵn)"}
+{"tu_id": 318, "source": "240 links (Circumference Length 1524mm)", "target": "240 mắt xích (Chu vi 1524mm)"}
+{"tu_id": 319, "source": "EChains with configurable number of links are not available for sale for the time being.", "target": "ETạm ngừng cung cấp loại cấu hình."}
+{"tu_id": 320, "source": "*Joint Links can also be purchased separately!", "target": "*Mắt Nối Xích có thể được đặt mua riêng,"}
+{"tu_id": 321, "source": "Search “joint link” on the official website.", "target": "vui lòng tham khảo sản phẩm “Mắt Nối Xích” trên trang web."}
+{"tu_id": 322, "source": "Part Number (1Type)", "target": "Mã sản phẩm (1Loại)"}
+{"tu_id": 323, "source": "(The figure shows 4 links)", "target": "(Hình ảnh thể hiện 4 mắt xích)"}
+{"tu_id": 324, "source": "min", "target": "Tối thiểu"}
+{"tu_id": 325, "source": "Joint Link* (Snap Type)", "target": "Mắt nối xích* (Loại chụp nhanh)"}
+{"tu_id": 326, "source": "φ3.3", "target": "φ3.3"}
+{"tu_id": 327, "source": "b2", "target": "b2"}
+{"tu_id": 328, "source": "t2", "target": "t2"}
+{"tu_id": 329, "source": "120°", "target": "120°"}
+{"tu_id": 330, "source": "Do", "target": "Do"}
+{"tu_id": 331, "source": "6DH7", "target": "6DH7"}
+{"tu_id": 332, "source": "S45C Equivalent (Teeth Tip:", "target": "Tương đương S45C (Tôi cao tần"}
+{"tu_id": 333, "source": "Induction hardening)", "target": "phần đầu răng)"}
+{"tu_id": 334, "source": "This series is ISO Standard 06C sprocket, which cannot be used in combination with 06B chain!", "target": "Dòng này là đĩa xích 06C theo tiêu chuẩn ISO, không thể kết hợp sử dụng với xích 06B!"}
+{"tu_id": 335, "source": "EProcess issue:", "target": "EVấn đề gia công:"}
+{"tu_id": 336, "source": "EOffset between tooth top and keyway ±0.5mm", "target": "ESai lệch giữa đầu răng và rãnh then là ±0.5mm"}
+{"tu_id": 337, "source": "GD", "target": "GD"}
+{"tu_id": 338, "source": "EIf 10K is selected, the shaft bore dia. is φ10 and the keyway width is 4mm (height 1.8mm).", "target": "ETrong trường hợp chọn 10K, đường kính lỗ trục là φ10, chiều rộng rãnh then là 4mm (chiều cao là 1.8mm)."}
+{"tu_id": 339, "source": "EPlease visit MISUMI website for details of the models available for sale.", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 340, "source": "This series is ISO Standard 06C (ANSI 35) roller chain, and can be used in combination with our 35B series sprocket.", "target": "Dòng xích con lăn này đạt tiêu chuẩn ISO 06C (ANSI35), có thể tương thích với đĩa xích dòng 35B."}
+{"tu_id": 341, "source": "Please choose Joint Links nominal No.35.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 35."}
+{"tu_id": 342, "source": "160 links", "target": "160 mắt xích"}
+{"tu_id": 343, "source": "(Circumference Length 1524mm)", "target": "(Chu vi 1524mm)"}
+{"tu_id": 344, "source": "4.4*", "target": "4.4*"}
+{"tu_id": 345, "source": "10·12", "target": "10·12"}
+{"tu_id": 346, "source": "This series is ISO Standard 08A (ANSI 40) roller chain, and can be used in combination with our 40B series sprocket.", "target": "Dòng xích con lăn này đạt tiêu chuẩn ISO 08A (ANSI 40), có thể tương thích với đĩa xích dòng 40B."}
+{"tu_id": 347, "source": "Please choose Joint Links nominal No.40.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 40."}
+{"tu_id": 348, "source": "This series is ISO Standard 16A sprocket, which cannot be used in combination with 16B chain.", "target": "Dòng này là đĩa xích 16A theo tiêu chuẩn ISO, không thể kết hợp với xích 16B."}
+{"tu_id": 349, "source": "5Hole Specifications", "target": "5Thông số lỗ trục"}
+{"tu_id": 350, "source": "4Number of Teeth (T)", "target": "4Số răng (T)"}
+{"tu_id": 351, "source": "Please choose Joint Links nominal No.80.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 80."}
+{"tu_id": 352, "source": "Joint Link* (Cotter Pin Type)", "target": "Mắt nối xích* (Loại chốt khe cắm)"}
+{"tu_id": 353, "source": "Do not use in combination with 06A chain!", "target": "Vui lòng không kết hợp với xích 06A!"}
+{"tu_id": 354, "source": "There is no guarantee that the tooth tip of multiple products is consistent with each other", "target": "Do tính phức tạp của sản phẩm, không thể đảm bảo sự đồng nhất giữa các đầu răng"}
+{"tu_id": 355, "source": "C-SPB", "target": "C-SPB"}
+{"tu_id": 356, "source": "This series is ISO Standard 06B roller chain, which can be used in combination with our 06B series sprocket.", "target": "Dòng xích con lăn này đạt tiêu chuẩn ISO 06B, có thể tương thích với đĩa xích dòng 06B."}
+{"tu_id": 357, "source": "Do not use in combination with Japanese standard type or American standard type sprocket, which may cause the chain sprocket mechanism to fail to function properly!", "target": "Vui lòng không kết hợp sử dụng với đĩa xích tiêu chuẩn Nhật Bản và Mỹ vì có thể khiến cho đĩa xích và xích hoạt động không ổn định."}
+{"tu_id": 358, "source": "Please choose Joint Links nominal No.06B.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 06B."}
+{"tu_id": 359, "source": "S Specifications (H8)", "target": "Lỗ trục S (H8)"}
+{"tu_id": 360, "source": "Please choose Joint Links nominal No.08B.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 08B."}
+{"tu_id": 361, "source": "Attachments:", "target": "Phụ tùng:"}
+{"tu_id": 362, "source": "Please choose Joint Links nominal No.10B.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 10B."}
+{"tu_id": 363, "source": "*The snap type and cotter pin type Joint Links are shipped randomly.", "target": "*Mắt Nối Xích loại chụp nhanh và loại chốt khe cắm được giao ngẫu nhiên,"}
+{"tu_id": 364, "source": "Please be careful", "target": "xin chú ý khi nhận hàng."}
+{"tu_id": 365, "source": "45·48·50", "target": "45·48·50"}
+{"tu_id": 366, "source": "EProcess issue:", "target": "EVấn đề gia công:"}
+{"tu_id": 367, "source": "There is no guarantee that the tooth tip of multiple products is consistent with each other", "target": "Do tính phức tạp của sản phẩm, không thể đảm bảo sự đồng nhất giữa các đầu răng"}
+{"tu_id": 368, "source": "Please choose Joint Links nominal No.16B.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 16B."}
+{"tu_id": 369, "source": "2-M", "target": "2-M"}
+{"tu_id": 370, "source": "DP", "target": "DP"}
+{"tu_id": 371, "source": "Joint link* (cotter pin type)", "target": "Mắt nối xích* (loại chốt khe cắm)"}
+{"tu_id": 372, "source": "Do not use in combination with 20A series chain!", "target": "Vui lòng không kết hợp sử dụng với xích 20A!"}
+{"tu_id": 373, "source": "Do not use in combination with American standard type or Japanese standard type 20A series sprocket, which may cause the chain sprocket mechanism to fail to function properly!", "target": "Vui lòng không kết hợp sử dụng với đĩa xích tiêu chuẩn Nhật Bản và Mỹ dòng 20A vì có thể khiến cho đĩa xích và xích hoạt động không ổn định."}
+{"tu_id": 374, "source": "Please choose Joint Links nominal No.20B.", "target": "Vui lòng sử dụng sản phẩm Mắt Nối Xích mã danh nghĩa 20B."}
+{"tu_id": 375, "source": "Allowable Maximum Tension kN)", "target": "Lực căng tối đa cho phép (kN)"}
+{"tu_id": 376, "source": "QJapanese Standard", "target": "QTiêu chuẩn Nhật Bản"}
+{"tu_id": 377, "source": "Chain No. 40 / 50 / 60", "target": "Mã xích 40 / 50 / 60"}
+{"tu_id": 378, "source": "With Attachments / One Side Type (Every Two Links)", "target": "Đính kèm đầu gá / Loại một phía (Gá trên mỗi 2 mắt xích)"}
+{"tu_id": 379, "source": "C-CHEL", "target": "C-CHEL"}
+{"tu_id": 380, "source": "Joint Link", "target": "Mắt Nối Xích"}
+{"tu_id": 381, "source": "Type", "target": "Loại"}
+{"tu_id": 382, "source": "E-JNT-L(One Side Type)", "target": "E-JNT-L(Loại một phía)"}
+{"tu_id": 383, "source": "E-JNT-T(Both Sides Type)", "target": "E-JNT-T(Loại hai phía)"}
+{"tu_id": 384, "source": "QNumber of links of 1 chain", "target": "QSố mắt xích"}
+{"tu_id": 385, "source": "No.", "target": "Mã"}
+{"tu_id": 386, "source": "Number of links of 1 chain", "target": "Số mắt xích"}
+{"tu_id": 387, "source": "120 (circumference length 1,524mm)", "target": "120 (chu vi 1,524mm)"}
+{"tu_id": 388, "source": "With Attachments / Both Sides Type (Every Two Links)", "target": "Đính kèm đầu gá / Loại hai phía (Gá trên mỗi 2 mắt xích)"}
+{"tu_id": 389, "source": "C-CHET", "target": "C-CHET"}
+{"tu_id": 390, "source": "QSprocket and Chain Selection This series is ISO Standard 08A / 10A / 12A / (ANSI 40/50/60) roller chain, which can be used in combination with our 40B / 50B / 60B series sprocket.", "target": "QLựa chọn Đĩa Xích, Xích Dòng sản phẩm xích con lăn này đạt tiêu chuẩn ISO 08A / 10A / 12A (ANSI 40 / 50 / 60) có thể tương thích với đĩa xích dòng 40B / 50B / 60B của MISUMI."}
+{"tu_id": 391, "source": "QDo not use in combination with 08B / 10B / 12B sprocket, which may cause the chain sprocket mechanism to fail to function properly!", "target": "QVui lòng không kết hợp sử dụng với đĩa xích dòng 08B / 10B / 12B vì có thể khiến cho đĩa xích và xích hoạt động không ổn định."}
+{"tu_id": 392, "source": "QThe conveyor belt chain with attachments can only be used for transmission.", "target": "QXích băng tải kèm đầu gá chỉ được sử dụng cho mục đích vận chuyển."}
+{"tu_id": 393, "source": "Do not use for precise positioning and heavy load use.", "target": "Vui lòng không dùng để định vị chính xác và sử dụng tải nặng."}
+{"tu_id": 394, "source": "Attachments are only used for fixing and have no planar accuracy.", "target": "Đầu gá chỉ được sử dụng để cố định chứ không đảm bảo độ chính xác trên mặt phẳng."}
+{"tu_id": 395, "source": "QPlease choose Joint Links of corresponding to nominal model.", "target": "QĐối với Mắt Nối Xích, vui lòng chọn mã sản phẩm danh nghĩa tương ứng."}
+{"tu_id": 396, "source": "*Joint Links can also be purchased separately!", "target": "*Mắt Nối Xích có thể được đặt mua riêng,"}
+{"tu_id": 397, "source": "Pitch", "target": "Khoảng cách giữa các mắt xích"}
+{"tu_id": 398, "source": "Pin", "target": "Chốt"}
+{"tu_id": 399, "source": "Slab", "target": "Tấm"}
+{"tu_id": 400, "source": "Attachments", "target": "Đầu gá"}
+{"tu_id": 401, "source": "Allowable Maximum Tension kN (kgf)", "target": "Lực căng tối đa cho phép kN (kgf)"}
+{"tu_id": 402, "source": "2Nominal Model", "target": "2Mã danh nghĩa"}
+{"tu_id": 403, "source": "L1", "target": "L1"}
+{"tu_id": 404, "source": "t", "target": "t"}
+{"tu_id": 405, "source": "C", "target": "C"}
+{"tu_id": 406, "source": "X", "target": "X"}
+{"tu_id": 407, "source": "Y", "target": "Y"}
+{"tu_id": 408, "source": "d", "target": "d"}
+{"tu_id": 409, "source": "C-CHEL (One Side Type)", "target": "C-CHEL (Loại một phía)"}
+{"tu_id": 410, "source": "C-CHET (Both Sides Type)", "target": "C-CHET (Loại hai phía)"}
+{"tu_id": 411, "source": "Part Number (1Type · 2Nominal Model)", "target": "Mã sản phẩm (1Loại · 2Mã danh nghĩa)"}
+{"tu_id": 412, "source": "QEuropean Standard", "target": "QTiêu chuẩn Châu Âu"}
+{"tu_id": 413, "source": "Chain No. 06B / 08B / 10B", "target": "Mã xích 06B / 08B / 10B"}
+{"tu_id": 414, "source": "QSprocket and Chain Selection This series is ISO Standard 06B / 08B / 10B roller chain, which can be used in combination with our 06B / 08B / 10B series sprocket.", "target": "QLựa chọn đĩa xích, xích Dòng sản phẩm xích con lăn này đạt tiêu chuẩn ISO 06B / 08B / 10B có thể tương thích với đĩa xích dòng 06B / 08B / 10B của MISUMI."}
+{"tu_id": 415, "source": "QDo not use in combination with 06A / 08A / 10A sprocket, which may cause the chain sprocket mechanism to fail to function properly!", "target": "QVui lòng không kết hợp sử dụng với đĩa xích dòng 06A / 08A / 10A vì có thể khiến cho đĩa xích và xích hoạt động không ổn định."}
+{"tu_id": 416, "source": "Joint Link*", "target": "Mắt nối xích*"}
+{"tu_id": 417, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 418, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 419, "source": "AAttachments", "target": "APhụ kiện"}
+{"tu_id": 420, "source": "Straight Bore", "target": "Lỗ thẳng"}
+{"tu_id": 421, "source": "Straight Bore+Tap", "target": "Lỗ thẳng+Ren"}
+{"tu_id": 422, "source": "Keyway / Keyway+Tap", "target": "Rãnh then / Rãnh then+Ren"}
+{"tu_id": 423, "source": "E-GEAHB", "target": "E-GEAHB"}
+{"tu_id": 424, "source": "E-GEAB", "target": "E-GEAB"}
+{"tu_id": 425, "source": "E-GEAKB", "target": "E-GEAKB"}
+{"tu_id": 426, "source": "General Structural Steel or Carbon Steel", "target": "Thép kết cấu / Thép carbon"}
+{"tu_id": 427, "source": "Set Screw (Heat-treated Steel, Black Oxide Film)", "target": "Vít chặn (Thép xử lý nhiệt, Màng ô-xít đen)"}
+{"tu_id": 428, "source": "E-GEAHBB", "target": "E-GEAHBB"}
+{"tu_id": 429, "source": "E-GEABB", "target": "E-GEABB"}
+{"tu_id": 430, "source": "E-GEAKBB", "target": "E-GEAKBB"}
+{"tu_id": 431, "source": "Black Oxide Film", "target": "Màng ô-xít đen"}
+{"tu_id": 432, "source": "E-GEAHBG", "target": "E-GEAHBG"}
+{"tu_id": 433, "source": "E-GEABG", "target": "E-GEABG"}
+{"tu_id": 434, "source": "E-GEAKBG", "target": "E-GEAKBG"}
+{"tu_id": 435, "source": "Electroless Nickel Plating", "target": "Mạ niken không điện"}
+{"tu_id": 436, "source": "E-GEAHS", "target": "E-GEAHS"}
+{"tu_id": 437, "source": "E-GEAS", "target": "E-GEAS"}
+{"tu_id": 438, "source": "E-GEAKS", "target": "E-GEAKS"}
+{"tu_id": 439, "source": "Set Screw (Stainless Steel)", "target": "Vít chặn (Thép không gỉ)"}
+{"tu_id": 440, "source": "Shape A", "target": "Hình dạng A"}
+{"tu_id": 441, "source": "Shape B", "target": "Hình dạng B"}
+{"tu_id": 442, "source": "Shape K", "target": "Hình dạng K"}
+{"tu_id": 443, "source": "XTapped shaft bores are not available for Shape A.", "target": "XKhông có lỗ trục ren đối với Hình dạng A."}
+{"tu_id": 444, "source": "ESet Screw is not included in Untapped type products.", "target": "ESản phẩm loại Không ren không có vít chặn đi kèm."}
+{"tu_id": 445, "source": "ESelectable gear shapes differ depending on the number of teeth.", "target": "EHình dạng bánh răng tùy chọn sẽ khác nhau tùy vào số lượng răng."}
+{"tu_id": 446, "source": "Check the specifications table.", "target": "Vui lòng kiểm tra bảng thông số kỹ thuật."}
+{"tu_id": 447, "source": "EThe positions of keyway and tooth are not fixed.", "target": "EVị trí của rãnh then và răng không cố định."}
+{"tu_id": 448, "source": "Shaft Bore Specifications (Selectable Gear Shapes)", "target": "Thông số lỗ trục (Hình dạng bánh răng tùy chọn)"}
+{"tu_id": 449, "source": "Straight Bore (Shape A, Shape B, Shape K)", "target": "Lỗ thẳng (Hình dạng A, Hình dạng B, Hình dạng K)"}
+{"tu_id": 450, "source": "Straight Bore+Tap (Shape B, Shape K)", "target": "Lỗ thẳng+Ren (Hình dạng B, Hình dạng K)"}
+{"tu_id": 451, "source": "Keyway (Shape A)", "target": "Rãnh then (Hình dạng A)"}
+{"tu_id": 452, "source": "Keyway+Tap (Shape B)", "target": "Rãnh then+Ren (Hình dạng B)"}
+{"tu_id": 453, "source": "Part Number (1Type · 2Module)", "target": "Mã sản phẩm (1Loại · 2Mô-đun)"}
+{"tu_id": 454, "source": "3Number of Teeth", "target": "3Số răng"}
+{"tu_id": 455, "source": "4B", "target": "4B"}
+{"tu_id": 456, "source": "5Gear Shape", "target": "5Hình dạng bánh răng"}
+{"tu_id": 457, "source": "E-GEAHBG1.0", "target": "E-GEAHBG1.0"}
+{"tu_id": 458, "source": "K", "target": "K"}
+{"tu_id": 459, "source": "6PH8", "target": "6PH8"}
+{"tu_id": 460, "source": "D", "target": "D"}
+{"tu_id": 461, "source": "l1", "target": "l1"}
+{"tu_id": 462, "source": "M*", "target": "M*"}
+{"tu_id": 463, "source": "ESpecify 10K as the P dimension when Keyway+Tap with shaft bore diameter of 10 and keyway width 4.0mm (height 1.8mm) is requested.", "target": "EChỉ định kích thước P là 10K khi yêu cầu Rãnh then+Ren có đường kính lỗ trục là 10 và chiều rộng rãnh then là 4.0mm (chiều cao 1.8mm)."}
+{"tu_id": 464, "source": "E*1 Allowable Transmission Forces in the table are reference values calculated with normal conditions.", "target": "E*1 Lực truyền động cho phép trong bảng là giá trị tham khảo, được tính toán trong điều kiện bình thường."}
+{"tu_id": 465, "source": "For details, refer to Gear Transmission Power Calculation.", "target": "Để biết chi tiết, vui lòng tham khảo phần Tính toán công suất truyền động bánh răng."}
+{"tu_id": 466, "source": "X*Marked number of teeth is not available for E-GEAHS and E-GEAKS.", "target": "XNhững số răng được đánh dấu * không áp dụng cho E-GEAHS và E-GEAKS."}
+{"tu_id": 467, "source": "XShaft bore diameter 9N is not available for Keyway+Tap.", "target": "XĐường kính lỗ trục 9N không áp dụng cho loại Rãnh then+Ren."}
+{"tu_id": 468, "source": "3Number of Teeth", "target": "3Số răng"}
+{"tu_id": 469, "source": "6Shaft Bore Dia. PH8 1mm increments", "target": "6Đường kính lỗ trục PH8 Gia số 1mm"}
+{"tu_id": 470, "source": "d Reference Dia.", "target": "d Đường kính tham chiếu"}
+{"tu_id": 471, "source": "D Tip Dia.", "target": "D Đường kính vòng tròn đỉnh răng"}
+{"tu_id": 473, "source": "M (Coarse)", "target": "M (Ren thô)"}
+{"tu_id": 474, "source": "*1 Allowable Transmission Force (N·m) Bending Strength", "target": "*1 Lực truyền động cho phép (N·m) Cường độ uốn"}
+{"tu_id": 475, "source": "2Module", "target": "2Mô-đun"}
+{"tu_id": 476, "source": "Straight Bore Straight Bore+Tap", "target": "Lỗ thẳng Lỗ thẳng+Ren"}
+{"tu_id": 477, "source": "Keyway Keyway+Tap", "target": "Rãnh then Rãnh then+Ren"}
+{"tu_id": 478, "source": "General Structural Steel or Carbon Steel", "target": "Thép kết cấu / Thép carbon"}
+{"tu_id": 479, "source": "(Selectable Gear Shapes)", "target": "(Hình dạng bánh răng tùy chọn)"}
+{"tu_id": 480, "source": "Straight Bore (Shape A, Shape B, Shape K)", "target": "Lỗ thẳng (Hình dạng A, Hình dạng B, Hình dạng K)"}
+{"tu_id": 481, "source": "Straight Bore+Tap(Shape B, Shape K)", "target": "Lỗ thẳng+Ren(Hình dạng B, Hình dạng K)"}
+{"tu_id": 482, "source": "Keyway(Shape A)", "target": "Rãnh then(Hình dạng A)"}
+{"tu_id": 483, "source": "(E19 or more teeth)", "target": "(E19 răng trở lên)"}
+{"tu_id": 484, "source": "Keyway+Tap(Shape B)", "target": "Rãnh then+Ren(Hình dạng B)"}
+{"tu_id": 485, "source": "6~8 · 6.35", "target": "6~8 · 6.35"}
+{"tu_id": 486, "source": "(B=10)", "target": "(B=10)"}
+{"tu_id": 488, "source": "A", "target": "A"}
+{"tu_id": 489, "source": "8N · 10N", "target": "8N · 10N"}
+{"tu_id": 490, "source": "8N~12N", "target": "8N~12N"}
+{"tu_id": 491, "source": "SSurface Treatment", "target": "SXử lý bề mặt"}
+{"tu_id": 492, "source": "Set Screw (*Not included when shaft bore specification is straight bore)", "target": "Vít chặn (* Không đi kèm thông số lỗ trục thẳng)"}
+{"tu_id": 493, "source": "Electroless Nickel Plating", "target": "Mạ niken không điện"}
+{"tu_id": 494, "source": "Shape A", "target": "Hình dạng A"}
+{"tu_id": 495, "source": "Shape B", "target": "Hình dạng B"}
+{"tu_id": 496, "source": "XTapped shaft bores are not available for Shape A.", "target": "XHình dạng A không có thông số lỗ trục ren."}
+{"tu_id": 497, "source": "ESpecify 10K as the P dimension when Keyway+Tap with shaft bore diameter of 10 and keyway width 4.0mm (height 1.8mm) is requested.", "target": "EChỉ định kích thước P là 10K khi yêu cầu Rãnh then+Ren có đường kính lỗ trục là 10 và chiều rộng rãnh then là 4.0mm (chiều cao 1.8mm)."}
+{"tu_id": 498, "source": "E*1 Allowable Transmission Forces in the table are reference values calculated with normal conditions.", "target": "E*1 Lực truyền động cho phép trong bảng là giá trị tham khảo, được tính toán trong điều kiện bình thường."}
+{"tu_id": 499, "source": "X*Marked number of teeth is not available for E-GEAHS and E-GEAKS gear products.", "target": "XNhững số răng được đánh dấu * không áp dụng cho các sản phẩm bánh răng E-GEAHS và E-GEAKS."}
+{"tu_id": 500, "source": "Keyway+Tap (Shape B)", "target": "Rãnh then+Ren (Hình dạng B)"}
+{"tu_id": 501, "source": "8N · 10N~12N", "target": "8N · 10N~12N"}
+{"tu_id": 502, "source": "ESet Screw is not included in Untapped type products.", "target": "ESản phẩm loại Không ren không có vít chặn đi kèm."}
+{"tu_id": 503, "source": "Straight Bore(Shape A, Shape B)", "target": "Lỗ thẳng(Hình dạng A, Hình dạng B)"}
+{"tu_id": 504, "source": "Straight Bore+Tap(Shape B)", "target": "Lỗ thẳng+Ren(Hình dạng B)"}
+{"tu_id": 505, "source": "Keyway(Shape A)", "target": "Rãnh then(Hình dạng A)"}
+{"tu_id": 506, "source": "Keyway+Tap(Shape B)", "target": "Rãnh then+Ren(Hình dạng B)"}
+{"tu_id": 507, "source": "(Shape A, Shape B)", "target": "(Hình dạng A, Hình dạng B)"}
+{"tu_id": 508, "source": "(Shape B)", "target": "(Hình dạng B)"}
+{"tu_id": 509, "source": "(Shape A)", "target": "(Hình dạng A)"}
+{"tu_id": 510, "source": "Keyway+Tap", "target": "Rãnh then+Ren"}
+{"tu_id": 511, "source": "Straight Bore (Shape A, Shape B)", "target": "Lỗ thẳng (Hình dạng A, Hình dạng B)"}
+{"tu_id": 512, "source": "Straight Bore+Tap (Shape B)", "target": "Lỗ thẳng+Ren (Hình dạng B)"}
+{"tu_id": 513, "source": "M*", "target": "M*"}
+{"tu_id": 514, "source": "*1 Allowable Transmission Force (N·m) Bending Strength General Structural Steel or Carbon Steel", "target": "*1 Lực truyền động cho phép (N·m) Độ bền uốn Thép kết cấu /Thép carbon"}
+{"tu_id": 515, "source": "Straight Bore (Shape A, Shape B)", "target": "Lỗ thẳng (Hình dạng A, Hình dạng B)"}
+{"tu_id": 516, "source": "Straight Bore+Tap (Shape B)", "target": "Lỗ thẳng+Ren (Hình dạng B)"}
+{"tu_id": 517, "source": "Straight Type", "target": "Loại thẳng"}
+{"tu_id": 518, "source": "Spiral Type", "target": "Loại xoắn"}
+{"tu_id": 519, "source": "E-KGEASH", "target": "E-KGEASH"}
+{"tu_id": 520, "source": "E-KGEAST", "target": "E-KGEAST"}
+{"tu_id": 521, "source": "E-KGEASK", "target": "E-KGEASK"}
+{"tu_id": 522, "source": "E-KGEAPT", "target": "E-KGEAPT"}
+{"tu_id": 523, "source": "E-KGEAPK", "target": "E-KGEAPK"}
+{"tu_id": 524, "source": "Set Screw (Heat-treated Steel, Black Oxide Film)", "target": "Vít chặn (Thép xử lý nhiệt, Màng ô-xít đen)"}
+{"tu_id": 525, "source": "E-KGEASHB", "target": "E-KGEASHB"}
+{"tu_id": 526, "source": "E-KGEASTB", "target": "E-KGEASTB"}
+{"tu_id": 527, "source": "E-KGEASKB", "target": "E-KGEASKB"}
+{"tu_id": 528, "source": "E-KGEAPTB", "target": "E-KGEAPTB"}
+{"tu_id": 529, "source": "E-KGEAPKB", "target": "E-KGEAPKB"}
+{"tu_id": 530, "source": "E-KGEASHG", "target": "E-KGEASHG"}
+{"tu_id": 531, "source": "E-KGEASTG", "target": "E-KGEASTG"}
+{"tu_id": 532, "source": "E-KGEASKG", "target": "E-KGEASKG"}
+{"tu_id": 533, "source": "E-KGEAPTG", "target": "E-KGEAPTG"}
+{"tu_id": 534, "source": "E-KGEAPKG", "target": "E-KGEAPKG"}
+{"tu_id": 535, "source": "E-KGHS", "target": "E-KGHS"}
+{"tu_id": 536, "source": "E-KGTS", "target": "E-KGTS"}
+{"tu_id": 537, "source": "E-KGKS", "target": "E-KGKS"}
+{"tu_id": 538, "source": "Shaft Bore Specifications", "target": "Thông số lỗ trục"}
+{"tu_id": 539, "source": "E", "target": "E"}
+{"tu_id": 540, "source": "R=1:1", "target": "R=1:1"}
+{"tu_id": 541, "source": "A°", "target": "A°"}
+{"tu_id": 542, "source": "R=1:2", "target": "R=1:2"}
+{"tu_id": 543, "source": "QStraight Type", "target": "QLoại thẳng"}
+{"tu_id": 544, "source": "3Nominal Model", "target": "3Mã danh nghĩa"}
+{"tu_id": 545, "source": "4Shaft Bore Dia.PH8, 1mm increments", "target": "4Đường kính lỗ trục PH8, Gia số 1mm"}
+{"tu_id": 546, "source": "R  (Gear Ratio)", "target": "R  (Tỷ số truyền động)"}
+{"tu_id": 547, "source": "Mating Gear Number", "target": "Mã bánh răng tương thích"}
+{"tu_id": 548, "source": "2Module", "target": "2Mô-đun"}
+{"tu_id": 549, "source": "1:1", "target": "1:1"}
+{"tu_id": 550, "source": "49°3’", "target": "49°3’"}
+{"tu_id": 551, "source": "48°51’", "target": "48°51’"}
+{"tu_id": 552, "source": "47°42’", "target": "47°42’"}
+{"tu_id": 553, "source": "M4(M5)", "target": "M4(M5)"}
+{"tu_id": 554, "source": "1:2", "target": "1:2"}
+{"tu_id": 555, "source": "29°8’", "target": "29°8’"}
+{"tu_id": 556, "source": "66°0’", "target": "66°0’"}
+{"tu_id": 557, "source": "29°25’", "target": "29°25’"}
+{"tu_id": 558, "source": "66°17’", "target": "66°17’"}
+{"tu_id": 559, "source": "*2525", "target": "*2525"}
+{"tu_id": 560, "source": "QSpiral Type (Spiral Angle 35°)", "target": "QLoại xoắn (Góc xoắn 35°)"}
+{"tu_id": 561, "source": "EWhen selecting mating gears, refer to mating gear numbers in the above table.", "target": "EKhi lựa chọn bánh răng tương thích, vui lòng tham khảo mã bánh răng ăn khớp trong bảng trên."}
+{"tu_id": 562, "source": "EModule 1.0 is not available for E-KGHS (Stainless Steel shaft bore specification is straight bore).", "target": "EMô-đun 1.0 không áp dụng với loại E-KGHS (thông số trục thép không gỉ là lỗ thẳng)."}
+{"tu_id": 563, "source": "ENotes:", "target": "ELưu ý:"}
+{"tu_id": 564, "source": "The gears are sold in each piece quantity not as sets.", "target": "Bánh răng được bán lẻ từng chiếc, không có sẵn theo bộ."}
+{"tu_id": 565, "source": "EUse Spiral Type in L and R sets.", "target": "ESử dụng Loại Xoắn cho bộ L và R."}
+{"tu_id": 566, "source": "5Twisting Direction", "target": "5Hướng xoắn"}
+{"tu_id": 567, "source": "L (Left)", "target": "L (Trái)"}
+{"tu_id": 568, "source": "R (Right)", "target": "R (Phải)"}
+{"tu_id": 569, "source": "50°31’", "target": "50°31’"}
+{"tu_id": 570, "source": "48°21’", "target": "48°21’"}
+{"tu_id": 571, "source": "30°13’", "target": "30°13’"}
+{"tu_id": 572, "source": "65°36’", "target": "65°36’"}
+{"tu_id": 573, "source": "50°5’", "target": "50°5’"}
+{"tu_id": 574, "source": "47°54’", "target": "47°54’"}
+{"tu_id": 575, "source": "30°44’", "target": "30°44’"}
+{"tu_id": 576, "source": "65°57’", "target": "65°57’"}
+{"tu_id": 577, "source": "EWhen purchasing, please note that this series is both ends machined.", "target": "EDòng sản phẩm này được gia công ở cả hai đầu, vui lòng lưu ý khi chọn mua."}
+{"tu_id": 578, "source": "EPlease note that no surface treatment is applied on hole machined surfaces.", "target": "EXin lưu ý rằng bề mặt gia công lỗ không được xử lý bề mặt."}
+{"tu_id": 579, "source": "EThis series is not heat treated, and if you need, please select the induction hardened series.", "target": "EDòng sản phẩm này không được xử lý nhiệt, nếu cần, vui lòng chọn các sản phẩm có xử lý tôi cao tần."}
+{"tu_id": 580, "source": "EIf there are requirements for rust prevention, give priority to products made of stainless steel, and refer to the anti-rust performance and maintenance of metal materials and surface treatment.", "target": "ENếu có yêu cầu về chống gỉ, hãy ưu tiên chọn sản phẩm làm từ thép không gỉ, đồng thời, tham khảo hiệu suất chống gỉ và cách bảo dưỡng vật liệu kim loại cùng phương pháp xử lý bề mặt."}
+{"tu_id": 581, "source": "Hole Position Fixed", "target": "Vị trí lỗ cố định"}
+{"tu_id": 582, "source": "Hole Position Configurable", "target": "Vị trí lỗ tùy chỉnh"}
+{"tu_id": 583, "source": "E-RGSA", "target": "E-RGSA"}
+{"tu_id": 584, "source": "E-SRGSA", "target": "E-SRGSA"}
+{"tu_id": 585, "source": "E-RGSAS", "target": "E-RGSAS"}
+{"tu_id": 586, "source": "E-SRGSAS", "target": "E-SRGSAS"}
+{"tu_id": 587, "source": "Hole Machining N:", "target": "Gia công lỗ N:"}
+{"tu_id": 588, "source": "No Hole", "target": "Không gia công lỗ"}
+{"tu_id": 589, "source": "Hole Machining ST:", "target": "Gia công lỗ ST:"}
+{"tu_id": 590, "source": "Side Tapped", "target": "Lỗ ren bên"}
+{"tu_id": 591, "source": "Bottom Tapped", "target": "Lỗ ren đáy"}
+{"tu_id": 592, "source": "Hole Machining Z:", "target": "Gia công lỗ Z:"}
+{"tu_id": 593, "source": "Side Counterbored", "target": "Lỗ bậc bên"}
+{"tu_id": 594, "source": "EF= L-B×(K-1)", "target": "EF= L-B×(K-1)"}
+{"tu_id": 595, "source": "L Dimension Tolerance (mm)", "target": "Dung sai kích thước L (mm)"}
+{"tu_id": 596, "source": "Accuracy:", "target": "Độ chính xác:"}
+{"tu_id": 597, "source": "Accumulated Pitch Error (Unit: μm)", "target": "Sai số bước răng lũy kế (Đơn vị: μm)"}
+{"tu_id": 598, "source": "Module", "target": "Mô-đun"}
+{"tu_id": 600, "source": "L Tolerance", "target": "Dung sai L"}
+{"tu_id": 601, "source": "EValues in () are for E-RGSAS and E-SRGSAS.", "target": "ECác giá trị trong () áp dụng cho loại E-RGSAS và E-SRGSAS."}
+{"tu_id": 602, "source": "Enlarged View of End Face", "target": "Hình ảnh phóng đại mặt đầu"}
+{"tu_id": 603, "source": "P Tolerance", "target": "Dung sai P"}
+{"tu_id": 604, "source": "2.5 · 3.0", "target": "2.5 · 3.0"}
+{"tu_id": 605, "source": "EA+B+C≤L-5EF=L-A-B-C", "target": "EA+B+C≤L-5EF=L-A-B-C"}
+{"tu_id": 606, "source": "EMax.", "target": "ECó thể"}
+{"tu_id": 607, "source": "3 holes can be specified.", "target": "chỉ định tối đa 3 lỗ."}
+{"tu_id": 608, "source": "End Face", "target": "Mặt đầu"}
+{"tu_id": 609, "source": "h", "target": "h"}
+{"tu_id": 610, "source": "M Depth M×1.5", "target": "M chiều sâu M×1.5"}
+{"tu_id": 611, "source": "W", "target": "W"}
+{"tu_id": 612, "source": "F", "target": "F"}
+{"tu_id": 613, "source": "h/2", "target": "h/2"}
+{"tu_id": 614, "source": "d1 Through Hole, d2 Counterbore Depth Z1", "target": "d1 Lỗ thông, d2 Lỗ bậc chiều sâu Z1"}
+{"tu_id": 615, "source": "P", "target": "P"}
+{"tu_id": 616, "source": "P/2", "target": "P/2"}
+{"tu_id": 617, "source": "B×(K-1)", "target": "B×(K-1)"}
+{"tu_id": 618, "source": "IHole Position Fixed", "target": "IVị trí lỗ cố định"}
+{"tu_id": 619, "source": "EValues in () are for stainless steel.", "target": "ECác giá trị trong () áp dụng cho vật liệu thép không gỉ."}
+{"tu_id": 620, "source": "Effective Number of Teeth", "target": "Số răng hiệu dụng"}
+{"tu_id": 621, "source": "Total Length L", "target": "Tổng chiều dài L"}
+{"tu_id": 622, "source": "P (Pitch)", "target": "P (Bước răng)"}
+{"tu_id": 623, "source": "B (Hole Pitch)", "target": "B (Khoảng cách giữa các lỗ)"}
+{"tu_id": 624, "source": "d1", "target": "d1"}
+{"tu_id": 625, "source": "Z1", "target": "Z1"}
+{"tu_id": 626, "source": "K  (Number of Holes)", "target": "K  (Số lỗ)"}
+{"tu_id": 627, "source": "Hole Machining", "target": "Gia công lỗ"}
+{"tu_id": 628, "source": "(General Structural Steel or Carbon Steel)", "target": "(Thép kết cấu / Thép carbon)"}
+{"tu_id": 629, "source": "(Stainless Steel)", "target": "(Thép không gỉ)"}
+{"tu_id": 630, "source": "N (No Hole) HT (Bottom Tapped) ST (Side Tapped) Z(Side Counterbored)", "target": "N (Không gia công lỗ) HT (Lỗ ren đáy) ST (Lỗ ren bên) Z(Lỗ bậc bên)"}
+{"tu_id": 631, "source": "IHole Position Configurable", "target": "IVị trí lỗ tùy chỉnh"}
+{"tu_id": 632, "source": "Hole Positions ABC 1mm increments", "target": "Vị trí lỗ ABC Gia số 1mm"}
+{"tu_id": 633, "source": "HT (Bottom Tapped) ST (Side Tapped) Z (Side Counterbored)", "target": "HT (Lỗ ren đáy) ST (Lỗ ren bên) Z (Lỗ bậc bên)"}
+{"tu_id": 634, "source": "Part Number (Type · Module)", "target": "Mã sản phẩm (Loại · Mô-đun)"}
+{"tu_id": 635, "source": "Hole Position A", "target": "Vị trí lỗ A"}
+{"tu_id": 636, "source": "Hole Position B", "target": "Vị trí lỗ B"}
+{"tu_id": 637, "source": "Hole Position C", "target": "Vị trí lỗ C"}
+{"tu_id": 638, "source": "HT", "target": "HT"}
+{"tu_id": 639, "source": "Alterations", "target": "Gia công bổ sung"}
+{"tu_id": 640, "source": "One End Tapped", "target": "Gia công lỗ ren một đầu"}
+{"tu_id": 641, "source": "Both Ends Tapped", "target": "Gia công lỗ ren hai đầu"}
+{"tu_id": 642, "source": "Code", "target": "Mã"}
+{"tu_id": 643, "source": "MC", "target": "MC"}
+{"tu_id": 644, "source": "WMC", "target": "WMC"}
+{"tu_id": 645, "source": "Spec.", "target": "Thông số kỹ thuật"}
+{"tu_id": 646, "source": "Ordering Code", "target": "Phương pháp chỉ định"}
+{"tu_id": 647, "source": "M Selection", "target": "M tùy chọn"}
+{"tu_id": 648, "source": "M", "target": "M"}
+{"tu_id": 649, "source": "M×2", "target": "M×2"}
+{"tu_id": 650, "source": "EWhen purchasing, please note that this series is one end machined.", "target": "EDòng sản phẩm này được gia công ở một đầu, vui lòng lưu ý khi chọn mua."}
+{"tu_id": 651, "source": "EPlease note that no surface treatment is applied on cut surfaces and hole machined surfaces.", "target": "EXin lưu ý rằng bề mặt cắt và bề mặt gia công lỗ không được xử lý bề mặt."}
+{"tu_id": 652, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 653, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 654, "source": "Number of Holes Configurable", "target": "Số lỗ tùy chỉnh"}
+{"tu_id": 655, "source": "E-RGSAL", "target": "E-RGSAL"}
+{"tu_id": 656, "source": "E-LRGSA", "target": "E-LRGSA"}
+{"tu_id": 657, "source": "E-RGSASL", "target": "E-RGSASL"}
+{"tu_id": 658, "source": "E-LRGSAS", "target": "E-LRGSAS"}
+{"tu_id": 659, "source": "EA+B+C+D≤L-5", "target": "EA+B+C+D≤L-5"}
+{"tu_id": 660, "source": "~100", "target": "~100"}
+{"tu_id": 663, "source": "Hole Quantity Configurable", "target": "Số lượng lỗ tùy chỉnh"}
+{"tu_id": 664, "source": "EF= L-B×(K-1) ≥15", "target": "EF= L-B×(K-1) ≥15"}
+{"tu_id": 665, "source": "M×1.5", "target": "M×1.5"}
+{"tu_id": 666, "source": "Total Length L 1mm increments", "target": "Tổng chiều dài L Gia số 1mm"}
+{"tu_id": 667, "source": "Hole Positions ABCD  1mm increments", "target": "Vị trí lỗ ABCD Gia số 1mm"}
+{"tu_id": 668, "source": "M  (Coarse)", "target": "M  (Ren thô)"}
+{"tu_id": 669, "source": "E-RGSALE-RGSASL", "target": "E-RGSALE-RGSASL"}
+{"tu_id": 670, "source": "IHole Quantity Configurable", "target": "ISố lượng lỗ tùy chỉnh"}
+{"tu_id": 671, "source": "Total Length L  1mm increments", "target": "Tổng chiều dài L  Gia số 1mm"}
+{"tu_id": 672, "source": "Hole Pitch B  1mm increments", "target": "Khoảng cách giữa các lỗ B  Gia số 1mm"}
+{"tu_id": 673, "source": "P (Pitch)", "target": "P (Bước răng)"}
+{"tu_id": 674, "source": "HT (Bottom Tapped) ST (Side Tapped) Z (Side Counterbored)", "target": "HT (Lỗ ren đáy) ST (Lỗ ren bên) Z (Lỗ bậc bên)"}
+{"tu_id": 675, "source": "Total Length", "target": "Tổng chiều dài"}
+{"tu_id": 676, "source": "Hole Position D", "target": "Vị trí lỗ D"}
+{"tu_id": 677, "source": "ST", "target": "ST"}
+{"tu_id": 678, "source": "Number of Holes K", "target": "Số lỗ K"}
+{"tu_id": 679, "source": "Hole Pitch B", "target": "Khoảng cách giữa các lỗ B"}
+{"tu_id": 680, "source": "ENo surface treatment is applied to teeth and hole machined surfaces.", "target": "EPhần răng và bề mặt gia công lỗ không được xử lý bề mặt."}
+{"tu_id": 681, "source": "ETeeth are not ground, and if you need, please select the series with ground teeth.", "target": "EPhần răng không được gia công mài, nếu cần, vui lòng chọn các sản phẩm có gia công mài răng."}
+{"tu_id": 682, "source": "H Hardness", "target": "H Độ cứng"}
+{"tu_id": 683, "source": "E-RGSAH", "target": "E-RGSAH"}
+{"tu_id": 684, "source": "E-SRGSAH", "target": "E-SRGSAH"}
+{"tu_id": 685, "source": "Tooth Induction Hardening 45~55HRC", "target": "Tôi cao tần phần răng 45~55HRC"}
+{"tu_id": 686, "source": "B × (K-1)", "target": "B × (K-1)"}
+{"tu_id": 687, "source": "B  (Hole Pitch)", "target": "B  (Khoảng cách lỗ)"}
+{"tu_id": 688, "source": "IHole Position Selectable", "target": "IVị trí lỗ tùy chọn"}
+{"tu_id": 689, "source": "Hole Positions ABC 1mm increments", "target": "Vị trí lỗ ABC Gia số 1mm"}
+{"tu_id": 690, "source": "P  (Pitch)", "target": "P  (Bước răng)"}
+{"tu_id": 691, "source": "E-RGSAHL", "target": "E-RGSAHL"}
+{"tu_id": 692, "source": "E-LRGSAH", "target": "E-LRGSAH"}
+{"tu_id": 693, "source": "N (No Hole) HT (Bottom Tapped) ST (Side Tapped) Z (Side Counterbored)", "target": "N (Không có lỗ) HT (Ren đáy) ST (Ren bên) Z(Khoét phẳng bên)"}
+{"tu_id": 694, "source": "Hole Pitch B 1mm increments", "target": "Khoảng cách giữa các lỗ B Gia số 1mm"}
+{"tu_id": 695, "source": "E-RGMA", "target": "E-RGMA"}
+{"tu_id": 696, "source": "E-RGMAL", "target": "E-RGMAL"}
+{"tu_id": 697, "source": "E-RGMAS", "target": "E-RGMAS"}
+{"tu_id": 698, "source": "E-RGMASL", "target": "E-RGMASL"}
+{"tu_id": 699, "source": "Dh9", "target": "Dh9"}
+{"tu_id": 700, "source": "D (h9)", "target": "D (h9)"}
+{"tu_id": 701, "source": "E-RGMAE-RGMAS", "target": "E-RGMAE-RGMAS"}
+{"tu_id": 702, "source": "E-RGMALE-RGMASL", "target": "E-RGMALE-RGMASL"}
+{"tu_id": 703, "source": "Number of teeth Available Range", "target": "Phạm vi số răng có sẵn"}
+{"tu_id": 704, "source": "Equivalent to S45C", "target": "Tương đương S45C"}
+{"tu_id": 705, "source": "Name", "target": "Tên"}
+{"tu_id": 706, "source": "Number of links Available", "target": "Số mắt xích có sẵn"}
+{"tu_id": 707, "source": "Chains", "target": "Xích"}
+{"tu_id": 709, "source": "Joint Links", "target": "Mắt Nối Xích"}
+{"tu_id": 710, "source": "Nominal No", "target": "Số danh nghĩa"}
+{"tu_id": 711, "source": "Number of teeth Available", "target": "Số răng có sẵn"}
+{"tu_id": 712, "source": "Inner dia. (d)", "target": "Đường kính trong (d)"}
+{"tu_id": 713, "source": "Number of teeth Available Range", "target": "Phạm vi số răng có sẵn"}
+{"tu_id": 714, "source": "Gear Shape K/A/B", "target": "Hình dạng bánh răng K/A/B"}
+{"tu_id": 715, "source": "Gear Shape B", "target": "Hình dạng bánh răng B"}
+{"tu_id": 716, "source": "E-GEAHBN", "target": "E-GEAHBN"}
+{"tu_id": 717, "source": "E-GEABN", "target": "E-GEABN"}
+{"tu_id": 718, "source": "E-GEAHBS", "target": "E-GEAHBS"}
+{"tu_id": 719, "source": "E-GEABS", "target": "E-GEABS"}
+{"tu_id": 720, "source": "Gear Shape A", "target": "Hình dạng bánh răng A"}
+{"tu_id": 721, "source": "Gear Shape B/K", "target": "Hình dạng bánh răng B/K"}
+{"tu_id": 722, "source": "Gear Shape", "target": "Hình dạng bánh răng"}
+{"tu_id": 723, "source": "A/B", "target": "A/B"}
+{"tu_id": 724, "source": "Idler Sprockets, Japanese Standard Single Bearing", "target": "Đĩa Xích Bị Động tiêu chuẩn Nhật Bản, vòng bi đơn"}
+{"tu_id": 725, "source": "Idler Sprockets, Shape B Japanese Standard", "target": "Đĩa Xích Bị Động dạng B, tiêu chuẩn Nhật Bản"}
+{"tu_id": 726, "source": "Idler Sprockets, European Standard Single Bearing", "target": "Đĩa Xích Bị Động tiêu chuẩn Châu Âu, vòng bi đơn"}
+{"tu_id": 727, "source": "The number of teeth 52~120 do not correspond to gear models*E-GEAHBS and E-GEABS", "target": "Số răng 52~120 không tương ứng với các mẫu bánh răng *E-GEAHBS và E-GEABS"}
+{"tu_id": 732, "source": "2025 Cost-Effective Solutions", "target": "Giải pháp tối ưu chi phí năm 2025"}
+{"tu_id": 733, "source": "MISUMI Economy series", "target": "Dòng Economy"}
+{"tu_id": 734, "source": "More suitable for medium-precision transmission and conveyance mechanisms", "target": "Phù hợp hơn cho các cơ cấu truyền động và vận chuyển có độ chính xác trung bình"}
+{"tu_id": 735, "source": "More suitable for medium and high precision gear transmission and conveyance mechanisms", "target": "Phù hợp hơn cho các cơ cấu truyền động bánh răng và vận chuyển có độ chính xác trung bình-cao"}
+{"tu_id": 739, "source": "Effective Number of Teeth", "target": "Số răng hiệu dụng"}
+{"tu_id": 740, "source": "4~9998", "target": "4~9998"}
+{"tu_id": 741, "source": "Spur Gears, Pressure Angle 20°, Module 1.0", "target": "Bánh Răng, góc áp lực 20°, mô-đun 1.0"}
+{"tu_id": 744, "source": "Spur Gears, Pressure Angle 20°, Module 3.0", "target": "Bánh Răng, góc áp lực 20°, mô-đun 2.5"}
+{"tu_id": 745, "source": "G Root Dia.", "target": "G Đường kính vòng tròn chân răng"}
+{"tu_id": 746, "source": "B  (Hole Pitch)", "target": "B  (Khoảng cách giữa các lỗ)"}

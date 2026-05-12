@@ -344,6 +344,13 @@
                 <input type="checkbox" id="fast"> ⚡ Fast (skip layout/table)
             </label>
 
+            <label for="pages" title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages">
+                Pages:
+            </label>
+            <input type="text" id="pages" name="pages" placeholder="all"
+                   style="width:110px; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px;"
+                   title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages">
+
             <button type="submit" id="submitBtn">Convert to JSON</button>
         </div>
     </form>
@@ -377,9 +384,10 @@
             <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation">👥 Characters</button>
             <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)">🔍 Preview prompt</button>
             <select id="translateTarget" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
+                <option value="vi">→ Vietnamese</option>
                 <option value="th">→ Thai</option>
                 <option value="en">→ English</option>
-                <option value="ja">→ Japanese</option>
+                <option value="ja">→ Japanese</option>    
             </select>
             <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
                 <option value="qwen" selected>Qwen 1.5B</option>
@@ -406,6 +414,21 @@
         </div>
         <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
             <summary style="cursor:pointer; font-size:13px; color:#374151;">📝 Additional translation rules (optional)</summary>
+            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
+                <strong>TM:</strong>
+                <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
+                    <option value="en-vn">en-vn</option>
+                </select>
+                <label>final_k:
+                    <input type="number" id="tmFinalK" min="1" max="200" value="20"
+                           style="width:60px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;">
+                </label>
+                <button type="button" id="tmSuggestBtn" class="ghost" style="font-size:12px;"
+                        title="Embed every OCR source row, retrieve top matches from the TM, paste glossary into the rules below">🔎 Suggest from TM</button>
+                <button type="button" id="tmBuildBtn" class="ghost" style="font-size:12px;"
+                        title="Force rebuild of the TM Faiss index (slow — ~10 min for 18k rows on CPU)">⚙️ Build TM index</button>
+                <span id="tmStatus" style="color:#6b7280;"></span>
+            </div>
             <textarea id="customRules" rows="4"
                 style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
                        font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
@@ -574,6 +597,7 @@ form.addEventListener("submit", async (e) => {
     fd.append("lang", document.getElementById("lang").value);
     fd.append("ocr_engine", document.getElementById("ocr_engine").value);
     fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
+    fd.append("pages", document.getElementById("pages").value.trim());
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Processing...";
@@ -593,6 +617,13 @@ form.addEventListener("submit", async (e) => {
 
     try {
         const res = await fetch("/convert", { method: "POST", body: fd });
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            const body = (await res.text()).slice(0, 400);
+            setStatus(`HTTP ${res.status} (non-JSON): ${body}`, "error");
+            previewArea.innerHTML = '<div class="empty">An error occurred</div>';
+            return;
+        }
         const data = await res.json();
         if (!res.ok) {
             setStatus(data.error || "An error occurred", "error");
@@ -603,10 +634,13 @@ form.addEventListener("submit", async (e) => {
             output.value = data.json_text;
             populatePages(data.preview.pages);
             syncCheckboxesToKind(lastKind);
-            const successMsg = data.engine_fallback
-                ? `Converted ✓ (fallback: ${data.engine_fallback})`
+            const notes = [];
+            if (data.engine_fallback) notes.push(`fallback: ${data.engine_fallback}`);
+            if (data.pages_warning) notes.push(data.pages_warning);
+            const successMsg = notes.length
+                ? `Converted ✓ (${notes.join("; ")})`
                 : "Converted ✓";
-            setStatus(successMsg, data.engine_fallback ? "info" : "success");
+            setStatus(successMsg, notes.length ? "info" : "success");
             buildCompareTable(true);
             if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
         }
@@ -1549,6 +1583,135 @@ const retryFailedBtn = document.getElementById("retryFailedBtn");
 const engineHint = document.getElementById("engineHint");
 const customRulesEl = document.getElementById("customRules");
 
+// ───────── Translation Memory (TM) controls ─────────
+const tmSuggestBtn = document.getElementById("tmSuggestBtn");
+const tmBuildBtn = document.getElementById("tmBuildBtn");
+const tmPairSel = document.getElementById("tmPair");
+const tmFinalKEl = document.getElementById("tmFinalK");
+const tmStatusEl = document.getElementById("tmStatus");
+
+function _tmCollectSources() {
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
+    return rows.map(_rowSource).filter(s => s && s.trim());
+}
+
+const TM_BLOCK_BEGIN = "=== TM Suggestions (auto-generated — re-run to refresh) ===";
+const TM_BLOCK_END = "=== End TM Suggestions ===";
+
+function _replaceTmBlock(textarea, tmText) {
+    const cur = textarea.value || "";
+    const beginIdx = cur.indexOf(TM_BLOCK_BEGIN);
+    const endIdx = cur.indexOf(TM_BLOCK_END);
+    const newBlock = `${TM_BLOCK_BEGIN}\n${tmText}\n${TM_BLOCK_END}`;
+    if (beginIdx >= 0 && endIdx > beginIdx) {
+        const before = cur.slice(0, beginIdx).replace(/\s+$/, "");
+        const after = cur.slice(endIdx + TM_BLOCK_END.length).replace(/^\s+/, "");
+        textarea.value = [before, newBlock, after].filter(s => s).join("\n\n");
+    } else {
+        const userPart = cur.trim();
+        textarea.value = userPart ? userPart + "\n\n" + newBlock : newBlock;
+    }
+}
+
+async function tmSuggest() {
+    const sources = _tmCollectSources();
+    if (!sources.length) {
+        tmStatusEl.textContent = "no OCR rows yet — convert a file first";
+        tmStatusEl.style.color = "#b91c1c";
+        return;
+    }
+    const pair = tmPairSel.value || "en-vn";
+    const finalK = parseInt(tmFinalKEl.value, 10) || 20;
+    tmSuggestBtn.disabled = true;
+    tmStatusEl.style.color = "#6b7280";
+    tmStatusEl.textContent = `embedding ${sources.length} queries…`;
+    try {
+        const res = await fetch("/tm/suggest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ texts: sources, pair, final_k: finalK, auto_build: true }),
+        });
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            const body = (await res.text()).slice(0, 300);
+            throw new Error(`HTTP ${res.status} (non-JSON): ${body}`);
+        }
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        const stats = data.stats || {};
+        if (!data.rules_text) {
+            tmStatusEl.textContent = `no matches (n_index_rows=${stats.n_index_rows || "?"})`;
+            tmStatusEl.style.color = "#b91c1c";
+            return;
+        }
+        _replaceTmBlock(customRulesEl, data.rules_text);
+        tmStatusEl.style.color = "#15803d";
+        tmStatusEl.textContent = `${stats.n_returned} rules from ${stats.n_queries} queries (index=${stats.n_index_rows})`;
+        const dbg = data.per_query_debug || [];
+        if (dbg.length) {
+            const sample = dbg.slice(0, 5).map((d, i) => {
+                const q = (d.q || "").slice(0, 60);
+                const s = (d.top_score != null) ? d.top_score.toFixed(3) : "-";
+                const t = (d.top_source || "").slice(0, 60);
+                return `[q${i}] "${q}…" → score=${s} | "${t}…"`;
+            }).join("\n");
+            console.log("[TM] per-query top hits:\n" + sample);
+            tmStatusEl.title = sample + (dbg.length > 5 ? `\n…(+${dbg.length - 5} more)` : "");
+        }
+        if (Array.isArray(data.hits) && data.hits.length) {
+            console.log(`[TM] final ${data.hits.length} hits (sorted by final_score desc):`);
+            console.table(data.hits.map(h => ({
+                final: h.final_score,
+                cos: h.max_score,
+                lex: h.lex_score,
+                abs: h.abs_overlap,
+                len: h.src_len,
+                hits: h.n_hits,
+                row: h.row,
+                source: (h.source || "").slice(0, 80),
+            })));
+        }
+    } catch (err) {
+        tmStatusEl.style.color = "#b91c1c";
+        tmStatusEl.textContent = "error: " + err.message;
+    } finally {
+        tmSuggestBtn.disabled = false;
+    }
+}
+
+async function tmBuild() {
+    if (!confirm("Rebuild the TM index? This calls the embedding model for every TU and can take several minutes.")) return;
+    const pair = tmPairSel.value || "en-vn";
+    tmBuildBtn.disabled = true;
+    tmStatusEl.style.color = "#6b7280";
+    tmStatusEl.textContent = "building index…";
+    try {
+        const res = await fetch("/tm/build", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pair }),
+        });
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            const body = (await res.text()).slice(0, 300);
+            throw new Error(`HTTP ${res.status} (non-JSON): ${body}`);
+        }
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        const m = data.manifest || {};
+        tmStatusEl.style.color = "#15803d";
+        tmStatusEl.textContent = `built ✓ n_rows=${m.n_rows} dim=${m.dim} model=${m.model}`;
+    } catch (err) {
+        tmStatusEl.style.color = "#b91c1c";
+        tmStatusEl.textContent = "build error: " + err.message;
+    } finally {
+        tmBuildBtn.disabled = false;
+    }
+}
+
+tmSuggestBtn.addEventListener("click", tmSuggest);
+tmBuildBtn.addEventListener("click", tmBuild);
+
 const QWEN_DEFAULT_BATCH = parseInt("{{ translate_batch_size_default }}", 10) || 5;
 let _prevEngine = null;  // null = first run → apply engine default
 function syncBatchVisibility() {
@@ -2060,12 +2223,12 @@ function openPreviewModal(data, sourceState, totalRows) {
                 <h3 style="font-size:13px; margin:12px 0 4px;">📤 RAW REQUEST BODY sent to LLM API</h3>
                 <div id="previewEndpoint" style="font-size:11px; color:#374151; margin-bottom:4px; font-family: ui-monospace, Menlo, monospace;"></div>
                 <pre id="previewBody" style="background:#0f172a; color:#86efac; padding:10px; border-radius:6px; font-size:11px; max-height:400px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
-                <h3 style="font-size:13px; margin:12px 0 4px;">CHARACTERS array (raw JSON)</h3>
-                <pre id="previewChars" style="background:#fef3c7; color:#78350f; padding:10px; border-radius:6px; font-size:11px; max-height:200px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
-                <h3 style="font-size:13px; margin:12px 0 4px;">SYSTEM PROMPT (readable)</h3>
-                <pre id="previewSystem" style="background:#0b1021; color:#e5e7eb; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
-                <h3 style="font-size:13px; margin:12px 0 4px;">USER MESSAGE (readable)</h3>
-                <pre id="previewUser" style="background:#0b1021; color:#bfdbfe; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word;"></pre>
+                <h3 style="font-size:13px; margin:12px 0 4px; display:none;">CHARACTERS array (raw JSON)</h3>
+                <pre id="previewChars" style="background:#fef3c7; color:#78350f; padding:10px; border-radius:6px; font-size:11px; max-height:200px; overflow:auto; white-space:pre-wrap; word-break:break-word; display:none;"></pre>
+                <h3 style="font-size:13px; margin:12px 0 4px; display:none;">SYSTEM PROMPT (readable)</h3>
+                <pre id="previewSystem" style="background:#0b1021; color:#e5e7eb; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word; display:none;"></pre>
+                <h3 style="font-size:13px; margin:12px 0 4px; display:none;">USER MESSAGE (readable)</h3>
+                <pre id="previewUser" style="background:#0b1021; color:#bfdbfe; padding:10px; border-radius:6px; font-size:11px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word; display:none;"></pre>
                 <h3 style="font-size:13px; margin:16px 0 4px;">📥 Paste LLM response (manual apply)</h3>
                 <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">
                     Copy the request body above → paste into Gemini/ChatGPT/Claude web UI → copy the response back here → click "Apply to table". Markdown fences (\`\`\`json ... \`\`\`) are supported.

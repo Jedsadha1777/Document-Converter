@@ -7,6 +7,14 @@ load_dotenv()
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL_CORRECT = os.getenv("OLLAMA_MODEL_CORRECT", "qwen2.5:1.5b")
 OLLAMA_MODEL_TRANSLATE = os.getenv("OLLAMA_MODEL_TRANSLATE", "qwen2.5:1.5b")
+OLLAMA_MODEL_EMBED = os.getenv("OLLAMA_MODEL_EMBED", "nomic-embed-text")
+
+TM_DIR = os.getenv("TM_DIR", "data_tm")
+TM_TOP_K_PER_QUERY = int(os.getenv("TM_TOP_K_PER_QUERY", "30"))
+TM_FINAL_K = int(os.getenv("TM_FINAL_K", "20"))
+TM_BONUS_ALPHA = float(os.getenv("TM_BONUS_ALPHA", "0.1"))
+TM_EMBED_BATCH_SIZE = int(os.getenv("TM_EMBED_BATCH_SIZE", "32"))
+TM_EMBED_TIMEOUT = float(os.getenv("TM_EMBED_TIMEOUT", "120"))
 
 TRANSLATE_BATCH_SIZE_DEFAULT = int(os.getenv("TRANSLATE_BATCH_SIZE", "5"))
 TRANSLATE_BATCH_TIMEOUT = float(os.getenv("TRANSLATE_BATCH_TIMEOUT", "120"))
@@ -41,4 +49,5 @@ ELEMENT_KEYS = ["texts", "tables", "pictures", "groups", "pages", "key_value_ite
 APPLE_SHORTCUT_TH = "DoclingTranslateTH"
 APPLE_SHORTCUT_EN = "DoclingTranslateEN"
 APPLE_SHORTCUT_JA = "DoclingTranslateJA"
+APPLE_SHORTCUT_VI = "DoclingTranslateVI"
 APPLE_MIN_INPUT_CHARS = 3  # < threshold นี้ Apple จับภาษาไม่ได้

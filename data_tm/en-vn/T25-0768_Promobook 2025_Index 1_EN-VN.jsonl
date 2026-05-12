@@ -1,0 +1,903 @@
+{"tu_id": 1, "source": "###", "target": "###"}
+{"tu_id": 2, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 3, "source": "Clear Anodized", "target": "Anod hóa tự nhiên"}
+{"tu_id": 4, "source": "Chrome Plating", "target": "Mạ chrome"}
+{"tu_id": 5, "source": "Nickel Plated", "target": "Mạ niken"}
+{"tu_id": 6, "source": "4-φ13 Through", "target": "4-φ13 Lỗ thông"}
+{"tu_id": 7, "source": "230+Stroke S", "target": "230 + Hành trình S"}
+{"tu_id": 8, "source": "Stroke S", "target": "Hành trình S"}
+{"tu_id": 9, "source": "L", "target": "L"}
+{"tu_id": 10, "source": "Motor dimension", "target": "Kích thước động cơ"}
+{"tu_id": 11, "source": "φ90 h7", "target": "φ90 h7"}
+{"tu_id": 12, "source": "Section A-A", "target": "Mặt cắt A-A"}
+{"tu_id": 13, "source": "View B", "target": "Mặt cắt B"}
+{"tu_id": 14, "source": "Motor Bracket", "target": "Giá đỡ động cơ"}
+{"tu_id": 15, "source": "QMotor Direct Connection BC", "target": "QKết nối động cơ hướng thẳng BC"}
+{"tu_id": 16, "source": "Push Rod", "target": "Thanh đẩy"}
+{"tu_id": 17, "source": "Reducer dimension", "target": "Kích thước cơ cấu giảm tốc"}
+{"tu_id": 18, "source": "Bearing grease nipple", "target": "Đầu bơm mỡ vòng bi"}
+{"tu_id": 19, "source": "Slide Bush", "target": "Bạc trượt"}
+{"tu_id": 20, "source": "*The dimensions for the FA mounting method are shown in the drawing above.", "target": "*Kích thước cho phương pháp lắp đặt FA được thể hiện trong hình trên."}
+{"tu_id": 21, "source": "QMotor Right Folded Connection RC", "target": "QKết nối động cơ hướng gập phải RC"}
+{"tu_id": 22, "source": "Silencer, Ball Screw Grease Hole", "target": "Bộ giảm thanh, Lỗ tra mỡ vít me bi"}
+{"tu_id": 23, "source": "(Not Provided)", "target": "(Không có)"}
+{"tu_id": 24, "source": "(Ratio 3:1)", "target": "(Tỷ lệ 3:1)"}
+{"tu_id": 25, "source": "50~1000", "target": "50~1000"}
+{"tu_id": 26, "source": "2Lead(mm)", "target": "2Bước ren(mm)"}
+{"tu_id": 27, "source": "50mmIncrement", "target": "Gia số50mm"}
+{"tu_id": 28, "source": "PowerW", "target": "Công suấtW"}
+{"tu_id": 29, "source": "QHorizontal HA", "target": "QLắp phương ngang HA"}
+{"tu_id": 30, "source": "*1 Max speed is based on a 3000rpm servo motor; reduce speed if stroke&gt;300 to prevent resonance.", "target": "*1 Tốc độ tối đa được tính dựa trên tốc độ động cơ servo 3000 vòng/phút; giảm tốc độ nếu hành trình &gt;300 để tránh hiện tượng cộng hưởng."}
+{"tu_id": 31, "source": "EMotor not included; customers must purchase separately.", "target": "ESản phẩm không bao gồm động cơ, khách hàng cần đặt mua riêng."}
+{"tu_id": 32, "source": "When the motor code is specified as Z, the motor shaft diameter and installation dimensions must be provided.", "target": "Khi mã động cơ được chỉ định là Z, cần cung cấp đường kính trục và kích thước lắp đặt của động cơ."}
+{"tu_id": 33, "source": "EMotor acceleration and deceleration times are recommended to be set at 0.2 seconds or more.", "target": "EThời gian tăng tốc và giảm tốc của động cơ được khuyến nghị cài đặt từ 0.2 giây trở lên."}
+{"tu_id": 34, "source": "Model", "target": "Mã sản phẩm"}
+{"tu_id": 35, "source": "3Stroke S", "target": "3Hành trình S"}
+{"tu_id": 36, "source": "4Motor Direction", "target": "4Hướng động cơ"}
+{"tu_id": 37, "source": "5Reducer", "target": "5Cơ cấu giảm tốc"}
+{"tu_id": 38, "source": "6Motor Type(No selection required for RA0)", "target": "6Loại động cơ(Không cần chọn đối với RA0)"}
+{"tu_id": 39, "source": "7Mounting Method", "target": "7Phương pháp lắp đặt"}
+{"tu_id": 40, "source": "8Number of Sensor", "target": "8Số lượng cảm biến"}
+{"tu_id": 41, "source": "Reduce Ratio", "target": "Tỷ lệ giảm tốc"}
+{"tu_id": 42, "source": "Rated Thrust(N)", "target": "Lực đẩy định mức(N)"}
+{"tu_id": 43, "source": "Max Speed(mm/s)*1", "target": "Tốc độ tối đa(mm/s)*1"}
+{"tu_id": 44, "source": "Max. Payload(kg)", "target": "Tải trọng vận chuyển tối đa (kg)"}
+{"tu_id": 45, "source": "BodyWidth", "target": "Chiều rộngthân"}
+{"tu_id": 46, "source": "BC", "target": "BC"}
+{"tu_id": 47, "source": "Positioning Repeatability(mm)", "target": "Độ chính xác lặp lại vị trí(mm)"}
+{"tu_id": 48, "source": "Steel", "target": "Thép"}
+{"tu_id": 49, "source": "(Direct connection)", "target": "(Hướng thẳng)"}
+{"tu_id": 50, "source": "RC", "target": "RC"}
+{"tu_id": 51, "source": "(Right Folded connection)", "target": "(Hướng gập phải)"}
+{"tu_id": 52, "source": "FA", "target": "FA"}
+{"tu_id": 53, "source": "HA", "target": "HA"}
+{"tu_id": 54, "source": "(Horizontal)", "target": "(Lắp phương ngang)"}
+{"tu_id": 55, "source": "(Not Provided)C1", "target": "(Không có)C1"}
+{"tu_id": 56, "source": "(1pc)C2", "target": "(1 chiếc)C2"}
+{"tu_id": 57, "source": "(2pcs)C3", "target": "(2 chiếc)C3"}
+{"tu_id": 58, "source": "(3pcs)", "target": "(3 chiếc)"}
+{"tu_id": 59, "source": "P(Motor table)Z(Customized)", "target": "P(Bảng động cơ)Z(Tùy chỉnh)"}
+{"tu_id": 60, "source": "(Front Flange)", "target": "(Lắp bằng mặt bích phía trước)"}
+{"tu_id": 61, "source": "3 :", "target": "3:"}
+{"tu_id": 62, "source": "+0.020", "target": "+0.020"}
+{"tu_id": 63, "source": "□110", "target": "□110"}
+{"tu_id": 64, "source": "φ40(C7)", "target": "φ40(C7)"}
+{"tu_id": 65, "source": "Model (1Type)", "target": "Mã sản phẩm (1Loại)"}
+{"tu_id": 66, "source": "2Lead", "target": "2Bước ren"}
+{"tu_id": 67, "source": "3Stroke S", "target": "3Hành trình S"}
+{"tu_id": 68, "source": "4Motor Direction", "target": "4Hướng động cơ"}
+{"tu_id": 69, "source": "5Reducer", "target": "5Cơ cấu giảm tốc"}
+{"tu_id": 70, "source": "6Motor Type", "target": "6Loại động cơ"}
+{"tu_id": 71, "source": "7Mounting Method", "target": "7Phương pháp lắp đặt"}
+{"tu_id": 72, "source": "8Number of Sensor", "target": "8Số lượng cảm biến"}
+{"tu_id": 73, "source": "E-ECTLT110Stroke S", "target": "E-ECTLT110Hành trình S"}
+{"tu_id": 74, "source": "Direct connection", "target": "Hướng thẳng"}
+{"tu_id": 75, "source": "Right Folded connection", "target": "Hướng gập phải"}
+{"tu_id": 76, "source": "Body mass (kg)(Reference)", "target": "Khối lượng thân chính (kg)(Giá trị tham khảo)"}
+{"tu_id": 77, "source": "QComponents", "target": "QLinh kiện cấu thành"}
+{"tu_id": 78, "source": "QMotor Code and Brand", "target": "QMã và thương hiệu động cơ"}
+{"tu_id": 79, "source": "Component name", "target": "Tên linh kiện"}
+{"tu_id": 80, "source": "Coupling", "target": "Khớp nối"}
+{"tu_id": 81, "source": "Outer diameter", "target": "Đường kính ngoài"}
+{"tu_id": 82, "source": "Ball screw side", "target": "Phía vít me bi"}
+{"tu_id": 83, "source": "Motor side", "target": "Phía động cơ"}
+{"tu_id": 84, "source": "Ball screw pulley", "target": "Puli vít me bi"}
+{"tu_id": 85, "source": "Keyway TypeNickel plated steel", "target": "Loại rãnh thenThép mạ niken"}
+{"tu_id": 86, "source": "Clamping and Keyway", "target": "Kẹp và rãnh then"}
+{"tu_id": 87, "source": "8M-40Teeth×φ32", "target": "8M-40 răng×φ32"}
+{"tu_id": 88, "source": "Motor pulley", "target": "Puli động cơ"}
+{"tu_id": 89, "source": "Timing beltv", "target": "Dây đai"}
+{"tu_id": 90, "source": "Glass fiber core rubber", "target": "Cao su lõi sợi thủy tinh"}
+{"tu_id": 91, "source": "Sensor (Optional)", "target": "Cảm biến (tùy chọn)"}
+{"tu_id": 92, "source": "P", "target": "P"}
+{"tu_id": 93, "source": "Panasonic / Delta / HCFA", "target": "Panasonic / Delta / HCFA"}
+{"tu_id": 94, "source": "Z", "target": "Z"}
+{"tu_id": 95, "source": "Customized", "target": "Tùy chỉnh"}
+{"tu_id": 96, "source": "QReducer Dimensional Drawing", "target": "QBản vẽ kích thước cơ cấu giảm tốc"}
+{"tu_id": 97, "source": "DMST-020-2M (DC 2-wire, Normal open)", "target": "DMST-020-2M (DC 2 dây, thường mở)"}
+{"tu_id": 98, "source": "QE-ECTL Sensor Specification", "target": "QThông số cảm biến E-ECTL"}
+{"tu_id": 99, "source": "QSensor Wiring Diagram", "target": "QSơ đồ đấu dây cảm biến"}
+{"tu_id": 100, "source": "QMotor Mounting Hole Dimension", "target": "QKích thước lỗ lắp đặt động cơ"}
+{"tu_id": 101, "source": "2000W Motor shaft dia (mm): φ22", "target": "Đường kính trục động cơ 2000W (mm): φ22"}
+{"tu_id": 102, "source": "Load", "target": "Tải"}
+{"tu_id": 103, "source": "MainCircuit", "target": "Mạchchính"}
+{"tu_id": 104, "source": "DC5~30V", "target": "DC5~30V"}
+{"tu_id": 105, "source": "Blue", "target": "Màu xanh dương"}
+{"tu_id": 106, "source": "L=2M", "target": "L=2M"}
+{"tu_id": 108, "source": "LED Indicator", "target": "Đèn LED"}
+{"tu_id": 109, "source": "Sensitivity", "target": "Độ nhạy"}
+{"tu_id": 110, "source": "+0.05+0.01", "target": "+0.05+0.01"}
+{"tu_id": 111, "source": "View A", "target": "Mặt cắt A"}
+{"tu_id": 112, "source": "Economy series Single Axis Actuators", "target": "Dòng Economy Bộ Dẫn Động Đơn Trục"}
+{"tu_id": 113, "source": "Economy seriesSingle Axis Actuators", "target": "Dòng EconomyBộ Dẫn Động Đơn Trục"}
+{"tu_id": 114, "source": "QLoad Specification", "target": "QThông số tải trọng"}
+{"tu_id": 115, "source": "Output End (Ball Screw End)", "target": "Đầu ra (Đầu vít me bi)"}
+{"tu_id": 116, "source": "Input End (Motor End)", "target": "Đầu vào (Đầu động cơ)"}
+{"tu_id": 117, "source": "Simplified Structure, High Rigidity and Full Range of Strokes", "target": "Kết cấu đơn giản, độ chịu tải cao, hành trình tùy chọn"}
+{"tu_id": 118, "source": "Ball screw", "target": "Vít me bi"}
+{"tu_id": 119, "source": "Guide", "target": "Ray"}
+{"tu_id": 120, "source": "BasicDynamicLoadRating(N)", "target": "Mứctảiđộngcơ sở(N)"}
+{"tu_id": 121, "source": "BasicStaticLoadRating(N)", "target": "Mứctảitĩnhcơ sở(N)"}
+{"tu_id": 122, "source": "Series - Precision Grade", "target": "Loại - Độ chính xác"}
+{"tu_id": 123, "source": "NominalO.D.(mm)", "target": "Đường kính ngoàidanh nghĩa(mm)"}
+{"tu_id": 124, "source": "Yaw", "target": "Hướng lệch tâm"}
+{"tu_id": 125, "source": "Pitch", "target": "Hướng xoay dọc"}
+{"tu_id": 126, "source": "Roll", "target": "Hướng xoắn"}
+{"tu_id": 127, "source": "Lead(mm)", "target": "Bước ren(mm)"}
+{"tu_id": 128, "source": "MP (N·m)", "target": "MP (N·m)"}
+{"tu_id": 129, "source": "MY (N·m)", "target": "MY (N·m)"}
+{"tu_id": 130, "source": "MR (N·m)", "target": "MR (N·m)"}
+{"tu_id": 131, "source": "QStructure and Features", "target": "QCấu trúc và Đặc tính"}
+{"tu_id": 132, "source": "Block1pc", "target": "1 block"}
+{"tu_id": 133, "source": "Block2pcs", "target": "2 block"}
+{"tu_id": 134, "source": "· The universal block is used for both with cover type and without cover type, which simplifies the product structure.", "target": "· Các block thông thường có thể sử dụng cho cả loại có nắp và không có nắp."}
+{"tu_id": 135, "source": "With 2 rows of single arch grooves, it can be used under any direction.", "target": "Thiết kế hai hàng rãnh cong, một rãnh tròn để có thể sử dụng theo hướng bất kỳ."}
+{"tu_id": 136, "source": "QStructure", "target": "QCấu trúc"}
+{"tu_id": 137, "source": "QFeature", "target": "QĐặc tính"}
+{"tu_id": 138, "source": "The servo and stepper motors of various manufacturers are applicable.", "target": "Phù hợp cho mọi loại động cơ servo và động cơ bước của các nhà sản xuất khác nhau."}
+{"tu_id": 139, "source": "Built-in Angular Contact Ball Bearings", "target": "Tích hợp vòng bi tiếp xúc góc"}
+{"tu_id": 140, "source": "The ball screw nut and linear guide mechanism are of integral structure.", "target": "Cấu trúc tích hợp của đai ốc vít me bi và ray dẫn hướng."}
+{"tu_id": 141, "source": "QPrecision Grade", "target": "QCấp chính xác"}
+{"tu_id": 142, "source": "QExample Position of Sensor Installation", "target": "QVí dụ vị trí lắp ráp bộ cảm biến"}
+{"tu_id": 143, "source": "Unit: mm", "target": "Đơn vị: mm"}
+{"tu_id": 144, "source": "The basic rated load in the 4 directions of radial, horizontal-horizontal and reverse is the same.", "target": "Cân bằng mức tải cơ bản theo tất cả 4 hướng: hướng tâm, hai hướng ngang và hướng ngược tâm."}
+{"tu_id": 145, "source": "MaximumStarting Torque(N·cm)", "target": "Mô-men xoắnkhởi động lớn nhất(N·m)"}
+{"tu_id": 146, "source": "PositioningRepeatability", "target": "Độ chính xáclặp lại vị trí"}
+{"tu_id": 147, "source": "Travel Parallelism", "target": "Độ vận hành song song"}
+{"tu_id": 148, "source": "Rail Length", "target": "Chiều dài thanh ray"}
+{"tu_id": 149, "source": "Oil Nozzle", "target": "Vú mỡ"}
+{"tu_id": 150, "source": "QStandard", "target": "QLoại tiêu chuẩn"}
+{"tu_id": 151, "source": "C-KS40/C-KSC40", "target": "C-KS40/C-KSC40"}
+{"tu_id": 152, "source": "· Recommended for transferring and positioning applications requiring long stroke and high rigidity.", "target": "· Được đề xuất sử dụng cho các ứng dụng truyền dẫn và định vị yêu cầu hành trình dài và độ chịu tải cao."}
+{"tu_id": 153, "source": "Sensor Flag", "target": "Tấm dò cảm biến"}
+{"tu_id": 154, "source": "NPN Type Photo Micro Sensors", "target": "Cảm biến quang siêu nhỏ loại NPN"}
+{"tu_id": 155, "source": "QWith Cover", "target": "QLoại có nắp"}
+{"tu_id": 156, "source": "· 2 Economy series Actuators are used in combination to realize the replacement of workpieces with different heights.", "target": "· Sử dụng kết hợp hai Bộ Dẫn Động dòng Economy có thể đánh dấu các phôi với chiều cao khác nhau."}
+{"tu_id": 157, "source": "· Longer strokes can also support a wide range of conveyors.", "target": "· Sản phẩm có hành trình dài hơn có thể hỗ trợ nhiều loại băng tải."}
+{"tu_id": 158, "source": "· Used for horizontal long stroke movement of heavy metal workpieces.", "target": "· Sử dụng để di chuyển các phôi kim loại nặng trong các hành trình dài theo chiều ngang."}
+{"tu_id": 159, "source": "· It has the lifting function in the Z direction, and the workpiece is usually put and unloaded at the same height.", "target": "· Có chức năng nâng hạ theo chiều thẳng đứng, và luôn thực hiện nạp và dỡ phôi ở cùng độ cao."}
+{"tu_id": 160, "source": "* There is a difference in precision compared to the standard product, and at the same time the price drops significantly.", "target": "* Độ chính xác có sự khác biệt so với dòng tiêu chuẩn, nhưng đồng thời giá thành cũng giảm với biên độ lớn."}
+{"tu_id": 161, "source": "FV", "target": "FV"}
+{"tu_id": 162, "source": "FH", "target": "FH"}
+{"tu_id": 163, "source": "Arch groove", "target": "Rãnh vòng cung"}
+{"tu_id": 164, "source": "Precision Grade", "target": "Cấp chính xác"}
+{"tu_id": 165, "source": "SSurface Treatment", "target": "SXử lý bề mặt"}
+{"tu_id": 166, "source": "HHardness", "target": "HĐộ cứng"}
+{"tu_id": 167, "source": "Carburizing", "target": "Thấm carbon"}
+{"tu_id": 168, "source": "58~62HRC", "target": "58~62HRC"}
+{"tu_id": 169, "source": "Phosphating", "target": "Xử lý phốt-phát hóa"}
+{"tu_id": 170, "source": "Black Anodized", "target": "Anod hóa đen"}
+{"tu_id": 171, "source": "Standard Type", "target": "Loại tiêu chuẩn"}
+{"tu_id": 172, "source": "*Note:", "target": "*Lưu ý:"}
+{"tu_id": 173, "source": "For double-block type, add 67mm to the total length.", "target": "Đối với loại 2 block, tổng chiều dài sẽ tăng thêm 67mm."}
+{"tu_id": 174, "source": "4-M8 Depth 16", "target": "4-M8 chiều sâu 16"}
+{"tu_id": 175, "source": "2×n-φ3.4 Throughφ6.5 Depth 3", "target": "2×n-φ3.4 Lỗ thôngφ6.5 chiều sâu 3"}
+{"tu_id": 176, "source": "57 (*Note)", "target": "57 (*Lưu ý)"}
+{"tu_id": 177, "source": "2×2-M2.5 Depth 4", "target": "2×2-M2.5 Chiều sâu 4"}
+{"tu_id": 178, "source": "2×2-M3 Depth 6", "target": "2×2-M3 Chiều sâu 6"}
+{"tu_id": 179, "source": "2-M2.5 Depth 4", "target": "2-M2.5 Chiều sâu 4"}
+{"tu_id": 180, "source": "4L2", "target": "4L2"}
+{"tu_id": 181, "source": "SECTION A-A", "target": "MẶT CẮT A-A"}
+{"tu_id": 182, "source": "4-M3 Depth 6P.C.D.29", "target": "4-M3 Chiều sâu 6P.C.D.29"}
+{"tu_id": 183, "source": "VIEW B", "target": "HÌNH CHIẾU B"}
+{"tu_id": 184, "source": "φ5h7", "target": "φ5h7"}
+{"tu_id": 185, "source": "(n-1)×60", "target": "(n-1)×60"}
+{"tu_id": 187, "source": "2×2-M3×Depth 6", "target": "2×2-M3×Chiều sâu 6"}
+{"tu_id": 188, "source": "3Block Qty.", "target": "3Số lượng block"}
+{"tu_id": 189, "source": "4Base Length L2(mm)", "target": "4Chiều dài thân đế L2(mm)"}
+{"tu_id": 190, "source": "5Motor Bracket and Attachments", "target": "55 Loại kết nối động cơ"}
+{"tu_id": 191, "source": "6Sensor Qty.", "target": "6Số lượng cảm biến"}
+{"tu_id": 192, "source": "Total Length L1(mm)", "target": "Tổng chiều dài L1(mm)"}
+{"tu_id": 193, "source": "Max. Stroke", "target": "Hành trình tối đa"}
+{"tu_id": 194, "source": "G(mm)", "target": "G(mm)"}
+{"tu_id": 195, "source": "Mass (kg)", "target": "Khối lượng (kg)"}
+{"tu_id": 196, "source": "Block Qty. 1pc", "target": "1 block"}
+{"tu_id": 197, "source": "Block Qty. 2pcs", "target": "2 block"}
+{"tu_id": 198, "source": "Block Qty. 1pc", "target": "1 block"}
+{"tu_id": 199, "source": "Block Qty. 2pcs", "target": "2 block"}
+{"tu_id": 200, "source": "C-KS40(Standard Type)", "target": "C-KS40(Loại tiêu chuẩn)"}
+{"tu_id": 201, "source": "B1 (1pc)B2 (2pcs)", "target": "B1 (1 chiếc)B2 (2 chiếc)"}
+{"tu_id": 202, "source": "(Motor Bracket F0)F1", "target": "(Đế động cơ loại F0)F1"}
+{"tu_id": 203, "source": "(Bracket and Attachment F1)F2", "target": "(Mặt bích kết nối loại F1)F2"}
+{"tu_id": 204, "source": "(Without Motor Bracket H0)", "target": "(Giá đỡ bộ chuyển đổi loại H0)"}
+{"tu_id": 205, "source": "Blank (None) W1 (1pc) W2 (2pcs) W3 (3pcs)", "target": "Không có ký hiệu (0) W1 (1 chiếc) W2 (2 chiếc) W3 (3 chiếc)"}
+{"tu_id": 206, "source": "C-KSC40(Cover Type)", "target": "C-KSC40(Loại có nắp)"}
+{"tu_id": 207, "source": "EDouble-block type is only applicable to base lengths 150 and 200.", "target": "ELoại 2 block chỉ phù hợp với thân đế dài 150 và 200."}
+{"tu_id": 208, "source": "E3-sensor type is only applicable to base lengths 150 and 200.", "target": "ELoại 3 cảm biến chỉ phù hợp với thân đế dài 150 và 200."}
+{"tu_id": 209, "source": "(Except for C-KSC4001-B1-100-H0-CW3)", "target": "(Ngoại trừ C-KSC4001-B1-100-H0-CW3)"}
+{"tu_id": 210, "source": "EFor detailed dimensions, please refer to the website.", "target": "EĐể biết thêm kích thước chi tiết vui lòng tham khảo trang web."}
+{"tu_id": 211, "source": "Part Number (1Type · 2Lead)", "target": "Mã sản phẩm (1Loại · 2Bước ren)"}
+{"tu_id": 212, "source": "3Block Qty.", "target": "3Số lượng block"}
+{"tu_id": 213, "source": "4Base Length", "target": "4Chiều dài thân đế"}
+{"tu_id": 214, "source": "5Motor Bracket and Attachments", "target": "5Loại kết nối động cơ"}
+{"tu_id": 215, "source": "Aluminum Alloy", "target": "Hợp kim nhôm"}
+{"tu_id": 216, "source": "6Sensor Qty.", "target": "6Số lượng cảm biến"}
+{"tu_id": 217, "source": "c", "target": "c"}
+{"tu_id": 218, "source": "e", "target": "e"}
+{"tu_id": 219, "source": "f", "target": "f"}
+{"tu_id": 220, "source": "Main Body", "target": "Thân chính"}
+{"tu_id": 221, "source": "The appropriate sensor is photo micro sensor 671 series, NPN type.", "target": "Cảm biến phù hợp là cảm biến quang siêu nhỏ series 671, loại NPN."}
+{"tu_id": 222, "source": "φ5h7", "target": "φ5h7"}
+{"tu_id": 223, "source": "4-M4 Through", "target": "4-M4 Lỗ thông"}
+{"tu_id": 224, "source": "4-φ3.5 Through φ6 Counterbored Depth 3.5", "target": "4-φ3.5 Lỗ thôngLỗ bậc φ6 Chiều sâu 3.5"}
+{"tu_id": 225, "source": "2×n-φ5.5 Through φ9.5 Depth 4.7", "target": "2×n-φ5.5 Lỗ thông φ9.5 Chiều sâu 4.7"}
+{"tu_id": 226, "source": "G", "target": "G"}
+{"tu_id": 227, "source": "4Base Length L2(mm)", "target": "4Chiều dài thân đế L2(mm)"}
+{"tu_id": 228, "source": "Total Length L1(mm)", "target": "Tổng chiều dài L1(mm)"}
+{"tu_id": 229, "source": "B1 (1pc)", "target": "B1 (1 chiếc)"}
+{"tu_id": 230, "source": "B2 (2pcs)", "target": "B2 (2 chiếc)"}
+{"tu_id": 231, "source": "EDouble-block type is not applicable to base length 150.", "target": "ELoại 2 block không phù hợp với thân đế dài 150."}
+{"tu_id": 232, "source": "Components", "target": "Linh kiện cấu thành"}
+{"tu_id": 233, "source": "+0.05", "target": "+0.05"}
+{"tu_id": 234, "source": "#57.7", "target": "#57.7"}
+{"tu_id": 235, "source": "HHardness", "target": "HĐộ cứng"}
+{"tu_id": 236, "source": "2×m-M2.5 Depth 4", "target": "2×m-M2.5 Chiều sâu 4"}
+{"tu_id": 237, "source": "(m-1)×Ka", "target": "(m-1)×Ka"}
+{"tu_id": 238, "source": "SECTION A-A", "target": "MẶT CẮT A-A"}
+{"tu_id": 239, "source": "(m-1)×K", "target": "(m-1)×K"}
+{"tu_id": 240, "source": "K(mm)", "target": "K(mm)"}
+{"tu_id": 241, "source": "Block Qty. 1pc", "target": "1 block"}
+{"tu_id": 242, "source": "Block Qty. 2pcs", "target": "2 block"}
+{"tu_id": 243, "source": "Block Qty. 2pcs", "target": "2 block "}
+{"tu_id": 244, "source": "F0 (Motor Bracket F0)F1 (Bracket and Attachment F1)F2 (Bracket and Attachment F2)F3 (Bracket and Attachment F3)", "target": "F0 (Đế động cơ loại F0)F1 (Mặt bích kết nối loại F1)F2 (Mặt bích kết nối loại F2)F3 (Mặt bích kết nối loại F3)"}
+{"tu_id": 245, "source": "F4 (Bracket and Attachment F4)", "target": "F4 (Mặt bích kết nối loại F4)"}
+{"tu_id": 246, "source": "Without Motor Bracket H0", "target": "Giá đỡ bộ chuyển đổi loại H0"}
+{"tu_id": 247, "source": "F5 (Bracket and Attachment F5)H0 (Without Motor Bracket H0)", "target": "F5 (Mặt bích kết nối loại F5)H0 (Giá đỡ bộ chuyển đổi loại H0)"}
+{"tu_id": 248, "source": "EThe guide lengths marked with * have only the single block option.", "target": "EChiều dài ray được đánh dấu * chỉ có tùy chọn block đơn."}
+{"tu_id": 249, "source": "4-φ3.4 Through φ6 Counterbored Depth 4", "target": "4-φ3.4 Lỗ thôngLỗ bậc φ6 Chiều sâu 4"}
+{"tu_id": 250, "source": "4-M6Depth 8", "target": "4-M6Chiều sâu 8"}
+{"tu_id": 251, "source": "2-M2.5Depth 5", "target": "2-M2.5Chiều sâu 5"}
+{"tu_id": 252, "source": "2×m-M2.5 Depth 4", "target": "2×m-M2.5 Chiều sâu 4"}
+{"tu_id": 253, "source": "2-φ5×3dp", "target": "2-φ5×3dp"}
+{"tu_id": 254, "source": "2×2-M4 Depth 10", "target": "2×2-M4 Chiều sâu 10"}
+{"tu_id": 255, "source": "(m-1)×200", "target": "(m-1)×200"}
+{"tu_id": 256, "source": "(n-1) 100", "target": "(n-1) 100"}
+{"tu_id": 257, "source": "H(mm)", "target": "H(mm)"}
+{"tu_id": 258, "source": "F0 (Motor Bracket F0)F1 (Bracket and Attachment F1)F2 (Bracket and Attachment F2)F3 (Bracket and Attachment F3)F4 (Bracket and Attachment F4) F5 (Bracket and Attachment F5)F6 (Bracket and Attachment F6)H0 (Without Motor Bracket H0)", "target": "F0 (Đế động cơ loại F0)F1 (Mặt bích kết nối loại F1)F2 (Mặt bích kết nối loại  F2)F3 (Mặt bích kết nối loại  F3)F4 (Mặt bích kết nối loại  F4) F5 (Mặt bích kết nối loại  F5)F6 (Mặt bích kết nối loại F6)H0 (Giá đỡ bộ chuyển đổi loại H0)"}
+{"tu_id": 259, "source": "4-M5 Through", "target": "4-M5 Lỗ thông"}
+{"tu_id": 260, "source": "A lightweight, high-rigidity aluminum base is adopted, and the guide rail section uses a steel ball linear guide.", "target": "Thân đế được làm bằng nhôm trọng lượng nhẹ với độ chịu tải cao, kết hợp với ray dẫn hướng sử dụng thanh trượt dẫn hướng bi thép."}
+{"tu_id": 261, "source": "The drive system employs a rolled ball screw.", "target": "Bộ truyền động sử dụng vít me bi ép ren."}
+{"tu_id": 262, "source": "Two product variants are added to the series: one without a cover and one with a cover.", "target": "Dòng sản phẩm được thêm vào hại loại mới, bao gồm loại không có nắp và loại có nắp."}
+{"tu_id": 263, "source": "ILightweight, High rigidity", "target": "ITrọng lượng nhẹ, độ chịu tải cao"}
+{"tu_id": 264, "source": "Economy series Single Axis Units Standard / With Cover", "target": "Dòng Economy Cụm Đơn Trục loại tiêu chuẩn / loại có nắp"}
+{"tu_id": 265, "source": "Economy series Single Axis Units Standard / With Cover", "target": "Dòng Economy Cụm Đơn Trục loại tiêu chuẩn / loại có nắp"}
+{"tu_id": 266, "source": "Economy series Single Axis UnitsStandard / With Cover", "target": "Dòng Economy Cụm Đơn Trục loại tiêu chuẩn / loại có nắp"}
+{"tu_id": 267, "source": "ISimplified system", "target": "ICấu tạo hệ thống đơn giản"}
+{"tu_id": 268, "source": "IHigh rigidity", "target": "IĐộ chịu tải cao"}
+{"tu_id": 269, "source": "The high rigidity base incorporates two sets of linear guides for medium and heavy load.", "target": "Sản phẩm được trang bị hai bộ dẫn hướng tuyến tính tải trung bình và nặng trên thân đế có độ cứng cao."}
+{"tu_id": 270, "source": "The result is a structure with large load capacity, which is highly resistant to moment and composite load.", "target": "do đó kết cấu có khả năng chịu tải lớn, chịu tải mô-men và khả năng chịu tải tổng hợp cao."}
+{"tu_id": 271, "source": "Table Length L1", "target": "Chiều dài bàn trượt L1"}
+{"tu_id": 272, "source": "Allowable Static Moment (N·m)", "target": "Mô-men lực tĩnh cho phép (N/m)"}
+{"tu_id": 273, "source": "No.", "target": "Mã"}
+{"tu_id": 274, "source": "Ma", "target": "Ma"}
+{"tu_id": 275, "source": "Mb", "target": "Mb"}
+{"tu_id": 276, "source": "Mc", "target": "Mc"}
+{"tu_id": 277, "source": "E-KUA (C)", "target": "E-KUA (C)"}
+{"tu_id": 278, "source": "QPrecautions for Use", "target": "QNhững điều cần lưu ý khi sử dụng"}
+{"tu_id": 279, "source": "· Do not disassemble this product by yourself.", "target": "· Không tự ý tháo rời sản phẩm."}
+{"tu_id": 280, "source": "Otherwise it may cause intrusion of foreign matters or functional damage.", "target": "Điều này để tránh các vật lạ lọt vào gây hư hại, ảnh hưởng tới chức năng sản phẩm."}
+{"tu_id": 281, "source": "· Do not drop or knock this product.", "target": "· Không để sản phẩm bị rơi hoặc va đập mạnh."}
+{"tu_id": 282, "source": "Otherwise it may cause personal injury or damage to the product.", "target": "Nếu không, người xung quanh có thể bị thương hoặc sản phẩm bị hư hỏng."}
+{"tu_id": 283, "source": "Pay attention to the fact that impact can cause functional damage, even if it is not visible.", "target": "Xin lưu ý rằng các va đập có thể bị ảnh hưởng đến chức năng của sản phẩm, dù các hư hại có thể không nhìn thấy được."}
+{"tu_id": 284, "source": "· Please take care to prevent the intrusion of foreign matters, debris, etc. Otherwise it may cause damage to ball circulating components or performance deterioration.", "target": "· Chú ý tránh các vật lạ, tạp chất như phoi cắt rơi vào sản phẩm. Nếu không,  bi trượt có thể bị hư hỏng hoặc giảm hiệu suất."}
+{"tu_id": 285, "source": "· This product operates within the temperature range of 0 to 40°C (no freezing, no condensing).", "target": "· Phạm vi nhiệt độ vận hành của sản phẩm này là 0~40°C (không kết đông, không ngưng tụ)."}
+{"tu_id": 286, "source": "IWorkpiece entry and exit in machine tool", "target": "IBàn máy"}
+{"tu_id": 287, "source": "IWorkpiece arrangement", "target": "IGá treo"}
+{"tu_id": 288, "source": "· On rationalization devices that incorporated robots, single axis actuators (KUA series) are adopted for collision avoidance", "target": "· Sử dụng bộ dẫn động đơn trục (dòng KUA) trong lắp ráp robot cấp phôi để tránh va đập"}
+{"tu_id": 289, "source": "· High rigidity, enabling wall- or ceiling-mounted use", "target": "· Độ chịu lực cao, cũng có thể dùng loại treo tường hoặc gắn trần"}
+{"tu_id": 290, "source": "· Secure working space", "target": "· Đảm bảo không gian thao tác"}
+{"tu_id": 291, "source": "· Higher maintainability", "target": "· Tính ổn định cao"}
+{"tu_id": 292, "source": "· Cheaper than self-made one", "target": "· Rẻ hơn so với hàng tự chế tạo"}
+{"tu_id": 293, "source": "· Easy setup", "target": "· Lắp đặt đơn giản"}
+{"tu_id": 294, "source": "KUA20 Type", "target": "Loại KUA20"}
+{"tu_id": 295, "source": "KUH20 Type", "target": "Loại KUH20"}
+{"tu_id": 296, "source": "Part", "target": "Linh kiện"}
+{"tu_id": 297, "source": "Fixed Side Screw Support Unit", "target": "Gối đỡ vít me bên cố định"}
+{"tu_id": 298, "source": "Iron", "target": "Sắt"}
+{"tu_id": 299, "source": "x", "target": "x"}
+{"tu_id": 300, "source": "Overall Base Length L", "target": "Tổng chiều dài thân đế L"}
+{"tu_id": 301, "source": "Effective Stroke St", "target": "Hành trình St"}
+{"tu_id": 302, "source": "E-KUA", "target": "E-KUA"}
+{"tu_id": 303, "source": "2-φ5H7 Depth 6 (Hole Chamfer 0.5)", "target": "2-φ5H7 Chiều sâu 6 (Vát miệng lỗ 0.5)"}
+{"tu_id": 304, "source": "L1/2", "target": "L1/2"}
+{"tu_id": 305, "source": "W1", "target": "W1"}
+{"tu_id": 306, "source": "P2", "target": "P2"}
+{"tu_id": 307, "source": "160±0.02", "target": "160±0.02"}
+{"tu_id": 308, "source": "N1", "target": "N1"}
+{"tu_id": 309, "source": "4-M2 Depth L", "target": "4-M2 Chiều sâu L"}
+{"tu_id": 310, "source": "4-M1 Through", "target": "4-M1 Lỗ thông"}
+{"tu_id": 311, "source": "(Note3:", "target": "(Lưu ý 3:"}
+{"tu_id": 312, "source": "Limit Stroke St/2+a)", "target": "Giới hạn hành trình St/2+a)"}
+{"tu_id": 313, "source": "2-M4 Depth 8", "target": "2-M4 Chiều sâu 8"}
+{"tu_id": 314, "source": "(Opposite side is the same)", "target": "(Tương tự ở phía đối diện)"}
+{"tu_id": 315, "source": "Q-φ9", "target": "Q-φ9"}
+{"tu_id": 316, "source": "Q", "target": "Q"}
+{"tu_id": 317, "source": "W Workbench Width", "target": "W Chiều rộng bàn trượt"}
+{"tu_id": 318, "source": "H Total Height", "target": "H Tổng độ cao"}
+{"tu_id": 319, "source": "H1 Guide Height", "target": "H1 Độ cao thanh trượt"}
+{"tu_id": 320, "source": "H2 Axis Height", "target": "H2 Độ cao trục"}
+{"tu_id": 321, "source": "3L*Overall Base Length", "target": "3L*(Tổng chiều dài thân đế)"}
+{"tu_id": 322, "source": "4L1 Table Length", "target": "4L1 (Chiều dài bàn trượt)"}
+{"tu_id": 323, "source": "E*L=340 is suitable for 1510L only, and L=400 is suitable for 1510L and 2010L only.", "target": "E* L=340 chỉ áp dụng với mã 1510L, L=400 chỉ áp dụng với mã 1510L và 2010L."}
+{"tu_id": 324, "source": "P.C.D", "target": "P.C.D"}
+{"tu_id": 325, "source": "QApplicable Servo Motor Table", "target": "QBảng động cơ servo phù hợp"}
+{"tu_id": 326, "source": "Misumi", "target": "Misumi"}
+{"tu_id": 327, "source": "E-MASH1-0602(B)", "target": "E-MASH1-0602(B)"}
+{"tu_id": 328, "source": "Yaskawa Electric", "target": "Yaskawa Electric"}
+{"tu_id": 329, "source": "Mitsubishi Electric", "target": "Mitsubishi Electric"}
+{"tu_id": 330, "source": "Ball Screw Coupling Side Shaft End Alterations", "target": "Gia công bổ sung đầu trục bên khớp nối Vít Me Bi"}
+{"tu_id": 331, "source": "Keyway on Fixed Side Shaft End", "target": "Gia công rãnh then ở đầu trục bên cố định"}
+{"tu_id": 332, "source": "KC", "target": "KC"}
+{"tu_id": 333, "source": "KLC", "target": "KLC"}
+{"tu_id": 334, "source": "KC=1mm increments", "target": "KC = Gia số 1mm"}
+{"tu_id": 335, "source": "K, S=1mm increments", "target": "K, S = Gia số 1mm"}
+{"tu_id": 336, "source": "(2 places)", "target": "(2 vị trí)"}
+{"tu_id": 337, "source": "SWC", "target": "SWC"}
+{"tu_id": 338, "source": "Adds planes at 2 places (90° position).", "target": "Gia công mặt phẳng ở 2 vị trí (vị trí 90°)."}
+{"tu_id": 339, "source": "3≤KC≤14", "target": "3≤KC≤14"}
+{"tu_id": 341, "source": "K·S", "target": "K·S"}
+{"tu_id": 342, "source": "3≤K≤144≤K+S≤14", "target": "3≤K≤144≤K+S≤14"}
+{"tu_id": 343, "source": "QPrecision · Allowable Static Load", "target": "QĐộ chính xác / tải tĩnh cho phép"}
+{"tu_id": 344, "source": "*Positioning Repeatability (mm)", "target": "*Độ chính xác lặp lại vị trí (mm)"}
+{"tu_id": 345, "source": "*Parallelism (mm)", "target": "*Độ song song (mm)"}
+{"tu_id": 346, "source": "Rolled Ball Screws", "target": "Vít Me Bi ép ren"}
+{"tu_id": 347, "source": "Parallelism", "target": "Độ song song"}
+{"tu_id": 348, "source": "QSingle Axis Actuators Standard Specification Optical Sensor", "target": "QThông số kỹ thuật tiêu chuẩn cảm biến quang học"}
+{"tu_id": 349, "source": "QStandard Specification Optical Sensor Dimensions Table", "target": "QBảng kích thước cảm biến quang học"}
+{"tu_id": 350, "source": "* This table is not common for part numbers starting with 15/20.", "target": "* Bảng này không áp dụng cho các loại sản phẩm bắt đầu bằng 15/20."}
+{"tu_id": 351, "source": "For details, refer to 3D CAD.", "target": "Vui lòng tham khảo bản vẽ 3D CAD để biết chi tiết."}
+{"tu_id": 352, "source": "Applicable Part Number", "target": "Mã sản phẩm phù hợp"}
+{"tu_id": 353, "source": "E-KUA1510L/1520L", "target": "E-KUA1510L/1520L"}
+{"tu_id": 354, "source": "A-A View", "target": "Mặt cắt A-A"}
+{"tu_id": 355, "source": "2-φ4.5 Through", "target": "2-4.5φ4.5 Lỗ thông"}
+{"tu_id": 356, "source": "aAccessories", "target": "aPhụ kiện"}
+{"tu_id": 357, "source": "E-KUAC", "target": "E-KUAC"}
+{"tu_id": 358, "source": "2-φ5H7 Depth 10 (Hole Chamfer C0.5)", "target": "2-φ5H7 chiều sâu 10 (Vát miệng lỗ C0.5)"}
+{"tu_id": 360, "source": "4-M2 Depth l", "target": "4-M2 Chiều sâu L"}
+{"tu_id": 361, "source": "2-M4 Depth 8 (Opposite side is the same)", "target": "2-M4 chiều sâu 8 (Tương tự ở phía đối diện)"}
+{"tu_id": 362, "source": "Ordering Code", "target": "Mã đặt hàng"}
+{"tu_id": 363, "source": "QSingle Axis Actuators Cover Specification Optical Sensor", "target": "QThông số kỹ thuật nắp cảm biến quang học của Bộ Dẫn Động Đơn Trục"}
+{"tu_id": 364, "source": "QCover Specification Optical Sensor Dimensions Table", "target": "QBảng kích thước thông số kỹ thuật nắp cảm biến quang học"}
+{"tu_id": 365, "source": "E-KUAC1510L/1520L", "target": "E-KUAC1510L/1520L"}
+{"tu_id": 366, "source": "Economy series Single Axis Robots Guide Built-in Type", "target": "Dòng Economy Robot Đơn Trục hợp kim nhôm tích hợp dẫn hướng"}
+{"tu_id": 367, "source": "QFeatures", "target": "QĐặc tính"}
+{"tu_id": 368, "source": "QProduct Parameters", "target": "QThông số sản phẩm"}
+{"tu_id": 369, "source": "Part Number", "target": "Mã sản phẩm"}
+{"tu_id": 370, "source": "Body width (mm)", "target": "Chiều rộng thân (mm)"}
+{"tu_id": 371, "source": "Ball Screw Specs.", "target": "Thông số Vít Me"}
+{"tu_id": 372, "source": "Motor Output (W)", "target": "Công suất động cơ (W)"}
+{"tu_id": 373, "source": "Positioning Repeatability (mm)", "target": "Độ chính xác lặp lại vị trí (mm)"}
+{"tu_id": 374, "source": "Max. payload (kg)", "target": "Tải trọng tối đa (kg)"}
+{"tu_id": 375, "source": "Max. Speed (mm/s)", "target": "Tốc độ tối đa (mm/s)"}
+{"tu_id": 376, "source": "Stroke (mm)", "target": "Hành trình (mm)"}
+{"tu_id": 377, "source": "Rated Thrust (N)", "target": "Lực đẩy định mức (N)"}
+{"tu_id": 378, "source": "Lead (mm)", "target": "Bước ren (mm)"}
+{"tu_id": 379, "source": "Seal Type", "target": "Loại môi trường"}
+{"tu_id": 380, "source": "Semi-Sealed Type", "target": "Môi trường bình thường"}
+{"tu_id": 381, "source": "Fully Sealed Type", "target": "Môi trường không bụi"}
+{"tu_id": 382, "source": "Economy seriesSingle Axis Robots Guide Built-in Type", "target": "Dòng EconomyRobot Đơn Trục hợp kim nhôm tích hợp dẫn hướng"}
+{"tu_id": 383, "source": "QEnhanced rigidity of slide housing", "target": "QĐế trượt có độ chịu lực mạnh"}
+{"tu_id": 384, "source": "QMore compact", "target": "QThể tích nhỏ"}
+{"tu_id": 385, "source": "Reduced width allows for a narrow installation space requirement.", "target": "Chiều rộng giảm dẫn đến không gian cần để lắp ráp thiết bị giảm."}
+{"tu_id": 386, "source": "QMotor mounting position", "target": "QVị trí lắp đặt động cơ"}
+{"tu_id": 387, "source": "Multi-directional motor mounting is available for flexible mechanical design of the actuator.", "target": "Có thể chọn vị trí lắp đặt động cơ nhiều hướng, giúp thiết kế linh hoạt hơn."}
+{"tu_id": 388, "source": "BL Motor Left Folded", "target": "Hướng gập trái BL"}
+{"tu_id": 389, "source": "BR Motor Right Folded", "target": "Hướng gập phải BR"}
+{"tu_id": 390, "source": "BM Motor Down Folded", "target": "Hướng gập dưới BM"}
+{"tu_id": 391, "source": "QEasy maintenance", "target": "QBảo dưỡng dễ dàng"}
+{"tu_id": 392, "source": "The complete series comes with external oil injection nozzles on both sides, enabling oil injection from outside without removing the cover.", "target": "Tất cả dòng sản phẩm có lỗ lắp vú bơm mỡ ở hai bên dễ dàng cho việc tra dầu mà không cần tháo nắp."}
+{"tu_id": 393, "source": "QLess likely to generate particles", "target": "QGiảm phát sinh bụi"}
+{"tu_id": 394, "source": "Designed with a special steel-strip structure to reduce particle generation; can be used for low-dust environment.", "target": "Thiết kế cấu trúc đặc biệt, giảm sinh bụi, có thể dùng được trong môi trường phòng sạch."}
+{"tu_id": 395, "source": "QDedicated for Fully-Sealed Type &amp; Low-Dust Environment", "target": "QChuyên dùng cho môi trường không bụi và môi trường sạch"}
+{"tu_id": 396, "source": "Special vacuum connector for low dust environment.", "target": "Đầu nối chân không chuyên dụng cho môi trường sạch."}
+{"tu_id": 397, "source": "QBody strength is increased for smoother operation", "target": "QĐộ chịu lực của thân được tăng lên để hoạt động trơn tru hơn"}
+{"tu_id": 398, "source": "Due to the integrally formed aluminum alloy structure, the body strength is increased significantly (compared with E-MGT5/E-MTHE6).", "target": "Cấu trúc sản phẩm liền khối nên độ chịu lực của phần thân tăng lên nhiều (so với E-MGT5 / E-MTH6)."}
+{"tu_id": 399, "source": "Grinding treatment is applied on the steel rail after it is embedded into the aluminum alloy base, so the straightness precision of block movement is improved to ±0.02mm or less.", "target": "Thanh trượt thép được tích hợp với đế hợp kim nhôm, sau đó được mài, vì vậy dung sai độ thẳng của bàn trượt được cải thiện về mức ±0.02mm trở xuống."}
+{"tu_id": 400, "source": "* When traveling 800mm", "target": "* Khi đi được 800mm"}
+{"tu_id": 401, "source": "QAssembly is time saving and convenient", "target": "QTiết kiệm thời gian và thuận tiện khi lắp ráp"}
+{"tu_id": 402, "source": "1A positioning hole is set at the bottom of the body.", "target": "1Thiết kế lỗ định vị dưới đáy thân máy."}
+{"tu_id": 403, "source": "2A reference plane on the side of the body also facilitates positioning.", "target": "2Mặt tham chiếu bên cạnh thân máy cũng có thể định vị."}
+{"tu_id": 404, "source": "3Fixing from top to bottom or from bottom to top is available without removing the steel strips.", "target": "3Có thể được cố định từ trên xuống dưới hoặc từ dưới lên trên mà không cần tháo tấm thép."}
+{"tu_id": 405, "source": "1Mounting on the top", "target": "1Lắp trên"}
+{"tu_id": 406, "source": "2Mounting on the bottom", "target": "2Lắp dưới"}
+{"tu_id": 407, "source": "QList of Recommended Servo Motors and Drivers", "target": "QDanh sách đề xuất động cơ servo và bộ điều khiển phù hợp"}
+{"tu_id": 408, "source": "E Motor code is to identify driver components to be attached.", "target": "E Mã động cơ được sử dụng để xác định các linh kiện điều khiển sẽ được lắp đặt cùng."}
+{"tu_id": 409, "source": "This option does not provide a motor and must be purchased separately.", "target": "Động cơ không đi kèm trong tùy chọn này và cần được mua riêng."}
+{"tu_id": 410, "source": "Servo Driver Model", "target": "Mã bộ điều khiển"}
+{"tu_id": 412, "source": "220V", "target": "220V"}
+{"tu_id": 413, "source": "With Brake (Vertical Use)", "target": "Có (phương thẳng đứng)"}
+{"tu_id": 414, "source": "Mitsubishi", "target": "Mitsubishi"}
+{"tu_id": 415, "source": "Panasonic", "target": "Panasonic"}
+{"tu_id": 416, "source": "Delta", "target": "Delta"}
+{"tu_id": 417, "source": "Intended Use", "target": "Mục đích ứng dụng"}
+{"tu_id": 418, "source": "Movement of assembly units using Economy series single-axis drives", "target": "Thực hiện việc di chuyển các linh kiện lắp ráp thông qua truyền động đơn trục dòng Economy"}
+{"tu_id": 419, "source": "The Economy series multi-block single-axis drive can be used to detect multiple positions of workpieces or multiple workpieces simultaneously.", "target": "Có thể sử dụng bộ Robot Đơn Trục dòng Economy có nhiều block để kiểm tra đồng thời nhiều vị trí của phôi hoặc kiểm tra đồng thời nhiều phôi."}
+{"tu_id": 420, "source": "Focusing mechanism for the measured object.", "target": "Dùng cơ chế lấy nét cho đối tượng được kiểm tra."}
+{"tu_id": 421, "source": "Interchangeable depending on the size of the measured object.", "target": "Tùy theo kích thước to nhỏ của vật được kiểm tra mà điều chỉnh thích hợp."}
+{"tu_id": 422, "source": "QMotor Mounting Position", "target": "QVị trí lắp đặt động cơ"}
+{"tu_id": 423, "source": "BL", "target": "BL"}
+{"tu_id": 424, "source": "BR", "target": "BR"}
+{"tu_id": 425, "source": "BM", "target": "BM"}
+{"tu_id": 426, "source": "(Down Folded)", "target": "(Hướng gập dưới)"}
+{"tu_id": 427, "source": "QBasic Specifications", "target": "QThông số cơ bản"}
+{"tu_id": 428, "source": "Applicable Environment", "target": "Môi trường sử dụng"}
+{"tu_id": 429, "source": "2Lead (mm)", "target": "2Bước ren (mm)"}
+{"tu_id": 430, "source": "3Stroke (50mm increments)", "target": "3Hành trình (Gia số 50mm)"}
+{"tu_id": 431, "source": "4Motor Position", "target": "4Vị trí động cơ"}
+{"tu_id": 432, "source": "5Motor Brand", "target": "5Thương hiệu động cơ"}
+{"tu_id": 433, "source": "6Motor Output", "target": "6Công suất động cơ"}
+{"tu_id": 434, "source": "7Sensor position", "target": "7Vị trí cảm biến"}
+{"tu_id": 435, "source": "M(Misumi / Mitsubishi) P(Panasonic) Y", "target": "M(Misumi / Mitsubishi) P(Panasonic) Y"}
+{"tu_id": 436, "source": "(Yaskawa)", "target": "(Yaskawa)"}
+{"tu_id": 437, "source": "(Delta Electronics)", "target": "(Delta Electronics)"}
+{"tu_id": 438, "source": "(Inovance)", "target": "(Inovance)"}
+{"tu_id": 439, "source": "10(100W)", "target": "10(100W)"}
+{"tu_id": 440, "source": "C(Motor Side) *Left SideD(Motor Opposite Side)", "target": "C(Phía động cơ) *Bên tráiD(Phía đối diện động cơ)"}
+{"tu_id": 441, "source": "*Right Side", "target": "* Bên phải"}
+{"tu_id": 442, "source": "*For Motor Position BC and BM", "target": "* Dành cho vị trí động cơ BC và BM"}
+{"tu_id": 443, "source": "EA motor is not included to this product and it must be purchased separately.", "target": "ESản phẩm này không có động cơ, cần tự mua động cơ riêng."}
+{"tu_id": 444, "source": "EWhen the stroke exceeds 600mm, ball screw resonance will occur.", "target": "EKhi hành trình vượt quá 600mm, vít me bi có thể sẽ cộng hưởng tạo ra tiếng."}
+{"tu_id": 445, "source": "In this case, reduce the movement speed.", "target": "Trong trường hợp này, vui lòng giảm tốc độ chuyển động."}
+{"tu_id": 446, "source": "ESelect a motor with brake for vertical use.", "target": "EKhi sử dụng theo phương thẳng đứng, vui lòng chọn động cơ có phanh."}
+{"tu_id": 447, "source": "(If necessary, provide the motor mounting dimensions)", "target": "Nên cung cấp kích thước lắp đặt của động cơ (nếu cần thiết)."}
+{"tu_id": 448, "source": "EWhen Z is selected as the motor brand (prepared by customer), please provide the motor model and output when placing an order.", "target": "EKhi chọn thương hiệu động cơ là Z (Khách hàng tự chọn), vui lòng cung cấp mã hiệu và công suất động cơ lúc đặt hàng."}
+{"tu_id": 449, "source": "EThe drawing is for reference only, please confirm the detailed dimensions on the CAD data.", "target": "EBản vẽ chỉ mang tính chất tham khảo, vui lòng kiểm tra kích thước chi tiết theo bản vẽ CAD."}
+{"tu_id": 450, "source": "3Stroke", "target": "3Hành trình"}
+{"tu_id": 451, "source": "4Motor Position", "target": "4Vị trí động cơ"}
+{"tu_id": 452, "source": "5Motor Brand · 6Motor Output", "target": "5Thương hiệu động cơ · 6Công suất động cơ"}
+{"tu_id": 453, "source": "7Sensor Position", "target": "7Vị trí cảm biến"}
+{"tu_id": 454, "source": "Yaskawa", "target": "Yaskawa"}
+{"tu_id": 455, "source": "EValues in the table are reference values calculated according to the critical speed and DN value of the ball screw.", "target": "EGiá trị trong bảng là giá trị tham chiếu được tính từ tốc độ tới hạn và giá trị DN của vít me bi."}
+{"tu_id": 456, "source": "EValues in the table are maximum safety speeds available for each stroke.", "target": "EGiá trị trong bảng là tốc độ an toàn tối đa cho mỗi hành trình."}
+{"tu_id": 457, "source": "As ball screws may resonate at longer strokes, such conditions as abnormal sound and vibration may occur when operating at the maximum speed.", "target": "Vì hành trình dài nên vít me bi có thể tạo ra tiếng. Khi làm việc ở tốc độ tối đa, có thể có tiếng ồn, rung bất thường, v.v.,"}
+{"tu_id": 458, "source": "Therefore, the moving speed should be reduced appropriately.", "target": "do đó, tốc độ di chuyển cần được giảm một cách thích hợp."}
+{"tu_id": 459, "source": "Motor Direct", "target": "Hướng thẳng"}
+{"tu_id": 460, "source": "Left Folded", "target": "Hướng gập trái"}
+{"tu_id": 461, "source": "Mechanical limitof slide block52.5±1", "target": "Giới hạn cơ họccủa bàn trượt52.5±1"}
+{"tu_id": 462, "source": "Mechanical limit of slide block 11.5±1", "target": "Giới hạn cơ học của bàn trượt 11.5±1"}
+{"tu_id": 463, "source": "Positioning hole pitchtolerance ±0.02", "target": "Dung sai khoảng cáchlỗ định vị ±0.02"}
+{"tu_id": 464, "source": "2-φ3 H7Depth 6", "target": "2-φ3 H7Chiều sâu 6"}
+{"tu_id": 465, "source": "N-M5 Depth 13(Through)", "target": "N-M5 Chiều sâu 13(Lỗ thông)"}
+{"tu_id": 466, "source": "A-A View", "target": "Mặt cắt A-A"}
+{"tu_id": 467, "source": "B View", "target": "Mặt cắt B"}
+{"tu_id": 468, "source": "Referenceplane", "target": "Mặttham chiếu"}
+{"tu_id": 471, "source": "M*100", "target": "M*100"}
+{"tu_id": 472, "source": "+0.012 0", "target": "+0.012 0"}
+{"tu_id": 473, "source": "Positioning hole pitch tolerance ±0.02", "target": "Dung sai khoảng cách lỗ định vị ±0.02"}
+{"tu_id": 474, "source": "2-φ3 H7 Depth 6", "target": "2-φ3 H7 Chiều sâu 6"}
+{"tu_id": 475, "source": "26.7±0.03", "target": "26.7±0.03"}
+{"tu_id": 476, "source": "+0.0120", "target": "+0.0120"}
+{"tu_id": 477, "source": "Right Folded", "target": "Hướng gập phải"}
+{"tu_id": 478, "source": "Down Folded", "target": "Hướng gập dưới"}
+{"tu_id": 479, "source": "Mechanical limit ofslide block52.5±1", "target": "Giới hạn cơ học củabàn trượt52.5±1"}
+{"tu_id": 480, "source": "Mechanical limit ofslide block 11.5±1", "target": "Giới hạn cơ học củabàn trượt 11.5±1"}
+{"tu_id": 481, "source": "Positioning holepitch tolerance ±0.02", "target": "Dung sai khoảng cáchlỗ định vị ±0.02"}
+{"tu_id": 482, "source": "*Total motor lengthnot exceeding 130", "target": "*Tổng chiều dài động cơkhông vượt quá 130"}
+{"tu_id": 483, "source": "φ5 H7Depth 6", "target": "φ5 H7Chiều sâu 6"}
+{"tu_id": 484, "source": "Mechanical limit ofslide block 52.5±1", "target": "Giới hạn cơ học củabàn trượt 52.5±1"}
+{"tu_id": 485, "source": "Mechanical limit of slide block11.5±1", "target": "Giới hạn cơ học của bàn trượt 11.5±1"}
+{"tu_id": 486, "source": "QMaterial / Surface Treatment", "target": "QVật liệu / Xử lý bề mặt"}
+{"tu_id": 487, "source": "QAccessories", "target": "QPhụ kiện"}
+{"tu_id": 488, "source": "C-MSX674N-2M (NPN)", "target": "C-MSX674N-2M (NPN)"}
+{"tu_id": 489, "source": "BL/BR/BM", "target": "BL/BR/BM"}
+{"tu_id": 490, "source": "S3M-24 Teeth-7", "target": "S3M-24 răng-7"}
+{"tu_id": 491, "source": "QAllowable load center of gravity overhang (mm)", "target": "QKhoảng cách trọng tâm tải cho phép (mm)"}
+{"tu_id": 492, "source": "Lead 5", "target": "Bước ren 5"}
+{"tu_id": 493, "source": "10kg", "target": "10kg"}
+{"tu_id": 494, "source": "QAllowable Static Moment N·m", "target": "QMô-men lực tĩnh cho phép N/m"}
+{"tu_id": 495, "source": "MY", "target": "MY"}
+{"tu_id": 496, "source": "MP", "target": "MP"}
+{"tu_id": 497, "source": "MR", "target": "MR"}
+{"tu_id": 498, "source": "QSensor wiring diagram", "target": "QSơ đồ đấu dây cảm biến"}
+{"tu_id": 499, "source": "QMotor mounting hole drawing", "target": "QBản vẽ lỗ lắp đặt động cơ"}
+{"tu_id": 500, "source": "P10 Panasonic 100W", "target": "P10 Panasonic 100W"}
+{"tu_id": 501, "source": "M10 MISUMI / Mitsubishi 100WY10 Yaskawa 100WT10 Delta 100W", "target": "M10 MISUMI / Mitsubishi 100WY10 Yaskawa 100WT10 Delta 100W"}
+{"tu_id": 502, "source": "100W motor shaft dia. (mm): φ8", "target": "Động cơ 100W, đường kính trục (mm): φ8"}
+{"tu_id": 503, "source": "*", "target": "*"}
+{"tu_id": 504, "source": "Incidentlight indicator", "target": "Đèncảnh báo sự cố"}
+{"tu_id": 505, "source": "(red)", "target": "(màu đỏ)"}
+{"tu_id": 506, "source": "OUT", "target": "OUT"}
+{"tu_id": 507, "source": "IC", "target": "IC"}
+{"tu_id": 508, "source": "&lt;100mA", "target": "&lt;100mA"}
+{"tu_id": 509, "source": "BC(Motor Direct)", "target": "BC(Hướng thẳng)"}
+{"tu_id": 510, "source": "BL(Left Folded)", "target": "BL(Hướng gập trái))"}
+{"tu_id": 511, "source": "BR(Right Folded)", "target": "BR(Hướng gập phải))"}
+{"tu_id": 512, "source": "BM(Down Folded)", "target": "BM(Hướng gập dưới)"}
+{"tu_id": 513, "source": "7Sensor Position", "target": "7Vị trí cảm biến"}
+{"tu_id": 514, "source": "Ball Screw End Timing Pulley", "target": "Puli răng đầu vít me bi"}
+{"tu_id": 515, "source": "BC(Motor Direct) BM(Down Folded) BL(Left Folded) BR(Right Folded)", "target": "BC(Hướng thẳng) BM(Hướng gập dưới) BL(Hướng gập trái) BR(Hướng gập phải)"}
+{"tu_id": 516, "source": "M(Misumi / Mitsubishi) P(Panasonic) Y(Yaskawa) T(Delta Electronics) Z(Prepared by Customer)", "target": "M(Misumi / Mitsubishi) P(Panasonic) Y(Yaskawa) T(Delta Electronics) Z(Khách hàng tự chọn)"}
+{"tu_id": 517, "source": "H (Inovance)", "target": "H (Inovance)"}
+{"tu_id": 518, "source": "(200W)", "target": "(200W)"}
+{"tu_id": 519, "source": "C(Motor Side) *Left SideD(Motor Opposite Side)*Right Side", "target": "C(Phía động cơ) *Bên tráiD(Phía đối diện động cơ)*Bên phải"}
+{"tu_id": 520, "source": "Positioning hole pitch tolerance ±0.02", "target": "Dung sai khoảng cách lỗ định vị ±0.02"}
+{"tu_id": 521, "source": "Reference plane", "target": "Mặt tham chiếu"}
+{"tu_id": 522, "source": "N-M6 Depth 15 (Through)", "target": "N-M6 Chiều sâu 15 (Lỗ thông)"}
+{"tu_id": 524, "source": "Origin of slide block 153.5", "target": "Điểm gốc của bàn trượt 153.5"}
+{"tu_id": 525, "source": "Mechanical limit of slide block76±1", "target": "Giới hạn cơ học của bàn trượt76±1"}
+{"tu_id": 526, "source": "φ5 H7 Depth 8", "target": "φ5 H7 Chiều sâu 8"}
+{"tu_id": 527, "source": "*Total motor length not exceeding 121", "target": "*Tổng chiều dài động cơ không vượt quá 121"}
+{"tu_id": 528, "source": "10×11 (×14) Motor Side (200W)", "target": "Phía động cơ 10×11 (×14) (200W)"}
+{"tu_id": 529, "source": "S3M-36 Teeth-11 / S3M-36 Teeth-14", "target": "S3M-36 răng-11 / S3M-36 răng-14"}
+{"tu_id": 530, "source": "*Panasonic motor shaft diameter is 11mm", "target": "*Đường kính trục của động cơ Panasonic là 11mm"}
+{"tu_id": 531, "source": "M20/40 MISUMI / Mitsubishi 200W/400WY20/40 Yaskawa 200W/400WT20/40 Delta 200W/400W", "target": "M20/40 MISUMI / Mitsubishi 200W/400WY20/40 Yaskawa 200W/400WT20/40 Delta 200W/400W"}
+{"tu_id": 532, "source": "200W/400W motor shaft dia. (mm): φ14", "target": "Động cơ 200W/400W, đường kính trục (mm): φ14"}
+{"tu_id": 533, "source": "BC(Motor Direct) BM(Down Folded) BL(Left Folded) BR(Right Folded)", "target": "BC(Hướng thẳng) BM(Hướng gập dưới) BL(Hướng gập trái) BR(Hướng gập phải)"}
+{"tu_id": 534, "source": "M(Misumi / Mitsubishi) P(Panasonic) Y(Yaskawa) T(Delta Electronics) Z(Prepared by Customer)", "target": "M(Misumi / Mitsubishi) P(Panasonic) Y(Yaskawa) T(Delta Electronics) Z(Khách hàng tự chọn)"}
+{"tu_id": 535, "source": "40(400W)", "target": "40(400W)"}
+{"tu_id": 536, "source": "C(Motor Side)*Left Side D(Motor Opposite Side)*Right Side", "target": "C(Phía động cơ)*Bên trái D(Phía đối diện động cơ)*Bên phải"}
+{"tu_id": 537, "source": "8-M6 (Through)", "target": "8-M6 (Lỗ thông)"}
+{"tu_id": 538, "source": "2-φ6 H7 Depth 6", "target": "2-φ6 H7 Chiều sâu 6"}
+{"tu_id": 539, "source": "(Through)", "target": "(Lỗ thông)"}
+{"tu_id": 540, "source": "Origin of slide block 162", "target": "Điểm gốc của bàn trượt 162"}
+{"tu_id": 541, "source": "φ6 H7 Depth 6", "target": "φ6 H7 Chiều sâu 6"}
+{"tu_id": 542, "source": "s Surface Treatment", "target": "s Xử lý bề mặt"}
+{"tu_id": 543, "source": "a Accessories", "target": "a Phụ kiện"}
+{"tu_id": 544, "source": "BL/BR", "target": "BL/BR"}
+{"tu_id": 545, "source": "Low-Dust Environment", "target": "Môi trường sạch"}
+{"tu_id": 546, "source": "C(Motor Side) *Left SideD(Motor Opposite Side)*Right Side", "target": "C(Phía động cơ) *Bên tráiD(Phía đối diện động cơ)*Bên phải"}
+{"tu_id": 547, "source": "EThe drawing is for reference only, please confirm the detailed dimensions on the CAD data.", "target": "EBản vẽ chỉ mang tính chất tham khảo, vui lòng kiểm tra kích thước chi tiết theo bản vẽ CAD.."}
+{"tu_id": 548, "source": "EThe drawing is for reference only, please confirm the detailed dimensions on the CAD data.", "target": "EBản vẽ chỉ mang tính chất tham khảo, vui lòng kiểm tra kích thước chi tiết theo bản vẽ CAD."}
+{"tu_id": 549, "source": "PL8 Air pipe joint", "target": "PL8 Đầu nối ống khí"}
+{"tu_id": 550, "source": "2-φ5 H7 Depth 6", "target": "2-φ5 H7 Chiều sâu 6"}
+{"tu_id": 551, "source": "4-M5 Depth 11", "target": "4-M5 Chiều sâu 11"}
+{"tu_id": 552, "source": "Mechanical limit of slide block 52.5±1", "target": "Giới hạn cơ học của bàn trượt 52.5±1"}
+{"tu_id": 553, "source": "*Total motor length not exceeding 130", "target": "*Tổng chiều dài động cơ không vượt quá 130"}
+{"tu_id": 554, "source": "φ5 H7 Depth 6", "target": "φ5 H7 Chiều sâu 6"}
+{"tu_id": 555, "source": "2-φ5 H7 Depth 8", "target": "2-φ5 H7 Chiều sâu 8"}
+{"tu_id": 556, "source": "Actuator Stroke", "target": "Hành trình của Bộ Dẫn Động"}
+{"tu_id": 557, "source": "The actuator stroke required.", "target": "Hành trình cần thiết của Bộ Dẫn Động."}
+{"tu_id": 558, "source": "(Input Required)", "target": "(phải nhập)"}
+{"tu_id": 559, "source": "Select drives, extension cables, etc.", "target": "Lựa chọn bộ điều khiển, cáp nối dài, v.v."}
+{"tu_id": 560, "source": "Numerical value", "target": "Giá trị số"}
+{"tu_id": 561, "source": "Selectable Range", "target": "Phạm vi tùy chọn"}
+{"tu_id": 562, "source": "XYZ is the eccentricity value for all directions between the eccentricity of the conveyed item and the actuator's slide.", "target": "XYZ là giá trị độ lệch tâm theo tất cả các hướng giữa trọng tâm của vật được vận chuyển và bàn trượt của bộ dẫn động."}
+{"tu_id": 563, "source": "Horizontal Mounting -Single Axis", "target": "Lắp đặt phương ngang - Trục đơn"}
+{"tu_id": 564, "source": "The extension cables are dedicated to Misumi, Servotronix and Panasonic drivers.", "target": "Cáp điện nối dài chỉ tương thích với bộ điều khiển của Misumi, Servotronix và Panasonic."}
+{"tu_id": 565, "source": "Experience fast selection for free now!", "target": "Trải nghiệm ngay tính năng lựa chọn nhanh - hoàn toàn miễn phí!"}
+{"tu_id": 566, "source": "Based on the weight of the object to be conveyed, the mounting orientation (horizontal or wall), speed, and positioning repeatability", "target": "Dựa trên trọng lượng của vật cần vận chuyển, hướng lắp đặt (ngang hoặc gắn tường), tốc độ và độ chính xác định vị lặp lại"}
+{"tu_id": 567, "source": "Based on the control mode (Pulse or EtherCAT) and the control panel mounting condition (cable extension) ..............................................", "target": "Dựa trên chế độ điều khiển (Xung hoặc EtherCAT) và cách lắp đặt bảng điều khiển (chiều dài của cáp nối dài) .............................................."}
+{"tu_id": 568, "source": "(Optional) ...........................", "target": "(Không bắt buộc) ..........................."}
+{"tu_id": 569, "source": "Based on the service conditions (weight of the object to be transported, installation method, speed, etc.), determine the type and stroke of linear motor actuator.", "target": "Xác định loại và hành trình của Động Cơ Tuyến Tính dựa trên điều kiện sử dụng (trọng lượng vật cần vận chuyển, phương pháp lắp đặt, tốc độ, v.v.)."}
+{"tu_id": 570, "source": "Base width(mm)", "target": "Chiều rộng đế(mm)"}
+{"tu_id": 571, "source": "Maximum acceleration and deceleration(G)", "target": "Gia tốc và giảm tốc tối đa(G)"}
+{"tu_id": 572, "source": "EThe max payload of linear motor actuator varies depending on the installation direction (horizontal or wall surface), speed, and acceleration/deceleration.", "target": "ETải trọng vận chuyển tối đa của Động Cơ Tuyến Tính thay đổi tùy theo hướng lắp đặt (phương ngang hoặc treo), tốc độ và mức gia tốc/giảm tốc."}
+{"tu_id": 573, "source": "EVertical installation is not allowed.", "target": "ETuyệt đối không lắp đặt theo phương thẳng đứng."}
+{"tu_id": 574, "source": "EVertical installation is not allowed.", "target": "ETuyệt đối không được lắp đặt theo phương thẳng đứng."}
+{"tu_id": 575, "source": "*This product uses an incremental magnetic encoder with a resolution of 1μm.", "target": "*Sản phẩm này sử dụng encoder từ tính tương đối với độ phân giải 1μm."}
+{"tu_id": 576, "source": "G≈9.8m/s2", "target": "G≈9.8m/s2"}
+{"tu_id": 577, "source": "A simple way to replace an existing ball screw actuator", "target": "Cách đơn giản để thay thế bộ dẫn động vít me bi hiện có"}
+{"tu_id": 578, "source": "You can choose the same or a similar series based on the base width of the existing ball screw actuator.", "target": "Khách hàng có thể chọn sản phẩm cùng series hoặc series tương tự dựa trên chiều rộng đế của bộ dẫn động vít me bi đang sử dụng."}
+{"tu_id": 579, "source": "If the load does not meet the application requirement, select a larger series.", "target": "Nếu tải trọng không đáp ứng được yêu cầu ứng dụng, hãy chọn series lớn hơn."}
+{"tu_id": 580, "source": "If your existing ball screw actuator has a base width of 86mm, you can first consider E-RAM8-S. If the load cannot be met, you can choose E-RAM8-M or a larger one.", "target": "Nếu bộ dẫn động vít me bi hiện tại của khách hàng có chiều rộng đế là 86mm, khách hàng có thể cân nhắc mã E-RAM8-S trước. Nếu vẫn không đáp ứng tải trọng, khách hàng có thể chọn mã E-RAM8-M hoặc series lớn hơn."}
+{"tu_id": 581, "source": "Economy series Linear Motor Actuators", "target": "Dòng Economy Động Cơ Tuyến Tính"}
+{"tu_id": 582, "source": "Economy seriesLinear Motor Actuators", "target": "Dòng EconomyĐộng Cơ Tuyến Tính"}
+{"tu_id": 583, "source": "Select Driver and Extension Cable", "target": "Lựa chọn Bộ điều khiển và Cáp điện nối dài"}
+{"tu_id": 584, "source": "E *1 To achieve gantry dual-drive synchronization, two sets of this product need to be purchased.", "target": "E *1 Để có thể đồng bộ hệ thống dẫn động kép dạng cổng, khách hàng cần mua hai bộ sản phẩm này."}
+{"tu_id": 585, "source": "Pulse", "target": "Xung"}
+{"tu_id": 586, "source": "MISUMILinear Motor Actuator Type", "target": "Loại Động Cơ Tuyến Tínhcủa MISUMI"}
+{"tu_id": 587, "source": "E-RAM6-SE-RAM8-SE-RAM8-ME-RAM10-SE-RAM10-ME-RAM12-SE-RAM12-M", "target": "E-RAM6-SE-RAM8-SE-RAM8-ME-RAM10-SE-RAM10-ME-RAM12-SE-RAM12-M"}
+{"tu_id": 588, "source": "E-RAM14-SE-RAM14-ME-RAM17-SE-RAM17-ME-RAM19-SE-RAM19-M", "target": "E-RAM14-SE-RAM14-ME-RAM17-SE-RAM17-ME-RAM19-SE-RAM19-M"}
+{"tu_id": 589, "source": "Pulse input", "target": "Tín hiệu xung đầu vào"}
+{"tu_id": 590, "source": "One-click auto-tuning", "target": "Tự động điều chỉnh chỉ với một lần nhấn"}
+{"tu_id": 591, "source": "Gantry dual-drive synchronization*1", "target": "Đồng bộ hệ thống dẫn động kép dạng cổng*1"}
+{"tu_id": 592, "source": "Power Extension Cable+Encoder Extension Cable", "target": "Cáp điện nối dài +Cáp encoder nối dài"}
+{"tu_id": 593, "source": "The driver is determined based on the control mode", "target": "Xác định bộ điều khiển dựa trên chế độ điều khiển"}
+{"tu_id": 594, "source": "● Users can purchase the driver themselves, or they can choose to buy it from MISUMI.", "target": "● Khách hàng có thể tự mua bộ điều khiển hoặc chọn mua bộ điều khiển của MISUMI."}
+{"tu_id": 595, "source": "● To ensure operational stability and safety, we recommend users choose drivers from the table below.", "target": "● Để đảm bảo vận hành ổn định và an toàn, khách hàng nên lựa chọn bộ điều khiển theo bảng dưới đây."}
+{"tu_id": 596, "source": "However, if users insist on purchasing drivers from other brands, be sure to verify with the supplier of that brand’s drivers about their compatibility with third-party linear motors.", "target": "Tuy nhiên, nếu khách hàng vẫn muốn mua bộ điều khiển của thương hiệu khác, hãy xác nhận với nhà cung cấp của thương hiệu đó về khả năng tương thích với động cơ tuyến tính của bên thứ ba."}
+{"tu_id": 597, "source": "Determine the cable extension based on the control panel installation requirements.", "target": "Xác định cáp nối dài dựa trên yêu cầu lắp đặt bảng điều khiển."}
+{"tu_id": 598, "source": "● For easy installation by users, power extension cables and encoder extension cables between the linear motor actuator and  the driver can be purchased.", "target": "● Để thuận tiện cho việc lắp đặt, khách hàng có thể chọn mua cáp điện nối dài và cáp encoder nối dài giữa Động Cơ Tuyến Tính và  bộ điều khiển."}
+{"tu_id": 599, "source": "● Extension cables are available in lengths of 1 meter, 3 meters, and 5 meters.", "target": "● Cáp nối dài có các lựa chọn chiều dài là 1 mét, 3 mét và 5 mét."}
+{"tu_id": 600, "source": "DB9 Female Welding wire front riveted nutDB9 metal shell", "target": "Đầu nối DB9 cái Loại có dây hàn, mặt trước tán đai ốcVỏ kim loại DB9"}
+{"tu_id": 601, "source": "Sliders added (Total 2pcs)", "target": "Bổ sung bàn trượt (Tổng cộng 2 chiếc)"}
+{"tu_id": 602, "source": "Sliders added (Total 3pcs)", "target": "Bổ sung bàn trượt (Tổng cộng 3 chiếc)"}
+{"tu_id": 603, "source": "Sliders added (Total 4pcs)", "target": "Bổ sung bàn trượt (Tổng cộng 4 chiếc)"}
+{"tu_id": 604, "source": "EAfter specifying the number of sliders, the number of photomicro sensors on the actuator base changes from 3 to 4, and the additional sliders will be equipped with an anti-collision photo micro sensor.", "target": "ESau khi chỉ định số lượng bàn trượt, số lượng cảm biến quang siêu nhỏ trên thân đế của bộ dẫn động sẽ thay đổi từ 3 thành 4 chiếc, và các bàn trượt bổ sung sẽ được trang bị cảm biến quang siêu nhỏ chống va chạm."}
+{"tu_id": 605, "source": "It shows below the change in sensors when the change in number of sliders (2) is specified.", "target": "Khi chỉ định thay đổi số lượng bàn trượt thành (2), sự thay đổi của các cảm biến sẽ như hình dưới đây."}
+{"tu_id": 606, "source": "Complete selection.", "target": "Hoàn thành chọn mã sản phẩm."}
+{"tu_id": 607, "source": "Photomicroanti-collision", "target": "Cảm biến quang siêu nhỏchống va chạm"}
+{"tu_id": 608, "source": "MISUMI Linear Motor Actuators has a single slider and the number of sliders can be changed according to customers' requirements.", "target": "Động Cơ Tuyến Tính tiêu chuẩn của MISUMI đi kèm một bàn trượt và số lượng bàn trượt có thể thay đổi tùy theo yêu cầu của khách hàng."}
+{"tu_id": 609, "source": "The 4 Sliders can be controlled individually and cooperate with the electric cylinder and gripper to perform gripping actions.", "target": "4 bàn trượt có thể được điều khiển độc lập và kết hợp với xy lanh và kẹp điện để thực hiện thao tác gắp."}
+{"tu_id": 610, "source": "General purpose (MISUMI, Servotronix, Panasonic only)", "target": "Thông dụng (chỉ các thương hiệu MISUMI, Servotronix, Panasonic)"}
+{"tu_id": 611, "source": "EIf you intend to purchase only the cable, please visit MISUMI web of Linear Motor Actuator's Product Page and select single cable item.", "target": "ENếu chỉ muốn mua cáp, vui lòng truy cập trang sản phẩm Động Cơ Tuyến Tính của MISUMI và chọn mục cáp riêng lẻ."}
+{"tu_id": 612, "source": "Dark On (Light blocked)", "target": "Dark ON (Bật khi tối - ánh sáng bị chặn)"}
+{"tu_id": 613, "source": "Light ON (Light received)", "target": "Light ON (Bật khi sáng - nhận được ánh sáng)"}
+{"tu_id": 614, "source": "DB9 Femalewelding wire front rivet nutDB9 Metal Shell", "target": "Đầu nối DB9 cáiLoại có dây hàn, mặt trước tán đai ốcVỏ kim loại DB9"}
+{"tu_id": 615, "source": "Plug:DVOPM20026", "target": "Đầu cắm: DVOPM20026"}
+{"tu_id": 616, "source": "Cable Length ±30mm", "target": "Chiều dài dây cáp ±30mm"}
+{"tu_id": 617, "source": "DB9 Femaleweiding wire front rivet nutDB9 Metal Shell", "target": "Đầu nối DB9 cáiLoại có dây hàn, mặt trước tán đai ốcVỏ kim loại DB9"}
+{"tu_id": 618, "source": "Main component", "target": "Linh kiện chính"}
+{"tu_id": 619, "source": "Actuator base", "target": "Thân đế bộ dẫn động"}
+{"tu_id": 620, "source": "Built-in guide", "target": "Thanh dẫn hướng tích hợp"}
+{"tu_id": 621, "source": "Stainless Steel(Teflon Black Tape Wrapping)", "target": "Thép không gỉ(Bọc băng keo Teflon màu đen)"}
+{"tu_id": 622, "source": "Name", "target": "Tên phụ kiện"}
+{"tu_id": 623, "source": "Cable length", "target": "Chiều dài cáp"}
+{"tu_id": 624, "source": "Photomicro sensor", "target": "Cảm biến quang siêu nhỏ"}
+{"tu_id": 625, "source": "Cover plate", "target": "Nắp che"}
+{"tu_id": 626, "source": "EPlease leave space for the motor cables.The motor cable length is 0.2m±0.1", "target": "EChú ý chừa khoảng trống cho cáp động cơ.Chiều dài cáp động cơ: 0.2m±0.1."}
+{"tu_id": 627, "source": "Payload", "target": "Tải trọng vận chuyển"}
+{"tu_id": 628, "source": "Payload (kg)", "target": "Tải trọng vận chuyển (kg)"}
+{"tu_id": 629, "source": "The payload is the total weight of all objects placed on the actuator.", "target": "Tải trọng vận chuyển là tổng trọng lượng của tất cả các vật đặt trên bộ dẫn động."}
+{"tu_id": 630, "source": "E(max.) payload", "target": "ETải trọng vận chuyển (tối đa)"}
+{"tu_id": 631, "source": "EThe payload varies depending on the installation direction (horizontal or wall), speed, acceleration and deceleration.", "target": "ETải trọng vận chuyển thay đổi tùy theo hướng lắp đặt (phương ngang hoặc treo), tốc độ và mức gia tốc/giảm tốc."}
+{"tu_id": 632, "source": "Wall installation (kg)", "target": "Lắp đặt treo (kg)"}
+{"tu_id": 633, "source": "Horizontal Mounting - GANTRY", "target": "Lắp đặt phương ngang - Dạng cổng (gantry)"}
+{"tu_id": 634, "source": "Wall Mounting - GANTRY", "target": "Lắp đặt treo - Dạng cổng (gantry)"}
+{"tu_id": 635, "source": "Based on the weight of the object to be conveyed, the mounting orientation (horizontal or wall), speed, and positioning repeatability", "target": "Dựa trên trọng lượng của vật cần vận chuyển, hướng lắp đặt (phương ngang hoặc treo), tốc độ và độ chính xác lặp lại vị trí"}
+{"tu_id": 636, "source": "Wall installation(kg)", "target": "Lắp đặt treo(kg)"}
+{"tu_id": 637, "source": "EPlease ensure that the flatness of the installation base plate is within ±0.01mm/300mm, otherwise it will affect the use.", "target": "EĐảm bảo độ phẳng của tấm đế lắp đặt nằm trong phạm vi ±0.01mm/300mm, nếu không sẽ ảnh hưởng đến hiệu quả sử dụng."}
+{"tu_id": 638, "source": "2Stroke Y(Specified unit 60mm)", "target": "2Hành trình Y(Đơn vị chỉ định 60mm)"}
+{"tu_id": 639, "source": "Stroke (Specified unit 60mm)", "target": "Hành trình (Đơn vị chỉ định 60mm)"}
+{"tu_id": 640, "source": "4Extension cablelength", "target": "4Chiều dàicáp nối dài"}
+{"tu_id": 641, "source": "E (max.) payload", "target": "E Tải trọng vận chuyển (tối đa)"}
+{"tu_id": 642, "source": "Rated speed (m/s)", "target": "Tốc độ định mức (m/s)"}
+{"tu_id": 643, "source": "Max. speed (m/s)", "target": "Tốc độ tối đa (m/s)"}
+{"tu_id": 644, "source": "● Acceleration/Deceleration:", "target": "● Gia tốc/giảm tốc:"}
+{"tu_id": 645, "source": "EThe maximum payload above is at a speed of 0.5m/s and an acceleration of 0.5G.", "target": "ETải trọng vận chuyển tối đa ở trên áp dụng cho tốc độ 0.5m/s và gia tốc 0.5G."}
+{"tu_id": 646, "source": "Max.acceleration and deceleration (G)", "target": "Gia tốc và giảm tốc tối đa (G)"}
+{"tu_id": 647, "source": "Repeated*positioningprecision (μm)", "target": "Độ chính xáclặp lạivị trí* (μm)"}
+{"tu_id": 648, "source": "(Self Provided) N", "target": "(Tự trang bị) N"}
+{"tu_id": 649, "source": "Self-provision or 1 or 3 or 5", "target": "Tự trang bị hoặc 1 / 3 / 5"}
+{"tu_id": 650, "source": "(Cable Length Extension) 1m…C13m…C35m…C5", "target": "(Lựa chọn chiều dài cáp nối dài) 1m…C13m…C35m…C5"}
+{"tu_id": 651, "source": "(Select Driver Type)", "target": "(Lựa chọn loại bộ điều khiển)"}
+{"tu_id": 652, "source": "4Extension cable length", "target": "4Chiều dài cáp nối dài"}
+{"tu_id": 653, "source": "Repeated positioning precision*(μm)", "target": "Độ chính xác lặp lại vị trí*(μm)"}
+{"tu_id": 654, "source": "● Positioning repeatability:", "target": "● Độ chính xác lặp lại vị trí:"}
+{"tu_id": 655, "source": "Power cable connector", "target": "Đầu nối cáp nguồn"}
+{"tu_id": 656, "source": "Encoder cable connector", "target": "Đầu nối cáp encoder"}
+{"tu_id": 657, "source": "2×φ3 H7 depth 5", "target": "2×φ3 H7 chiều sâu 5"}
+{"tu_id": 658, "source": "6×M4 depth 8", "target": "6×M4 chiều sâu 8"}
+{"tu_id": 659, "source": "N×φ4.5 throughφ7.5 depth 35.2 (backside)", "target": "N×φ4.5 Lỗ thôngφ7.5 chiều sâu 35.2 (mặt sau)"}
+{"tu_id": 660, "source": "EWhen the number of sliders is changed, the stroke Y dimension will become shorter.", "target": "EKhi thay đổi số lượng bàn trượt, kích thước hành trình Y sẽ bị rút ngắn."}
+{"tu_id": 661, "source": "EThe number of additional sliders:", "target": "ECác tùy chọn số lượng bàn trượt bổ sung gồm:"}
+{"tu_id": 662, "source": "EWhen additional sliders are selected, the number of photomicro sensors on the actuator base changes from 3 to 4, and the additional sliders will be equipped with an anti-collision photomicro sensor.", "target": "EKhi bổ sung bàn trượt, số lượng cảm biến quang siêu nhỏ trên thân đế của bộ dẫn động sẽ thay đổi từ 3 thành 4 chiếc, và các bàn trượt bổ sung sẽ được trang bị cảm biến quang siêu nhỏ chống va chạm."}
+{"tu_id": 663, "source": "*Photomicro positive limit", "target": "* Cảm biến quang siêu nhỏ giới hạn dương"}
+{"tu_id": 664, "source": "*Photomicro origin", "target": "* Cảm biến quang siêu nhỏ gốc"}
+{"tu_id": 665, "source": "*Photomicro negative limit", "target": "* Cảm biến quang siêu nhỏ giới hạn âm"}
+{"tu_id": 666, "source": "Change Number of Sliders (Total 2pcs)", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 2 chiếc)"}
+{"tu_id": 667, "source": "Change Number of Sliders (Total 3pcs)", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 3 chiếc)"}
+{"tu_id": 668, "source": "Change Number of Sliders (Total 4pcs)", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 4 chiếc)"}
+{"tu_id": 669, "source": "EWhen the servo driver is selected (required), the number of drivers will be changed to 2pcs.", "target": "EKhi chọn bộ điều khiển servo (bắt buộc), số lượng bộ điều khiển sẽ thay đổi thành 2 chiếc."}
+{"tu_id": 670, "source": "EWhen the extended cable selected, the number of extension cables will be changed to 2pcs.", "target": "EKhi chọn cáp nối dài, số lượng cáp nối dài sẽ thay đổi thành 2 cáp."}
+{"tu_id": 671, "source": "EWhen the extended cable selected, the number of extension cables will be changed to 3pcs.", "target": "EKhi chọn cáp nối dài, số lượng cáp nối dài sẽ thay đổi thành 3 cáp."}
+{"tu_id": 672, "source": "EWhen the servo driver is selected (required), the number of drivers will be changed to 4pcs.", "target": "EKhi chọn bộ điều khiển servo (bắt buộc), số lượng bộ điều khiển sẽ thay đổi thành 4 chiếc."}
+{"tu_id": 673, "source": "EWhen the servo driver is selected (required), the number of drivers will be changed to 3pcs.", "target": "EKhi chọn bộ điều khiển servo (bắt buộc), số lượng bộ điều khiển sẽ thay đổi thành 3 chiếc."}
+{"tu_id": 674, "source": "EWhen the extended cable selected, the number of extension cables will be changed to 4pcs.", "target": "EKhi chọn cáp nối dài, số lượng cáp nối dài sẽ thay đổi thành 4 cáp."}
+{"tu_id": 675, "source": "Ordering Code", "target": "Phương pháp chỉ định"}
+{"tu_id": 676, "source": "QDrivers Specifications", "target": "QThông số bộ điều khiển"}
+{"tu_id": 677, "source": "E*1 To achieve gantry dual-drive synchronization, two sets of this product need to be purchased.", "target": "E*1 Để có thể đồng bộ hệ thống dẫn động kép dạng cổng, khách hàng cần mua hai bộ sản phẩm này."}
+{"tu_id": 678, "source": "Single-phase/Three-phase AC220V±10% 50/60Hz", "target": "1 pha / 3 pha AC220V±10%, 50/60Hz"}
+{"tu_id": 679, "source": "Single-phase AC220V±10% 50/60Hz", "target": "1 pha AC220V±10%, 50/60Hz"}
+{"tu_id": 680, "source": "QDriver Dimensions Drawing", "target": "QBản vẽ kích thước bộ điều khiển"}
+{"tu_id": 681, "source": "E *2 This product already has the STO function, and certification is available.", "target": "E *2 Sản phẩm được tích hợp sẵn chức năng ngắt mô-men an toàn (STO) và có chứng nhận kèm theo."}
+{"tu_id": 682, "source": "E*2 This product already has the STO function, and certification is available.", "target": "E*2 Sản phẩm được tích hợp sẵn chức năng ngắt mô-men an toàn (STO) và có chứng nhận kèm theo."}
+{"tu_id": 683, "source": "Vpeak / (m/s)", "target": "Vpeak / (m/s)"}
+{"tu_id": 684, "source": "ohms", "target": "ohm"}
+{"tu_id": 685, "source": "After Change", "target": "Sau thay đổi"}
+{"tu_id": 686, "source": "Interphase impedance @25°", "target": "Trở kháng giữa các pha tại 25°"}
+{"tu_id": 687, "source": "Interphase inductance", "target": "Điện cảm giữa các pha"}
+{"tu_id": 688, "source": "Maximum terminal voltage", "target": "Điện áp đầu cực tối đa"}
+{"tu_id": 689, "source": "EPlease leave space for the motor cables.The motor cable length is 0.2m±0.1", "target": "EChú ý chừa khoảng trống cho cáp động cơ.Chiều dài cáp động cơ: 0.2m±0.1."}
+{"tu_id": 690, "source": "Max.acceleration and deceleration (G)", "target": "Gia tốc vàgiảm tốc tối đa (G)"}
+{"tu_id": 691, "source": "EWhen the number of sliders is changed, the stroke Y will become shorter.", "target": "EKhi thay đổi số lượng bàn trượt, kích thước hành trình Y sẽ bị rút ngắn."}
+{"tu_id": 692, "source": "Ordering Code B2", "target": "Phương pháp chỉ định B2"}
+{"tu_id": 693, "source": "Wall Mounting - Single Axis", "target": "Lắp đặt treo - Trục đơn"}
+{"tu_id": 694, "source": "EPlease leave space for the motor cables.The motor cable length is 0.2m±0.1", "target": "EChú ý chừa khoảng trống cho cáp động cơ.Chiều dài cáp động cơ: 0.2m±0.1."}
+{"tu_id": 696, "source": "EWhen the extended cable selected, the number of extension cables will be changed to 2pcs", "target": "EKhi chọn cáp nối dài, số lượng cáp nối dài sẽ thay đổi thành 2 cáp."}
+{"tu_id": 697, "source": "EPlease leave space for the motor cables.The motor cable length is 0.2m±0.1", "target": "EChú ý chừa khoảng trống cho cáp động cơ.Chiều dài cáp động cơ: 0.2m±0.1."}
+{"tu_id": 698, "source": "Actuator total length L", "target": "Tổng chiều dài bộ dẫn động L"}
+{"tu_id": 699, "source": "Change Number of Sliders (Total 3pcs)  B3", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 3 chiếc)  B3"}
+{"tu_id": 700, "source": "Change Number of Sliders (Total 4pcs)  B4", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 4 chiếc)  B4"}
+{"tu_id": 701, "source": "Weight", "target": "Trọng lượng"}
+{"tu_id": 702, "source": "Coil weight", "target": "Trọng lượng cuộn dây"}
+{"tu_id": 703, "source": "Change Number of Sliders (Total 3pcs) B3", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 3 chiếc) B3"}
+{"tu_id": 704, "source": "Change Number of Sliders (Total 4pcs) B4", "target": "Thay đổi số lượng bàn trượt (Tổng cộng 4 chiếc) B4"}
+{"tu_id": 705, "source": "*1 To achieve gantry dual-drive synchronization, two sets of this product need to be purchased.", "target": "*1 Để có thể đồng bộ hệ thống dẫn động kép dạng cổng, khách hàng cần mua hai bộ sản phẩm này."}
+{"tu_id": 706, "source": "Preventing Intrusion of External Objects", "target": "Ngăn ngừa vật thể lạ xâm nhập"}
+{"tu_id": 707, "source": "Linear Motor ActuatorsForeign Object Prevention Type", "target": "Động Cơ Tuyến TínhLoại ngăn ngừa vật thể lạ"}
+{"tu_id": 708, "source": "Block external objects fromfalling in and damagingthe motor", "target": "Ngăn vật thể lạrơi vào làm hỏngđộng cơ"}
+{"tu_id": 709, "source": "The gap between the slider and stator is small", "target": "Khe hở giữa bàn trượt và thân động cơ nhỏ"}
+{"tu_id": 710, "source": "Block off external objects and small items", "target": "Ngăn chặn sự xâm nhập của vật thể lạ và chi tiết nhỏ"}
+{"tu_id": 711, "source": "Types of External Objects", "target": "Các loại vật thể lạ"}
+{"tu_id": 712, "source": "Linear Motor Actuator Full Cover", "target": "Động Cơ Tuyến Tính loại bọc kín"}
+{"tu_id": 713, "source": "Single Axis Robot Fully Sealed Type", "target": "Robot Đơn Trục hợp kim nhôm loại kín toàn bộ"}
+{"tu_id": 714, "source": "Small electronic components", "target": "Linh kiện điện tử nhỏ"}
+{"tu_id": 715, "source": "Structural Differences", "target": "Khác biệt về kết cấu"}
+{"tu_id": 716, "source": "The steel shim directly contacts the slider", "target": "Tấm thép tiếp xúc trực tiếp với bàn trượt"}
+{"tu_id": 717, "source": "The slider and cover plate are contact free", "target": "Bàn trượt và nắp che không tiếp xúc trực tiếp"}
+{"tu_id": 718, "source": "Experimental Results Against External Objects", "target": "Kết quả thử nghiệm chống vật thể lạ"}
+{"tu_id": 719, "source": "Performance Differences", "target": "Khác biệt về hiệu suất"}
+{"tu_id": 720, "source": "max 0.5m/s", "target": "Tối đa 0.5m/s"}
+{"tu_id": 721, "source": "Test propsSmall resin round head screws with cross holesSpecification:", "target": "Mẫu thử:Vít nhựa đầu tròn nhỏ có lỗ chữ thậpQuy cách:"}
+{"tu_id": 722, "source": "Using an industrial cameraTo check the internal status", "target": "Sử dụng camera công nghiệpđể kiểm tra tình trạng bên trong"}
+{"tu_id": 723, "source": "Frictionless and maintenance-free", "target": "Không ma sát, không cần bảo trì"}
+{"tu_id": 724, "source": "The screws are falling from the top down", "target": "Thả vít rơi từ trên xuống."}
+{"tu_id": 725, "source": "After testing, the result of blocking small objects is positive.", "target": "Sau khi thử nghiệm, khả năng ngăn chặn các chi tiết nhỏ được đánh giá là hiệu quả."}
+{"tu_id": 726, "source": "Facing the problem of warping and curling ofthe steel shim due to friction from direct contact", "target": "Gặp phải vấn đề tấm thép bị biến dạng và cong vênhdo ma sát khi tiếp xúc trực tiếp."}
+{"tu_id": 727, "source": "Install an industrial camera on the cover end to inspect the internal condition", "target": "Lắp camera công nghiệp ở đầu nắp che để kiểm tra tình trạng bên trong."}
+{"tu_id": 728, "source": "EDo not assemble (connect) multiple sliders together for use.", "target": "EKhông được lắp ráp (kết nối) nhiều bàn trượt với nhau để sử dụng."}
+{"tu_id": 729, "source": "EAfter When the number of sliders is changed, the stroke Y will become shorter.", "target": "EKhi thay đổi số lượng bàn trượt, kích thước hành trình Y sẽ bị rút ngắn."}
+{"tu_id": 730, "source": "EDo not assemble multiple sliders together for use.", "target": "EKhông được lắp ráp nhiều bàn trượt với nhau để sử dụng."}
+{"tu_id": 731, "source": "1Top mounting", "target": "1Lắp trên"}
+{"tu_id": 732, "source": "2Bottom mounting", "target": "2Lắp dưới"}
+{"tu_id": 733, "source": "High Positioning Repeatability", "target": "Độ chính xác lặp lại vị trí cao"}
+{"tu_id": 734, "source": "Easy Maintenance", "target": "Bảo trì dễ dàng"}
+{"tu_id": 735, "source": "Electric Cylinders", "target": "Xy Lanh Điện"}
+{"tu_id": 736, "source": "An electric cylinder converts motor rotation into linear motion via a ball screw for push rod operation.", "target": "Xy lanh Điện chuyển đổi chuyển động quay của động cơ thành chuyển động tịnh tiến thông qua vít me bi để vận hành thanh đẩy."}
+{"tu_id": 737, "source": "MISUMI cylinders feature an aluminum alloy body, ball screw, push rod, customizable motor mounts, and optional sensors.", "target": "Xy Lanh của MISUMI được cấu tạo từ thân bằng hợp kim nhôm, vít me bi, thanh đẩy, với giá đỡ động cơ tùy chỉnh theo nhu cầu và có thể trang bị thêm cảm biến."}
+{"tu_id": 738, "source": "Compared to hydraulic and pneumatic types, it offers energy efficiency, compact size, low noise, eco-friendliness, and low maintenance, which reduces overall costs.", "target": "So với loại thủy lực và khí nén, Xy lanh Điện có ưu điểm tiết kiệm năng lượng, kích thước nhỏ gọn, độ ồn thấp, thân thiện với môi trường và không cần bảo dưỡng nhiều, giúp giảm tổng chi phí vận hành."}
+{"tu_id": 739, "source": "RodNon-rotation  Accuracy", "target": "Độ chính xáckhông xoay  của thanh đẩy"}
+{"tu_id": 740, "source": "Push rod rotation≤±1°", "target": "Góc xoay thanh đẩy≤±1°"}
+{"tu_id": 741, "source": "·Used for vertical installation and axial thrust", "target": "·Dùng cho các ứng dụng lắp đặt theo phương thẳng đứng và chịu lực đẩy dọc trục"}
+{"tu_id": 742, "source": "·Used for vertical installation and axial thrust", "target": "·Sử dụng cho các trường hợp lắp đặt theo phương thẳng đứng và chịu lực đẩy dọc trục"}
+{"tu_id": 743, "source": "·Ideal for pressing, riveting, clamping, and push-pull applications", "target": "·Phù hợp cho các ứng dụng ép, tán đinh, kẹp chặt và đẩy-kéo"}
+{"tu_id": 744, "source": "·Used for horizontal installation in long-stroke applications", "target": "·Sử dụng cho các trường hợp lắp đặt phương ngang trong các ứng dụng có hành trình dài"}
+{"tu_id": 745, "source": "·Can handle radial loads for precise linear transmission", "target": "·Có thể chịu tải hướng tâm để thực hiện truyền động tuyến tính một cách chính xác"}
+{"tu_id": 746, "source": "Built-in Linear Guide/Slider", "target": "Thanh trượt dẫn hướng/Bàn trượt tích hợp"}
+{"tu_id": 747, "source": "Main Body Installation", "target": "Lắp trực tiếp vào thân chính"}
+{"tu_id": 748, "source": "Front Flange Installation", "target": "Lắp bằng mặt bích phía trước"}
+{"tu_id": 749, "source": "With Guide Mechanism", "target": "Lắp kèm cơ cấu dẫn hướng"}
+{"tu_id": 750, "source": "Front-End Installation", "target": "Lắp ở đầu trước"}
+{"tu_id": 751, "source": "StandardType", "target": "Loạitiêu chuẩn"}
+{"tu_id": 752, "source": "*1 The max speed is based on a servo motor speed of 3000rpm (2000rpm for motors above 1000W).", "target": "*1 Tốc độ tối đa được tính dựa trên tốc độ động cơ servo 3000 vòng/phút (2000 vòng/phút đối với động cơ có công suất trên 1000W)."}
+{"tu_id": 753, "source": "For strokes exceeding 300mm (500mm for radial type), the speed should be reduced to avoid resonance.", "target": "Đối với hành trình vượt quá 300mm (500mm với loại chịu tải hướng tâm), cần giảm tốc độ để tránh hiện tượng cộng hưởng."}
+{"tu_id": 754, "source": "*2 Motor code M for motors above 1000W applies only to M1000W and M1500W.", "target": "*2 Mã động cơ M cho các động cơ có công suất trên 1000W chỉ áp dụng cho M1000W và M1500W."}
+{"tu_id": 755, "source": "*3 Motor acceleration and deceleration times are recommended to be set at 0.2 seconds or more.", "target": "*3 Thời gian tăng tốc và giảm tốc của động cơ được khuyến nghị cài đặt từ 0.2 giây trở lên."}
+{"tu_id": 756, "source": "High Thrust with Gearbox Type", "target": "Loại lực đẩy cao, kèm hộp số"}
+{"tu_id": 757, "source": "QUsage Precautions", "target": "QNhững điều cần lưu ý khi sử dụng"}
+{"tu_id": 758, "source": "1Operate at -20°C to 40°C; avoid corrosive, flammable, electromagnetic, or moist environments", "target": "1Vận hành trong khoảng nhiệt độ -20°C~40°C; tránh môi trường ăn mòn, dễ cháy nổ, có nhiễu điện từ hoặc ẩm ướt."}
+{"tu_id": 759, "source": "2Ensure the installation surface is resistant to vibration and pressure, and maintains a flatness of ±0.05mm per 500mm.", "target": "2Đảm bảo bề mặt lắp đặt chịu được rung chấn và áp lực, và duy trì độ phẳng ±0.05mm trên mỗi 500mm."}
+{"tu_id": 760, "source": "4Protect the cylinder from vibration, impact, rotation, and deformation.", "target": "4Bảo vệ xy lanh khỏi rung chấn, va đập, xoay và biến dạng."}
+{"tu_id": 761, "source": "Misumi/Mitsubishi/Yaskawa/Delta/Siemens/InovanceXinjie/Leadshine/Omron/HCFA", "target": "Misumi / Mitsubishi / Yaskawa / Delta / Siemens / InovanceXinjie / Leadshine / Omron / HCFA"}
+{"tu_id": 762, "source": "QMotor Code and Corresponding Brand Table", "target": "QBảng mã động cơ và thương hiệu tương ứng"}
+{"tu_id": 763, "source": "QStandard Electric Cylinder Usage Example", "target": "QVí dụ sử dụng Xy Lanh Điện loại tiêu chuẩn"}
+{"tu_id": 764, "source": "·Use the cylinder's telescopic function for handling workpieces on conveyors at different heights.", "target": "· Sử dụng chức năng duỗi ra-thu vào của xy lanh để thao tác với các phôi trên băng tải ở những độ cao khác nhau."}
+{"tu_id": 765, "source": "·Ensures smooth, quick elevation while preventing workpiece damage", "target": "· Đảm bảo chuyển động nâng hạ nhanh và trơn tru, đồng thời ngăn ngừa hư hỏng phôi."}
+{"tu_id": 766, "source": "·Use the horizontal cylinder's push-pull function to sort items by height on the same conveyor", "target": "· Sử dụng chức năng đẩy-kéo của xy lanh lắp ngang để phân loại sản phẩm theo chiều cao trên cùng một băng tải."}
+{"tu_id": 767, "source": "·The cylinder-based sorting mechanism ensures fast and smooth transport.", "target": "· Cơ cấu phân loại dùng xy lanh đảm bảo vận chuyển nhanh và trơn tru."}
+{"tu_id": 768, "source": "Standard Type Direct Connection E-ECTL", "target": "Loại tiêu chuẩn, kết nối hướng thẳng E-ECTL"}
+{"tu_id": 769, "source": "Radial Type Direct Connection E-ECRL", "target": "Loại chịu tải hướng tâm, kết nối hướng thẳng E-ECRL"}
+{"tu_id": 770, "source": "1) Open the plastic hole cover and manually turn the coupling bolt to align with the hole.", "target": "1) Mở nắp nhựa của lỗ và dùng tay xoay bu lông khớp nối để căn thẳng hàng với lỗ."}
+{"tu_id": 771, "source": "3) Finally, reattach the plastic hole cover to complete the motor installation.", "target": "3) Cuối cùng, gắn lại nắp nhựa của lỗ để hoàn tất việc lắp đặt động cơ."}
+{"tu_id": 772, "source": "2) Use a hex wrench to loosen the coupling bolt, then tighten it after installing the motor.", "target": "2) Dùng cờ lê lục giác để nới lỏng bu lông khớp nối, sau đó lắp động cơ vào và siết chặt lại."}
+{"tu_id": 773, "source": "Standard Type Parrallel Connection E-ECTL", "target": "Loại tiêu chuẩn, kết nối song song E-ECTL"}
+{"tu_id": 774, "source": "Radial Type Parrallel Connection E-ECRL", "target": "Loại chịu tải hướng tâm, kết nối song song E-ECRL"}
+{"tu_id": 775, "source": "1) Remove the motor cover and mount the motor, leaving motor tightening screws loose for tension adjustment.", "target": "1) Tháo nắp che động cơ và lắp động cơ, tạm thời chưa siết các vít cố định động cơ để điều chỉnh độ căng đai."}
+{"tu_id": 776, "source": "2) Align and install the timing pulley on the motor shaft parallel to the ball  screw pulley.", "target": "2) Căn chỉnh và lắp puli răng vào trục động cơ sao cho song song với  puli của vít me bi."}
+{"tu_id": 777, "source": "3) Tighten the pulley screw and install the timing belt.", "target": "3) Siết chặt vít puli và lắp đai răng."}
+{"tu_id": 778, "source": "4) Adjust belt tension using adjusting screw.", "target": "4) Dùng vít điều chỉnh để chỉnh độ căng đai."}
+{"tu_id": 779, "source": "5) Measure tension with a tester to match the reference value (see table).", "target": "5) Dùng thiết bị đo để kiểm tra độ căng, đảm bảo khớp với giá trị tham khảo (xem bảng)."}
+{"tu_id": 780, "source": "6) Tighten motor screws and reattach the cover to finish installation.", "target": "6) Siết chặt các vít cố định động cơ và gắn lại nắp che để hoàn tất quá trình lắp đặt."}
+{"tu_id": 781, "source": "1) Remove the cover, install the motor, and tighten the screws.", "target": "1) Tháo nắp che, lắp động cơ và siết chặt các vít."}
+{"tu_id": 782, "source": "2) Install the timing pulley on the motor side, ensuring it is parallel to the pulley on the ball screw end, and tighten the pulley screws.", "target": "2) Lắp puli răng ở phía động cơ, đảm bảo song song với puli ở đầu vít me bi, sau đó siết chặt vít puli."}
+{"tu_id": 783, "source": "5) Measure belt tension with a tester to match the reference range (see table).", "target": "5) Dùng thiết bị đo để kiểm tra độ căng đai, đảm bảo khớp với phạm vi giá trị tham khảo (xem bảng)."}
+{"tu_id": 784, "source": "6) Reattach the cover to finish motor installation and pulley adjustment.", "target": "6) Gắn lại nắp che để hoàn tất quá trình lắp đặt động cơ và điều chỉnh puli."}
+{"tu_id": 785, "source": "Electric cylinder belt tension value (reference)", "target": "Giá trị độ căng đai của Xy Lanh Điện (tham khảo)"}
+{"tu_id": 786, "source": "Electric Cylinder Model", "target": "Mã xy lanh điện"}
+{"tu_id": 787, "source": "Tightening Screw", "target": "Vít cố định"}
+{"tu_id": 788, "source": "Lock Nut", "target": "Đai ốc khóa"}
+{"tu_id": 789, "source": "Initially, add grease after 300 hours of operation.", "target": "Với lần đầu, hãy bổ sung mỡ bôi trơn sau 300 giờ vận hành."}
+{"tu_id": 790, "source": "Subsequently, lubricate every 2000 hours.", "target": "Từ các lần tiếp theo, bôi trơn sau mỗi 2,000 giờ vận hành."}
+{"tu_id": 791, "source": "Use general lithium-based grease for lubrication.", "target": "Sử dụng các loại mỡ bôi trơn gốc lithium thông dụng."}
+{"tu_id": 792, "source": "Use a grease gun for lubrication.", "target": "Thực hiện bôi trơn bằng súng bơm mỡ."}
+{"tu_id": 793, "source": "2) Manually extend the push rod several times to ensure the entire screw is lubricated.", "target": "2) Dùng tay di chuyển thanh đẩy ra vào nhiều lần để đảm bảo toàn bộ vít me được bôi trơn đều."}
+{"tu_id": 794, "source": "*Standard E-ECTL75 or above and high-thrust models include grease nipples for bearing lubrication.", "target": "*Loại tiêu chuẩn mã E-ECTL75 trở lên và loại lực đẩy cao được trang bị đầu bơm mỡ để bôi trơn vòng bi."}
+{"tu_id": 795, "source": "1) Open the cylinder cover and apply grease to the bearings in the motor mount and the sliding table.", "target": "1) Mở nắp xy lanh và bôi mỡ vào vòng bi trong giá đỡ động cơ và bàn trượt."}
+{"tu_id": 796, "source": "2) Manually move the sliding table and apply grease every 15mm along the stroke direction.", "target": "2) Dùng tay di chuyển bàn trượt và bôi mỡ cách nhau mỗi 15mm dọc theo hướng hành trình."}
+{"tu_id": 797, "source": "QSensor Parameters", "target": "QThông số cảm biến"}
+{"tu_id": 798, "source": "Sensing Method", "target": "Nguyên lý cảm biến"}
+{"tu_id": 799, "source": "Output mode:", "target": "Kiểu đầu ra:"}
+{"tu_id": 800, "source": "Output mode", "target": "Kiểu đầu ra"}
+{"tu_id": 801, "source": "Output Method", "target": "Kiểu đầu ra"}
+{"tu_id": 802, "source": "Repeatability", "target": "Độ chính xác lặp lại"}
+{"tu_id": 803, "source": "Protection Rating", "target": "Cấp độ bảo vệ"}
+{"tu_id": 804, "source": "With / Without Brake", "target": "Phanh (Có / Không)"}
+{"tu_id": 805, "source": "Without Brake (Horizontal Use)", "target": "Không (phương ngang)"}
+{"tu_id": 806, "source": "With Brake(Vertical Use)", "target": "Có (phương thẳng đứng)"}
+{"tu_id": 808, "source": "QFont Flange FA", "target": "QLắp bằng mặt bích phía trước FA"}
+{"tu_id": 809, "source": "QWith Guide Mechanism GD", "target": "QLắp kèm cơ cấu dẫn hướng GD"}
+{"tu_id": 810, "source": "4-φ5.5 Through (For Cylinder install)", "target": "4-φ5.5 Lỗ thông (để lắp xy lanh)"}
+{"tu_id": 811, "source": "4-M5 Depth 11(For Workpiece install)", "target": "4-M5 chiều sâu 11(để lắp phôi)"}
+{"tu_id": 812, "source": "Linear Shaft dia φ10", "target": "Đường kính trục trượt φ10"}
+{"tu_id": 814, "source": "*1 Maximum speed is based on a 3000rpm servo motor.", "target": "*1 Tốc độ tối đa được tính dựa trên tốc độ động cơ servo 3000 vòng/phút."}
+{"tu_id": 815, "source": "For strokes over 300mm, reduce speed to prevent resonance.", "target": "Đối với hành trình trên 300mm, cần giảm tốc độ để tránh hiện tượng cộng hưởng."}
+{"tu_id": 816, "source": "EMotor not included; customers must purchase separately.", "target": "ESản phẩm không bao gồm động cơ, khách hàng cần đặt mua riêng."}
+{"tu_id": 817, "source": "EWhen the motor code is specified as Z, the motor shaft diameter and installation dimensions must be provided.", "target": "EKhi mã động cơ được chỉ định là Z, cần cung cấp đường kính trục và kích thước lắp đặt của động cơ."}
+{"tu_id": 818, "source": "Max. Speed(mm/s)*1", "target": "Tốc độ tối đa(mm/s)*1"}
+{"tu_id": 819, "source": "Body Width", "target": "Chiều rộng thân"}
+{"tu_id": 820, "source": "QRecommended Servo Motor List", "target": "QBảng đề xuất động cơ servo"}
+{"tu_id": 821, "source": "NA (Body Mounting)FA (Front Flange)HA (Horizontal)GD (With Guide Mechanism)", "target": "NA (Lắp trực tiếp trên thân)FA (Lắp bằng mặt bích phía trước)HA (Lắp phương ngang)GD (Lắp kèm cơ cấu dẫn hướng)"}
+{"tu_id": 822, "source": "EWhen choose GD (With guide mechanism), the total length L is L-13", "target": "EKhi lựa chọn GD (Lắp kèm cơ cấu dẫn hướng), tổng chiều dài L là L-13."}
+{"tu_id": 823, "source": "2GT-40Teeth×φ8", "target": "2GT-40 răng×φ8"}
+{"tu_id": 824, "source": "Sensor(Optional)", "target": "Cảm biến (tùy chọn)"}
+{"tu_id": 825, "source": "LED indicator", "target": "Đèn LED"}
+{"tu_id": 826, "source": "P.C.D.46", "target": "P.C.D.46"}
+{"tu_id": 827, "source": "4-φ7 Though (For Cylinder install)", "target": "4-φ7 Lỗ thông (để lắp xy lanh)"}
+{"tu_id": 828, "source": "4-M6 Depth 14 (For workpiece insall)", "target": "4-M6 chiều sâu 14 (để lắp phôi)"}
+{"tu_id": 829, "source": "Stroke+19.5", "target": "Hành trình +19.5"}
+{"tu_id": 830, "source": "EWhen choose GD (With guide mechanism), the total length L is L-18", "target": "EKhi lựa chọn GD (Lắp kèm cơ cấu dẫn hướng), tổng chiều dài L là L-18."}
+{"tu_id": 831, "source": "3GT-41 Teeth×φ10", "target": "3GT-41 răng×φ10"}
+{"tu_id": 832, "source": "3GT-41Teeth×φ14 (Panasonic φ11)", "target": "3GT-41 răng×φ14 (Panasonic φ11)"}
+{"tu_id": 833, "source": "QMotor Mounting Hole dimension", "target": "QKích thước lỗ lắp đặt động cơ"}
+{"tu_id": 834, "source": "50W·100W Motor shaft dia (mm): φ8", "target": "Động cơ 50W·100W, đường kính trục (mm): φ8"}
+{"tu_id": 835, "source": "200W Motor shaft dia (mm): φ11", "target": "Động cơ 200W, đường kính trục (mm): φ11"}
+{"tu_id": 836, "source": "Body mass (kg)(Reference)", "target": "Khối lượng thân chính (kg) (Giá trị tham khảo)"}
+{"tu_id": 837, "source": "4-φ9 Through (For cylinder install)", "target": "4-φ9 Lỗ thông (để lắp xy lanh)"}
+{"tu_id": 838, "source": "Linear Shaft dia φ16", "target": "Đường kính trục trượt φ16"}
+{"tu_id": 839, "source": "C0 (Not provided)C1 (1pcs)C2 (2pcs)C3 (3pcs)", "target": "C0 (Không có)C1 (1 chiếc)C2 (2 chiếc)C3 (3 chiếc)"}
+{"tu_id": 840, "source": "3GT-41Teeth×φ10", "target": "3GT-41 răng×φ10"}
+{"tu_id": 841, "source": "8-M8 Depth 18 (For workpiece install)", "target": "8-M8 chiều sâu 18 (để lắp phôi)"}
+{"tu_id": 843, "source": "5GT-30Teeth×φ12", "target": "5GT-30 răng×φ12"}
+{"tu_id": 844, "source": "Silencer, Ball screw grease hole", "target": "Bộ giảm thanh, Lỗ tra mỡ trục vít me bi"}
+{"tu_id": 845, "source": "Linear Shaftdia φ30", "target": "Đường kínhtrục trượt φ30"}
+{"tu_id": 846, "source": "*1 Max speed is based on a 2000rpm servo motor; reduce speed if stroke&gt;300 to prevent resonance.", "target": "*1 Tốc độ tối đa được tính dựa trên tốc độ động cơ servo 2000 vòng/phút; cần giảm tốc độ nếu hành trình &gt;300 để tránh hiện tượng cộng hưởng."}
+{"tu_id": 847, "source": "*2 Motor type M applies only to M1000W and M1500W for power above 1000W.", "target": "*2 Loại động cơ M chỉ áp dụng cho M1000W và M1500W đối với công suất trên 1000W."}
+{"tu_id": 848, "source": "EMotor not included; customers must purchase separately.", "target": "ESản phẩm không bao gồm động cơ, khách hàng cần đặt mua riêng."}
+{"tu_id": 849, "source": "(Body Mounting)FA", "target": "(Lắp trực tiếp trên thân)FA"}
+{"tu_id": 850, "source": "(Front Flange)HA", "target": "(Lắp bằng mặt bích phía trước)HA"}
+{"tu_id": 851, "source": "(Horizontal)GD", "target": "(Lắp phương ngang)GD"}
+{"tu_id": 852, "source": "(With Guide Mechanism)", "target": "(Lắp kèm cơ cấu dẫn hướng)"}
+{"tu_id": 853, "source": "EWhen choose GD (With guide mechanism), the total length L is L-21", "target": "EKhi lựa chọn GD (Lắp kèm cơ cấu dẫn hướng), tổng chiều dài L là L-21."}
+{"tu_id": 854, "source": "8M-28Teeth×φ22", "target": "8M-28 răng×φ22"}
+{"tu_id": 855, "source": "8M-28Teeth×φ22 (Mitsubishiφ24)", "target": "8M-28 răng×φ22 (Mitsubishiφ24)"}
+{"tu_id": 856, "source": "1000W·1500W·2000WMotor shaft dia (mm): φ22", "target": "Động cơ 1000W·1500W·2000W,đường kính trục (mm): φ22"}
+{"tu_id": 857, "source": "Built-in Linear Guide", "target": "Thanh trượt dẫn hướng tích hợp"}
+{"tu_id": 858, "source": "Slide Block", "target": "Bàn trượt"}
+{"tu_id": 859, "source": "QMotor Direct Connection BC", "target": "QKết nối động cơ hướng thẳng BC"}
+{"tu_id": 860, "source": "QMotor Left Folded Connection BL", "target": "QKết nối động cơ hướng gập trái BL"}
+{"tu_id": 861, "source": "QMotor Right Folded Connection BR", "target": "QKết nối động cơ hướng gập phải BR"}
+{"tu_id": 862, "source": "QMotor Down Folded Connection BM", "target": "QKết nối động cơ hướng gập dưới BM"}
+{"tu_id": 863, "source": "ReferenceSurface", "target": "Mặttham chiếu"}
+{"tu_id": 864, "source": "Depth 9", "target": "chiều sâu 9"}
+{"tu_id": 865, "source": "Dowel pin hole pitch", "target": "Khoảng cách lỗ chốt định vị"}
+{"tu_id": 866, "source": "Positioning Repeatability(mm)", "target": "Độ chính xác lặp lạivị trí (mm)"}
+{"tu_id": 867, "source": "Number of pitch*100", "target": "Số khoảng cách*100"}
+{"tu_id": 868, "source": "*For down folded installation, mounting holes decrease by 2, and pitch number by 1 due to motor interference.", "target": "*Đối với lắp đặt theo hướng gập dưới, số lỗ lắp đặt giảm đi 2 và số khoảng cách tương ứng giảm đi 1 do vị trí động cơ gây cản trở."}
+{"tu_id": 869, "source": "MountingDimension", "target": "Kích thướclắp đặt"}
+{"tu_id": 870, "source": "Number of Pitch*", "target": "Số khoảng cách*"}
+{"tu_id": 871, "source": "3GT-41Teeth×φ14 (Panasonicφ11)", "target": "3GT-41 răng×φ14 (Panasonic φ11)"}
+{"tu_id": 872, "source": "200W Motor shaft (mm): φ11", "target": "Động cơ 200W, đường kính trục (mm): φ11"}
+{"tu_id": 873, "source": "200W/400W Motor shaft (mm): φ14", "target": "Động cơ 200W/400W, đường kính trục (mm): φ14"}
+{"tu_id": 874, "source": "4-M8 Depth12", "target": "4-M8 chiều sâu 12"}
+{"tu_id": 875, "source": "Reference Surface", "target": "Mặt tham chiếu"}
+{"tu_id": 876, "source": "*1 Max speed is based on a 3000rpm servo motor; reduce speed if stroke&gt;500 to prevent resonance.", "target": "*1 Tốc độ tối đa được tính dựa trên tốc độ động cơ servo 3000 vòng/phút; cần giảm tốc độ nếu hành trình &gt;500 để tránh hiện tượng cộng hưởng."}
+{"tu_id": 877, "source": "EMotor not included; customers must purchase separately.", "target": "ESản phẩm không bao gồm động cơ, khách hàng cần đặt mua riêng."}
+{"tu_id": 878, "source": "5GT-25Teeth×φ12", "target": "5GT-25 răng×φ12"}
+{"tu_id": 879, "source": "4-φ9 Though (For cylinder install)", "target": "4-φ9 Lỗ thông (để lắp xy lanh)"}
+{"tu_id": 880, "source": "6Motor Type(No selection required for RA0 )", "target": "6Loại động cơ(Không cần lựa chọn đối với RA0)"}
+{"tu_id": 881, "source": "EWhen choose GD (With guide mechanism), the total length L is L-17", "target": "EKhi lựa chọn GD (Lắp kèm cơ cấu dẫn hướng), tổng chiều dài L là L-17."}
+{"tu_id": 882, "source": "Keyway Type, Black oxide steell", "target": "Loại rãnh then, Thép mạ ô-xít đen"}
+{"tu_id": 883, "source": "*When motor code is specified as M,  the threaded size are 4-M5", "target": "*Khi mã động cơ được chỉ định là M,  kích thước ren sẽ là 4-M5."}
+{"tu_id": 884, "source": "8YU-26Teeth×φ18", "target": "8YU-26 răng×φ18"}
+{"tu_id": 885, "source": "EMotor not included; customers must purchase separately.", "target": "ESản phẩm không bao gồm động cơ, khách hàng cần đặt mua riêng."}
+{"tu_id": 886, "source": "EWhen the motor code is specified as Z, the motor shaft diameter and installation dimensions must be provided.", "target": "EKhi mã động cơ được chỉ định là Z, cần cung cấp đường kính trục và kích thước lắp đặt của động cơ."}
+{"tu_id": 887, "source": "EMotor acceleration and deceleration times are recommended to be set at 0.2 seconds or more.", "target": "EThời gian tăng tốc và giảm tốc của động cơ được khuyến nghị cài đặt từ 0.2 giây trở lên."}
+{"tu_id": 888, "source": "*For motor code M, bore diameter is φ24", "target": "*Đối với mã động cơ M, đường kính lỗ là φ24."}
+{"tu_id": 889, "source": "Complete selection in just 1min", "target": "Chọn mã sản phẩm chỉ trong 1 phút"}
+{"tu_id": 890, "source": "Please Be sure to insulate unused output lines", "target": "Vui lòng đảm bảo cách điện cho các dây đầu ra không sử dụng"}
+{"tu_id": 891, "source": "Extension cable length", "target": "Chiều dài cáp nối dài"}
+{"tu_id": 892, "source": "Incremental optic encoder with ###block(s)", "target": "Encoder quang tương đối với ### khối"}
+{"tu_id": 893, "source": "NPN Type Photo Micro Sensors", "target": "Cảm biến quang điện loại NPN"}
+{"tu_id": 894, "source": "Sensor flag", "target": "Tấm dò cảm biến"}
+{"tu_id": 895, "source": "Block", "target": "Block"}
+{"tu_id": 896, "source": "Block Qty. 1pc", "target": "1 block"}
+{"tu_id": 897, "source": "Motor Bracket F0", "target": "Đế động cơ loại F0"}
+{"tu_id": 898, "source": "4-φ3.5 Through φ6 Counterbored Depth 3.5", "target": "4-Lỗ thông φ3.5 Lỗ bậc φ6 chiều sâu 3.5"}
+{"tu_id": 899, "source": "Block Qty. 1pc", "target": "1 block "}
+{"tu_id": 900, "source": "4-φ3.4 Through φ6 Counterbored Depth 4", "target": "4-Lỗ thông φ3.4 Lỗ bậc φ6 chiều sâu 4"}
+{"tu_id": 901, "source": "Motor bracket", "target": "Giá đỡ động cơ"}
+{"tu_id": 902, "source": "Support Side Bearing Housing", "target": "Đế vòng bi bên ổ đỡ"}
+{"tu_id": 903, "source": "2-φ4.5 Through", "target": "2-Lỗ thông φ4.5"}
+{"tu_id": 904, "source": "Trivalent Chromate Treatment (Black)", "target": "Xử lý độ bóng bằng chrome hóa trị ba (màu đen)"}
+{"tu_id": 905, "source": "Rolled Ball Screw", "target": "Vít Me Bi ren cán"}
+{"tu_id": 906, "source": "Adds planes at 2 places (90° position).", "target": "Gia công mặt phẳng ở 2 vị trí (vị trí 90°)."}
+{"tu_id": 907, "source": "Max. payload (kg)", "target": "Tải trọng vận chuyển tối đa (kg)"}
+{"tu_id": 908, "source": "Max. Speed (mm/sec)", "target": "Tốc độ tối đa (mm/s)"}
+{"tu_id": 909, "source": "Max. Movement Speed (mm/sec)", "target": "Tốc độ di chuyển tối đa (mm/s)"}
+{"tu_id": 910, "source": "Body", "target": "Thân"}
+{"tu_id": 911, "source": "Motor End Timing Pulley", "target": "Puli răng đầu động cơ"}
+{"tu_id": 912, "source": "Motor Bracket and Attachment F1", "target": "Mặt bích kết nối động cơ loại F1"}
+{"tu_id": 913, "source": "Extension cable length", "target": "Chiều dài cáp nối dài"}
+{"tu_id": 914, "source": "Horizontal Installation", "target": "Lắp đặt phương ngang"}
+{"tu_id": 915, "source": "Parts", "target": "Linh kiện"}

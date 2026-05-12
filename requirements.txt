@@ -32,3 +32,8 @@ anthropic>=0.97.0
 
 # Gemini SDK — สำหรับ batch translation/correction engine
 google-genai>=0.3.0
+
+# Vector search สำหรับ Translation Memory (TM) suggest
+# Embeddings ผ่าน Ollama (nomic-embed-text) — ไม่ต้องเพิ่ม SDK
+faiss-cpu>=1.7.4
+numpy>=1.26

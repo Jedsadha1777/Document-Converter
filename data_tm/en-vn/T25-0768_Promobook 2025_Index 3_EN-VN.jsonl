@@ -1,0 +1,1854 @@
+{"tu_id": 1, "source": "###", "target": "###"}
+{"tu_id": 2, "source": "C5", "target": "C5"}
+{"tu_id": 3, "source": "2·4·10", "target": "2·4·10"}
+{"tu_id": 4, "source": "22.5°", "target": "22.5°"}
+{"tu_id": 5, "source": "Right", "target": "Phải"}
+{"tu_id": 6, "source": "Left", "target": "Trái"}
+{"tu_id": 7, "source": "(13)", "target": "(13)"}
+{"tu_id": 8, "source": "φ5.7", "target": "φ5.7"}
+{"tu_id": 9, "source": "X", "target": "X"}
+{"tu_id": 10, "source": "P.C.D.", "target": "P.C.D."}
+{"tu_id": 11, "source": "+0.075", "target": "+0.075"}
+{"tu_id": 12, "source": "M8×1.0", "target": "M8×1.0"}
+{"tu_id": 13, "source": "4L", "target": "4L"}
+{"tu_id": 14, "source": "Part Number", "target": "Mã sản phẩm"}
+{"tu_id": 15, "source": "E-KLR", "target": "E-KLR"}
+{"tu_id": 16, "source": "80~1000", "target": "80~1000"}
+{"tu_id": 17, "source": "E-KLR1002", "target": "E-KLR1002"}
+{"tu_id": 18, "source": "RLC", "target": "RLC"}
+{"tu_id": 19, "source": "Y/2", "target": "Y/2"}
+{"tu_id": 20, "source": "L", "target": "L"}
+{"tu_id": 21, "source": "C-TEK", "target": "C-TEK"}
+{"tu_id": 22, "source": "C-TBK", "target": "C-TBK"}
+{"tu_id": 23, "source": "C-TFK", "target": "C-TFK"}
+{"tu_id": 24, "source": "E-TLK", "target": "E-TLK"}
+{"tu_id": 25, "source": "C-TEF", "target": "C-TEF"}
+{"tu_id": 26, "source": "C-TBF", "target": "C-TBF"}
+{"tu_id": 27, "source": "C-TFF", "target": "C-TFF"}
+{"tu_id": 28, "source": "E-TLF", "target": "E-TLF"}
+{"tu_id": 29, "source": "C-TBSB12##", "target": "C-TBSB12##"}
+{"tu_id": 30, "source": "B/2", "target": "B/2"}
+{"tu_id": 31, "source": "MISUMI Economy series", "target": "Dòng MISUMI Economy"}
+{"tu_id": 32, "source": "1.", "target": "1."}
+{"tu_id": 33, "source": "V", "target": "V"}
+{"tu_id": 34, "source": "D", "target": "D"}
+{"tu_id": 35, "source": "±0.04", "target": "±0,04"}
+{"tu_id": 36, "source": "m", "target": "m"}
+{"tu_id": 37, "source": "C", "target": "C"}
+{"tu_id": 38, "source": "F", "target": "F"}
+{"tu_id": 39, "source": "M", "target": "M"}
+{"tu_id": 40, "source": "d", "target": "d"}
+{"tu_id": 41, "source": "B", "target": "B"}
+{"tu_id": 42, "source": "A", "target": "A"}
+{"tu_id": 43, "source": "d=6~8", "target": "d=6~8"}
+{"tu_id": 44, "source": "L1", "target": "L1"}
+{"tu_id": 45, "source": "H", "target": "H"}
+{"tu_id": 46, "source": "B1", "target": "B1"}
+{"tu_id": 47, "source": "H1", "target": "H1"}
+{"tu_id": 48, "source": "P", "target": "P"}
+{"tu_id": 49, "source": "d1", "target": "d1"}
+{"tu_id": 50, "source": "M6×0.75", "target": "M6×0.75"}
+{"tu_id": 51, "source": "d=6", "target": "d=6"}
+{"tu_id": 52, "source": "h±0.03", "target": "h±0.03"}
+{"tu_id": 53, "source": "B/2±0.03", "target": "B/2±0.03"}
+{"tu_id": 54, "source": "L/2", "target": "L/2"}
+{"tu_id": 55, "source": "C1", "target": "C1"}
+{"tu_id": 56, "source": "E", "target": "E"}
+{"tu_id": 57, "source": "T1", "target": "T1"}
+{"tu_id": 58, "source": "h", "target": "h"}
+{"tu_id": 59, "source": "T", "target": "T"}
+{"tu_id": 60, "source": "h±0.03", "target": "h±0.03"}
+{"tu_id": 61, "source": "DH8", "target": "DH8"}
+{"tu_id": 62, "source": "P.C.D", "target": "P.C.D."}
+{"tu_id": 63, "source": "W", "target": "W"}
+{"tu_id": 64, "source": "E-TSMP", "target": "E-TSMP"}
+{"tu_id": 65, "source": "100W", "target": "100W"}
+{"tu_id": 66, "source": "S", "target": "S"}
+{"tu_id": 67, "source": "200~400W", "target": "200~400W"}
+{"tu_id": 68, "source": "E-TSMA", "target": "E-TSMA"}
+{"tu_id": 69, "source": "Yaskawa", "target": "Yaskawa"}
+{"tu_id": 70, "source": "Mitsubishi", "target": "Mitsubishi"}
+{"tu_id": 71, "source": "Delta", "target": "Delta"}
+{"tu_id": 72, "source": "Inovance", "target": "Inovance"}
+{"tu_id": 73, "source": "Panasonic", "target": "Panasonic"}
+{"tu_id": 74, "source": "G", "target": "G"}
+{"tu_id": 75, "source": "T/2", "target": "T/2"}
+{"tu_id": 76, "source": "3h", "target": "3h"}
+{"tu_id": 77, "source": "E-TBMD", "target": "E-TBMD"}
+{"tu_id": 78, "source": "H=1.866P H1=0.5P d2=d-0.5P d1=d-P D=d D2=d2 D1=d1", "target": "H=1.866P H1=0.5P d2=d-0.5P d1=d-P D=d D2=d2 D1=d1"}
+{"tu_id": 79, "source": "H1:", "target": "H1:"}
+{"tu_id": 80, "source": "H1/2", "target": "H1/2"}
+{"tu_id": 81, "source": "H/2", "target": "H/2"}
+{"tu_id": 82, "source": "15°", "target": "15°"}
+{"tu_id": 83, "source": "Item", "target": "Mục"}
+{"tu_id": 85, "source": "±0.15/300mm", "target": "±0.15/300mm"}
+{"tu_id": 86, "source": "E-0.05", "target": "E-0.05"}
+{"tu_id": 87, "source": "Rh7", "target": "Rh7"}
+{"tu_id": 88, "source": "Qh7", "target": "Qh7"}
+{"tu_id": 89, "source": "e", "target": "e"}
+{"tu_id": 90, "source": "2-C0.5", "target": "2-C0.5"}
+{"tu_id": 91, "source": "K", "target": "K"}
+{"tu_id": 92, "source": "D1", "target": "D1"}
+{"tu_id": 93, "source": "Features:", "target": "Đặc tính:"}
+{"tu_id": 94, "source": "20kN", "target": "20kN"}
+{"tu_id": 95, "source": "1~2mm", "target": "1~2mm"}
+{"tu_id": 97, "source": "Stroke", "target": "Hành trình"}
+{"tu_id": 98, "source": "Unit: mm", "target": "Đơn vị: mm"}
+{"tu_id": 100, "source": "~0.16", "target": "~0.16"}
+{"tu_id": 101, "source": "(5.9)", "target": "(5.9)"}
+{"tu_id": 102, "source": "3°46'", "target": "3°46'"}
+{"tu_id": 103, "source": "4°03'", "target": "4°03'"}
+{"tu_id": 104, "source": "3°19'", "target": "3°19'"}
+{"tu_id": 105, "source": "4°22'", "target": "4°22'"}
+{"tu_id": 106, "source": "4°40'", "target": "4°40'"}
+{"tu_id": 107, "source": "3·4", "target": "3·4"}
+{"tu_id": 108, "source": "3·4·5·6·8", "target": "3·4·5·6·8"}
+{"tu_id": 109, "source": "—", "target": "—"}
+{"tu_id": 110, "source": "Fs:", "target": "Fs:"}
+{"tu_id": 111, "source": "Fo :", "target": "Fo :"}
+{"tu_id": 112, "source": "α:", "target": "α:"}
+{"tu_id": 113, "source": "P=", "target": "P="}
+{"tu_id": 114, "source": "×α", "target": "×α"}
+{"tu_id": 115, "source": "FS", "target": "FS"}
+{"tu_id": 116, "source": "FO", "target": "FO"}
+{"tu_id": 117, "source": "P= ×@= ×9.8=0.52(N/mm2)", "target": "P= ×@= ×9.8=0.52(N/mm2)"}
+{"tu_id": 118, "source": "Fs", "target": "Fs"}
+{"tu_id": 119, "source": "Fo", "target": "Fo"}
+{"tu_id": 120, "source": "V= ×10-3 = ×10-3=22.8(m/min)", "target": "V= ×10-3 = ×10-3=22.8(m/phút)"}
+{"tu_id": 121, "source": "π·d2·n", "target": "π·d2·n"}
+{"tu_id": 122, "source": "cos(d)", "target": "cos(d)"}
+{"tu_id": 123, "source": "π×14.5×500", "target": "π×14.5×500"}
+{"tu_id": 124, "source": "cos(3°46')", "target": "cos(3°46')"}
+{"tu_id": 125, "source": "d2:", "target": "d2:"}
+{"tu_id": 126, "source": "d :", "target": "d :"}
+{"tu_id": 127, "source": "n :", "target": "n :"}
+{"tu_id": 128, "source": "V=", "target": "V="}
+{"tu_id": 129, "source": "×10-3", "target": "×10-3"}
+{"tu_id": 130, "source": "μ:", "target": "μ:"}
+{"tu_id": 131, "source": "d:", "target": "d:"}
+{"tu_id": 132, "source": "η=", "target": "η="}
+{"tu_id": 133, "source": "1-μtan(d)", "target": "1-μtan(d)"}
+{"tu_id": 134, "source": "1+μ/tan(d)", "target": "1+μ/tan(d)"}
+{"tu_id": 135, "source": "η= =  =0.24", "target": "η= =  =0.24"}
+{"tu_id": 136, "source": "1-0.21×tan(3°46')", "target": "1-0.21×tan(3°46')"}
+{"tu_id": 137, "source": "1+0.21/tan(3°46')", "target": "1+0.21/tan(3°46')"}
+{"tu_id": 138, "source": "T= = =59.7(N·cm)", "target": "T= = =59.7(N·cm)"}
+{"tu_id": 139, "source": "FS·R", "target": "FS·R"}
+{"tu_id": 140, "source": "2π·η", "target": "2π·η"}
+{"tu_id": 141, "source": "300×0.3", "target": "300×0.3"}
+{"tu_id": 142, "source": "η :", "target": "η :"}
+{"tu_id": 143, "source": "R :", "target": "R :"}
+{"tu_id": 144, "source": "T=", "target": "T="}
+{"tu_id": 145, "source": "3·4·5·6", "target": "3·4·5·6"}
+{"tu_id": 146, "source": "3·4·5·6·8·10·12", "target": "3·4·5·6·8·10·12"}
+{"tu_id": 147, "source": "3·4·5·6·8·10·12·16", "target": "3·4·5·6·8·10·12·16"}
+{"tu_id": 148, "source": "C-MTSR", "target": "C-MTSR"}
+{"tu_id": 149, "source": "C-MTSTR", "target": "C-MTSTR"}
+{"tu_id": 150, "source": "(MC·MQ)", "target": "(MC·MQ)"}
+{"tu_id": 151, "source": "MC:", "target": "MC:"}
+{"tu_id": 152, "source": "MC", "target": "MC"}
+{"tu_id": 153, "source": "MQ", "target": "MQ"}
+{"tu_id": 154, "source": "MQ×2", "target": "MQ×2"}
+{"tu_id": 155, "source": "2D", "target": "2D"}
+{"tu_id": 156, "source": "C-MTSRW", "target": "C-MTSRW"}
+{"tu_id": 157, "source": "C-MTSRV", "target": "C-MTSRV"}
+{"tu_id": 158, "source": "C-MTSTRW", "target": "C-MTSTRW"}
+{"tu_id": 159, "source": "C-MTSTRV", "target": "C-MTSTRV"}
+{"tu_id": 160, "source": "4F · 6S", "target": "4F · 6S"}
+{"tu_id": 161, "source": "8C", "target": "8C"}
+{"tu_id": 162, "source": "9J", "target": "9J"}
+{"tu_id": 163, "source": "C≤60", "target": "C≤60"}
+{"tu_id": 164, "source": "S-C-J≥2", "target": "S-C-J≥2"}
+{"tu_id": 165, "source": "4F", "target": "4F"}
+{"tu_id": 166, "source": "5V", "target": "5V"}
+{"tu_id": 167, "source": "6S", "target": "6S"}
+{"tu_id": 168, "source": "7Q", "target": "7Q"}
+{"tu_id": 169, "source": "5Vh7", "target": "5Vh7"}
+{"tu_id": 170, "source": "7Qh7", "target": "7Qh7"}
+{"tu_id": 171, "source": "V·Q", "target": "V·Q"}
+{"tu_id": 172, "source": "3·4·5·6·8·10", "target": "3·4·5·6·8·10"}
+{"tu_id": 173, "source": "EFY≤1.0", "target": "EFY≤1.0"}
+{"tu_id": 174, "source": "E3≤FW≤20", "target": "E3≤FW≤20"}
+{"tu_id": 175, "source": "AC,AQ≤F(S)-m-n", "target": "AC,AQ≤F(S)-m-n"}
+{"tu_id": 176, "source": "E3≤SY≤20", "target": "E3≤SY≤20"}
+{"tu_id": 177, "source": "n", "target": "n"}
+{"tu_id": 178, "source": "n≥1.2", "target": "n≥1.2"}
+{"tu_id": 179, "source": "EBV,BC≤M×3", "target": "EBV,BC≤M×3"}
+{"tu_id": 180, "source": "EBV,BC≥Pitch×3", "target": "EBV,BC≥Bước ren×3"}
+{"tu_id": 181, "source": "EBV,BC≤F,S-Pitch×3", "target": "EBV, BC≤F, S-Bước ren×3"}
+{"tu_id": 182, "source": "Eb1&lt;C≤60", "target": "Eb1&lt;C≤60"}
+{"tu_id": 183, "source": "ES(F)-C-KC(KV)≥2", "target": "ES(F)-C-KC(KV)≥2"}
+{"tu_id": 184, "source": "ZC=V", "target": "ZC=V"}
+{"tu_id": 185, "source": "ZQ=Q", "target": "ZQ=Q"}
+{"tu_id": 186, "source": "0.08~0.16", "target": "0.08~0.16"}
+{"tu_id": 187, "source": "V(Q)", "target": "V(Q)"}
+{"tu_id": 188, "source": "FY", "target": "FY"}
+{"tu_id": 189, "source": "FV", "target": "FV"}
+{"tu_id": 190, "source": "FW", "target": "FW"}
+{"tu_id": 191, "source": "(FQ)", "target": "(FQ)"}
+{"tu_id": 192, "source": "AC(AQ)", "target": "AC(AQ)"}
+{"tu_id": 193, "source": "(S)", "target": "(S)"}
+{"tu_id": 194, "source": "SW", "target": "SW"}
+{"tu_id": 195, "source": "SC", "target": "SC"}
+{"tu_id": 196, "source": "SY", "target": "SY"}
+{"tu_id": 197, "source": "(SQ)", "target": "(SQ)"}
+{"tu_id": 198, "source": "F(S)", "target": "F(S)"}
+{"tu_id": 199, "source": "KC(KV)", "target": "KC(KV)"}
+{"tu_id": 200, "source": "b1", "target": "b1"}
+{"tu_id": 201, "source": "t1", "target": "t1"}
+{"tu_id": 202, "source": "Q(V)", "target": "Q(V)"}
+{"tu_id": 203, "source": "r1", "target": "r1"}
+{"tu_id": 204, "source": "Q", "target": "Q"}
+{"tu_id": 205, "source": "BC", "target": "BC"}
+{"tu_id": 206, "source": "(BV)", "target": "(BV)"}
+{"tu_id": 207, "source": "C-MTSRK", "target": "C-MTSRK"}
+{"tu_id": 208, "source": "C-MTSTRK", "target": "C-MTSTRK"}
+{"tu_id": 209, "source": "4F · 6T · 8S", "target": "4F · 6T · 8S"}
+{"tu_id": 210, "source": "9E", "target": "9E"}
+{"tu_id": 211, "source": "Q/2≤E≤Q-1", "target": "Q/2≤E≤Q-1"}
+{"tu_id": 212, "source": "5R", "target": "5R"}
+{"tu_id": 213, "source": "6T", "target": "6T"}
+{"tu_id": 214, "source": "5Rh7", "target": "5Rh7"}
+{"tu_id": 215, "source": "9Eh7", "target": "9Eh7"}
+{"tu_id": 216, "source": "R·E", "target": "R·E"}
+{"tu_id": 217, "source": "EFY≤1.0", "target": "EFY≤1.0"}
+{"tu_id": 218, "source": "AR≤S(F)-m-nAE≤S+T-m-n", "target": "AR≤S(F)-m-nAE≤S+T-m-n"}
+{"tu_id": 219, "source": "E3≤SY≤20", "target": "E3≤SY≤20"}
+{"tu_id": 220, "source": "EBQ,BR≤M×3", "target": "EBQ,BR≤M×3"}
+{"tu_id": 221, "source": "EBQ,BR≥Pitch×3", "target": "EBQ,BR≥Bước ren×3"}
+{"tu_id": 222, "source": "EBQ,BR≤F,S,T-Pitch×3", "target": "EBQ,BR≤F,S,T-Bước ren×3"}
+{"tu_id": 223, "source": "Q·R", "target": "Q·R"}
+{"tu_id": 224, "source": "M×Pitch", "target": "M×Bước ren"}
+{"tu_id": 225, "source": "Accuracy grade", "target": "Cấp độ chính xác"}
+{"tu_id": 226, "source": "Screw Dia.", "target": "Đường kính vít me"}
+{"tu_id": 227, "source": "Lead", "target": "Bước ren"}
+{"tu_id": 228, "source": "Screw Shaft", "target": "Trục vít me"}
+{"tu_id": 229, "source": "Nut", "target": "Đai ốc"}
+{"tu_id": 230, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 231, "source": "H Hardness", "target": "H Độ cứng"}
+{"tu_id": 232, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 233, "source": "S55C equivalent", "target": "Tương đương S55C"}
+{"tu_id": 234, "source": "Induction hardening 58~62HRC", "target": "Tôi cao tần 58~62HRC"}
+{"tu_id": 235, "source": "Carburized 58~62HRC", "target": "Thấm carbon 58~62HRC"}
+{"tu_id": 236, "source": "4-φ4.5 Through", "target": "4-φ4.5 Lỗ thông"}
+{"tu_id": 237, "source": "Y/2 (Nut Movement Range)", "target": "Y/2 (Hành trình của đai ốc)"}
+{"tu_id": 238, "source": "X-X View", "target": "Mặt cắt X-X"}
+{"tu_id": 239, "source": "4L (1mm increments)", "target": "4L (Gia số 1mm)"}
+{"tu_id": 240, "source": "Y", "target": "Y"}
+{"tu_id": 241, "source": "Number of Circuits", "target": "Số chu kỳ"}
+{"tu_id": 242, "source": "Basic Load Rating", "target": "Tải trọng định mức cơ bản"}
+{"tu_id": 243, "source": "Twisting Direction", "target": "Chiều ren"}
+{"tu_id": 244, "source": "C (Dynamic) kN", "target": "C (Động) kN"}
+{"tu_id": 245, "source": "C (Static) kN", "target": "C (Tĩnh) kN"}
+{"tu_id": 246, "source": "2.7 turns", "target": "2.7 vòng"}
+{"tu_id": 247, "source": "0.005 or Less", "target": "0.005 trở xuống"}
+{"tu_id": 248, "source": "Left and right", "target": "Trái và phải"}
+{"tu_id": 249, "source": "Part Number (1Type · 2Screw Shaft O.D.", "target": "Mã sản phẩm (1Loại · 2Đường kính vít me"}
+{"tu_id": 250, "source": "· 3Lead)", "target": "· 3Bước ren)"}
+{"tu_id": 251, "source": "(NC·RLC…etc.)", "target": "(NC, RLC, v.v)"}
+{"tu_id": 252, "source": "Axial Clearance", "target": "Khe hở hướng trục"}
+{"tu_id": 253, "source": "1Type", "target": "1Loại"}
+{"tu_id": 254, "source": "2Screw Shaft O.D.", "target": "2Đường kính vít me"}
+{"tu_id": 255, "source": "3Lead", "target": "3Bước ren"}
+{"tu_id": 256, "source": "QSupport side", "target": "QBên ổ đỡ"}
+{"tu_id": 257, "source": "QFixed side", "target": "QBên cố định"}
+{"tu_id": 258, "source": "Alterations", "target": "Gia công bổ sung"}
+{"tu_id": 259, "source": "Code", "target": "Mã"}
+{"tu_id": 260, "source": "Spec.", "target": "Thông số kỹ thuật"}
+{"tu_id": 261, "source": "No Machining on Support Side Shaft End", "target": "Không gia công đầu trục bên ổ đỡ"}
+{"tu_id": 262, "source": "NC", "target": "NC"}
+{"tu_id": 263, "source": "No machining added on the support side shaft end.", "target": "Không gia công đầu trục bên ổ đỡ."}
+{"tu_id": 264, "source": "Ball Nut Orientation Reversed", "target": "Thay đổi hướng đai ốc"}
+{"tu_id": 265, "source": "Changes the nut direction.", "target": "Thay đổi hướng đai ốc."}
+{"tu_id": 266, "source": "KC", "target": "KC"}
+{"tu_id": 268, "source": "Keyway on Fixed Side Shaft End", "target": "Gia công rãnh then ở đầu trục bên cố định"}
+{"tu_id": 269, "source": "Adds a keyway on the fixed side shaft end.", "target": "Gia công rãnh then ở các đầu trục bên cố định."}
+{"tu_id": 270, "source": "KLC", "target": "KLC"}
+{"tu_id": 271, "source": "The machining position at fixed side shaft end can be specified (Keyway size is the same as KC).", "target": "Vị trí gia công rãnh then ở đầu trục bên cố định có thể được xác định cụ thể (Kích thước rãnh then giống với KC)."}
+{"tu_id": 272, "source": "3≤K≤8 K+S≤9 K, S=1mm increments", "target": "3≤K≤8 K+S≤9 K, S = Gia số 1mm"}
+{"tu_id": 273, "source": "Flat Machined on Fixed Side Shaft End", "target": "Gia công mặt phẳng ở đầu trục bên cố định"}
+{"tu_id": 274, "source": "Adds a flat on the fixed side shaft end.", "target": "Mặt phẳng được gia công ở đầu trục bên cố định."}
+{"tu_id": 275, "source": "Ordering Code", "target": "Phương pháp chỉ định"}
+{"tu_id": 276, "source": "(Support side)", "target": "(Bên ổ đỡ)"}
+{"tu_id": 277, "source": "(Fixed side)", "target": "(Bên cố định)"}
+{"tu_id": 278, "source": "Standard", "target": "Tiêu chuẩn"}
+{"tu_id": 279, "source": "Change", "target": "Chỉ định"}
+{"tu_id": 281, "source": "When machining is specified", "target": "Chỉ định"}
+{"tu_id": 282, "source": "Q Complete specifications, stock items will be shipped in same day at the earliest.", "target": "Q Thông số kỹ thuật hoàn chỉnh, với các sản phẩm có sẵn tồn kho, giao hàng nhanh nhất trong 1 ngày"}
+{"tu_id": 283, "source": "Economy series Support Units", "target": "Dòng Economy Gối Đỡ"}
+{"tu_id": 284, "source": "· Round Type", "target": "· Loại tròn"}
+{"tu_id": 285, "source": "· Standard Square Type / Narrow Pitch Square Type / Short Type", "target": "· Loại vuông tiêu chuẩn / Loại vuông biên dạng hẹp / Loại thấp"}
+{"tu_id": 286, "source": "Shape", "target": "Hình dạng"}
+{"tu_id": 287, "source": "Standard square type", "target": "Loại vuông tiêu chuẩn"}
+{"tu_id": 288, "source": "Narrow pitch square type", "target": "Loại vuông biên dạng hẹp"}
+{"tu_id": 289, "source": "Round Type", "target": "Loại tròn"}
+{"tu_id": 290, "source": "Short Type", "target": "Loại thấp"}
+{"tu_id": 291, "source": "Support side", "target": "Bên ổ đỡ"}
+{"tu_id": 292, "source": "Fixed side", "target": "Bên cố định"}
+{"tu_id": 293, "source": "Suitable for Economy series ball screw", "target": "Phù hợp với vít me bi dòng Economy"}
+{"tu_id": 294, "source": "More assured use due to the central height full inspection", "target": "Sử dụng tốt hơn với chiều cao tâm lỗ được kiểm soát chặt chẽ"}
+{"tu_id": 295, "source": "Easier to install due to the reference surface marked", "target": "Lắp đặt dễ dàng nhờ ký hiệu trên bề mặt tham chiếu"}
+{"tu_id": 296, "source": "Q Suitable for Economy series Ball Screw", "target": "Q Phù hợp với vít me bi dòng Economy"}
+{"tu_id": 297, "source": "· The following table only lists some of the ball screws.", "target": "· Bảng dưới đây chỉ liệt kê một số vít me bi."}
+{"tu_id": 298, "source": "The series of products can also be applied to ball screws of other brands.", "target": "Dòng sản phẩm dàu cũng có thể được áp dụng cho các nhãn hiệu vít me bi khác."}
+{"tu_id": 299, "source": "· The ## in the table below represents the lead of the ball screw; Example:", "target": "· Ký hiệu ## trong bảng dưới đây đại diện cho bước của vít me bi, ví dụ:"}
+{"tu_id": 300, "source": "Q More assured use due to the central height and width quality inspection before shipping", "target": "Q Chiều cao và chiều rộng tâm lỗ được kiểm tra trước khi xuất hàng giúp sử dụng an toàn hơn"}
+{"tu_id": 301, "source": "Economy series Precision Ball Screws", "target": "Vít me bi chính xác dòng Economy"}
+{"tu_id": 302, "source": "Economy series Rolled Ball Screws", "target": "Vít me bi ren cán dòng Economy"}
+{"tu_id": 304, "source": "No.", "target": "Mã"}
+{"tu_id": 305, "source": "· Cases of poor quality on the market", "target": "· Các trường hợp sản phẩm lưu thông trên thị trường kém chất lượng"}
+{"tu_id": 306, "source": "Shortened screw service life due to excessive center height dimensional deviation", "target": "Độ lệch chiều cao tâm quá lớn làm giảm tuổi thọ của vít me"}
+{"tu_id": 307, "source": "· MISUMI Economy series inspection standard", "target": "· Tiêu chuẩn kiểm tra dòng MISUMI Economy"}
+{"tu_id": 308, "source": "The inspection standard is same as MISUMI Standard products, which implements quality inspection before shipping.", "target": "Tiêu chuẩn kiểm tra cũng giống như dòng tiêu chuẩn MISUMI, đều thực hiện kiểm tra chất lượng trước khi xuất xưởng."}
+{"tu_id": 309, "source": "3D imagine measuring machine", "target": "Máy đo hình ảnh ba chiều"}
+{"tu_id": 310, "source": "Height Gauge", "target": "Thước đo chiều cao"}
+{"tu_id": 311, "source": "Support", "target": "Gối đỡ"}
+{"tu_id": 312, "source": "Shortened screw service life", "target": "Tuổi thọ vít me bị rút ngắn"}
+{"tu_id": 313, "source": "One of the factors affecting the screw service life", "target": "Một trong những yếu tố ảnh hưởng đến tuổi thọ của vít me"}
+{"tu_id": 314, "source": "* Generic products on the market are similar products randomly purchased by our company from online or offline markets.", "target": "* Sản phẩm lưu thông trên thị trường là sản phẩm tương tự được công ty chúng tôi mua ngẫu nhiên từ thị trường."}
+{"tu_id": 315, "source": "Q Easier to install due to the reference surface marked", "target": "QLắp đặt dễ dàng nhờ ký hiệu trên bề mặt tham chiếu"}
+{"tu_id": 316, "source": "Q Categories of Use", "target": "Q So sánh dòng Economy và dòng tiêu chuẩn"}
+{"tu_id": 317, "source": "MISUMI Standard product", "target": "Dòng tiêu chuẩn MISUMI"}
+{"tu_id": 318, "source": "Generic products on the market which make customers confused on usage", "target": "Các sản phẩm lưu thông trên thị trường mà khách hàng gặp khó khăn khi sử dụng"}
+{"tu_id": 319, "source": "More suitable for MISUMI Economy series ball screws for positioning and feeding", "target": "Phù hợp hơn với vít me bi dòng MISUMI Economy trong định vị và cấp liệu"}
+{"tu_id": 320, "source": "Can be used with both MISUMI Standard product and Economy series ball screws", "target": "Đều có thể phối hợp sử dụng với vít me bi tiêu chuẩn MISUMI và vít me bi dòng Economy"}
+{"tu_id": 321, "source": "When installing the support, it is not clear where the side reference surface is.", "target": "Khi lắp đặt gối đỡ bên ổ đỡ, không phân biệt được đâu là mặt tham chiếu."}
+{"tu_id": 322, "source": "There is a mark on the reference surface.", "target": "Trên bề mặt tham chiếu có ký hiệu,"}
+{"tu_id": 323, "source": "Put the reference surface directly against the locating pin and lock it tight.", "target": "đặt mặt tham chiếu trực tiếp sát vào chốt định vị và siết chặt bu lông."}
+{"tu_id": 324, "source": "&lt;Circuit board inspection device&gt;", "target": "(Thiết bị kiểm tra bảng mạch)"}
+{"tu_id": 325, "source": "&lt;Lifting device&gt;", "target": "(Thiết bị nâng hạ)"}
+{"tu_id": 326, "source": "Economy series Support Units", "target": "Gối đỡ dòng Economy"}
+{"tu_id": 328, "source": "Standard product ball screw", "target": "Vít me bi dòng tiêu chuẩn"}
+{"tu_id": 329, "source": "MISUMI Standard product support unit", "target": "Gối Đỡ dòng tiêu chuẩn MISUMI"}
+{"tu_id": 330, "source": "Device for checking conductivity on the circuit board", "target": "Thiết bị kiểm tra tính liên tục trên bảng mạch"}
+{"tu_id": 331, "source": "Multi-point high frequency", "target": "Tần số cao đa điểm"}
+{"tu_id": 332, "source": "High precision positioning", "target": "Định vị chính xác cao"}
+{"tu_id": 333, "source": "Lifting device of the stocker", "target": "Thiết bị nâng hạ của bộ dự trữ vật liệu"}
+{"tu_id": 334, "source": "Each time the workpiece is loaded, it must rise one level.", "target": "Bộ dự trữ phải được nâng lên một cấp mỗi khi đưa vào một phôi."}
+{"tu_id": 335, "source": "Medium precision and low frequency positioning", "target": "Định vị tần số thấp, độ chính xác trung bình"}
+{"tu_id": 336, "source": "QWhat is “Support Units”?", "target": "QGiới thiệu về Gối Đỡ"}
+{"tu_id": 337, "source": "Support Units (Fixed Side)", "target": "Gối Đỡ (Bên cố định)"}
+{"tu_id": 338, "source": "Support Units (Support Side)", "target": "Gối Đỡ (Bên ổ đỡ)"}
+{"tu_id": 339, "source": "Bearing Nut, Set Piece", "target": "Đai ốc cố định, phụ kiện đồng bộ"}
+{"tu_id": 340, "source": "Collar", "target": "Vòng trục"}
+{"tu_id": 341, "source": "Retaining Ring", "target": "Vòng hãm"}
+{"tu_id": 342, "source": "Support Side Support Units", "target": "Gối Đỡ bên ổ đỡ"}
+{"tu_id": 343, "source": "Fixed Side Support Units", "target": "Gối Đỡ bên cố định"}
+{"tu_id": 344, "source": "Ball Screw", "target": "Vít me bi"}
+{"tu_id": 345, "source": "Linear guide", "target": "Thanh trượt dẫn hướng"}
+{"tu_id": 346, "source": "Height adjustment block", "target": "Block điều chỉnh độ cao"}
+{"tu_id": 347, "source": "Do not disassemble.", "target": "vui lòng không tháo rời."}
+{"tu_id": 348, "source": "EValue is for reference only.", "target": "EGiá trị chỉ mang tính tham khảo."}
+{"tu_id": 349, "source": "Bearing Nut", "target": "Đai ốc cố định"}
+{"tu_id": 350, "source": "Main Body", "target": "Thân chính"}
+{"tu_id": 351, "source": "QFixed Side", "target": "QBên cố định"}
+{"tu_id": 352, "source": "S45C equivalent", "target": "Tương đương S45C"}
+{"tu_id": 353, "source": "Black Oxide", "target": "Màng ô-xít đen"}
+{"tu_id": 354, "source": "3SET Product", "target": "3Phụ kiện đồng bộ"}
+{"tu_id": 355, "source": "Shaft Dia. d", "target": "Đường kính trục d"}
+{"tu_id": 356, "source": "Shaft height h", "target": "Chiều cao trục h"}
+{"tu_id": 357, "source": "M (Fine)", "target": "M (Ren mịn)"}
+{"tu_id": 358, "source": "Oil Seal Applicable Shaft Dia.", "target": "Đường kính trục tương ứng với phớt dầu"}
+{"tu_id": 359, "source": "2No.", "target": "2Mã"}
+{"tu_id": 360, "source": "SET", "target": "SET"}
+{"tu_id": 361, "source": "(Including:", "target": "(Bao gồm:"}
+{"tu_id": 362, "source": "Fix side+Support side)", "target": "Bên cố định+Bên ổ đỡ)"}
+{"tu_id": 363, "source": "Part Name", "target": "Tên linh kiện"}
+{"tu_id": 364, "source": "Quantity", "target": "Số lượng"}
+{"tu_id": 365, "source": "Bearing housing", "target": "Gối đỡ vòng bi"}
+{"tu_id": 366, "source": "Bearing", "target": "Vòng bi"}
+{"tu_id": 367, "source": "1 set", "target": "1 bộ"}
+{"tu_id": 368, "source": "Bearing Cap", "target": "Nắp vòng bi"}
+{"tu_id": 369, "source": "Oil seal", "target": "Phớt dầu"}
+{"tu_id": 370, "source": "Hexagon socket head bolt", "target": "Bu lông lục giác trong"}
+{"tu_id": 371, "source": "Bearing Nut (with Set Screw)", "target": "Đai ốc (kèm vít chặn)"}
+{"tu_id": 372, "source": "EFor dimensions of accessory collar 6 and accessory bearing nut 7, please visit MISUMI official website.", "target": "EĐể biết kích thước của vòng trục đính kèm 6 và đai ốc cố định 7, vui lòng truy cập trang web chính thức của MISUMI."}
+{"tu_id": 373, "source": "E1, 2, 3, 4 and 5 are an integrated structure.", "target": "E1, 2, 3, 4, 5 là một cụm đã được lắp ráp,"}
+{"tu_id": 374, "source": "ESET product includes fixed side support unit and support side support unit.", "target": "ETùy chọn SET gồm gối đỡ bên cố định và gối đỡ bên ổ đỡ."}
+{"tu_id": 375, "source": "Part Number (1Type · 2No.)", "target": "Mã sản phẩm (1Loại · 2Mã)"}
+{"tu_id": 376, "source": "QSupport Side", "target": "QBên ổ đỡ"}
+{"tu_id": 377, "source": "Retaining ring (STWN·S)", "target": "Vòng hãm (STWN·S)"}
+{"tu_id": 378, "source": "Radial Bearing", "target": "Vòng bi hướng tâm"}
+{"tu_id": 379, "source": "Housing", "target": "Vỏ ngoài"}
+{"tu_id": 380, "source": "E1, 2, and 3 are a split structure, so please keep them safe.", "target": "E1, 2, 3 Đối với kết cấu tháo rời, vui lòng bảo quản đúng cách."}
+{"tu_id": 381, "source": "2-d1 Through d2 Counterbored Depth L", "target": "2-d1 Lỗ thông Lỗ bậc d2 chiều sâu L"}
+{"tu_id": 382, "source": "2-d1 Through", "target": "2-d1 Lỗ thông"}
+{"tu_id": 383, "source": "E1, 2, 3, 4 and 5 are an integrated structure.", "target": "E1, 2, 3, 4, 5 là một cụm đã được lắp ráp,"}
+{"tu_id": 384, "source": "ESET product includes fixed side support unit and support side support unit.", "target": "ETùy chọn SET gồm gối đỡ bên cố định và gối đỡ bên ổ đỡ."}
+{"tu_id": 385, "source": "QParts", "target": "QLinh kiện cấu thành"}
+{"tu_id": 387, "source": "Bearing plate", "target": "Nắp vòng bi"}
+{"tu_id": 388, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 389, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 390, "source": "S45C equivalent", "target": "Tương đương S45C"}
+{"tu_id": 391, "source": "ECompact in height compared to the conventional support units, it is space-saving and ideal for small devices.", "target": "EKích thước chiều cao thấp hơn so với cụm gối đỡ vít me thông thường, giúp tiết kiệm không gian, thích hợp cho các thiết bị cỡ nhỏ."}
+{"tu_id": 392, "source": "Ed=6 comes with one 4 oil seal.", "target": "Ed=6, có 1 phớt dầu 4."}
+{"tu_id": 393, "source": "E1234 are an integrated structure.", "target": "E1234 là một cụm đã được lắp ráp,"}
+{"tu_id": 394, "source": "EFor No.8S and 10S, I.D. of oil seal is smaller than the previous versions.", "target": "EĐường kính trong phớt dầu của mã 8S và 10S nhỏ hơn so với các sản phẩm trước đó."}
+{"tu_id": 395, "source": "QAccessory bearing nut specifications", "target": "QQuy cách đai ốc cố định kèm theo"}
+{"tu_id": 396, "source": "QAccessory collar dimension", "target": "QKích thước vòng trục kèm theo"}
+{"tu_id": 397, "source": "Type", "target": "Loại"}
+{"tu_id": 398, "source": "shaft support", "target": "shaft support"}
+{"tu_id": 399, "source": "2-d1 Through d2 Counterbored Depth l", "target": "2-d1 Lỗ thông Lỗ bậc d2 chiều sâu l"}
+{"tu_id": 400, "source": "ESame dimensions as the fixed side support units while compact in height.", "target": "EKích thước chiều cao tương tự như bên cố định."}
+{"tu_id": 401, "source": "Use it together with fixed side support units.", "target": "Sử dụng kết hợp với bên cố định."}
+{"tu_id": 402, "source": "Clear Anodized", "target": "Anod hóa tự nhiên"}
+{"tu_id": 403, "source": "E- SET product for S includes motor bracket and fixed side screw support unit.", "target": "E- Tùy chọn S bao gồm giá đỡ động cơ và gối đỡ vít bên cố định,"}
+{"tu_id": 404, "source": "Please check the specific model on the official website.", "target": "vui lòng xem trang web chính thức để tìm hiểu các mã sản phẩm cụ thể."}
+{"tu_id": 405, "source": "E- SET product for SET includes motor bracket, fixed side screw support unit and support side screw support unit.", "target": "E- Tùy chọn SET bao gồm giá đỡ động cơ, gối đỡ vít me bi bên cố định và gối đỡ vít me bi bên ổ đỡ,"}
+{"tu_id": 406, "source": "Applicable motor brand", "target": "Các nhãn hiệu động cơ áp dụng"}
+{"tu_id": 407, "source": "Applicable motor power", "target": "Công suất động cơ áp dụng"}
+{"tu_id": 408, "source": "3Shaft height h", "target": "3Chiều cao trục h"}
+{"tu_id": 409, "source": "4SET Product*", "target": "4Phụ kiện đồng bộ*"}
+{"tu_id": 410, "source": "M (Coarse)", "target": "M (Ren thô)"}
+{"tu_id": 411, "source": "2Applicable motor flange code", "target": "2Mã mặt bích động cơ"}
+{"tu_id": 412, "source": "(Including: motor bracket+fixed side)", "target": "(Bao gồm: giá đỡ động cơ+bên cố định)"}
+{"tu_id": 413, "source": "SET (Including: motor bracket+fixed side+support side)", "target": "SET (Bao gồm: giá đỡ động cơ+bên cố định+bên ổ đỡ)"}
+{"tu_id": 414, "source": "Part Number (1Type · 2Applicable motor flange code)", "target": "Mã sản phẩm (1Loại · 2Mã mặt bích động cơ)"}
+{"tu_id": 415, "source": "3Shaft height h", "target": "3Chiều cao trục h"}
+{"tu_id": 416, "source": "Applicable motor brand", "target": "Các nhãn hiệu động cơ áp dụng"}
+{"tu_id": 417, "source": "Recommended MISUMI Economy series Ball Screw shaft diameter", "target": "Khuyến nghị sử dụng đường kính trục vít me bi dòng MISUMI Economy"}
+{"tu_id": 418, "source": "EThe recommended MISUMI Economy series Ball Screw is only for reference.", "target": "EVít me bi dòng Economy được khuyến nghị chỉ mang tính chất tham khảo,"}
+{"tu_id": 419, "source": "Please select the type according to the actual situation.Pmeans that if this ball screw and the corresponding Economy Series Ball Screw Support Unit are used at the same time, the shaft height h is the same.", "target": "vui lòng chọn mẫu tùy theo tình hình thực tế.Pcó nghĩa là nếu vít me bi và gối đỡ vít me bi dòng Economy tương ứng được sử dụng đồng thời thì chiều cao trục h là như nhau,"}
+{"tu_id": 420, "source": "motor bracket", "target": "motor bracket"}
+{"tu_id": 421, "source": "2-φd1 Through", "target": "2-φd1 Lỗ thông"}
+{"tu_id": 422, "source": "4-M Through", "target": "4-M Lỗ thông"}
+{"tu_id": 423, "source": "E- SET product for S includes motor bracket and fixed side screw support unit.", "target": "E- Tùy chọn S bao gồm giá đỡ động cơ và gối đỡ vít bên cố định,"}
+{"tu_id": 424, "source": "2Applicable motor flange size", "target": "2Kích thước mặt bích động cơ"}
+{"tu_id": 425, "source": "42 Series", "target": "Series 42"}
+{"tu_id": 426, "source": "φ3.6 Round Hole", "target": "Lỗ tròn φ3.6"}
+{"tu_id": 427, "source": "M4 Coarse", "target": "Ren thô M4"}
+{"tu_id": 428, "source": "Part Number (1Type · 2Applicable motor flange size)", "target": "Mã sản phẩm (1Loại · 2Kích thước mặt bích động cơ)"}
+{"tu_id": 429, "source": "Applicable motor series", "target": "Dòng động cơ phù hợp"}
+{"tu_id": 430, "source": "Please select the type according to the actual situation.", "target": "Vui lòng chọn mẫu tùy theo tình hình thực tế."}
+{"tu_id": 431, "source": "Pmeans that if this ball screw and the corresponding Economy Series Ball Screw Support Unit are used at the same time, the shaft height h is the same.", "target": "Pcó nghĩa là nếu vít me bi và gối đỡ vít me bi dòng Economy tương ứng được sử dụng đồng thời thì chiều cao trục h là như nhau,"}
+{"tu_id": 432, "source": "#C", "target": "#C"}
+{"tu_id": 433, "source": "Economy series Lead Screw and Related Products", "target": "Dòng Economy Vít Me và Phụ Kiện"}
+{"tu_id": 434, "source": "Semi-finished screws in stock", "target": "Phụ kiện đầy đủ, có thể xuất hàng trong ngày đối với linh kiện tồn kho"}
+{"tu_id": 435, "source": "Easy design, greatly reducing design time", "target": "Thiết kế dễ dàng, giảm đáng kể thời gian thiết kế"}
+{"tu_id": 436, "source": "QAllowing to significantly reduce the design time of the lead screw rotating unit", "target": "QĐồng bộ hóa các chi tiết giúp thời gian thiết kế nhanh hơn"}
+{"tu_id": 437, "source": "· Standardize support unit", "target": "· Tiêu chuẩn hóa gối đỡ"}
+{"tu_id": 438, "source": "Standardize the special \"support unit\" for lead screw.", "target": "Tiêu chuẩn hóa “gối đỡ” chuyên dùng cho Vít Me."}
+{"tu_id": 439, "source": "There is no need to design the bearing mechanism.", "target": "Không cần phải thiết kế gối đỡ."}
+{"tu_id": 440, "source": "Economy series standardized parts", "target": "Tiêu chuẩn hóa linh kiện dòng Economy"}
+{"tu_id": 441, "source": "Lead Screws", "target": "Vít Me"}
+{"tu_id": 442, "source": "Stop Plates", "target": "Bộ kẹp trục"}
+{"tu_id": 443, "source": "· Standardize the shape of lead screw shaft end", "target": "· Tiêu chuẩn hóa hình dạng của đầu trục Vít Me"}
+{"tu_id": 444, "source": "If the shaft diameter and length are determined, they can be combined directly with the support unit.", "target": "Nếu xác định được đường kính và chiều dài trục thì có thể lắp ráp trực tiếp với gối đỡ."}
+{"tu_id": 445, "source": "There is no need for complicated shaft end shape design.", "target": "Không cần phải thiết kế phức tạp hình dạng đầu trục."}
+{"tu_id": 446, "source": "Support Side Support Unit", "target": "Gối đỡ bên ổ đỡ"}
+{"tu_id": 447, "source": "Fixed Side Support Unit", "target": "Gối đỡ bên cố định"}
+{"tu_id": 448, "source": "· No need for combination design of various parts", "target": "· Không cần thiết kế các phụ kiện lắp ráp"}
+{"tu_id": 449, "source": "The lead screw rotating unit can be completed only by selecting standard parts.", "target": "Chỉ cần chọn loại Vít Me phù hợp là có thể hoàn thiện cơ cấu xoay sử dụng Vít Me."}
+{"tu_id": 450, "source": "If the specifications of each part are met, it can be assembled directly.", "target": "Có thể chọn luôn phụ kiện gối đỡ, … phù hợp với Vít Me."}
+{"tu_id": 451, "source": "There is no need for complicated combination design of various parts.", "target": "Không cần phải thiết kế riêng từng phụ kiện."}
+{"tu_id": 452, "source": "Position Indicators", "target": "Bộ Hiển Thị Vị Trí"}
+{"tu_id": 453, "source": "Male Thread", "target": "Ren ngoài"}
+{"tu_id": 454, "source": "QReference thread tooth shape of Lead Screws (30 Degree Trapezoidal)", "target": "QThông số hình học của Vít Me"}
+{"tu_id": 455, "source": "O.D. d1:", "target": "Đường kính ngoài d1:"}
+{"tu_id": 456, "source": "Thread bottom dia. d2:", "target": "Đường kính chân ren d2:"}
+{"tu_id": 457, "source": "Effective dia.", "target": "Đường kính khả dụng"}
+{"tu_id": 458, "source": "Female Thread", "target": "Ren trong"}
+{"tu_id": 459, "source": "D:", "target": "D:"}
+{"tu_id": 460, "source": "Thread bottom dia. D1:", "target": "Đường kính chân ren D1:"}
+{"tu_id": 461, "source": "I.D.", "target": "Đường kính trong"}
+{"tu_id": 462, "source": "D2:", "target": "D2:"}
+{"tu_id": 463, "source": "Effective dia. P:", "target": "Đường kính khả dụng P:"}
+{"tu_id": 464, "source": "Pitch.", "target": "Khoảng cách ren"}
+{"tu_id": 465, "source": "Height of screwing part", "target": "Chiều cao của bộ phận xoay"}
+{"tu_id": 466, "source": "d or D", "target": "d hoặc D"}
+{"tu_id": 467, "source": "d2 or D2", "target": "d2 hoặc D2"}
+{"tu_id": 468, "source": "QLead screw specification accuracy", "target": "QĐộ chính xác của thông số Vít Me"}
+{"tu_id": 469, "source": "QRunout Measurement Method", "target": "QPhương pháp kiểm tra độ đảo"}
+{"tu_id": 470, "source": "Content", "target": "Nội dung"}
+{"tu_id": 471, "source": "Screw accuracy", "target": "Độ chính xác của ren"}
+{"tu_id": 472, "source": "Class 7e", "target": "Cấp 7e"}
+{"tu_id": 473, "source": "Nut accuracy", "target": "Độ chính xác của đai ốc"}
+{"tu_id": 474, "source": "Single pitch error", "target": "Dung sai bước ren đơn lẻ"}
+{"tu_id": 475, "source": "Accumulated pitch error", "target": "Dung sai bước ren liên tiếp"}
+{"tu_id": 476, "source": "Total length runout tolerance", "target": "Dung sai độ đảo toàn phần"}
+{"tu_id": 477, "source": "See P.03-061 Table", "target": "Xem Bảng T.03-061"}
+{"tu_id": 478, "source": "QFeatures of the Lead Screws and Related Products", "target": "QĐặc tính của Vít Me và phụ kiện"}
+{"tu_id": 479, "source": "QEasy Assembly Design", "target": "QCác bước lựa chọn sản phẩm giúp thiết kế dễ dàng"}
+{"tu_id": 480, "source": "· Lead Screws P.03-064~P.03-076", "target": "· Vít me T.03-064~T.03-076"}
+{"tu_id": 481, "source": "Finish the shaft end machining according to the dimensions of the support unit", "target": "Hoàn thành gia công đầu trục khớp với kích thước của gối đỡ"}
+{"tu_id": 482, "source": "Customer only needs to select D, L or S.", "target": "Khách hàng chỉ cần chọn D, L, S."}
+{"tu_id": 483, "source": "There are keyway, threaded hole processing and other items in the alteration, so tools such as handles can be installed.", "target": "Gia công bổ sung gồm gia công rãnh then và gia công lỗ ren. Tay nắm và các bộ phận khác có thể lắp đặt sau tùy theo nhu cầu."}
+{"tu_id": 484, "source": "Step 1 Select the lead screw rotating unit drawing that meets the conditions of use.", "target": "Bước 1. Chọn cơ cấu phù hợp."}
+{"tu_id": 485, "source": "Step 2 Select components.", "target": "Bước 2. Chọn thành phần"}
+{"tu_id": 486, "source": "Please determine the lead screw shaft diameter D, dimensions L and S according to the conditions of use.", "target": "Vui lòng xác định đường kính trục của vít me theo điều kiện sử dụng D, kích thước L và S."}
+{"tu_id": 487, "source": "Please select components from the specification correspondence table based on the lead screw shaft diameter D determined in step 1.", "target": "Vui lòng sử dụng đường kính trục vít me D đã xác định được ở bước 1 làm tiêu chuẩn để chọn các bộ phận trong bảng thông số kỹ thuật"}
+{"tu_id": 488, "source": "· Square type stop plate for installation of position indicator", "target": "·  Bộ kẹp trục loại vuông đi kèm bộ hiển thị vị trí"}
+{"tu_id": 489, "source": "Lead screw rotating unit", "target": "Cơ cấu xoay sử dụng Vít Me"}
+{"tu_id": 490, "source": "Retaining ring groove machining (support side)", "target": "Gia công rãnh vòng hãm (bên ổ đỡ)"}
+{"tu_id": 491, "source": "Male thread machining (fixed side)", "target": "Gia công ren ngoài (bên cố định)"}
+{"tu_id": 492, "source": "Economy series Lead Screw and Support Unit", "target": "Loại dùng cho cụm gối đỡ Vít Me dòng Economy"}
+{"tu_id": 493, "source": "Exploded view", "target": "Bản vẽ bóc tách"}
+{"tu_id": 494, "source": "· Nuts P.03-077~P.03-078", "target": "· Đai ốc T.03-077~T.03-078"}
+{"tu_id": 495, "source": "Product series:", "target": "Dòng sản phẩm:"}
+{"tu_id": 496, "source": "Standard flanged type, Compact flanged type, Nut Wide Block, etc.", "target": "Loại mặt bích tiêu chuẩn, loại mặt bích nhỏ gọn, loại block rộng hình vuông, v.v."}
+{"tu_id": 497, "source": "The shapes are fully equipped to correspond to different use cases.All models in stock, allowing same-day shipment at the earliest", "target": "Đủ loại hình dạng, có thể đáp ứng với nhiều trường hợp ứng dụng khác nhau.Tồn kho số lượng lớn, có thể xuất hàng trong ngày"}
+{"tu_id": 498, "source": "QExample of Use", "target": "QVí dụ ứng dụng"}
+{"tu_id": 499, "source": "Machine name:", "target": "Tên máy móc:"}
+{"tu_id": 500, "source": "Roll bracket with adjustment mechanism", "target": "Giá đỡ cuộn thép với cơ cấu điều chỉnh"}
+{"tu_id": 501, "source": "The structure combines the lead screw support unit, the stop plate, the special lead screw shaft and the position indicator.", "target": "Cấu trúc lắp ráp của vít me, gối đỡ, bộ kẹp trục chuyên dụng và bộ hiển thị vị trí."}
+{"tu_id": 502, "source": "IIntended Use", "target": "IMục đích sử dụng"}
+{"tu_id": 503, "source": "· Lead Screw Support Units and Stop Plates P.03-079~P.03-085", "target": "· Cụm gối đỡ Vít Me và bộ kẹp trục T.03-079~T.03-085"}
+{"tu_id": 504, "source": "The support unit with preloaded radial bearings is suitable for the lead screw rotating units.", "target": "Sử dụng vòng bi hướng tâm đảm bảo kết cấu vững chắc và độ chính xác cao."}
+{"tu_id": 505, "source": "The fixed side and support side of the support unit can be purchased as a set.", "target": "Có thể mua thành bộ gối đỡ bên cố định và gối đỡ bên ổ đỡ."}
+{"tu_id": 506, "source": "The price is lower than when purchased as single item.", "target": "Giá ưu đãi hơn so với khi mua lẻ."}
+{"tu_id": 507, "source": "Square Type, Round Type", "target": "Loại vuông, loại tròn"}
+{"tu_id": 508, "source": "Regularly detects the outside diameter margin of steel rolls and raises the steel roll core by the lead screw.The feed rate of the lead screw is confirmed by the position indicator instead of the conversion table.", "target": "Kiểm tra định kì đường kính ngoài của cuộn thép, đồng thời nâng lõi cuộn thép lên bằng vít me. Kiểm tra khoảng dịch chuyển quả vít me bằng bộ hiển thị vị trí thay cho bảng chuyển đổi."}
+{"tu_id": 509, "source": "ISelection Points", "target": "IĐiểm chọn chính"}
+{"tu_id": 510, "source": "Lead Screw Support +", "target": "Gối đỡ Vít Me +"}
+{"tu_id": 511, "source": "Lead Screw Support Unit Type", "target": "Loại gối đỡ Vít Me"}
+{"tu_id": 512, "source": "Lead Screw Nut", "target": "Đai ốc cho Vít Me"}
+{"tu_id": 513, "source": "The special lead screw shaft for the lead screw support unit is selected as the support side without R machining (RC alteration) type.", "target": "Đối với trục vít me chuyên dùng gối đỡ vít me thì chọn loại bên ổ đỡ không gia công R (Gia công bổ sung RC)."}
+{"tu_id": 514, "source": "Support Unit Fixed Side Square Type", "target": "Gối đỡ bên cố định, loại vuông"}
+{"tu_id": 515, "source": "Support Unit Support Side Square Type", "target": "Gối đỡ bên ổ đỡ, loại vuông"}
+{"tu_id": 516, "source": "Stop Plates For Support Unit Square Type", "target": "Bộ kẹp trục, loại vuông, dùng cho gối đỡ"}
+{"tu_id": 517, "source": "Lead Screw Support Unit", "target": "Gối đỡ Vít Me"}
+{"tu_id": 518, "source": "A combination of the fixed side support containing the support side and stop plate is selected.", "target": "Cụm bao gồm gối đỡ phía cố định có chứa ổ đỡ và bộ kẹp trục."}
+{"tu_id": 519, "source": "The small position indicator can be mounted directly.", "target": "Có thể lắp bộ hiển thị vị trí nhỏ ngay phía trên."}
+{"tu_id": 520, "source": "Position Indicator", "target": "Bộ hiển thị vị trí"}
+{"tu_id": 521, "source": "A Part Detail", "target": "Bản vẽ chi tiết bộ phận A"}
+{"tu_id": 522, "source": "Steel Inlet", "target": "Đầu vào cấp liệu"}
+{"tu_id": 523, "source": "· Position Indicators P.03-086~P.03-088", "target": "· Bộ hiển thị vị trí P.03-086~P.03-088"}
+{"tu_id": 524, "source": "Product series: available with 3 mounting types and 2 sleeve materials, featuring Economy series yellow housing and pitch coverage for Economy series Lead Screws.", "target": "Dòng sản phẩm: Có 3 loại lắp đặt, 2 loại vật liệu vòng trục, sử dụng vỏ màu vàng dòng Economy, bước ren tương ứng Vít Me dòng Economy."}
+{"tu_id": 525, "source": "Features: digital rolling display, easy to read, allowing for convenient positioning and indexing through feed screw.", "target": "Đặc điểm: Màn hình cuộn kỹ thuật số, có thể dễ dàng đọc, dễ dàng định vị và phân độ bằng Vít Me."}
+{"tu_id": 526, "source": "Select the compact type to save space.", "target": "Chọn loại nhỏ gọn, tiết kiệm không gian."}
+{"tu_id": 527, "source": "Steel Roll", "target": "Cuộn thép cán"}
+{"tu_id": 528, "source": "PBR", "target": "PBR"}
+{"tu_id": 529, "source": "Standard Type", "target": "Loại tiêu chuẩn"}
+{"tu_id": 530, "source": "Front Type", "target": "Loại hiển thị phía trước"}
+{"tu_id": 531, "source": "Vertical Type", "target": "Loại lắp theo chiều dọc"}
+{"tu_id": 532, "source": "Mounting Position", "target": "Vị trí lắp đặt"}
+{"tu_id": 533, "source": "Reading Display", "target": "Màn hình đọc"}
+{"tu_id": 534, "source": "Suitable for use when the indicator needs to be installed below the operator’s line of sight.", "target": "Sử dụng khi màn hình được lắp ở vị trí thấp hơn so với tầm nhìn của nhân viên thao tác."}
+{"tu_id": 535, "source": "Suitable for use when the indicator needs to be installed near the operator’s line of sight.", "target": "Sử dụng khi màn hình được lắp gần tầm nhìn của nhân viên thao tác."}
+{"tu_id": 536, "source": "Suitable for use when the indicator needs to be installed on a vertically-mounted screw mechanism.", "target": "Sử dụng khi màn hình được lắp đặt trên cơ cấu vít me theo phương thẳng đứng."}
+{"tu_id": 537, "source": "It is convenient to confirm the feed rate of the lead screw.", "target": "Thuận tiện cho việc xác nhận lượng cấp liệu của vít me."}
+{"tu_id": 538, "source": "A Part", "target": "Bộ phận A"}
+{"tu_id": 539, "source": "IOperating Condition", "target": "IĐiều kiện sử dụng"}
+{"tu_id": 540, "source": "1/10 digit", "target": "1/10 chữ số"}
+{"tu_id": 541, "source": "Normal Type Stainless Steel Type", "target": "Loại thông thường, thép không gỉ"}
+{"tu_id": 542, "source": "1/100 digit (Scale)", "target": "1/100 chữ số (độ chia)"}
+{"tu_id": 543, "source": "Loading weight", "target": "Khối lượng chịu tải"}
+{"tu_id": 544, "source": "Positioning accuracy", "target": "Độ định vị chính xác"}
+{"tu_id": 545, "source": "EFor more shaft end shapes, please visit MISUMI official website.", "target": "EĐể rõ hơn về hình dạng đầu trục, vui lòng truy cập trang web chính thức của MISUMI."}
+{"tu_id": 546, "source": "EFor more nut specifications, please visit MISUMI official website.", "target": "EĐể rõ hơn về quy cách đai ốc, vui lòng truy cập trang web chính thức của MISUMI."}
+{"tu_id": 547, "source": "QAlteration Options", "target": "QTùy chọn gia công bổ sung"}
+{"tu_id": 548, "source": "QLead Screw Specification", "target": "QThông số vít me"}
+{"tu_id": 549, "source": "One End Stepped / One End Double Stepped Type", "target": "Loại một đầu kiểu bậc / một đầu kiểu bậc kép"}
+{"tu_id": 550, "source": "Straight Type", "target": "Loại thẳng"}
+{"tu_id": 551, "source": "Support Type", "target": "Loại gối đỡ"}
+{"tu_id": 552, "source": "Both Ends Stepped Type", "target": "Loại hai đầu kiểu bậc"}
+{"tu_id": 553, "source": "Flat Machining", "target": "Gia công vát 1 cạnh"}
+{"tu_id": 554, "source": "Threaded For Bearing Nut", "target": "Gia công ren ngoài (cho đai ốc khóa chặt ổ trục)"}
+{"tu_id": 555, "source": "Wrench Flats", "target": "Gia công vát 2 cạnh"}
+{"tu_id": 556, "source": "Square Chamfering", "target": "Gia công vát 4 cạnh"}
+{"tu_id": 557, "source": "Screw shaft runout tolerance (max.)", "target": "Dung sai độ đảo trục vít (tối đa)"}
+{"tu_id": 558, "source": "Screw shaft thread root diameter (MIN)", "target": "Đường kính chân răng ren trục vít (tối thiểu)"}
+{"tu_id": 559, "source": "Shaft Dia.", "target": "Đường kính trục"}
+{"tu_id": 560, "source": "Pitch", "target": "Bước ren"}
+{"tu_id": 561, "source": "Screw Shaft Effective Dia.", "target": "Đường kính chân răng ren trục vít"}
+{"tu_id": 562, "source": "Screw Shaft Lead Angle", "target": "Góc dẫn ren của trục vít"}
+{"tu_id": 563, "source": "Shaft Overall Length", "target": "Tổng chiều dài trục vít"}
+{"tu_id": 564, "source": "Retaining Ring Groove", "target": "Gia công rãnh vòng hãm"}
+{"tu_id": 565, "source": "Keyway", "target": "Gia công bổ sung rãnh then"}
+{"tu_id": 566, "source": "Coarse Tapping", "target": "Gia công lỗ ren (ren thô)"}
+{"tu_id": 567, "source": "· Round type stop plate for installation of position indicator", "target": "· Bộ kẹp trục loại tròn đi kèm bộ hiển thị vị trí"}
+{"tu_id": 568, "source": "Precaution1", "target": "Những điều cần lưu ý1"}
+{"tu_id": 569, "source": "The phase of each machining is random and may not be aligned in a row ,when multiple alterations are specified.", "target": "2 tùy chọn gia công cùng trên 1 đầu trục có thể không nằm trên 1 đường thẳng."}
+{"tu_id": 570, "source": "(The following figure shows one of the examples)", "target": "(Hình dưới đây là một trong các ví dụ)"}
+{"tu_id": 571, "source": "Specifying alteration which overlaps another machining is unavailable.", "target": "Giữa 2 tùy chọn gia công không thể có sự giao cắt."}
+{"tu_id": 572, "source": "(The following figure shows one of the NG examples)", "target": "(Hình dưới đây là một trong các ví dụ không đạt tiêu chuẩn)"}
+{"tu_id": 573, "source": "Reserve a gap of 2mm or more from the stepped part to specify the alteration", "target": "Vui lòng chỉ định gia công bổ sung với khoảng hở từ 2mm trở lên từ phần có bậc"}
+{"tu_id": 574, "source": "Shaft end diameter", "target": "Đường kính đầu trục"}
+{"tu_id": 575, "source": "Square Chamfering Width", "target": "Chiều rộng gia công bốn mặt phẳng"}
+{"tu_id": 576, "source": "Tap Dia.", "target": "Đường kính ren"}
+{"tu_id": 577, "source": "QLead Screw Nut Specification", "target": "QThông số đai ốc vít me"}
+{"tu_id": 578, "source": "Alteration A (Keyway)", "target": "Gia công bổ sung A (Rãnh then)"}
+{"tu_id": 579, "source": "Alteration B (Keyway)", "target": "Gia công bổ sung B (Rãnh then)"}
+{"tu_id": 580, "source": "Must be more than 2mm", "target": "Bắt buộc từ 2mm trở lên"}
+{"tu_id": 581, "source": "Alteration A (Wrench Flats)", "target": "Gia công bổ sung A (Gia công vát 2 cạnh)"}
+{"tu_id": 582, "source": "Alteration B (Flat Machining)", "target": "Gia công bổ sung B (Gia công vát 1 cạnh)"}
+{"tu_id": 583, "source": "Rotation direction", "target": "Hướng vặn"}
+{"tu_id": 584, "source": "Alteration", "target": "Gia công bổ sung"}
+{"tu_id": 585, "source": "Round Flanged", "target": "Loại mặt bích tròn"}
+{"tu_id": 586, "source": "Alteration B", "target": "Gia công bổ sung B"}
+{"tu_id": 587, "source": "Compact Flanged, 2-hole", "target": "Loại mặt bích nhỏ, 2 lỗ"}
+{"tu_id": 588, "source": "Compact Flanged, 4-hole", "target": "Loại mặt bích nhỏ bốn lỗ"}
+{"tu_id": 589, "source": "Square Flanged", "target": "Loại mặt bích vuông"}
+{"tu_id": 590, "source": "Wide Block", "target": "Loại block rộng"}
+{"tu_id": 591, "source": "Alteration A", "target": "Gia công bổ sung A"}
+{"tu_id": 592, "source": "Stepped Part", "target": "Phần có bậc"}
+{"tu_id": 593, "source": "Thread Nominal Diameter", "target": "Đường kính ren danh nghĩa"}
+{"tu_id": 594, "source": "Allowable Dynamic Thrust (N)", "target": "Tải trọng dọc trục cho phép (N)"}
+{"tu_id": 595, "source": "(1) When specifying the alteration position, reserve a gap of 2mm or more from the stepped part (refer to the illustration of Precaution 1).", "target": "(1) Khi chỉ định vị trí gia công bổ sung, vui lòng để lại khoảng hở từ 2mm trở lên so với bậc (Tham khảo hình minh họa trong Lưu ý 1)."}
+{"tu_id": 596, "source": "(2) When multiple alterations are selected, the machining parts need to be spaced by more than 2mm (refer to the illustration of Precaution 2).", "target": "(2) Khi chọn nhiều gia công bổ sung, khoảng hở giữa các vị trí gia công phải từ 2mm trở lên (Tham khảo hình minh họa trong Lưu ý 2)."}
+{"tu_id": 597, "source": "(3) When combined with Flat Machining, Wrench Flat, Square Chamfering, and Keyway, each machining phase is random (refer to the illustration of Precaution 3).", "target": "(3) Khi lắp ráp được chỉ định gia công bổ sung vát 1 cạnh, vát 2 cạnh, vát 4 cạnh thì vị trí theo phương xoay trên trục là ngẫu nhiên (Tham khảo hình minh họa Lưu ý 3)."}
+{"tu_id": 598, "source": "(4) When 2 or more alterations are specified on the same shaft part, it may not possible to machine due to the correlation.", "target": "(4) Khi trên cùng 1 trục đồng thời sử dụng 2 gia công bổ sung trở lên, chú ý 2 tùy chọn không được giao cắt nhau."}
+{"tu_id": 599, "source": "(5) Specifying alteration which overlaps another machining is unavailable (refer to the illustration of Precaution 4).", "target": "(5) Không thể chỉ định nhiều gia công bổ sung trùng lặp theo hướng quay trên cùng một trục (Tham khảo hình minh họa Lưu ý 4)."}
+{"tu_id": 600, "source": "QPrecautions for use", "target": "QNhững điều cần lưu ý khi sử dụng"}
+{"tu_id": 601, "source": "Do not drop or knock the lead screw.", "target": "Vui lòng không làm rơi hoặc gõ vào vít me."}
+{"tu_id": 602, "source": "Otherwise it may cause scratches or damages.", "target": "Nếu không, sẽ làm trầy xước, làm hư hỏng."}
+{"tu_id": 603, "source": "Attention should be paid to the fact that impact can cause functional damage, even if it is not visible.", "target": "Ngoài ra, ngay cả khi bị va đập mặc dù bề ngoài không nhìn thấy bị hư hỏng nhưng vẫn có thể bị hỏng chức năng do bị va đập."}
+{"tu_id": 604, "source": "When contacting the product, please use protective gloves, safety shoes and other protective equipment to ensure safety.", "target": "Khi chạm vào sản phẩm, vui lòng sử dụng thiết bị bảo hộ như găng tay bảo hộ và giày bảo hộ để đảm bảo an toàn."}
+{"tu_id": 605, "source": "QLead Screw Technical Calculations", "target": "QTính toán kỹ thuật Vít Me"}
+{"tu_id": 606, "source": "Calculate 3 Screw Efficiency η and 4 Load Torque T", "target": "Tính 3 Hiệu suất Vít Me η và 4 Mô-men tải T"}
+{"tu_id": 607, "source": "Axial Load (N)", "target": "Tải trọng hướng trục (N)"}
+{"tu_id": 608, "source": "Allowable Dynamic Thrust (N) ⇒Nuts for Lead Screw Specifications", "target": "Tải trọng dọc trục cho phép (N) ⇒Thông số đai ốc Vít Me"}
+{"tu_id": 609, "source": "9.8 (Brass), 0.98 (Resin)", "target": "9.8 (Đồng), 0.98 (Nhựa)"}
+{"tu_id": 610, "source": "Calculation Example", "target": "Ví dụ tính toán"}
+{"tu_id": 611, "source": "Screw Shaft Lead Angle (Degree)", "target": "Góc dẫn ren của trục vít (độ)"}
+{"tu_id": 612, "source": "3Screw Efficiency η", "target": "3Hiệu suất Vít Me η"}
+{"tu_id": 613, "source": "4Load Torque T (N·cm)", "target": "4Mô-men tải T (N·cm)"}
+{"tu_id": 614, "source": "Brass", "target": "Đồng"}
+{"tu_id": 615, "source": "Axial Load", "target": "Tải trọng hướng trục"}
+{"tu_id": 616, "source": "Screw Efficiency", "target": "Hiệu suất Vít Me"}
+{"tu_id": 617, "source": "Lead (cm)", "target": "Bước ren (cm)"}
+{"tu_id": 618, "source": "Selection range for MC and MQ", "target": "Phạm vi lựa chọn MC, MQ"}
+{"tu_id": 619, "source": "ISingle pitch error…±0.02mm", "target": "IDung sai bước ren đơn lẻ…±0.02mm"}
+{"tu_id": 620, "source": "IAccumulated pitch error…±0.15/300mm", "target": "IDung sai bước ren liên tiếp…±0.15/300mm"}
+{"tu_id": 621, "source": "Right-Hand Thread", "target": "Ren phải"}
+{"tu_id": 622, "source": "3Shaft overall length L 1mm increments", "target": "3Tổng chiều dài L của trục (gia số 1mm)"}
+{"tu_id": 623, "source": "Pitch P", "target": "Bước ren P"}
+{"tu_id": 624, "source": "2Thread nominal D", "target": "2Đường kính ren danh nghĩa D"}
+{"tu_id": 625, "source": "Part Number (1Type · 2D)", "target": "Mã sản phẩm (1Loại · 2D)"}
+{"tu_id": 626, "source": "MC (Left End)", "target": "MC (Mặt bên trái)"}
+{"tu_id": 627, "source": "MQ (Right End)", "target": "MQ (Mặt bên phải)"}
+{"tu_id": 628, "source": "Left End Tapping; MQ:", "target": "là phần được gia công bổ sung ngoài đầu trái; MQ:"}
+{"tu_id": 629, "source": "Right End Tapping", "target": "là phần được gia công bổ sung ngoài đầu phải"}
+{"tu_id": 630, "source": "lead screw straight", "target": "vít me loại thẳng"}
+{"tu_id": 631, "source": "EKeyway machining details conform to Shaft Keyway Dimensions for alterations on the right page.", "target": "EĐể biết chi tiết gia công rãnh then, vui lòng làm theo kích thước rãnh then trục trong bảng Tùy chọn gia công bổ sung ở trang bên phải."}
+{"tu_id": 632, "source": "1mm increments", "target": "Gia số 1mm"}
+{"tu_id": 633, "source": "5V · 7Q Selection", "target": "Lựa chọn 5V · 7Q"}
+{"tu_id": 634, "source": "2Thread nominal D", "target": "2Đường kính ren danh nghĩa D"}
+{"tu_id": 635, "source": "3Shaft overall length L", "target": "3Tổng chiều dài trục L"}
+{"tu_id": 636, "source": "When V, Q≤9 2≤F≤V×5 2≤S≤Q×5", "target": "Khi V, Q≤9 2≤F≤V×5 2≤S≤Q×5"}
+{"tu_id": 637, "source": "When V, Q≥10 2≤F≤V×7 2≤S≤Q×7", "target": "Khi V, Q≥10 2≤F≤V×7 2≤S≤Q×7"}
+{"tu_id": 638, "source": "J≥2 or J=0", "target": "J≥2 hoặc J=0"}
+{"tu_id": 639, "source": "EWhen J=0, keyway R will be eliminated on the shaft end side.", "target": "EKhi J = 0, rãnh then R bên đầu trục sẽ thành một đường thẳng."}
+{"tu_id": 640, "source": "EDimensions in ( ) are not applicable to Right-Hand Thread with Keyway.", "target": "EKích thước trong ( ) không áp dụng với loại Ren phải có rãnh then."}
+{"tu_id": 641, "source": "EWhen combined with Economy series Position Indicators, Q8~14 are standard dimensions.", "target": "EKhi đồng thời sử dụng bộ hiển thị vị trí dòng Economy, thì Q8~14 là kích thước tiêu chuẩn."}
+{"tu_id": 642, "source": "lead screw stepped", "target": "vít me kiểu bậc"}
+{"tu_id": 643, "source": "MC·MQ (Selection range)", "target": "MC·MQ (Phạm vi lựa chọn)"}
+{"tu_id": 644, "source": "(AQ…etc.)", "target": "(AQ, v.v.)"}
+{"tu_id": 645, "source": "MC(Part V)MQ(Part Q)", "target": "MC(Phần V)MQ(Phần Q)"}
+{"tu_id": 646, "source": "FV, FQ, FW, FY=0.5mm increments FV=Applied on Part V FQ=Applied on Part Q", "target": "FV, FQ, FW, FY = Gia số 0.5mm FV = Gia công ở phần V FQ = Gia công ở phần Q"}
+{"tu_id": 647, "source": "EApplicable to either V or Q", "target": "EV, Q chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 648, "source": "EFV(FQ)=0 or FV(FQ)≥2", "target": "EFV(FQ)=0 hoặc FV(FQ)≥2"}
+{"tu_id": 649, "source": "AC, AQ=0.1mm increments", "target": "AC, AQ = Gia số 0.1mm"}
+{"tu_id": 650, "source": "AC=Applied on Part V, AQ=Applied on Part Q", "target": "AC = Gia công ở phần V, AQ = Gia công ở phần Q"}
+{"tu_id": 651, "source": "SC, SQ, SW, SY=1mm increments SC=Applied on Part V SQ=Applied on Part Q", "target": "SC, SQ, SW, SY = Gia số 1mm SC = Gia công ở phần V SQ = Gia công ở phần Q"}
+{"tu_id": 652, "source": "ESC(SQ)=0, or SC(SQ)≥2", "target": "ESC(SQ)=0 hoặc SC(SQ)≥2"}
+{"tu_id": 653, "source": "EWhen Q(V)&lt;15 SW≥Q(V)-2", "target": "EKhi Q(V)&lt;15 SW≥Q(V)-2"}
+{"tu_id": 654, "source": "EWhen 15≤Q(V)≤17 SW≥Q(V)-3", "target": "EKhi 15≤Q(V)≤17 SW≥Q(V)-3"}
+{"tu_id": 655, "source": "e tolerance", "target": "Dung sai e"}
+{"tu_id": 656, "source": "Machining limit", "target": "Giới hạn gia công"}
+{"tu_id": 657, "source": "MC=Applied on Part V", "target": "MC = Gia công ở phần V"}
+{"tu_id": 658, "source": "MQ=Applied on Part Q", "target": "MQ = Gia công ở phần Q"}
+{"tu_id": 660, "source": "EKeep the wall thickness more than 1mm. Otherwise you can not choose this alternation.", "target": "EKhi kết hợp với gia công bổ sung khác, không được chỉ định độ dày thành của đầu trục nhỏ hơn 1mm"}
+{"tu_id": 661, "source": "XV, Q=7·9·16 is not applicable", "target": "XV, Q = 7, 9, 16 không áp dụng"}
+{"tu_id": 662, "source": "W, A=1mm increments", "target": "W, A = Gia số 1mm"}
+{"tu_id": 663, "source": "ZC=Applied on Part V ZQ=Applied on Part Q", "target": "ZC = Gia công ở phần V ZQ = Gia công ở phần Q"}
+{"tu_id": 664, "source": "EApplicable to either V or Q", "target": "EV, Q chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 665, "source": "EOther alterations are not available to the same shaft end except for Coarse Tapping", "target": "ECó thể đồng thời gia công bổ sung lỗ vít khi cùng một đầu trục"}
+{"tu_id": 666, "source": "E5≤A≤20", "target": "E5≤A≤20"}
+{"tu_id": 667, "source": "EW is specified by ZC=V, ZQ=Q", "target": "EChỉ định W thông qua ZC=V, ZQ=Q"}
+{"tu_id": 668, "source": "KC, KV, C=1mm increments KV=Applied on Part V KC=Applied on Part Q", "target": "KC, KV, C = Gia số 1mm KV = Gia công ở phần V KC = Gia công ở phần Q"}
+{"tu_id": 669, "source": "EWhen KC, KV=0, keyway R on the shaft end side will be eliminated and straight, or KC, KV≥2", "target": "EKhi KC, KV = 0, rãnh then R bên đầu trục sẽ thành một đường thẳng, hoặc KC, KV≥2"}
+{"tu_id": 670, "source": "Applicable shaft diameter V·Q", "target": "Đường kính trục áp dụng V, Q"}
+{"tu_id": 671, "source": "Keyway Dimension", "target": "Kích thước rãnh then của trục"}
+{"tu_id": 672, "source": "Reference Dimension", "target": "Kích thước tiêu chuẩn"}
+{"tu_id": 673, "source": "Tolerance (N9)", "target": "Dung sai (N9)"}
+{"tu_id": 674, "source": "Tolerance", "target": "Dung sai"}
+{"tu_id": 675, "source": "Must be more than 1mm", "target": "Bắt buộc từ 1mm trở lên"}
+{"tu_id": 676, "source": "Other alteration", "target": "Các phần được gia công bổ sung khác"}
+{"tu_id": 677, "source": "5R · 7Q Selection", "target": "Lựa chọn 5R · 7Q"}
+{"tu_id": 678, "source": "When Q, R, E≤9 2≤F≤R×5 2≤T≤Q×5 2≤S≤E×5", "target": "Khi Q, R, E≤9 2≤F≤R×5 2≤T≤Q×5 2≤S≤E×5"}
+{"tu_id": 679, "source": "When Q, R, E≥10 2≤F≤R×7 2≤T≤Q×7 2≤S≤E×7", "target": "Khi Q, R, E≥10 2≤F≤R×7 2≤T≤Q×7 2≤S≤E×7"}
+{"tu_id": 680, "source": "MR·ME (Selection range)", "target": "MR, ME (Phạm vi lựa chọn)"}
+{"tu_id": 681, "source": "(FW…etc.)", "target": "(FW,v.v.)"}
+{"tu_id": 682, "source": "FE(Part E)FR(Part R)", "target": "FE(Phần E)FR(Phần R)"}
+{"tu_id": 683, "source": "AR(Part R)AE(Part E)", "target": "AR(Phần R)AE(Phần E)"}
+{"tu_id": 684, "source": "FE, FR, FW, FY=0.5mm increments FE=Applied on Part E FR=Applied on Part R", "target": "FE, FR, FW, FY = Gia số 0.5mm FE = Gia công ở phần E FR = Gia công ở phần R"}
+{"tu_id": 685, "source": "EApplicable to either E or R", "target": "EE, R chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 686, "source": "EFE(FR)=0, or FE(FR)≥2", "target": "EFE(FR)=0 hoặc FE(FR)≥2"}
+{"tu_id": 687, "source": "AR, AE=0.1mm increments AR=Applied on Part R AE=Applied on Part E", "target": "AR, AE = Gia số 0.1mm AR = Gia công ở phần R AE = Gia công ở phần E"}
+{"tu_id": 688, "source": "SE, SW, SY=1mm increments SE=Applied on Part E SR=Applied on Part R", "target": "SE, SW, SY = Gia số 1mm SE = Gia công ở phần E SR = Gia công ở phần R"}
+{"tu_id": 689, "source": "ESE(SR)=0, or FE(FR)≥2", "target": "ESE(SR)=0 hoặc FE(FR)≥2"}
+{"tu_id": 690, "source": "EWhen E(R)&lt;15 SW≥E(R)-2", "target": "EKhi E(R)&lt;15 SW≥E(R)-2"}
+{"tu_id": 691, "source": "EWhen 15≤E(R)≤17 SW≥E(R)-3", "target": "EKhi 15≤E(R)≤17 SW≥E(R)-3"}
+{"tu_id": 692, "source": "BQ(Part Q)BR(Part R)", "target": "BQ(Phần Q)BR(Phần R)"}
+{"tu_id": 693, "source": "MR=Applied on Part R", "target": "MR = Gia công ở phần R"}
+{"tu_id": 694, "source": "ME=Applied on Part E", "target": "ME = Gia công ở phần E"}
+{"tu_id": 695, "source": "XE=4 is not applicable", "target": "XE = 4 không áp dụng"}
+{"tu_id": 696, "source": "EKeep the wall thickness more than 1mm. Otherwise you can not choose this alternation.", "target": "EKhi kết hợp với gia công bổ sung khác, không được chỉ định độ dày thành của đầu trục nhỏ hơn 1mm."}
+{"tu_id": 697, "source": "XQ·R=7·9·16 is not applicable", "target": "XQ, R = 7, 9, 16 không áp dụng"}
+{"tu_id": 698, "source": "KQ(Part Q)KE(Part E)KR(Part R)", "target": "KQ(Phần Q)KE(Phần E)KR(Phần R)"}
+{"tu_id": 699, "source": "W, A=1mm increments ZE=Applied on Part E ZR=Applied on Part R", "target": "W, A = Gia số 1mm ZE = Gia công ở phần E ZR = Gia công ở phần R"}
+{"tu_id": 700, "source": "EOther alterations are not available to the same shaft end except for Coarse Tapping", "target": "ECó thể đồng thời gia công bổ sung lỗ vít khi cùng một đầu trục"}
+{"tu_id": 701, "source": "EW is specified by ZR=R, ZE=E", "target": "EChỉ định W thông qua ZR=R, ZE=E"}
+{"tu_id": 702, "source": "KQ, KE, KR, C=1mm increments", "target": "KQ, KE, KR, C = Gia số 1mm"}
+{"tu_id": 703, "source": "EApplicable to either Q, E or R", "target": "EQ, E, R chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 704, "source": "EWhen KQ(KE·KR)=0, keyway R on the shaft end side will be eliminated and straight, or KQ(KE·KR)≥2", "target": "EKhi KQ(KE·KR)=0, rãnh then R bên đầu trục sẽ thành một đường thẳng, hoặc KQ(KE·KR)≥2"}
+{"tu_id": 705, "source": "ET-C-KQ≥2", "target": "ET-C-KQ≥2"}
+{"tu_id": 706, "source": "ES(F)-C-KE(KR)≥2", "target": "ES(F)-C-KE(KR)≥2"}
+{"tu_id": 707, "source": "EKQ(KE·KR)≥2", "target": "EKQ(KE·KR)≥2"}
+{"tu_id": 708, "source": "(E·R/2)√2≤W", "target": "(E·R/2)√2≤W"}
+{"tu_id": 709, "source": "EMachining may not be possible in some cases, due to the relationship between E/R and W.", "target": "EĐôi khi có thể không thực hiện được vì mối tương quan giữa E/R và W."}
+{"tu_id": 710, "source": "ZE=EZR=R", "target": "ZE=EZR=R"}
+{"tu_id": 711, "source": "W 1mm increments", "target": "W Gia số 1mm"}
+{"tu_id": 712, "source": "Applicable shaft diameter Q·E·R", "target": "Đường kính trục áp dụng Q, E, R"}
+{"tu_id": 713, "source": "E(R)", "target": "E(R)"}
+{"tu_id": 714, "source": "FE", "target": "FE"}
+{"tu_id": 715, "source": "(FR)", "target": "(FR)"}
+{"tu_id": 716, "source": "AE", "target": "AE"}
+{"tu_id": 717, "source": "AR", "target": "AR"}
+{"tu_id": 718, "source": "R", "target": "R"}
+{"tu_id": 719, "source": "S(F)", "target": "S(F)"}
+{"tu_id": 720, "source": "G(T)", "target": "G(T)"}
+{"tu_id": 721, "source": "SE", "target": "SE"}
+{"tu_id": 722, "source": "(SR)", "target": "(SR)"}
+{"tu_id": 723, "source": "KE(KR)", "target": "KE(KR)"}
+{"tu_id": 724, "source": "KQ", "target": "KQ"}
+{"tu_id": 725, "source": "Tapped hole", "target": "Lỗ ren"}
+{"tu_id": 726, "source": "MR", "target": "MR"}
+{"tu_id": 727, "source": "Qh7(V)", "target": "Qh7(V)"}
+{"tu_id": 728, "source": "BQ", "target": "BQ"}
+{"tu_id": 729, "source": "BR", "target": "BR"}
+{"tu_id": 730, "source": "C-MTWK", "target": "C-MTWK"}
+{"tu_id": 731, "source": "C-MTSWK", "target": "C-MTSWK"}
+{"tu_id": 732, "source": "m+0.140", "target": "m+0.140"}
+{"tu_id": 733, "source": "M×pitch", "target": "M×Bước ren"}
+{"tu_id": 734, "source": "Min. thread length (L1)", "target": "Chiều dài ren tối thiểu (L1)"}
+{"tu_id": 735, "source": "2≤S≤80", "target": "2≤S≤80"}
+{"tu_id": 736, "source": "QApplicable support unit / stop plate (sold separately)", "target": "QGối đỡ / Bộ kẹp trục tương thích (mua riêng)"}
+{"tu_id": 737, "source": "Thread Nominal D", "target": "Đường kính ren danh nghĩa D"}
+{"tu_id": 738, "source": "Square Type / Short Type", "target": "Loại vuông / Loại thấp"}
+{"tu_id": 739, "source": "EFor details, please refer to P.03-079~.", "target": "EChi tiết tham khảo T.03-079~."}
+{"tu_id": 740, "source": "*When D=20·22·25", "target": "*Khi D=20·22·25"}
+{"tu_id": 741, "source": "Applicable shaft diameter E", "target": "Đường kính trục áp dụng E"}
+{"tu_id": 742, "source": "E·R·D", "target": "E·R·D"}
+{"tu_id": 743, "source": "ME·MR (Selection range)", "target": "ME·MR (Phạm vi lựa chọn)"}
+{"tu_id": 744, "source": "(NAR…etc.)", "target": "(NAR, v.v.)"}
+{"tu_id": 745, "source": "NAR", "target": "NAR"}
+{"tu_id": 746, "source": "No Retaining Ring Groove on Support Side End", "target": "Không gia công rãnh vòng hãm bên ổ đỡ"}
+{"tu_id": 747, "source": "NAR(Part R)", "target": "NAR(Phần R)"}
+{"tu_id": 748, "source": "FE(Part E)", "target": "FE(Phần E)"}
+{"tu_id": 749, "source": "No machining of the support side Part R retaining ring grooves.", "target": "Không gia công rãnh vòng hãm ở phần R bên ổ đỡ"}
+{"tu_id": 750, "source": "No machining of the support side Part R steps.", "target": "Không gia công bậc ở phần R bên ổ đỡ"}
+{"tu_id": 751, "source": "RC", "target": "RC"}
+{"tu_id": 752, "source": "ECannot be shared with other Part R alterations", "target": "EKhông được gia công bổ sung cùng với phần R khác"}
+{"tu_id": 753, "source": "FC, FW, FY=0.5mm increments", "target": "FC, FW, FY=Gia số 0,5mm"}
+{"tu_id": 754, "source": "EFE=0, or FE≥2", "target": "EFE=0 hoặc FE≥2"}
+{"tu_id": 755, "source": "ESE=0, or SE≥2", "target": "ESE=0 hoặc SE≥2"}
+{"tu_id": 756, "source": "ESW≥E-2", "target": "ESW≥E-2"}
+{"tu_id": 757, "source": "ME(Part E)MR(Left)", "target": "ME(Phần E)MR(Bên trái)"}
+{"tu_id": 758, "source": "MR=Machining in Part R and left end face", "target": "MR = Gia công ở phần R và ngoài đầu trái"}
+{"tu_id": 759, "source": "EKeep the wall thickness more than 1mm. Otherwise you can not choose this alternation.", "target": "EKhi kết hợp với gia công bổ sung khác, không được chỉ định độ dày thành của đầu trục nhỏ hơn 1mm."}
+{"tu_id": 760, "source": "A=1mm increments", "target": "A = Gia số 1mm"}
+{"tu_id": 761, "source": "EOther alterations are not available to the same shaft end except for Coarse Tapping", "target": "ECó thể đồng thời gia công bổ sung lỗ vít khi cùng một đầu trục"}
+{"tu_id": 762, "source": "EW is specified by ZE=E", "target": "EChỉ định W thông qua ZE=E"}
+{"tu_id": 763, "source": "ZE=E", "target": "ZE=E"}
+{"tu_id": 764, "source": "KE, C=1mm increments", "target": "KE, C = Gia số 1mm"}
+{"tu_id": 765, "source": "EApplicable to D16 and above.", "target": "EÁp dụng cho D16 trở lên."}
+{"tu_id": 766, "source": "EWhen KE=0, keyway R will be eliminated on the shaft end side, or KE≥2.", "target": "EKhi KE = 0, rãnh then R bên đầu trục sẽ thành một đường thẳng, hoặc KE≥2."}
+{"tu_id": 767, "source": "ES-C-KE≥2", "target": "ES-C-KE≥2"}
+{"tu_id": 768, "source": "EFor additional keyway machining, the outside diameter tolerance of Part E is", "target": "EKhi gia công bổ sung rãnh then, dung sai đường kính ngoài của phần E là"}
+{"tu_id": 769, "source": ".", "target": "."}
+{"tu_id": 770, "source": "KE", "target": "KE"}
+{"tu_id": 771, "source": "ME(MR)", "target": "ME(MR)"}
+{"tu_id": 772, "source": "(D·R)", "target": "(D·R)"}
+{"tu_id": 773, "source": "(MR×2)", "target": "(MR×2)"}
+{"tu_id": 774, "source": "C-MTSRA", "target": "C-MTSRA"}
+{"tu_id": 775, "source": "C-MTSRB", "target": "C-MTSRB"}
+{"tu_id": 776, "source": "C-MTSTRA", "target": "C-MTSTRA"}
+{"tu_id": 777, "source": "C-MTSTRB", "target": "C-MTSTRB"}
+{"tu_id": 778, "source": "5Q Selection", "target": "Lựa chọn 5Q"}
+{"tu_id": 779, "source": "Right-Hand Thread with Keyway", "target": "Ren phải có rãnh then"}
+{"tu_id": 780, "source": "50~ 500", "target": "50~ 500"}
+{"tu_id": 781, "source": "When Q≤9 2≤S≤Q×5", "target": "Khi Q≤9 2≤S≤Q×5"}
+{"tu_id": 782, "source": "When Q≥10 2≤S≤Q×7", "target": "Khi Q≥10 2≤S≤Q×7"}
+{"tu_id": 783, "source": "J≥2 or J=0", "target": "J≥2 hoặc J=0"}
+{"tu_id": 784, "source": "C-MTSRA10", "target": "C-MTSRA10"}
+{"tu_id": 785, "source": "Applicable shaft diameter Q", "target": "Đường kính trục áp dụng Q"}
+{"tu_id": 786, "source": "14·15·16·17", "target": "14·15·16·17"}
+{"tu_id": 787, "source": "D·Q", "target": "D·Q"}
+{"tu_id": 788, "source": "MQ (Selection range)", "target": "MQ (Phạm vi lựa chọn)"}
+{"tu_id": 789, "source": "(MC·MQ…etc.)", "target": "(MC, MQ, v.v.)"}
+{"tu_id": 790, "source": "FC(Part Q)", "target": "FC(Phần Q)"}
+{"tu_id": 791, "source": "EFC=0 or FC≥2", "target": "EFC=0 hoặc FC≥2"}
+{"tu_id": 792, "source": "ESC=0 or SC≥2", "target": "ESC=0 hoặc SC≥2"}
+{"tu_id": 793, "source": "EWhen Q&lt;15 SW≥Q-2", "target": "EKhi Q&lt;15 SW≥Q-2"}
+{"tu_id": 794, "source": "EWhen 15≤Q≤17 SW≥Q-3", "target": "EKhi 15≤Q≤17 SW≥Q-3"}
+{"tu_id": 795, "source": "MC(Left End) MQ(Part Q)", "target": "MC(Mặt bên trái) MQ(Phần Q)"}
+{"tu_id": 796, "source": "MC=Machining on left end face", "target": "MC = Gia công ngoài đầu trái"}
+{"tu_id": 797, "source": "ERight-hand thread with keyway (MQ) is applicable to the table below.", "target": "ERen phải có rãnh then (MQ) áp dụng cho bảng dưới đây."}
+{"tu_id": 798, "source": "EFor right-hand thread with keyway, Q≤8 is not applicable.", "target": "EĐối với ren phải có rãnh then, Q≤8 không áp dụng."}
+{"tu_id": 799, "source": "EKeep the wall thickness more than 1mm. Otherwise you can not choose this alternation.", "target": "EKhi kết hợp với gia công bổ sung khác, không được chỉ định độ dày thành của đầu trục nhỏ hơn 1mm."}
+{"tu_id": 800, "source": "EBQ≤M×3", "target": "EBQ≤M×3"}
+{"tu_id": 801, "source": "EBQ≥Pitch×3", "target": "EBQ≥Bước ren×3"}
+{"tu_id": 802, "source": "EBQ≤S-Pitch×3", "target": "EBQ≤S-Bước ren×3"}
+{"tu_id": 804, "source": "Keyway Machining", "target": "Gia công rãnh then"}
+{"tu_id": 805, "source": "J(Keyway)", "target": "J(Gia công rãnh then)"}
+{"tu_id": 806, "source": "ES≥A+2", "target": "ES≥A+2"}
+{"tu_id": 807, "source": "EW is specified by ZQ=Q", "target": "EchỉChỉ định W thông qua ZQ=Q"}
+{"tu_id": 808, "source": "EZQ&gt;W", "target": "EZQ&gt;W"}
+{"tu_id": 809, "source": "EOther alterations are not available to the same shaft end except for Coarse Tapping.", "target": "ECó thể đồng thời gia công bổ sung lỗ vít khi cùng một đầu trục."}
+{"tu_id": 810, "source": "(Q/2)√2≤W Machining may not be possible in some cases, due to the relationship between Q and W.", "target": "(Q/2)√2≤W Đôi khi có thể không thực hiện được vì mối tương quan giữa Q và W."}
+{"tu_id": 811, "source": "Eb1&lt;L≤60", "target": "Eb1&lt;L≤60"}
+{"tu_id": 812, "source": "ES-C-J≥2", "target": "ES-C-J≥2"}
+{"tu_id": 813, "source": "EWhen J=0, keyway R will be eliminated on the shaft end side, or J≥2.", "target": "EKhi J=0, rãnh then R bên đầu trục sẽ thành một đường thẳng, hoặc J≥2."}
+{"tu_id": 814, "source": "J", "target": "J"}
+{"tu_id": 815, "source": "FC", "target": "FC"}
+{"tu_id": 816, "source": "C-MTSRC", "target": "C-MTSRC"}
+{"tu_id": 817, "source": "C-MTSRD", "target": "C-MTSRD"}
+{"tu_id": 818, "source": "C-MTSTRC", "target": "C-MTSTRC"}
+{"tu_id": 819, "source": "C-MTSTRD", "target": "C-MTSTRD"}
+{"tu_id": 820, "source": "4T·6S", "target": "4T·6S"}
+{"tu_id": 821, "source": "0B", "target": "0B"}
+{"tu_id": 822, "source": "When Q, E≤9 2≤S≤E×5 2≤T≤Q×5", "target": "Khi Q, E≤9 2≤S≤E×5 2≤T≤Q×5"}
+{"tu_id": 823, "source": "When Q, E≥10 2≤S≤E×7 2≤T≤Q×7", "target": "Khi Q, E≥10 2≤S≤E×7 2≤T≤Q×7"}
+{"tu_id": 824, "source": "ERight-Hand Thread", "target": "ERen phải"}
+{"tu_id": 825, "source": "ERight-Hand Thread with Keyway", "target": "ERen phải có rãnh then"}
+{"tu_id": 826, "source": "E≥6", "target": "E≥6"}
+{"tu_id": 827, "source": "J≥2 or J=0", "target": "J≥2 hoặc J=0"}
+{"tu_id": 828, "source": "3≤B≤Q×3", "target": "3≤B≤Q×3"}
+{"tu_id": 829, "source": "B≤T-3", "target": "B≤T-3"}
+{"tu_id": 830, "source": "When no thread is added.B=0", "target": "Khi không gia công ren,B=0"}
+{"tu_id": 831, "source": "EQ=M", "target": "EQ=M"}
+{"tu_id": 832, "source": "X7, 9, 16 is not applicable", "target": "X7, 9, 16 không áp dụng"}
+{"tu_id": 833, "source": "C-MTSRC12", "target": "C-MTSRC12"}
+{"tu_id": 834, "source": "Applicable shaft diameter Q·E", "target": "Đường kính trục áp dụng Q, E"}
+{"tu_id": 835, "source": "D·E", "target": "D·E"}
+{"tu_id": 836, "source": "MC·ME (Selection range)", "target": "MC·ME (Phạm vi lựa chọn)"}
+{"tu_id": 837, "source": "m+0.14", "target": "m+0.14"}
+{"tu_id": 838, "source": "n Machining limit", "target": "n Giới hạn gia công"}
+{"tu_id": 839, "source": "FE, FW, FY=0.5mm increments", "target": "FE, FW, FY = Gia số 0.5mm"}
+{"tu_id": 840, "source": "AE=0.1mm increments", "target": "AE = Gia số 0.1mm"}
+{"tu_id": 841, "source": "AE≤S+T-m-n", "target": "AE≤S+T-m-n"}
+{"tu_id": 842, "source": "EWhen E&lt;15 SW≥E-2", "target": "EKhi E&lt;15 SW≥E-2"}
+{"tu_id": 843, "source": "EWhen 15≤E≤16 SW≥E-3", "target": "EKhi 15≤E≤16 SW≥E-3"}
+{"tu_id": 844, "source": "MC(Left End) ME(Part E)", "target": "MC(Mặt bên trái) ME(Phần E)"}
+{"tu_id": 845, "source": "XE=3·4 is not applicable", "target": "XE = 3, 4 không áp dụng"}
+{"tu_id": 846, "source": "XFor right-hand thread with keyway, E≤8 is not applicable.", "target": "XĐối với ren phải có rãnh then, E≤8 không áp dụng."}
+{"tu_id": 847, "source": "EBQ≤S,T-Pitch×3", "target": "EBQ≤S,T-Bước ren×3"}
+{"tu_id": 848, "source": "KQ(Part Q)KE(Part E)", "target": "KQ(Phần Q)KE(Phần E)"}
+{"tu_id": 849, "source": "EW is specified by ZE=E", "target": "EChỉ định W thông qua ZE=E"}
+{"tu_id": 850, "source": "EZE&gt;W", "target": "EZE&gt;W"}
+{"tu_id": 851, "source": "(E/2)√2≤W", "target": "(E/2)√2≤W"}
+{"tu_id": 852, "source": "Machining may not be possible in some cases, due to the relationship between E and W.", "target": "Đôi khi có thể không thực hiện được vì mối tương quan giữa E và W."}
+{"tu_id": 853, "source": "KQ, KE, C=1mm increments", "target": "KQ, KE, C = Gia số 1mm"}
+{"tu_id": 854, "source": "Applicable to either Q or E", "target": "Q, E chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 855, "source": "EKQ(KE)≥2", "target": "EKQ(KE)≥2"}
+{"tu_id": 856, "source": "EWhen KQ, KE=0, keyway R will be eliminated on the shaft end side.", "target": "EKhi KQ, KE=0, rãnh then R bên đầu trục sẽ thành một đường thẳng."}
+{"tu_id": 857, "source": "KE(J)", "target": "KE(J)"}
+{"tu_id": 858, "source": "ME", "target": "ME"}
+{"tu_id": 859, "source": "(MQ×2)", "target": "(MQ×2)"}
+{"tu_id": 860, "source": "C-MTSRX", "target": "C-MTSRX"}
+{"tu_id": 861, "source": "C-MTSTRX", "target": "C-MTSTRX"}
+{"tu_id": 862, "source": "5V · 0E 1mm increments", "target": "5V · 0E Gia số 1mm"}
+{"tu_id": 863, "source": "4F · 7G · 6T · 9S", "target": "4F · 7G · 6T · 9S"}
+{"tu_id": 864, "source": "Q/2≤V≤Q-1", "target": "Q/2≤V≤Q-1"}
+{"tu_id": 865, "source": "7G", "target": "7G"}
+{"tu_id": 866, "source": "ZV=V·ZE=E", "target": "ZV=V·ZE=E"}
+{"tu_id": 867, "source": "15, 16", "target": "15, 16"}
+{"tu_id": 868, "source": "Applicable shaft diameter Q·V·E", "target": "Đường kính trục áp dụng Q, V, E"}
+{"tu_id": 869, "source": "Reference Dimension", "target": "Kích thước tiêu chuẩn"}
+{"tu_id": 870, "source": "V·E", "target": "V·E"}
+{"tu_id": 871, "source": "MV·ME (Selection range)", "target": "MV·ME (Phạm vi lựa chọn)"}
+{"tu_id": 872, "source": "M ×Pitch", "target": "M ×Bước ren"}
+{"tu_id": 873, "source": "(AC·SV·MV…etc.)", "target": "(AC, SV, MV, v.v.)"}
+{"tu_id": 874, "source": "FV(Part V)FE(Part E)", "target": "FV(Phần V)FE(Phần E)"}
+{"tu_id": 875, "source": "AC(Part V)AE(Part E)", "target": "AC(Phần V)AE(Phần E)"}
+{"tu_id": 876, "source": "FV, FE, FW, FY=0.5mm increments", "target": "FV, FE, FW, FY = Gia số 0.5mm"}
+{"tu_id": 877, "source": "EApplicable to either V or E", "target": "EV, E chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 878, "source": "EFV(FE)=0, or FV(FE)≥2", "target": "EFV(FE)=0 hoặc FV(FE)≥2"}
+{"tu_id": 879, "source": "AC(AE)≤F(S)+G(T)-m-n", "target": "AC(AE)≤F(S)+G(T)-m-n"}
+{"tu_id": 880, "source": "SV, SE, SW, SY=1mm increments", "target": "SV, SE, SW, SY = Gia số 1mm"}
+{"tu_id": 881, "source": "ESV(SE)=0, or SV(SE)≥2", "target": "ESV(SE)=0 hoặc SV(SE)≥2"}
+{"tu_id": 882, "source": "EWhen V(E)&lt;15 SW≥V(E)-2", "target": "EKhi V(E)&lt;15 SW≥V(E)-2"}
+{"tu_id": 883, "source": "EWhen 15≤V(E)≤16 SW≥V(E)-3", "target": "EKhi 15≤V(E)≤16 SW≥V(E)-3"}
+{"tu_id": 884, "source": "BC(V Side)BQ(E Side)", "target": "BC(Phía V)BQ(Phía E)"}
+{"tu_id": 885, "source": "XV·E=4 is not applicable", "target": "XV·E=4 không áp dụng"}
+{"tu_id": 886, "source": "BC=Applied on V Side Part Q", "target": "BC = Gia công ở phần Q phía V"}
+{"tu_id": 887, "source": "BQ=Applied on E Side Part Q", "target": "BQ = Gia công ở phần Q phía E"}
+{"tu_id": 888, "source": "EBC,BQ≤M×3", "target": "EBC,BQ≤M×3"}
+{"tu_id": 889, "source": "EBC,BQ≥Pitch×3", "target": "EBC,BQ≥Bước ren×3"}
+{"tu_id": 890, "source": "EBC,BQ≤G,T-Pitch×3", "target": "EBC,BQ≤G,T-Bước ren×3"}
+{"tu_id": 891, "source": "KQ(Part Q)KV(Part V)KE(Part E)", "target": "KQ(Phần Q)KV(Phần V)KE(Phần E)"}
+{"tu_id": 892, "source": "EApplicable to either V or E", "target": "EV, E chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 893, "source": "EF(S)≥A+2", "target": "EF(S)≥A+2"}
+{"tu_id": 894, "source": "EW is specified by ZV=V·ZE=E", "target": "EChỉ định W thông qua ZV=V, ZE=E"}
+{"tu_id": 895, "source": "EZV,ZE&gt;W", "target": "EZV,ZE&gt;W"}
+{"tu_id": 896, "source": "(V (E)/2)√2≤W Machining may not be possible in some cases, due to the relationship between V (E) and W.", "target": "(V (E)/2)√2≤W Đôi khi có thể không thực hiện được vì mối tương quan giữa V (E) và W."}
+{"tu_id": 897, "source": "EOther alterations are not available to the same shaft end except for Coarse Tapping.", "target": "ECó thể đồng thời gia công bổ sung lỗ vít khi cùng một đầu trục."}
+{"tu_id": 898, "source": "EApplicable to either Q, V or E", "target": "EQ, V, E chỉ áp dụng cho 1 vị trí"}
+{"tu_id": 899, "source": "ES(F)-C-KE(KV)≥2", "target": "ES(F)-C-KE(KV)≥2"}
+{"tu_id": 900, "source": "EKQ(KE·KV)≥2", "target": "EKQ(KE·KV)≥2"}
+{"tu_id": 901, "source": "EWhen KQ·KE·KV=0, keyway R will be eliminated on the shaft end side.", "target": "EKhi KQ, KE, KV = 0, rãnh then bên đầu trục sẽ thành một đường thẳng."}
+{"tu_id": 902, "source": "F(S)", "target": "F(S)"}
+{"tu_id": 903, "source": "*Right shaft Part Q only", "target": "*Chỉ phần Q ở trục phải"}
+{"tu_id": 904, "source": "KV", "target": "KV"}
+{"tu_id": 905, "source": "KQ*", "target": "KQ*"}
+{"tu_id": 906, "source": "MV", "target": "MV"}
+{"tu_id": 907, "source": "(V)", "target": "(V)"}
+{"tu_id": 908, "source": "Eh7", "target": "Eh7"}
+{"tu_id": 909, "source": "BQ(BC)", "target": "BQ(BC)"}
+{"tu_id": 910, "source": "V(E)", "target": "V(E)"}
+{"tu_id": 911, "source": "(FE)", "target": "(FE)"}
+{"tu_id": 912, "source": "AC", "target": "AC"}
+{"tu_id": 913, "source": "SV", "target": "SV"}
+{"tu_id": 914, "source": "(SE)", "target": "(SE)"}
+{"tu_id": 915, "source": "Copper Alloy", "target": "Hợp kim đồng"}
+{"tu_id": 916, "source": "QFlanged", "target": "QMặt bích"}
+{"tu_id": 917, "source": "C-MTSFRC", "target": "C-MTSFRC"}
+{"tu_id": 918, "source": "(Right-Hand Thread)", "target": "(Ren phải)"}
+{"tu_id": 919, "source": "Compact Flanged, 2-Hole Type", "target": "Loại mặt bích nhỏ, 2 lỗ"}
+{"tu_id": 920, "source": "C-MTSNRC", "target": "C-MTSNRC"}
+{"tu_id": 921, "source": "Compact Flanged, 4-Hole Type", "target": "Loại mặt bích nhỏ bốn lỗ"}
+{"tu_id": 922, "source": "C-MTSGRC", "target": "C-MTSGRC"}
+{"tu_id": 923, "source": "C-MTSCRC", "target": "C-MTSCRC"}
+{"tu_id": 924, "source": "EDimension d in ( ) is not applicable to square flanged type.", "target": "EKích thước d trong ( ) không áp dụng cho loại mặt bích vuông."}
+{"tu_id": 925, "source": "Nut O.D.", "target": "Đường kính ngoài đai ốc"}
+{"tu_id": 926, "source": "Nut Length L1", "target": "Chiều dài đai ốc L1"}
+{"tu_id": 927, "source": "W1", "target": "W1"}
+{"tu_id": 928, "source": "Allowable Dynamic Thrust (kN)", "target": "Tải trọng dọc trục cho phép (kN)"}
+{"tu_id": 929, "source": "Mass (g)", "target": "Khối lượng (g)"}
+{"tu_id": 930, "source": "Thread Nominal d", "target": "Đường kính ren danh nghĩa d"}
+{"tu_id": 931, "source": "Round Flanged", "target": "Loại mặt bích tròn"}
+{"tu_id": 932, "source": "Compact Flanged", "target": "Loại mặt bích nhỏ"}
+{"tu_id": 933, "source": "Square Flanged", "target": "Loại mặt bích vuông"}
+{"tu_id": 934, "source": "2-Hole Type", "target": "2 lỗ"}
+{"tu_id": 935, "source": "(＊8)", "target": "(＊8)"}
+{"tu_id": 936, "source": "Part Number (Type·d)", "target": "Mã sản phẩm (Loại·d)"}
+{"tu_id": 937, "source": "QCompact Flanged", "target": "QLoại mặt bích nhỏ"}
+{"tu_id": 938, "source": "Compact · Round Flanged", "target": "Loại mặt bích tròn, nhỏ gọn"}
+{"tu_id": 939, "source": "C-MTSPFRC", "target": "C-MTSPFRC"}
+{"tu_id": 940, "source": "Compact · Compact Flanged, 2-Hole Type", "target": "Loại mặt bích cắt hai cạnh, nhỏ gọn, 2 lỗ"}
+{"tu_id": 941, "source": "C-MTSPNRC", "target": "C-MTSPNRC"}
+{"tu_id": 942, "source": "Nut O.D.", "target": "Đường kính ngoài đai ốc"}
+{"tu_id": 943, "source": "Nut Length L1", "target": "Chiều dài đai ốc L1"}
+{"tu_id": 944, "source": "Allowable Dynamic Thrust (kN)", "target": "Tải trọng dọc trục cho phép (kN)"}
+{"tu_id": 945, "source": "Thread Nominal d", "target": "Đường kính ren danh nghĩa d"}
+{"tu_id": 946, "source": "Compact Flanged 2-Hole Type", "target": "Loại mặt bích nhỏ, 2 lỗ"}
+{"tu_id": 947, "source": "Compact Flanged, 2-Hole Type", "target": "Loại mặt bích nhỏ, 2 lỗ"}
+{"tu_id": 948, "source": "＊10", "target": "＊10"}
+{"tu_id": 949, "source": "EDimensions with * symbol are only provided for the round flanged type", "target": "EKích thước có ký hiệu * chỉ áp dụng cho loại mặt bích tròn"}
+{"tu_id": 950, "source": "QWide Block", "target": "QLoại block rộng"}
+{"tu_id": 951, "source": "Mass (g)", "target": "Khối lượng (g)"}
+{"tu_id": 952, "source": "C-MTSBHRC", "target": "C-MTSBHRC"}
+{"tu_id": 953, "source": "QTall Block", "target": "QLoại block cao"}
+{"tu_id": 954, "source": "M1", "target": "M1"}
+{"tu_id": 955, "source": "t", "target": "t"}
+{"tu_id": 956, "source": "Allowable Dynamic Thrust (kN)", "target": "Tải trọng dọc trục cho phép (kN)"}
+{"tu_id": 957, "source": "Mass (g)", "target": "Khối lượng (g)"}
+{"tu_id": 958, "source": "C-MTSBNRC", "target": "C-MTSBNRC"}
+{"tu_id": 959, "source": "4-M1 Depth l1", "target": "4-M1 chiều sâu l1"}
+{"tu_id": 960, "source": "2-M2 Depth l2 Pilot Hole Through", "target": "2-M2 chiều sâu l2 Lỗ đáy thông"}
+{"tu_id": 961, "source": "L1±0.2", "target": "L1±0.2"}
+{"tu_id": 962, "source": "h±0.1", "target": "h±0.1"}
+{"tu_id": 963, "source": "4-M Depth L Pilot Hole Through", "target": "4-M chiều sâu L Lỗ đáy thông"}
+{"tu_id": 964, "source": "Fixed Side Unit", "target": "Gối đỡ bên cố định"}
+{"tu_id": 965, "source": "Support Side Unit", "target": "Phụ kiện đồng bộ (bên ổ đỡ)"}
+{"tu_id": 966, "source": "Fixed Side Unit Including Stop Plates", "target": "Gối đỡ bên cố định đi kèm bộ kẹp trục"}
+{"tu_id": 967, "source": "Not Provided", "target": "Không"}
+{"tu_id": 968, "source": "C-MDWZ", "target": "C-MDWZ"}
+{"tu_id": 969, "source": "C-MDWZ-CP", "target": "C-MDWZ-CP"}
+{"tu_id": 970, "source": "Provided", "target": "Có"}
+{"tu_id": 971, "source": "C-MDWZ-SET", "target": "C-MDWZ-SET"}
+{"tu_id": 972, "source": "C-MDWZ-CP-SET", "target": "C-MDWZ-CP-SET"}
+{"tu_id": 973, "source": "C-MDWZ", "target": "C-MDWZ"}
+{"tu_id": 974, "source": "Fixed Side Body", "target": "Thân gối đỡ bên cố định"}
+{"tu_id": 975, "source": "QContent of set", "target": "QCụm bao gồm phụ kiện"}
+{"tu_id": 976, "source": "Bearing I.D.", "target": "Đường kính trong vòng bi"}
+{"tu_id": 977, "source": "C-MDWZ-CP-SET", "target": "C-MDWZ-CP-SET"}
+{"tu_id": 978, "source": "C-MDWZ-SET", "target": "C-MDWZ-SET"}
+{"tu_id": 979, "source": "C-MDWZ-CP", "target": "C-MDWZ-CP"}
+{"tu_id": 980, "source": "Including the support side", "target": "Mã bên ổ đỡ"}
+{"tu_id": 981, "source": "ESupport Units Fixed Side is equipped with preloaded 2 radial bearings.", "target": "EỞ bên cố định được lắp 2 vòng bi đã được điều chỉnh tải trước."}
+{"tu_id": 982, "source": "(L)", "target": "(L)"}
+{"tu_id": 983, "source": "2Bearing I.D.", "target": "2Đường kính trong vòng bi"}
+{"tu_id": 984, "source": "Fix side+Support side)", "target": "Bên cố định+Bên ổ đỡ)"}
+{"tu_id": 985, "source": "Part Number (1Type · 2Bearing I.D.", "target": "Mã sản phẩm (1Loại · 2Đường kính trong vòng bi"}
+{"tu_id": 986, "source": "Q)", "target": "Q)"}
+{"tu_id": 987, "source": "Support Side", "target": "Bên ổ đỡ"}
+{"tu_id": 988, "source": "EBearings and retaining rings are not pre-installed on the body for specification reasons and will be shipped as accessories with Support Units Support Side.", "target": "ELưu ý: Vòng bi của gối đỡ bên ổ đỡ không lắp vào thân chính khi xuất xưởng."}
+{"tu_id": 989, "source": "C-MDUZ", "target": "C-MDUZ"}
+{"tu_id": 990, "source": "Part Number (Type · Bearing I.D.", "target": "Mã sản phẩm (Loại · Đường kính trong vòng bi"}
+{"tu_id": 991, "source": "R)", "target": "R)"}
+{"tu_id": 992, "source": "2-φd Through", "target": "2-φd Lỗ thông"}
+{"tu_id": 993, "source": "2-M6 Depth 12.0", "target": "2-M6 chiều sâu 12.0"}
+{"tu_id": 994, "source": "φVH7", "target": "φVH7"}
+{"tu_id": 995, "source": "C-MRWZ", "target": "C-MRWZ"}
+{"tu_id": 996, "source": "C-MRWZ-CP", "target": "C-MRWZ-CP"}
+{"tu_id": 997, "source": "C-MRWZ-SET", "target": "C-MRWZ-SET"}
+{"tu_id": 998, "source": "C-MRWZ-CP-SET", "target": "C-MRWZ-CP-SET"}
+{"tu_id": 999, "source": "Support Unit Fixed Side", "target": "Gối đỡ bên cố định"}
+{"tu_id": 1000, "source": "C-MRWZ-CP-SET", "target": "C-MRWZ-CP-SET"}
+{"tu_id": 1001, "source": "C-MRWZ-SET", "target": "C-MRWZ-SET"}
+{"tu_id": 1002, "source": "C-MRWZ-CP", "target": "C-MRWZ-CP"}
+{"tu_id": 1003, "source": "*Q8 is 20°", "target": "*Q8 là 20°"}
+{"tu_id": 1004, "source": "ESupport Units Fixed Side is equipped with preloaded 2 radial bearings.", "target": "EỞ bên cố định được lắp 2 vòng bi đã được điều chỉnh tải trước."}
+{"tu_id": 1005, "source": "C-MRWZ", "target": "C-MRWZ"}
+{"tu_id": 1006, "source": "SET", "target": "SET"}
+{"tu_id": 1007, "source": "Support Unit Support Side", "target": "Gối đỡ bên ổ đỡ"}
+{"tu_id": 1008, "source": "EBearings and retaining rings are not pre-installed on the body for specification reasons and will be shipped as accessories with Support Units Support Side.", "target": "ELưu ý: Vòng bi của gối đỡ bên ổ đỡ không lắp vào thân chính khi xuất xưởng."}
+{"tu_id": 1009, "source": "C-MRUZ", "target": "C-MRUZ"}
+{"tu_id": 1010, "source": "φA", "target": "φA"}
+{"tu_id": 1011, "source": "φC", "target": "φC"}
+{"tu_id": 1012, "source": "VH7", "target": "VH7"}
+{"tu_id": 1013, "source": "4-φd1 Through", "target": "4-φd1 Lỗ thông"}
+{"tu_id": 1015, "source": "2-M4 Through", "target": "2-M4 Lỗ thông"}
+{"tu_id": 1016, "source": "*25°", "target": "*25°"}
+{"tu_id": 1020, "source": "φd2 Counterbored Depth L", "target": "Lỗ bậc φd2 chiều sâu L"}
+{"tu_id": 1021, "source": "4-φd1 Through φd2 Counterbored Depth h", "target": "4-φd1 Lỗ thông Lỗ bậc φd2 chiều sâu h"}
+{"tu_id": 1022, "source": "View A", "target": "Mặt cắt A"}
+{"tu_id": 1023, "source": "QSquare Type", "target": "QLoại vuông"}
+{"tu_id": 1024, "source": "Clamp Lever", "target": "Tay nắm cố định"}
+{"tu_id": 1025, "source": "EDo not use without inserting the screw shaft.", "target": "EKhông siết kẹp trục khi chưa lắp trục vít vào,"}
+{"tu_id": 1026, "source": "It may deform, causing it to be unusable.", "target": "nếu không lỗ kẹp trục sẽ bị biến dạng không thể sử dụng."}
+{"tu_id": 1027, "source": "Recommended Support Unit (sold separately) * Refer to P.03-079.", "target": "Gối đỡ bên cố định phù hợp (mua riêng) * Tham khảo T.03-079."}
+{"tu_id": 1028, "source": "C-MDWZP", "target": "C-MDWZP"}
+{"tu_id": 1029, "source": "C-MDWZ8", "target": "C-MDWZ8"}
+{"tu_id": 1030, "source": "Part Number (Type·Bearing I.D.", "target": "Mã sản phẩm (Loại·Đường kính trong vòng bi"}
+{"tu_id": 1031, "source": "Q)", "target": "Q)"}
+{"tu_id": 1032, "source": "QRound Square Type", "target": "QLoại vuông / tròn"}
+{"tu_id": 1033, "source": "*Q8 is 20°", "target": "*Q8 là 20°"}
+{"tu_id": 1034, "source": "C-MRWZP", "target": "C-MRWZP"}
+{"tu_id": 1035, "source": "C-MRWZ8", "target": "C-MRWZ8"}
+{"tu_id": 1036, "source": "2-φ6.5 Through φ10.5 Counterbored Depth 6.5", "target": "2-φ6.5 Lỗ thông Lỗ bậc φ10.5 chiều sâu 6.5"}
+{"tu_id": 1037, "source": "2-φ6.4 Through", "target": "2-φ6.4 Lỗ thông"}
+{"tu_id": 1038, "source": "φ8 Counterbored Depth 4.5", "target": "Lỗ bậc φ8 chiều sâu 4.5"}
+{"tu_id": 1040, "source": "QSide Handle", "target": "QLoại tay cầm bên"}
+{"tu_id": 1041, "source": "Hole Diameter D", "target": "Đường kính lỗ D"}
+{"tu_id": 1042, "source": "C-MTSWB", "target": "C-MTSWB"}
+{"tu_id": 1043, "source": "Part Number (Type · Hole Diameter D)", "target": "Mã sản phẩm (Loại · Đường kính lỗ D)"}
+{"tu_id": 1044, "source": "QTop Handle", "target": "QLoại tay cầm trên"}
+{"tu_id": 1045, "source": "C-MTTBB", "target": "C-MTTBB"}
+{"tu_id": 1046, "source": "2-d", "target": "2-d"}
+{"tu_id": 1047, "source": "QCompact Square Type", "target": "QLoại vuông nhỏ gọn"}
+{"tu_id": 1048, "source": "3Hole Pitch P", "target": "3Khoảng cách lỗ P"}
+{"tu_id": 1049, "source": "2Hole Diameter D", "target": "2Đường kính lỗ D"}
+{"tu_id": 1050, "source": "C-MTSBB", "target": "C-MTSBB"}
+{"tu_id": 1051, "source": "Part Number (1Type · 2Hole Diameter D)", "target": "Mã sản phẩm (1Loại · 2Đường kính lỗ D)"}
+{"tu_id": 1052, "source": "QRound Flanged", "target": "QLoại mặt bích tròn"}
+{"tu_id": 1053, "source": "C-MTQAB", "target": "C-MTQAB"}
+{"tu_id": 1054, "source": "15°", "target": "15°"}
+{"tu_id": 1055, "source": "2DH7", "target": "2DH7"}
+{"tu_id": 1056, "source": "3P", "target": "3P"}
+{"tu_id": 1057, "source": "QRound Flanged with Bearing", "target": "QLoại mặt bích tròn có vòng bi"}
+{"tu_id": 1058, "source": "P1", "target": "P1"}
+{"tu_id": 1059, "source": "Bearing I.D. d", "target": "Đường kính trong vòng bi d"}
+{"tu_id": 1060, "source": "C-MTQDB", "target": "C-MTQDB"}
+{"tu_id": 1061, "source": "Part Number (Type · Bearing I.D. d)", "target": "Mã sản phẩm (Loại · Đường kính trong vòng bi d)"}
+{"tu_id": 1062, "source": "QRound Square", "target": "QLoại vuông / tròn"}
+{"tu_id": 1063, "source": "C-DPNK", "target": "C-DPNK"}
+{"tu_id": 1064, "source": "(Bearing inner diameter)", "target": "(Đường kính trong vòng bi)"}
+{"tu_id": 1065, "source": "4-d1", "target": "4-d1"}
+{"tu_id": 1066, "source": "M4 Hexagon socket bolt applicable", "target": "M4 Bu lông lục giác trong phù hợp"}
+{"tu_id": 1067, "source": "C-DPNKB", "target": "C-DPNKB"}
+{"tu_id": 1068, "source": "stop plate", "target": "stop plate"}
+{"tu_id": 1069, "source": "2-M4 Hexagon socket bolt applicable", "target": "2-M4 Bu lông lục giác trong phù hợp"}
+{"tu_id": 1070, "source": "dE7", "target": "dE7"}
+{"tu_id": 1071, "source": "Backboard", "target": "Tấm ốp lưng"}
+{"tu_id": 1072, "source": "A Accessories", "target": "A Phụ kiện"}
+{"tu_id": 1073, "source": "Color", "target": "Màu sắc"}
+{"tu_id": 1074, "source": "ABS", "target": "ABS"}
+{"tu_id": 1075, "source": "Yellow", "target": "Màu vàng"}
+{"tu_id": 1076, "source": "Nylon", "target": "Nylon"}
+{"tu_id": 1077, "source": "Set Screw (Black) (Steel)", "target": "Vít chặn (Màu đen) (Thép)"}
+{"tu_id": 1078, "source": "Cushion Sheet (Black) (Polyethylene Foam)", "target": "Đệm giảm chấn (Màu đen) (PVC)"}
+{"tu_id": 1079, "source": "Dust-proof Casing (Black) (Nitrile Rubber)", "target": "Gioăng chống bụi (Màu đen) (Cao su nitrile)"}
+{"tu_id": 1080, "source": "Display Per Revolution", "target": "Hiển thị 1 vòng"}
+{"tu_id": 1081, "source": "Max. Rotational Speed (rpm)", "target": "Tốc độ quay tối đa (vòng/phút)"}
+{"tu_id": 1082, "source": "3Collar", "target": "3Vòng trục"}
+{"tu_id": 1083, "source": "2Spindle Pitch", "target": "2Bước ren trục chính"}
+{"tu_id": 1084, "source": "E-DPNR", "target": "E-DPNR"}
+{"tu_id": 1085, "source": "(No Collar)", "target": "(Không có vòng trục)"}
+{"tu_id": 1086, "source": "Part Number (1Type · 2Spindle Pitch)", "target": "Mã sản phẩm (1Loại · 2Bước ren trục chính)"}
+{"tu_id": 1087, "source": "ERecommended Tolerance of Mating Shaft: h7", "target": "EDung sai khuyến nghị cho trục đồng bộ: h7"}
+{"tu_id": 1088, "source": "QIndicator Collar Detail", "target": "QBản vẽ chi tiết vòng trục"}
+{"tu_id": 1089, "source": "M Material:", "target": "M Vật liệu:"}
+{"tu_id": 1090, "source": "Equivalent to S45C", "target": "Tương đương S45C"}
+{"tu_id": 1091, "source": "S Surface Treatment:", "target": "S Xử lý bề mặt:"}
+{"tu_id": 1092, "source": "Black Oxide Film", "target": "Màng ô-xít đen"}
+{"tu_id": 1093, "source": "1Indicator Collar2Position Indicators3Indicator Mounting Part O.D.", "target": "1Vòng trục2Bộ hiển thị vị trí3Đường kính ngoài lắp ráp bộ hiển thị"}
+{"tu_id": 1094, "source": "QStainless Steel Collar", "target": "QVòng trục thép không gỉ"}
+{"tu_id": 1095, "source": "Set Screw (Stainless Steel)", "target": "Vít chặn (Thép không gỉ)"}
+{"tu_id": 1096, "source": "3Specified I.D. d", "target": "3Đường kính trong chỉ định d"}
+{"tu_id": 1097, "source": "E-DSNR", "target": "E-DSNR"}
+{"tu_id": 1098, "source": "Operating ambient temperature:", "target": "Nhiệt độ môi trường sử dụng:"}
+{"tu_id": 1099, "source": "3d", "target": "3d"}
+{"tu_id": 1100, "source": "position indicator", "target": "position indicator"}
+{"tu_id": 1101, "source": "Hexagon Socket Set Screw M4×0.7", "target": "Vít chặn lục giác trong M4×0.7"}
+{"tu_id": 1102, "source": "Cushion Sheet", "target": "Đệm giảm chấn"}
+{"tu_id": 1103, "source": "φ6h9", "target": "φ6h9"}
+{"tu_id": 1104, "source": "Dust-proof Casing", "target": "Gioăng chống bụi"}
+{"tu_id": 1105, "source": "2-C0.2", "target": "2-C0.2"}
+{"tu_id": 1106, "source": "QSteel Collar", "target": "QVòng trục thép"}
+{"tu_id": 1107, "source": "A Accessories", "target": "A Phụ kiện"}
+{"tu_id": 1108, "source": "E-DPMR", "target": "E-DPMR"}
+{"tu_id": 1109, "source": "Black oxide film", "target": "Màng ô-xít đen"}
+{"tu_id": 1111, "source": "SSurface Treatment", "target": "SXử lý bề mặt"}
+{"tu_id": 1112, "source": "E-DSMR", "target": "E-DSMR"}
+{"tu_id": 1113, "source": "E-DPTR", "target": "E-DPTR"}
+{"tu_id": 1114, "source": "E-DSTR", "target": "E-DSTR"}
+{"tu_id": 1115, "source": "Dust-proof Casing", "target": "Gioăng chống bụi"}
+{"tu_id": 1116, "source": "Hexagon Socket Set Screw M4×0.7", "target": "Vít chặn lục giác trong M4×0.7"}
+{"tu_id": 1119, "source": "Application Industries:", "target": "Lĩnh vực ứng dụng:"}
+{"tu_id": 1120, "source": "Automotive part", "target": "Linh kiện ô tô"}
+{"tu_id": 1121, "source": "Lithium battery", "target": "Pin lithium"}
+{"tu_id": 1122, "source": "This figure is a case of a multi-degree-of-freedom semi-automatic regulating docking system.", "target": "Hình ảnh bên dưới mô tả về hệ thống lắp ghép điều chỉnh bán tự động đa bậc tự do."}
+{"tu_id": 1123, "source": "It is suitable for parts docking of general assembly or partial assembly with medium and low accuracy and load, as well as the guiding mechanism with small installation space.", "target": "Phù hợp với việc lắp ghép các bộ phận trong cụm tổng hoặc linh kiện lắp đặt có độ chính xác, tải trọng trung bình và thấp, cũng như cơ cấu dẫn hướng với không gian lắp đặt hẹp."}
+{"tu_id": 1124, "source": "03-017", "target": "03-017"}
+{"tu_id": 1125, "source": "10~", "target": "10~"}
+{"tu_id": 1126, "source": "20%", "target": "20%"}
+{"tu_id": 1129, "source": "Support Units for Ball Screw, Fixed Side Low Profile Type", "target": "Gối Đỡ Vít Me Bi, bên cố định, loại thấp"}
+{"tu_id": 1130, "source": "Motor Brackets For Servo Motors", "target": "Giá Đỡ Động Cơ Servo"}
+{"tu_id": 1132, "source": "Lead Screws-One End Double Stepped/One End Stepped", "target": "Vít Me, một đầu kiểu bậc kép / một đầu kiểu bậc"}
+{"tu_id": 1133, "source": "-Material:", "target": "-Vật liệu:"}
+{"tu_id": 1135, "source": "The customer draws by themself", "target": "Bản vẽ của khách hàng"}
+{"tu_id": 1136, "source": "MISUMI draws", "target": "Bản vẽ của MISUMI"}
+{"tu_id": 1137, "source": "Significant time savings", "target": "Tiết kiệm được rất nhiều thời gian"}
+{"tu_id": 1138, "source": "Drawing-based machining is no longer required, saving the time for drawing.", "target": "Bản vẽ có sẵn, tiết kiệm thời gian thiết kế"}
+{"tu_id": 1139, "source": "Shaft end size check", "target": "Kiểm tra kích thước đầu trục"}
+{"tu_id": 1140, "source": "Locking thread check", "target": "Kiểm tra ren"}
+{"tu_id": 1141, "source": "Pitch projector", "target": "Máy chiếu bước ren"}
+{"tu_id": 1142, "source": "Surface roughness check", "target": "Kiểm tra độ nhám bề mặt"}
+{"tu_id": 1143, "source": "Average", "target": "Bình thường"}
+{"tu_id": 1144, "source": "One of the factors affecting the runout", "target": "Một trong những yếu tố ảnh hưởng đến chuyển động"}
+{"tu_id": 1145, "source": "One of the factors affecting the positioning", "target": "Một trong những yếu tố ảnh hưởng đến định vị"}
+{"tu_id": 1147, "source": "Price", "target": "Giá cả"}
+{"tu_id": 1148, "source": "Expensive", "target": "Cao"}
+{"tu_id": 1149, "source": "Cheap", "target": "Thấp"}
+{"tu_id": 1150, "source": "Screw shaft length (mm)", "target": "Chiều dài trục vít (mm)"}
+{"tu_id": 1151, "source": "Screw Shaft O.D.", "target": "Đường kính trục vít"}
+{"tu_id": 1152, "source": "Positioning Mechanism", "target": "Cơ cấu định vị"}
+{"tu_id": 1153, "source": "Machine Tool Industry", "target": "Ngành máy công cụ"}
+{"tu_id": 1154, "source": "min.", "target": "Tối thiểu"}
+{"tu_id": 1155, "source": "max.", "target": "Tối đa"}
+{"tu_id": 1156, "source": "Feeding Mechanism", "target": "Cơ cấu cấp liệu"}
+{"tu_id": 1157, "source": "FA Automation Industry", "target": "Ngành tự động hóa FA"}
+{"tu_id": 1158, "source": "Easily handling with end point positioning and process control", "target": "Dễ dàng định vị điểm cuối và kiểm soát quá trình"}
+{"tu_id": 1159, "source": "For example:", "target": "Ứng dụng:"}
+{"tu_id": 1160, "source": "Machining equipment", "target": "Máy gia công"}
+{"tu_id": 1161, "source": "(The workpiece needs to move smoothly through the motor to ensure the machining accuracy.)", "target": "(Phôi cần đảm bảo độ chính xác trong quá trình gia công thông qua sự vận hành ổn định của động cơ)"}
+{"tu_id": 1162, "source": "More suitable for the end position positioning mechanism", "target": "Phù hợp với cơ cấu định vị điểm cuối"}
+{"tu_id": 1163, "source": "Multi-point positioning feeding mechanism", "target": "Cơ cấu cấp liệu định vị đa điểm"}
+{"tu_id": 1164, "source": "(The workpiece is automatically fed by motor drive.)", "target": "(Phôi được cấp liệu tự động bởi động cơ truyền động)"}
+{"tu_id": 1165, "source": "Unit: μm", "target": "Đơn vị: μm"}
+{"tu_id": 1166, "source": "Screw Effective Length (mm)", "target": "Chiều dài ren khả dụng (mm)"}
+{"tu_id": 1167, "source": "+", "target": "+"}
+{"tu_id": 1168, "source": "Wrench Flats on Fixed Side", "target": "Gia công rãnh vặn bên cố định"}
+{"tu_id": 1169, "source": "Representative Travel Distance Error", "target": "Sai số của độ chuyển động đại diện"}
+{"tu_id": 1170, "source": "More than", "target": "Lớn hơn"}
+{"tu_id": 1171, "source": "Variation", "target": "Biến thiên"}
+{"tu_id": 1172, "source": "Travel Distance Error", "target": "Sai số chuyển động"}
+{"tu_id": 1173, "source": "v300", "target": "v300"}
+{"tu_id": 1174, "source": "code:", "target": "Mã:"}
+{"tu_id": 1175, "source": "NC", "target": "NC"}
+{"tu_id": 1176, "source": "SZC", "target": "SZC"}
+{"tu_id": 1177, "source": "Ball Nut Orientation Reversed", "target": "Thay đổi hướng đai ốc"}
+{"tu_id": 1178, "source": "v2π", "target": "v2π"}
+{"tu_id": 1179, "source": "vu", "target": "vu"}
+{"tu_id": 1180, "source": "RLC", "target": "RLC"}
+{"tu_id": 1181, "source": "KC", "target": "KC"}
+{"tu_id": 1182, "source": "No Retaining Ring Groove on Support Side Shaft End", "target": "Không gia công rãnh vòng hãm đầu trục bên ổ đỡ"}
+{"tu_id": 1183, "source": "V300", "target": "V300"}
+{"tu_id": 1184, "source": "V2π", "target": "V2π"}
+{"tu_id": 1185, "source": "RNC", "target": "RNC"}
+{"tu_id": 1186, "source": "KLC", "target": "KLC"}
+{"tu_id": 1187, "source": "Change Support Side Shaft End Machining", "target": "Thay đổi nội dung gia công của bên ổ đỡ"}
+{"tu_id": 1188, "source": "b", "target": "b"}
+{"tu_id": 1189, "source": "GC", "target": "GC"}
+{"tu_id": 1190, "source": "SC", "target": "SC"}
+{"tu_id": 1191, "source": "FC", "target": "FC"}
+{"tu_id": 1192, "source": "Fixed - Free", "target": "Cố định - Tự do"}
+{"tu_id": 1193, "source": "Fixed - Fixed", "target": "Cố định - Cố định"}
+{"tu_id": 1194, "source": "Fixed - Supported", "target": "Cố định - Ổ đỡ"}
+{"tu_id": 1195, "source": "Supported - Supported", "target": "Ổ đỡ - Ổ đỡ"}
+{"tu_id": 1196, "source": "Support method", "target": "Phương pháp gá lắp"}
+{"tu_id": 1197, "source": "10000N", "target": "10000N"}
+{"tu_id": 1198, "source": "Load action point pitch (mm)", "target": "Khoảng cách giữa 2 gối đỡ (mm)"}
+{"tu_id": 1199, "source": "Terms", "target": "Thông số"}
+{"tu_id": 1200, "source": "Symbols", "target": "Ký hiệu"}
+{"tu_id": 1201, "source": "Meaning", "target": "Ý nghĩa"}
+{"tu_id": 1202, "source": "Actual Mean Travel Error", "target": "Sai số của độ chuyển động đại diện"}
+{"tu_id": 1203, "source": "A value that is Specified Travel subtracted from Actual Mean Travel.", "target": "Giá trị sau khi lấy độ chuyển động đại diện trừ đi độ chuyển động cơ bản"}
+{"tu_id": 1204, "source": "Variation for the effective thread length of screw shaft.", "target": "Vu: Chiều rộng lớn nhất tương ứng với chiều dài ren khả dụng"}
+{"tu_id": 1205, "source": "Variation for an arbitrarily taken length of 300mm within the effective thread length of screw shaft.", "target": "V300: Chiều rộng lớn nhất của 300mm bất kỳ thuộc chiều dài ren khả dụng tương ứng"}
+{"tu_id": 1206, "source": "uu", "target": "uu"}
+{"tu_id": 1207, "source": "u300", "target": "u300"}
+{"tu_id": 1208, "source": "u2Q", "target": "u2Q"}
+{"tu_id": 1209, "source": "Specified Travel", "target": "Độ chuyển động cơ bản"}
+{"tu_id": 1210, "source": "Axial travel compensated for temperature rise and loading conditions, in relation to the Nominal Travel (Lead).", "target": "Tương ứng với độ chuyển động danh nghĩa (lo)"}
+{"tu_id": 1211, "source": "Specified Travel Target Value", "target": "Giá trị mục tiêu của chuyển động cơ bản"}
+{"tu_id": 1212, "source": "A value that is Nominal Travel subtracted from Specified Travel, over the effective thread length.", "target": "Giá trị sau khi lấy độ chuyển động cơ bản trừ đi độ chuyển động danh nghĩa tương ứng với chiều dài ren khả dụng"}
+{"tu_id": 1213, "source": "Actual Travel", "target": "Độ chuyển động thực tế"}
+{"tu_id": 1214, "source": "Actual measured travel distance.", "target": "Độ chuyển động thực tế đo được"}
+{"tu_id": 1215, "source": "Actual Mean Travel", "target": "Độ chuyển động đại diện"}
+{"tu_id": 1216, "source": "A straight line representing the actual travel trend.", "target": "Đường thẳng đại diện cho xu hướng của độ chuyển động thực tế."}
+{"tu_id": 1217, "source": "A straight line obtained by the least-squares method or other approximation methods from the curve representing the actual travel.", "target": "Dựa trên đường cong biểu thị độ chuyển động thực tế, sử dụng một đường thẳng được tính bằng phương pháp bình phương nhỏ nhất hoặc một phương pháp tương tự đơn giản thích hợp"}
+{"tu_id": 1218, "source": "Runout tolerance G (Max.)", "target": "Dung sai độ đảo G (tối đa)"}
+{"tu_id": 1219, "source": "E-TBS", "target": "E-TBS"}
+{"tu_id": 1220, "source": "C-TBSE", "target": "C-TBSE"}
+{"tu_id": 1221, "source": "C-TBSB", "target": "C-TBSB"}
+{"tu_id": 1222, "source": "E-KBS", "target": "E-KBS"}
+{"tu_id": 1223, "source": "C-KBS", "target": "C-KBS"}
+{"tu_id": 1224, "source": "If the nut end face is moved out of the range of right figure, it will cause the ball to fall off, resulting in malfunction.", "target": "Nếu mặt cuối của đai ốc di chuyển ra ngoài phạm vi trong bản vẽ bên phải, các viên bi sẽ bị rơi ra, khiến vận hành không bình thường."}
+{"tu_id": 1225, "source": "Removal of nut is prohibited", "target": "Không tháo đai ốc"}
+{"tu_id": 1226, "source": "Be careful of falling due to weight", "target": "Lưu ý hiện tượng đai ốc tự rơi"}
+{"tu_id": 1227, "source": "Step 1", "target": "Bước 1"}
+{"tu_id": 1228, "source": "mm", "target": "mm"}
+{"tu_id": 1229, "source": "mm/s", "target": "mm/s"}
+{"tu_id": 1230, "source": "rpm", "target": "vòng/phút"}
+{"tu_id": 1231, "source": "kg", "target": "kg"}
+{"tu_id": 1232, "source": "(Figure 2)", "target": "(Hình 2)"}
+{"tu_id": 1233, "source": "mm/s", "target": "mm/s"}
+{"tu_id": 1234, "source": "1000mm/s", "target": "1000mm/s"}
+{"tu_id": 1235, "source": "s", "target": "s"}
+{"tu_id": 1236, "source": "0.9×3=2.7", "target": "0.9×3=2.7"}
+{"tu_id": 1237, "source": "φ2.7±0.03", "target": "φ2.7±0.03"}
+{"tu_id": 1238, "source": "4.35±0.05", "target": "4.35±0.05"}
+{"tu_id": 1239, "source": "0.02 or Less", "target": "0.02 trở xuống"}
+{"tu_id": 1240, "source": "(RLC·SZC…etc.)", "target": "(RLC, SZC, v.v.)"}
+{"tu_id": 1241, "source": "Machining on Support Side Shaft End", "target": "Gia công đầu trục bên ổ đỡ"}
+{"tu_id": 1242, "source": "TFC", "target": "TFC"}
+{"tu_id": 1243, "source": "Machining added on the support side shaft end.", "target": "Gia công đầu trục bên ổ đỡ."}
+{"tu_id": 1244, "source": "Adds wrench flats on the fixed side shaft end.", "target": "Gia công rãnh vặn vít ở các đầu trục bên cố định."}
+{"tu_id": 1245, "source": "No machining of small steps on the fixed side", "target": "Không gia công các bậc nhỏ bên cố định"}
+{"tu_id": 1246, "source": "NF", "target": "NF"}
+{"tu_id": 1247, "source": "Change dimensions of big steps on the fixed side", "target": "Thay đổi kích thước bậc lớn bên cố định"}
+{"tu_id": 1248, "source": "CU", "target": "CU"}
+{"tu_id": 1249, "source": "No machining of big steps male thread on the fixed side", "target": "Không gia công ren ngoài các bậc lớn bên cố định"}
+{"tu_id": 1250, "source": "NU", "target": "NU"}
+{"tu_id": 1251, "source": "U", "target": "U"}
+{"tu_id": 1252, "source": "Material:", "target": "Vật liệu:"}
+{"tu_id": 1253, "source": "Carburized 58~62HRC", "target": "Thấm carbon 58~62HRC"}
+{"tu_id": 1254, "source": "Square Type", "target": "Loại vuông"}
+{"tu_id": 1255, "source": "(FC·SC…etc.)", "target": "(FC, SC, v.v.)"}
+{"tu_id": 1256, "source": "Change the length of the support side shaft end", "target": "Thay đổi chiều dài đầu trục bên ổ đỡ"}
+{"tu_id": 1257, "source": "10≤FC≤20", "target": "10≤FC≤20"}
+{"tu_id": 1258, "source": "FC=1mm increments", "target": "FC=Gia số 1mm"}
+{"tu_id": 1259, "source": "5≤SC≤7", "target": "5≤SC≤7"}
+{"tu_id": 1260, "source": "Change dimensions of small steps on the fixed side", "target": "Thay đổi kích thước bậc nhỏ bên cố định"}
+{"tu_id": 1261, "source": "FP", "target": "FP"}
+{"tu_id": 1262, "source": "EU", "target": "EU"}
+{"tu_id": 1263, "source": "Recommended", "target": "Khuyến nghị"}
+{"tu_id": 1264, "source": "150~600", "target": "150~600"}
+{"tu_id": 1265, "source": "X-X View", "target": "Mặt cắt X-X"}
+{"tu_id": 1266, "source": "4-φ4.5", "target": "4-φ4.5"}
+{"tu_id": 1267, "source": "KC=1mm increments", "target": "KC=Gia số 1mm"}
+{"tu_id": 1268, "source": "2≤K≤7 K+S≤8", "target": "2≤K≤7 K+S≤8"}
+{"tu_id": 1269, "source": "E-TBSE", "target": "E-TBSE"}
+{"tu_id": 1270, "source": "Induction hardening 58~62HRC", "target": "Tôi cao tần 58~62HRC"}
+{"tu_id": 1271, "source": "C-TBSE·C-TBSB1204", "target": "C-TBSE·C-TBSB1204"}
+{"tu_id": 1272, "source": "Oil hole", "target": "Lỗ tra dầu"}
+{"tu_id": 1273, "source": "Fixed side shaft end dimensions", "target": "Kích thước đầu trục bên cố định"}
+{"tu_id": 1274, "source": "Applicable Support Units", "target": "Gối đỡ vít (Bán riêng)"}
+{"tu_id": 1275, "source": "kgf=N×0.101972", "target": "kgf=N×0.101972"}
+{"tu_id": 1276, "source": "For details, please visit MISUMI official website.", "target": "Để biết thông tin chi tiết, vui lòng truy cập trang web chính thức của MISUMI."}
+{"tu_id": 1277, "source": "(16)*", "target": "(16)*"}
+{"tu_id": 1278, "source": "150~1200", "target": "150~1200"}
+{"tu_id": 1279, "source": "+0.14 0", "target": "+0.14 0"}
+{"tu_id": 1280, "source": "Support side shaft end dimensions", "target": "Kích thước đầu trục bên ổ đỡ"}
+{"tu_id": 1281, "source": "(B)", "target": "(B)"}
+{"tu_id": 1282, "source": "(RLC·TFC…etc.)", "target": "(RLC, TFC, v.v.)"}
+{"tu_id": 1283, "source": "2≤KC≤8", "target": "2≤KC≤8"}
+{"tu_id": 1284, "source": "R0.5 or less", "target": "R0.5 trở xuống"}
+{"tu_id": 1285, "source": "(FC·KC…etc.)", "target": "(FC, KC, v.v.)"}
+{"tu_id": 1286, "source": "10≤FC≤20 FC=1mm increments", "target": "10≤FC≤20 FC=Gia số 1mm"}
+{"tu_id": 1287, "source": "K, S=1mm increments", "target": "K, S=Gia số 1mm"}
+{"tu_id": 1288, "source": "*(16)*", "target": "*(16)*"}
+{"tu_id": 1289, "source": "*(16)*", "target": "*(16)*"}
+{"tu_id": 1290, "source": "(NC·KC…etc.)", "target": "(NC·KC, v.v.)"}
+{"tu_id": 1291, "source": "Screw accuracy is guaranteed to meet the catalog standard", "target": "Độ chính xác đảm bảo"}
+{"tu_id": 1292, "source": "When machining is specified", "target": "Chỉ định"}
+{"tu_id": 1293, "source": "φ2.7±0.3", "target": "φ2.7±0.3"}
+{"tu_id": 1294, "source": "4.35±0.05", "target": "4.35±0.05"}
+{"tu_id": 1295, "source": "1·2·4·5·10", "target": "1·2·4·5·10"}
+{"tu_id": 1296, "source": "These are dedicated bearing components designed to be used exclusively in combination with ball screws.", "target": "Gối Đỡ là các bộ phận vòng bi chuyên dụng, được thiết kế để sử dụng riêng với vít me bi."}
+{"tu_id": 1297, "source": "The support units in the Economy series offer two types of bearings for the fixed side.", "target": "Gối Đỡ dòng Economy có hai loại vòng bi cho bên cố định."}
+{"tu_id": 1298, "source": "For applications involving high axial loads, select a product equipped with angular contact bearings.For low to medium axial loads, choose a product with radial bearings.", "target": "Đối với các ứng dụng liên quan đến tải trọng hướng trục cao, vui lòng chọn sản phẩm có vòng bi tiếp xúc góc.Đối với tải trọng hướng trục thấp đến trung bình, vui lòng chọn sản phẩm có vòng bi hướng tâm."}
+{"tu_id": 1299, "source": "QAccessory Assembling Chart", "target": "QSơ đồ lắp ráp phụ kiện"}
+{"tu_id": 1300, "source": "QIncluded Collar", "target": "QBao gồm vòng trục"}
+{"tu_id": 1301, "source": "QIncluded Bearing Nut", "target": "QBao gồm đai ốc cố định"}
+{"tu_id": 1302, "source": "QPrecautions of assembling Support Units", "target": "QLưu ý khi lắp ráp Gối Đỡ"}
+{"tu_id": 1303, "source": "Assembly of Support Units", "target": "Lắp ráp Gối Đỡ"}
+{"tu_id": 1304, "source": "Improper assembly of support units may lead to reduced service life and accuracy, potentially preventing the machine from performing as intended.", "target": "Lắp ráp Gối Đỡ không đúng cách có thể dẫn đến giảm tuổi thọ và độ chính xác, khiến máy có khả năng hoạt động không như mong muốn."}
+{"tu_id": 1305, "source": "Therefore, careful attention must be paid during installation.", "target": "Vì vậy, cần đặc biệt chú ý trong quá trình lắp đặt."}
+{"tu_id": 1306, "source": "Below are the procedures and precautions for assembly:", "target": "Sau đây là quy trình và những điều cần lưu ý khi lắp ráp:"}
+{"tu_id": 1307, "source": "Preparation Before Assembly", "target": "Chuẩn bị trước khi lắp ráp"}
+{"tu_id": 1308, "source": "Perform the assembly in a clean, dry environment free from dust and moisture.", "target": "Thực hiện lắp ráp trong môi trường sạch sẽ, khô ráo, không có bụi và không ẩm ướt."}
+{"tu_id": 1309, "source": "Avoid locations with significant temperature fluctuations.", "target": "Tránh những nơi có dao động nhiệt độ lớn."}
+{"tu_id": 1310, "source": "Ensure the workspace is clean and prepare all necessary tools on the workbench.", "target": "Đảm bảo khu vực làm việc sạch sẽ và chuẩn bị sẵn tất cả các dụng cụ cần thiết trên bàn làm việc."}
+{"tu_id": 1311, "source": "Inspection of Shaft and Support Units", "target": "Kiểm tra trục và Gối Đỡ"}
+{"tu_id": 1312, "source": "Check that there is no dust, debris, burrs, or foreign matter on the shaft surface or inside the bearing bore of the support unit.", "target": "Kiểm tra bề mặt trục và bên trong lỗ ổ trục của Gối Đỡ để đảm bảo không có bụi, mảnh vụn, gờ ráp hay vật lạ."}
+{"tu_id": 1313, "source": "If burrs or sharp edges are present, remove them using an oil stone or similar tool, and thoroughly clean away any chips or residue.", "target": "Nếu có gờ ráp hay cạnh sắc, hãy dùng đá mài dầu hoặc dụng cụ tương tự để loại bỏ, sau đó cẩn thận lau sạch các mảnh vụn dư thừa."}
+{"tu_id": 1314, "source": "Mounting the Support Units onto the Shaft", "target": "Lắp Gối Đỡ vào trục"}
+{"tu_id": 1315, "source": "Prepare the ball screw and support unit.", "target": "Chuẩn bị vít me bi và Gối Đỡ."}
+{"tu_id": 1316, "source": "Insert the support unit into the fixed side of the ball screw.", "target": "Lắp Gối Đỡ vào bên cố định của vít me bi."}
+{"tu_id": 1317, "source": "Precautions during insertion:", "target": "Lưu ý khi lắp:"}
+{"tu_id": 1318, "source": "Insert straight to avoid galling.", "target": "Lắp thẳng để tránh bị xước."}
+{"tu_id": 1319, "source": "(Greasing the shaft can help ensure smooth insertion.)", "target": "(Tra dầu vào trục có thể giúp việc lắp dễ dàng hơn)."}
+{"tu_id": 1320, "source": "Take care not to damage or displace the oil seal.", "target": "Chú ý không làm hỏng hoặc dịch chuyển phớt dầu."}
+{"tu_id": 1321, "source": "The ball screw shaft’s lock nut should be temporarily tightened.", "target": "Nên siết chặt tạm thời đai ốc chặn trục của vít me bi."}
+{"tu_id": 1322, "source": "Table", "target": "Bàn trượt"}
+{"tu_id": 1323, "source": "Motor mounting bracket", "target": "Giá lắp động cơ"}
+{"tu_id": 1324, "source": "Collar is installed on Rolled Ball Screws.", "target": "Vòng trục được lắp trên vít me bi ren cán."}
+{"tu_id": 1325, "source": "Confirm the deflection.", "target": "Xác nhận độ dịch chuyển."}
+{"tu_id": 1326, "source": "Nut Tightening Torque (N · cm)", "target": "Mô-men siết đai ốc (N · cm)"}
+{"tu_id": 1327, "source": "Precautions When Installing the Bearing Lock Nut", "target": "Lưu ý khi lắp đai ốc chặn vòng bi"}
+{"tu_id": 1328, "source": "Lightly tighten the bearing lock nut.", "target": "Siết nhẹ đai ốc chặn vòng bi."}
+{"tu_id": 1329, "source": "As a guideline, apply approximately 1/3 of the recommended tightening torque (refer to the table).", "target": "Theo hướng dẫn, dùng khoảng 1/3 mô-men siết được khuyến nghị (tham khảo bảng trên)."}
+{"tu_id": 1330, "source": "Support the screw shaft using a V-block, and align a dial gauge fixed in place with a jig at point A or B.", "target": "Đỡ trục vít bằng một khối hình chữ V, sau đó dùng dụng cụ gá để chỉnh đồng hồ đo nằm cố định tại điểm A hoặc B."}
+{"tu_id": 1331, "source": "Installation and Accuracy Check of the Support Side Bearing", "target": "Lắp đặt và kiểm tra độ chính xác của vòng bi bên ổ đỡ"}
+{"tu_id": 1332, "source": "If the dial gauge needle shows runout, gently tap the bearing lock nut with a hammer to reduce the needle fluctuation.(During this process, ensure the screw shaft is held in place without contacting the support unit to avoid transmitting impact.)", "target": "Nếu kim đồng hồ đo bị đảo, dùng búa gõ nhẹ vào đai ốc chặn vòng bi để giúp kim bớt dao động. (Trong quá trình này, hãy đảm bảo trục vít được giữ cố định và không tiếp xúc với Gối Đỡ để tránh truyền lực va đập)."}
+{"tu_id": 1333, "source": "Align the table with the support-side bearing to ensure proper centering.", "target": "Căn chỉnh bàn trượt với vòng bi bên ổ đỡ để đảm bảo nằm đúng vị trí trung tâm."}
+{"tu_id": 1334, "source": "Move the table back and forth to adjust for smooth overall motion.While checking the accuracy of each component, fully tighten the mounting bolts.", "target": "Di chuyển bàn trượt qua lại để điều chỉnh sao cho chuyển động tổng thể được mượt mà. Trong khi kiểm tra độ chính xác của từng bộ phận, hãy siết chặt các bu lông lắp đặt."}
+{"tu_id": 1335, "source": "If the adjustment is unstable, repeat the previous steps.", "target": "Nếu đã thực hiện điều chỉnh nhưng vẫn chưa ổn định, hãy lặp lại các bước trên."}
+{"tu_id": 1336, "source": "Precautions When Installing the Support Units", "target": "Lưu ý khi lắp đặt Gối Đỡ"}
+{"tu_id": 1337, "source": "When inserting into the fixed-side support unit, the fit may vary between smooth insertion and light press-fit (transition fit).", "target": "Khi lắp đặt Gối Đỡ bên cố định, độ khít có thể khác nhau giữa kiểu lắp trơn và lắp ấn nhẹ (lắp trung gian)."}
+{"tu_id": 1338, "source": "In the case of a light press-fit:", "target": "Trong trường hợp lắp ấn nhẹ:"}
+{"tu_id": 1339, "source": "Do not tilt the bearing during insertion.", "target": "Không nghiêng vòng bi trong khi lắp."}
+{"tu_id": 1340, "source": "Do not strike the inner ring of the bearing or the outer surface of the support unit housing.", "target": "Không gõ vào vòng trong của vòng bi trong hoặc bề mặt ngoài của vỏ Gối Đỡ."}
+{"tu_id": 1341, "source": "If there is an interference fit between the shaft and the inner ring, use a suitable spacer and press or jack the bearing in slowly and evenly.Take care to minimize shock to the bearing as much as possible.Also, be cautious of any bending of the screw shaft.", "target": "Nếu giữa trục và vòng trong là kiểu lắp ép, hãy sử dụng miếng đệm phù hợp và từ từ ấn hoặc kích vòng bi vào thật đều và chậm rãi. Thận trọng để hạn chế tối đa chấn động lên vòng bi. Ngoài ra, hãy cẩn thận để tránh làm cong trục vít."}
+{"tu_id": 1342, "source": "If galling occurs, do not force the insertion.", "target": "Nếu có hiện tượng xước, không được cố ấn thêm."}
+{"tu_id": 1343, "source": "Immediately remove the unit, correct any swelling on the shaft, and reassemble.", "target": "Hãy tháo Gối Đỡ ngay lập tức, xử lý bất kỳ phần nào bị gồ lên trên trục và tiến hành lắp lại."}
+{"tu_id": 1344, "source": "Good", "target": "Tốt"}
+{"tu_id": 1345, "source": "Bad", "target": "Không tốt"}
+{"tu_id": 1346, "source": "QStore Accessories with care since they are required when assembling.", "target": "QBảo quản phụ kiện cẩn thận vì cần dùng đến khi lắp ráp."}
+{"tu_id": 1347, "source": "Accessory packaging", "target": "Bao bì phụ kiện"}
+{"tu_id": 1348, "source": "Accessory contents &lt;fixed side&gt;", "target": "Chi tiết phụ kiện (bên cố định)"}
+{"tu_id": 1349, "source": "Accessory contents &lt;support side&gt;", "target": "Chi tiết phụ kiện (bên ổ đỡ)"}
+{"tu_id": 1350, "source": "EIn some MISUMI ball screw models, a collar is provided as an accessory.", "target": "EMột số mẫu vít me bi của MISUMI có vòng trục là phụ kiện đi kèm."}
+{"tu_id": 1351, "source": "In such cases, one collar may remain unused.", "target": "Trong trường hợp đó, có thể còn thừa một vòng trục không dùng đến."}
+{"tu_id": 1352, "source": "Dial indicator", "target": "Đồng hồ đo"}
+{"tu_id": 1353, "source": "V Block", "target": "Khối hình chữ V"}
+{"tu_id": 1354, "source": "Confirm the tightening torque.", "target": "Xác nhận mô-men siết."}
+{"tu_id": 1355, "source": "Measure a travel distance.", "target": "Đo khoảng cách di chuyển."}
+{"tu_id": 1356, "source": "Calculate Contact Pressure P and Sliding Velocity V based on conditions of use to check that no abnormal wear will occur.", "target": "Tính toán Áp lực tiếp xúc P và Vận tốc trượt V dựa trên điều kiện sử dụng để kiểm tra xem có khả năng xảy ra hiện tượng mài mòn bất thường không."}
+{"tu_id": 1357, "source": "Calculate cross point based on the calculated P and V values in PV Graph.", "target": "Tính toán điểm giao nhau dựa trên giá trị P và V đã tính trên Đồ thị giá trị PV."}
+{"tu_id": 1358, "source": "When the cross point is located inside the line 1 or 2 in PV Value Graph, it can be stated that no abnormal wear will occur.", "target": "Khi điểm giao nhau nằm bên trong đường 1 hoặc 2 trên Đồ thị giá trị PV, có thể khẳng định rằng sẽ không xảy ra hiện tượng mài mòn bất thường."}
+{"tu_id": 1359, "source": "PV Value Graph", "target": "Đồ thị giá trị PV"}
+{"tu_id": 1360, "source": "Lead Screw Nut Selection Procedure", "target": "Quy trình lựa chọn đai ốc Vít Me"}
+{"tu_id": 1361, "source": "Determine conditions of use", "target": "Xác định điều kiện sử dụng"}
+{"tu_id": 1362, "source": "Axial Load, Speed", "target": "Tải trọng hướng trục, Tốc độ"}
+{"tu_id": 1363, "source": "Lead Screw Nut Material", "target": "Vật liệu của đai ốc Vít Me"}
+{"tu_id": 1364, "source": "NG", "target": "Không đạt"}
+{"tu_id": 1365, "source": "Temporarily select the Lead Screw Nut part number", "target": "Tạm thời chọn mã sản phẩm của đai ốc Vít Me"}
+{"tu_id": 1366, "source": "Calculate 1 Contact Pressure P and 2 Sliding Speed V.", "target": "Tính 1 Áp lực tiếp xúc P và 2 Vận tốc trượt V."}
+{"tu_id": 1367, "source": "Confirm that the cross point is located inside the lines in PV Graph", "target": "Xác nhận rằng điểm giao nhau nằm bên trong các đường trên Đồ thị PV"}
+{"tu_id": 1368, "source": "Use This Result For Selecting Motors, etc.", "target": "Sử dụng kết quả này để lựa chọn động cơ, v.v."}
+{"tu_id": 1369, "source": "1Contact Pressure P (N/mm2)", "target": "1Áp lực tiếp xúc P (N/mm2)"}
+{"tu_id": 1370, "source": "The thrust when the contact pressure acting on the screw shaft and nuts is 9.8 (N/mm2)", "target": "Lực đẩy của áp lực tiếp xúc lên trục và đai ốc Vít Me là 9.8 (N/mm2)"}
+{"tu_id": 1371, "source": "In case of using C-MTSRW16 shaft, pitch 3 and C-MTSFRC16 brass flanged nut when the axial load is 300N as rotational speed at 500min-1.", "target": "Trong trường hợp sử dụng trục C-MTSRW16, bước ren 3 và đai ốc mặt bích bằng đồng C-MTSFRC16 khi tải trọng hướng trục bằng 300N vì tốc độ quay là 500min-1."}
+{"tu_id": 1372, "source": "2Sliding Speed V (m/min)", "target": "2Vận tốc trượt V (m/phút)"}
+{"tu_id": 1373, "source": "Screw Shaft Effective Dia.⇒Nuts for Lead Screw Specifications", "target": "Đường kính hiệu dụng của trục vít⇒Thông số đai ốc Vít Me"}
+{"tu_id": 1374, "source": "Screw Shaft Lead Angle (Degree)⇒Nuts for Lead Screw Specifications", "target": "Góc dẫn ren của trục vít (độ)⇒Thông số đai ốc Vít Me"}
+{"tu_id": 1375, "source": "Screw Shaft Revolution Frequency per Minute (min-1)", "target": "Tần số quay trục vít mỗi phút (min-1)"}
+{"tu_id": 1376, "source": "When the PV Graph is viewed based on the calculated P and V values, the cross point V=22.8(m/min) when P=0.52(N/mm2) is located inside the line 1 on the PV Graph, thus it can be stated that no abnormal wear will occur.", "target": "Khi xem Đồ thị PV dựa trên giá trị P và V đã tính, điểm giao nhau V=22.8(m/phút) khi P=0.52(N/mm2) nằm ở bên trong đường 1 trên Đồ thị PV, nên có thể khẳng định sẽ không xảy ra mài mòn bất thường."}
+{"tu_id": 1377, "source": "Required Torque when using C-MTSRW16 shaft , pitch 3, and C-MTSFRC16 brass (flanged nut.)", "target": "Mô-men xoắn cần thiết khi sử dụng trục C-MTSRW16, bước ren 3 và đai ốc C-MTSFRC16 (loại mặt bích bằng đồng)."}
+{"tu_id": 1378, "source": "Also, in a case of calculating for the Load Torque T (N·cm) when the axial load is 300N.", "target": "Ngoài ra, trong trường hợp tính Mô-men tải T (N·cm) khi tải trọng hướng trục là 300N."}
+{"tu_id": 1379, "source": "Dynamic Friction Coefficient", "target": "Hệ số ma sát động"}
+{"tu_id": 1380, "source": "QDynamic Friction Coefficient Reference Value", "target": "QGiá trị tham chiếu của Hệ số ma sát động"}
+{"tu_id": 1381, "source": "Thread Shaft", "target": "Trục ren"}
+{"tu_id": 1382, "source": "Dynamic Friction Coefficient μ", "target": "Hệ số ma sát động μ"}
+{"tu_id": 1383, "source": "Steel (Lubrication)", "target": "Thép (Bôi trơn)"}
+{"tu_id": 1384, "source": "Steel (Non Lubrication)", "target": "Thép (Không bôi trơn)"}
+{"tu_id": 1385, "source": "Polyacetal / PPS Resin with Sliding Property", "target": "Nhựa Polyacetal / PPS có đặc tính trượt"}
+{"tu_id": 1386, "source": "Ed,d2: refer to P.04-061", "target": "Ed,d2: tham khảo T.04-061"}
+{"tu_id": 1387, "source": "EPOM, PPS Nuts is MISUMI's standard Prodcuts which are not posted to this catalog.", "target": "EĐai ốc POM, PPS là sản phẩm tiêu chuẩn của MISUMI, không được trình bày trong catalog này."}
+{"tu_id": 1388, "source": "1Steel (Lubrication) - Brass", "target": "1Thép (Bôi trơn) - Đồng"}
+{"tu_id": 1389, "source": "2Steel (No Lubrication) - Plastic", "target": "2Thép (Không bôi trơn) - Nhựa"}
+{"tu_id": 1390, "source": "Contact Pressure P(N/mm2)", "target": "Áp lực tiếp xúc P(N/mm2)"}
+{"tu_id": 1391, "source": "Sliding Speed V (m/min)", "target": "Vận tốc trượt V (m/phút)"}
+{"tu_id": 1392, "source": "EFor keyway processing details, please follow the shaft keyway dimensions show on Keyway machining.", "target": "EĐể biết chi tiết gia công rãnh then, vui lòng làm theo kích thước rãnh then trục tại phần Gia công rãnh then."}
+{"tu_id": 1393, "source": "E*d8 is only available for the round flanged type and compact flanged, 2-hole type.", "target": "E*d8 chỉ áp dụng cho loại mặt bích tròn và loại mặt bích nhỏ, 2 lỗ."}
+{"tu_id": 1395, "source": "Rolled Ball Screws Accuracy Grade C7", "target": "Vít Me Bi ren cán, độ chính xác C7"}
+{"tu_id": 1396, "source": "Shaft Dia.4 Lead 1/2", "target": "Đường kính trục 4, bước 1/2"}
+{"tu_id": 1397, "source": "Shaft Dia.6 Lead 1/2/6/10", "target": "Đường kính trục 6, bước 1/2/6/10"}
+{"tu_id": 1398, "source": "Shaft Dia.8 Lead 2", "target": "Đường kính trục 8, bước 2"}
+{"tu_id": 1399, "source": "Shaft Dia.10 Lead 2/4", "target": "Đường kính trục 10, bước 2/4"}
+{"tu_id": 1400, "source": "Shaft Dia.12 Lead 4/5/10", "target": "Đường kính trục 12, bước 4/5/10"}
+{"tu_id": 1401, "source": "Shaft Dia.16 Lead 5/10", "target": "Đường kính trục 16, bước 5/10"}
+{"tu_id": 1402, "source": "Shaft Dia.15 Lead 16/20", "target": "Đường kính trục 15, bước 16/20"}
+{"tu_id": 1403, "source": "Shaft Dia.20 Lead 5/10/20", "target": "Đường kính trục 20, bước 5/10/20"}
+{"tu_id": 1404, "source": "Shaft Dia.25 Lead 5/10/25", "target": "Đường kính trục 25, bước 5/10/25"}
+{"tu_id": 1405, "source": "Shaft Dia.32 Lead 5/10/32", "target": "Đường kính trục 32, bước 5/10/32"}
+{"tu_id": 1406, "source": "Precision Ball Screws Accuracy Grade C5", "target": "Ví Me Bi chính xác, độ chính xác C5"}
+{"tu_id": 1407, "source": "Shaft Dia.12 Lead 4/10", "target": "Đường kính trục 12, bước 4/10"}
+{"tu_id": 1408, "source": "Shaft Dia.15 Lead 20", "target": "Đường kính trục 15, bước 20"}
+{"tu_id": 1409, "source": "Left and Right Hand Precision Ball Screws Accuracy Grade C5", "target": "Vít Me Bi chính xác hai chiều, độ chính xác C5"}
+{"tu_id": 1410, "source": "Shaft Dia.4 Lead 1", "target": "Đường kính trục 4, bước 1"}
+{"tu_id": 1411, "source": "Shaft Dia.8 Lead 1/2/4/5/10", "target": "Đường kính trục 8, bước 1/2/4/5/10"}
+{"tu_id": 1412, "source": "Shaft Dia.10 Lead 2/4/10", "target": "Đường kính trục 10, bước 2/4/10"}
+{"tu_id": 1413, "source": "Support Units for Ball Screw", "target": "Gối Đỡ Vít Me Bi"}
+{"tu_id": 1416, "source": "Fixed Side Narrow Pitch Square Type", "target": "Bên cố định, loại vuông, biên dạng hẹp"}
+{"tu_id": 1417, "source": "Support Side Narrow Pitch Square Type", "target": "Bên ổ đỡ, loại vuông, biên dạng hẹp"}
+{"tu_id": 1418, "source": "4-d1 Through d2 Counterbored Depth L", "target": "4-d1 Lỗ thông Lỗ bậc d2 chiều sâu L"}
+{"tu_id": 1421, "source": "Fixed Side Low Profile Type", "target": "Bên cố định, loại thấp"}
+{"tu_id": 1422, "source": "Support Side Low Profile Type", "target": "Bên ổ đỡ, loại thấp"}
+{"tu_id": 1423, "source": "Motor Brackets", "target": "Giá Đỡ Động Cơ"}
+{"tu_id": 1424, "source": "Both Ends Stepped For Support Units", "target": "Loại hai đầu kiểu bậc sử dụng gối đỡ"}
+{"tu_id": 1425, "source": "One End Stepped Type", "target": "Loại một đầu kiểu bậc"}
+{"tu_id": 1426, "source": "One End Double Stepped Type", "target": "Loại một đầu kiểu bậc kép"}
+{"tu_id": 1427, "source": "Both Ends Double Stepped Type", "target": "Loại hai đầu kiểu bậc kép"}
+{"tu_id": 1428, "source": "Lead Screw Nuts", "target": "Đai Ốc cho Vít Me"}
+{"tu_id": 1429, "source": "Nut Flanged Type", "target": "Loại mặt bích"}
+{"tu_id": 1430, "source": "Nut Compact Flanged type", "target": "Loại mặt bích nhỏ"}
+{"tu_id": 1431, "source": "Nut Wide Block type", "target": "Loại block rộng"}
+{"tu_id": 1432, "source": "Nut Tall Block type", "target": "Loại block cao"}
+{"tu_id": 1433, "source": "Lead Screw Support Units", "target": "Gối Đỡ Vít Me"}
+{"tu_id": 1434, "source": "Fixed Side Square Type", "target": "Bên cố định, loại vuông"}
+{"tu_id": 1435, "source": "Support Side Square Type", "target": "Bên ổ đỡ, loại vuông"}
+{"tu_id": 1436, "source": "Fixed Side Round Type", "target": "Bên cố định, loại tròn"}
+{"tu_id": 1437, "source": "Support Side Round Type", "target": "Bên ổ đỡ, loại tròn"}
+{"tu_id": 1438, "source": "Lead Screw Stop Plates", "target": "Bộ Kẹp Trục"}
+{"tu_id": 1439, "source": "Square type", "target": "Loại vuông"}
+{"tu_id": 1440, "source": "Round Square Type", "target": "Loại vuông / tròn"}
+{"tu_id": 1441, "source": "Side Handle Square Type", "target": "Loại vuông, tay cầm bên"}
+{"tu_id": 1442, "source": "Top Handle Square Type", "target": "Loại vuông, tay cầm trên"}
+{"tu_id": 1443, "source": "Side Handle Compact Square Type", "target": "Loại vuông nhỏ gọn, tay cầm bên"}
+{"tu_id": 1444, "source": "Round Flanged type", "target": "Loại mặt bích tròn"}
+{"tu_id": 1445, "source": "Round Bearing Type", "target": "Loại ổ bi tròn"}
+{"tu_id": 1446, "source": "Bearing Type For Position Indicators", "target": "Loại ổ bi dùng cho bộ hiển thị vị trí"}
+{"tu_id": 1447, "source": "Reference price", "target": "Giá tham khảo"}
+{"tu_id": 1448, "source": "Rolled Ball Screw × 1", "target": "Vít Me Bi ren cán × 1"}
+{"tu_id": 1449, "source": "Support Unit Fixed Side × 1", "target": "Gối Đỡ bên cố định × 1"}
+{"tu_id": 1450, "source": "Support Unit Fixed Side × 1", "target": "Gối Đỡ bên cố định × 1"}
+{"tu_id": 1451, "source": "Rolled Ball Screw × 1", "target": "Vít Me Bi ren cán × 1"}
+{"tu_id": 1452, "source": "Lead Screw × 1", "target": "Vít Me × 1"}
+{"tu_id": 1453, "source": "Shaft diameter (φ) 10mm", "target": "Đường kính trục (φ) 10mm"}
+{"tu_id": 1454, "source": "Lead 4mm", "target": "Bước ren 4mm"}
+{"tu_id": 1455, "source": "Shaft overall length 600mm", "target": "Tổng chiều dài trục 600mm"}
+{"tu_id": 1456, "source": "VND/pc", "target": "VND/chiếc"}
+{"tu_id": 1457, "source": "Total price", "target": "Tổng tiền"}
+{"tu_id": 1458, "source": "Unit price", "target": "Đơn giá"}
+{"tu_id": 1460, "source": "Lead Screw × 1", "target": "Vít Me × 1"}
+{"tu_id": 1461, "source": "Linear Guides × 2", "target": "Thanh trượt dẫn hướng × 2"}
+{"tu_id": 1462, "source": "Steel", "target": "Thép"}
+{"tu_id": 1463, "source": "Thread nominal (φ) 8mm", "target": "Đường kính ren danh nghĩa (φ) 8mm"}
+{"tu_id": 1464, "source": "Nominal model 15", "target": "Mã danh nghĩa 15"}
+{"tu_id": 1465, "source": "Rail length 670mm", "target": "Chiều dài thanh ray 670mm"}
+{"tu_id": 1466, "source": "Actuator × 1", "target": "Bộ Dẫn Động × 1"}
+{"tu_id": 1467, "source": "Support Unit Support Side × 1", "target": "Gối Đỡ bên ổ đỡ × 1"}
+{"tu_id": 1468, "source": "Base length 100mm", "target": "Chiều dài thân đế 100mm"}
+{"tu_id": 1469, "source": "Block:", "target": "Block:"}
+{"tu_id": 1470, "source": "Long block 1pcs", "target": "Đơn dài, 1 chiếc"}
+{"tu_id": 1471, "source": "Motor accessory F1", "target": "Mặt bích kết nối động cơ F1"}
+{"tu_id": 1472, "source": "Sensor quantity:", "target": "Số lượng cảm biến:"}
+{"tu_id": 1473, "source": "Actuator × 1", "target": "Bộ Dẫn Động × 1"}
+{"tu_id": 1474, "source": "Support Unit Support Side × 1", "target": "Gối Đỡ bên ổ đỡ × 1"}
+{"tu_id": 1475, "source": "Linear Guides × 2", "target": "Thanh trượt dẫn hướng × 2"}
+{"tu_id": 1476, "source": "* All products prices are without tax.", "target": "* Giá các sản phẩm đều chưa gồm thuế,"}
+{"tu_id": 1477, "source": "For prices reference, please visit MISUMI official website.", "target": "vui lòng tham khảo báo giá trên trang web chính thức để biết thêm chi tiết."}
+{"tu_id": 1478, "source": "Rolled Ball Screws Shaft Dia.6 Lead 1/2/6/10 Accuracy Grade C7", "target": "Vít Me Bi ren cán, đường kính trục 6, bước 1/2/6/10, độ chính xác C7"}
+{"tu_id": 1479, "source": "Rep Part:", "target": "Mã đại diện:"}
+{"tu_id": 1480, "source": "3 / Page:", "target": "3 / Trang:"}
+{"tu_id": 1481, "source": "1,299,859 VND/pc", "target": "1,299,859 VND/chiếc"}
+{"tu_id": 1482, "source": "Qty", "target": "Số lượng"}
+{"tu_id": 1483, "source": "DC", "target": "Chiết khấu"}
+{"tu_id": 1484, "source": "Rolled Ball Screws Shaft Dia.12 Lead 4/5/10 Accuracy Grade C7", "target": "Vít Me Bi ren cán, đường kính trục 12, bước 4/5/10, độ chính xác C7"}
+{"tu_id": 1485, "source": "Shaft Dia.12", "target": "Đường kính trục 12"}
+{"tu_id": 1487, "source": "Index:", "target": "Chương:"}
+{"tu_id": 1488, "source": "Availalble Length:", "target": "Chiều dài có sẵn:"}
+{"tu_id": 1489, "source": "VS Standard", "target": "So với Dòng Tiêu Chuẩn"}
+{"tu_id": 1490, "source": "91% OFF", "target": "TIẾT KIỆM 91%"}
+{"tu_id": 1491, "source": "Rolled Ball Screws Shaft Dia.20 Lead 5/10/20 Accuracy Grade C7", "target": "Vít Me Bi ren cán, đường kính trục 20, bước 5/10/20, độ chính xác C7"}
+{"tu_id": 1492, "source": "Rolled Ball Screws Shaft Dia.32 Lead 5/10/32 Accuracy Grade C7", "target": "Vít Me Bi ren cán, đường kính trục 32, bước 5/10/32, độ chính xác C7"}
+{"tu_id": 1493, "source": "Precision Ball Screws Shaft Dia.4 Lead 1/2 Accuracy Grade C5", "target": "Vít Me Bi chính xác, đường kính trục 4, bước 1/2, độ chính xác C5"}
+{"tu_id": 1494, "source": "Precision Ball Screws Shaft Dia.10 Lead 2/4 Accuracy Grade C5", "target": "Vít Me Bi chính xác, đường kính trục 10, bước 2/4, độ chính xác C5"}
+{"tu_id": 1495, "source": "Precision Ball Screws Shaft Dia.15 Lead 5/10/20 Accuracy Grade C5", "target": "Vít Me Bi chính xác, đường kính trục 15, bước 5/10/20, độ chính xác C5"}
+{"tu_id": 1496, "source": "Precision Ball Screws Shaft Dia.25 Lead 5/10/25 Accuracy Grade C5", "target": "Vít Me Bi chính xác, đường kính trục 25, bước 5/10/25, độ chính xác C5"}
+{"tu_id": 1497, "source": "Left and Right Hand Precision Ball Screws Shaft Dia.8 Lead 1/2/4/5/10 Accuracy Grade C5", "target": "Vít Me Bi chính xác, hai chiều, đường kính trục 8, bước 1/2/4/5/10, độ chính xác C5"}
+{"tu_id": 1498, "source": "Left and Right Hand Precision Ball Screws Shaft Dia.10 Lead 2/4/10 Accuracy Grade C5", "target": "Vít Me Bi chính xác hai chiều, đường kính trục 10, bước 2/4/10, độ chính xác C5"}
+{"tu_id": 1499, "source": "Support Units for Ball Screw, Fixed Side Square Type", "target": "Gối Đỡ Vít Me Bi, bên cố định, loại vuông"}
+{"tu_id": 1500, "source": "-Available Size:", "target": "-Kích thước có sẵn:"}
+{"tu_id": 1501, "source": "Shaft Dia.6~20", "target": "Đường kính trục 6~20"}
+{"tu_id": 1502, "source": "Support Units for Ball Screw, Support Side Square Type", "target": "Gối Đỡ Vít Me Bi, bên ổ đỡ, loại vuông"}
+{"tu_id": 1503, "source": "Support Units for Ball Screw, Fixed Side Round Type", "target": "Gối Đỡ Vít Me Bi, bên cố định, loại tròn"}
+{"tu_id": 1504, "source": "Lead Screws-Both Ends Stepped", "target": "Vít Me, loại hai đầu kiểu bậc"}
+{"tu_id": 1505, "source": "S45C &amp; SUS303 Equivalent / Size:", "target": "Tương đương S45C &amp; SUS303 / Kích thước:"}
+{"tu_id": 1506, "source": "Screw Dia.8~25 / Length:", "target": "Đường kính vít me 8~25 / Chiều dài:"}
+{"tu_id": 1507, "source": "Screw Dia.12~25 / Length:", "target": "Đường kính vít me 12~25 / Chiều dài:"}
+{"tu_id": 1508, "source": "Lead Screws-One End Stepped Type", "target": "Vít Me, loại một đầu kiểu bậc"}
+{"tu_id": 1509, "source": "Lead Screw Support Units Square Type, Fixed Side / Support Side", "target": "Gối Đỡ Vít Me loại vuông, bên cố định / bên ổ đỡ"}
+{"tu_id": 1510, "source": "Position Indicator, Standard", "target": "Bộ Hiển Thị Vị Trí, loại tiêu chuẩn"}
+{"tu_id": 1511, "source": "QShort delivery time", "target": "QThời gian giao hàng ngắn"}
+{"tu_id": 1512, "source": "· Drawing-based machining is no longer required, saving the time for drawing.", "target": "· Bản vẽ có sẵn, tiết kiệm thời gian thiết kế"}
+{"tu_id": 1513, "source": "Generic products on the market", "target": "Sản phẩm lưu thông trên thị trường"}
+{"tu_id": 1514, "source": "Place an order", "target": "Đặt hàng"}
+{"tu_id": 1515, "source": "Receive the goods", "target": "Nhận hàng"}
+{"tu_id": 1516, "source": "Placean order", "target": "Đặthàng"}
+{"tu_id": 1517, "source": "Accuracy grade C5-C7 Meets most positioning and feeding needs", "target": "Độ chính xác C5-C7 Phù hợp với hầu hết các cơ cấu định vị và cấp liệu"}
+{"tu_id": 1518, "source": "MISUMI Economyseries", "target": "Dòng MISUMI Economy"}
+{"tu_id": 1519, "source": "*Generic products on the market are similar products which was randomly purchased by our company from online or offline markets", "target": "*Sản phẩm lưu thông trên thị trường là sản phẩm tương tự được công ty chúng tôi mua ngẫu nhiên từ thị trường"}
+{"tu_id": 1520, "source": "φ4~φ32 Complete specifications, Best for use with Economy series support unit", "target": "Thông số đường kính φ4~φ32, tốt nhất nên sử dụng cùng gối đỡ dòng Economy"}
+{"tu_id": 1521, "source": "QQuality Assurance", "target": "QĐảm bảo chất lượng"}
+{"tu_id": 1522, "source": "· Even for MISUMI Economy series, the same factory inspection as that of MISUMI Standard products is carried out to provide users with products that meet the catalog specifications.", "target": "· Dòng MISUMI Economy có tiêu chuẩn kiểm tra giống như dòng tiêu chuẩn MISUMI, đều được kiểm tra chất lượng trước khi xuất xưởng, đảm bảo cung cấp cho người dùng những sản phẩm đáp ứng được thông số kỹ thuật trong catalog."}
+{"tu_id": 1524, "source": "QCategories of use", "target": "QSo sánh dòng Economy và dòng tiêu chuẩn"}
+{"tu_id": 1525, "source": "P:", "target": "P:"}
+{"tu_id": 1526, "source": "Excellent G:", "target": "Rất tốt G:"}
+{"tu_id": 1527, "source": "QSpecifications", "target": "QThông số"}
+{"tu_id": 1528, "source": "C5 (Precision)", "target": "C5 (loại chính xác)"}
+{"tu_id": 1529, "source": "C7 (Rolled)", "target": "C7 (loại ren cán)"}
+{"tu_id": 1530, "source": "· Rolled Ball Screws", "target": "· Vít Me Bi ren cán"}
+{"tu_id": 1531, "source": "· Precision Ball Screws", "target": "· Vít Me Bi chính xác"}
+{"tu_id": 1532, "source": "Lead (mm)", "target": "Bước ren (mm)"}
+{"tu_id": 1533, "source": "(mm)", "target": "(mm)"}
+{"tu_id": 1534, "source": "Accuracy grade", "target": "Cấp độ chính xác"}
+{"tu_id": 1536, "source": "Accuracy grade", "target": "Cấp độ chính xác"}
+{"tu_id": 1537, "source": "Axial Clearance (mm)", "target": "Khe hở hướng trục (mm)"}
+{"tu_id": 1538, "source": "Example of Use", "target": "Ứng dụng"}
+{"tu_id": 1539, "source": "EThe example of use is for reference only.", "target": "EỨng dụng chỉ mang tính tham khảo."}
+{"tu_id": 1540, "source": "Please select the appropriate product according to the actual situation.", "target": "Vui lòng lựa chọn sản phẩm phù hợp với tình hình thực tế."}
+{"tu_id": 1541, "source": "* Screw shaft length can be specified in 1mm increments.", "target": "* Chiều dài trục vít có thể cấu hình với gia số 1mm"}
+{"tu_id": 1542, "source": "MISUMI Standard product", "target": "Dòng tiêu chuẩn MISUMI"}
+{"tu_id": 1543, "source": "QAlthough the machining is carried out according to the standard shaft end by default, there are a variety of alterations that can be specified.", "target": "QDù mặc định là gia công theo đầu trục tiêu chuẩn, nhưng cũng có nhiều tùy chọn gia công bổ sung."}
+{"tu_id": 1544, "source": "QBall Screw Lead Precision", "target": "QĐộ chính xác của bước ren Vít Me Bi"}
+{"tu_id": 1545, "source": "Allowable value of representative travel error (±ep) and variation (Vu)", "target": "Giá trị sai số độ chuyển động đại diện (±ep) và độ biến thiên (Vu) cho phép"}
+{"tu_id": 1546, "source": "· Alteration options for the support side shaft end", "target": "· Tùy chọn gia công bổ sung ở đầu trục bên ổ đỡ"}
+{"tu_id": 1547, "source": "· Alteration options for the fixed side shaft end", "target": "· Tùy chọn gia công bổ sung ở đầu trục bên cố định"}
+{"tu_id": 1548, "source": "Effective Thread Length (lu)", "target": "Chiều dài ren khả dụng (lu)"}
+{"tu_id": 1549, "source": "C5 (Economy series)", "target": "C5 (Dòng Economy)"}
+{"tu_id": 1550, "source": "· Both the support side and the fixed side are shipped after machining according to the assembly dimensions with the applicable support unit.", "target": "· Cả đầu trục hai bên đều được gia công phù hợp với gối đỡ hiện hành."}
+{"tu_id": 1551, "source": "0’", "target": "0’"}
+{"tu_id": 1552, "source": "or Less", "target": "Bằng hoặc nhỏ hơn"}
+{"tu_id": 1553, "source": "ep", "target": "ep"}
+{"tu_id": 1554, "source": "Standard value of variation (V300) relative to displacement 300mm and pitch periodic error (V2π)", "target": "Giá trị tiêu chuẩn tương ứng với dịch chuyển 300mm gồm biến thiên (V300) và sai số chu kỳ bước ren (V2π)"}
+{"tu_id": 1555, "source": "Nominal Dimensions", "target": "Kích thước danh nghĩa"}
+{"tu_id": 1556, "source": "* For details of the machining content, please visit MISUMI official website.", "target": "* Để biết nội dung gia công chi tiết, vui lòng truy cập trang web chính thức của MISUMI."}
+{"tu_id": 1557, "source": "· Economy series Support Units and Economy series Motor Brackets can also be purchased.", "target": "· Ngoài ra có thể chọn mua gối đỡ dòng Economy và giá đỡ động cơ dòng Economy."}
+{"tu_id": 1559, "source": "P.03-009", "target": "T.03-009"}
+{"tu_id": 1561, "source": "P.03-021~P.03-022", "target": "T.03-021~T.03-022"}
+{"tu_id": 1562, "source": "Economy series Motor Brackets (P.03-056)", "target": "Giá đỡ động cơ dòng Economy (T.03-056)"}
+{"tu_id": 1563, "source": "Square-Standard Type (P.03-051)", "target": "Loại vuông (T.03-051)"}
+{"tu_id": 1564, "source": "Square-Narrow Pitch Type (P.03-052)", "target": "Loại vuông, biên dạng hẹp (T.03-052)"}
+{"tu_id": 1565, "source": "Applicable stepper motor", "target": "Phù hợp với động cơ bước"}
+{"tu_id": 1566, "source": "Applicable servo motor", "target": "Phù hợp với động cơ servo"}
+{"tu_id": 1567, "source": "Round Type (P.03-053)", "target": "Loại tròn (T.03-053)"}
+{"tu_id": 1568, "source": "Low Profile Type (P.03-054)", "target": "Loại thấp (T.03-054)"}
+{"tu_id": 1569, "source": "Screw shaft O.D.", "target": "Đường kính trục vít"}
+{"tu_id": 1570, "source": "Allowable Rotational Speed (min-1)", "target": "Tốc độ quay cho phép (min-1)"}
+{"tu_id": 1571, "source": "Support pitch (mm)", "target": "Khoảng cách giữa 2 gối đỡ (mm)"}
+{"tu_id": 1572, "source": "Fixed - Free", "target": "Cố định - Tự do"}
+{"tu_id": 1573, "source": "That maximum difference of the actual travel contained between two lines drawn parallel to the actual mean travel, and is defined by three parameters below.", "target": "3 hạng mục dưới đây được quy định dựa trên độ chuyển động thực tế lớn nhất bị chặn bởi 2 đường thẳng song song đại diện cho độ chuyển động."}
+{"tu_id": 1574, "source": "ls", "target": "ls"}
+{"tu_id": 1575, "source": "la", "target": "la"}
+{"tu_id": 1576, "source": "lm", "target": "lm"}
+{"tu_id": 1577, "source": "QScrew shaft runout tolerance", "target": "QDung sai độ đảo trục vít"}
+{"tu_id": 1578, "source": "Incomplete Hardened Area (L)", "target": "Vùng chưa hoàn thiện tôi cứng (L)"}
+{"tu_id": 1579, "source": "QPrecautions", "target": "QLưu ý khi lựa chọn"}
+{"tu_id": 1580, "source": "(4)Please check the flexibility by rotating the screw shaft with the fixed nut or rotating the nut with the fixed shaft.", "target": "(4)Vui lòng kiểm tra độ linh hoạt bằng cách xoay trục vít với đai ốc cố định hoặc bằng cách xoay đai ốc với trục cố định."}
+{"tu_id": 1581, "source": "(5)Rotating the nut by hand may not feel smooth, but does not affect the positioning precision.", "target": "(5)Xoay đai ốc bằng tay có thể cảm thấy không trơn tru, nhưng nó sẽ không ảnh hưởng đến độ chính xác của vị trí."}
+{"tu_id": 1582, "source": "Please feel free to use.", "target": "Vui lòng yên tâm sử dụng."}
+{"tu_id": 1583, "source": "(6)In operation, if there is too much noise or sharp and harsh sound, please make sure that the installation accuracy of the screw and the specifications of peripheral components such as motors and couplings are appropriate.", "target": "(6)Trong quá trình vận hành, nếu xuất hiện tiếng ồn quá lớn hoặc âm thanh chói tai, trước tiên vui lòng xác nhận độ chính xác khi lắp đặt của vít me và các thông số kỹ thuật của các bộ phận ngoại vi như động cơ và khớp nối có ăn khớp hay không."}
+{"tu_id": 1584, "source": "(7)Although lithium soap-based grease has been applied at the factory, it is required to apply new grease every 2~3 months as standard after receiving the goods.", "target": "(7)Mặc dù đã tra mỡ gốc xà phòng lithium khi xuất xưởng nhưng cần tra mỡ mới sau mỗi 2~3 tháng kể từ khi nhận được hàng."}
+{"tu_id": 1585, "source": "(8)Do not let the nut exceed the movement range of the ball screw nut, or screw out of the screw shaft, otherwise the ball will fall off and the ball cycling parts will be damaged.", "target": "(8)Không để đai ốc vượt ra ngoài phạm vi chuyển động của đai ốc vít me bi, hoặc tháo ra khỏi trục vít me, nếu không bi sẽ rơi ra và làm hỏng các bộ phận tuần hoàn bi lăn khác."}
+{"tu_id": 1586, "source": "(9)Nut overstroke operation is prohibited.", "target": "(9)Không để đai ốc vận hành vượt quá hành trình."}
+{"tu_id": 1587, "source": "(10)This product is a machined type, so there will be knife patterns and color difference in its appearance.", "target": "(10)Đây là sản phẩm gia công nên nhìn bề ngoài sẽ thấy những vết dao và màu sắc có sự sai khác, nhưng cơ bản không ảnh hưởng đến công năng chính."}
+{"tu_id": 1588, "source": "Small scratches or color changes without affecting the use and main function are a normal phenomenon.", "target": "Nếu sản phẩm có một chút trầy xước hoặc thay đổi màu sắc thì đó là điều bình thường."}
+{"tu_id": 1589, "source": "(11)The noise value of the screw after assembly is not guaranteed.", "target": "(11)Không đảm bảo độ ồn sau khi vít me được lắp ráp."}
+{"tu_id": 1590, "source": "No impact on the nut", "target": "Không gây chấn động cho đai ốc"}
+{"tu_id": 1591, "source": "• Allowable Axial Load Check", "target": "• Kiểm tra tải trọng hướng trục cho phép"}
+{"tu_id": 1593, "source": "NG", "target": "NG"}
+{"tu_id": 1594, "source": "Unit", "target": "Đơn vị"}
+{"tu_id": 1595, "source": "Positioning Accuracy", "target": "Độ định vị chính xác"}
+{"tu_id": 1596, "source": "Time", "target": "Thời gian"}
+{"tu_id": 1597, "source": "Axial Clearance:", "target": "Khe hở hướng trục:"}
+{"tu_id": 1598, "source": "Allowable Axial Load Check", "target": "Kiểm tra tải trọng hướng trục cho phép"}
+{"tu_id": 1599, "source": "Allowable Axial Load", "target": "Tải trọng hướng trục cho phép"}
+{"tu_id": 1600, "source": "Screw Shaft:", "target": "Trục vít me:"}
+{"tu_id": 1601, "source": "Nut:", "target": "Đai ốc:"}
+{"tu_id": 1602, "source": "Allowable Rotational Speed", "target": "Tốc độ quay cho phép"}
+{"tu_id": 1603, "source": "1 Screw Shaft", "target": "1 Trục vít me"}
+{"tu_id": 1604, "source": "2 Nut", "target": "2 Đai ốc"}
+{"tu_id": 1605, "source": "Incomplete Hardened Area", "target": "Vùng chưa hoàn thiện tôi cứng"}
+{"tu_id": 1606, "source": "EBall bearings will fall out if the ball nut crosses the wrench flats.", "target": "ENếu đai ốc di chuyển đến rãnh vặn vít, bi sẽ rơi ra."}
+{"tu_id": 1607, "source": "EThe nut may not be moved within the Incomplete Hardened Area.", "target": "EĐai ốc không thể di chuyển trong vùng chưa hoàn thiện tôi cứng."}
+{"tu_id": 1608, "source": "Note that when selecting.", "target": "Vui lòng lưu ý điều này khi chọn mẫu."}
+{"tu_id": 1609, "source": "EWhen 5 and 6 are specified simultaneously, no male thread will be machined regardless of the value specified for U in 5.", "target": "EKhi 5, 6được chỉ định đồng thời, bất kể giá trị nào được chỉ định cho U trong 5, ren ngoài sẽ không được gia công."}
+{"tu_id": 1610, "source": "*Accessory collar (1 pcs.)", "target": "*Vòng trục kèm theo (1 chiếc)"}
+{"tu_id": 1611, "source": "*Collar", "target": "*Vòng trục"}
+{"tu_id": 1612, "source": "Y (Nut Movement Range)", "target": "Y (Hành trình của đai ốc)"}
+{"tu_id": 1613, "source": "Y (Nut Movement Range)", "target": "Y (Hành trình của đai ốc)"}
+{"tu_id": 1614, "source": "Change dimensions of big steps on the fixed side 7≤C≤22 4≤U≤C-3 C, U=1mm increments", "target": "Thay đổi kích thước bậc lớn bên cố định 7≤C≤22 4≤U≤C-3 C, U=Gia số 1mm"}
+{"tu_id": 1615, "source": "4Overall Length L (1mm increments)", "target": "4Tổng chiều dài L (Gia số 1mm)"}
+{"tu_id": 1616, "source": "C (Dynamic) kN", "target": "C (Động) kN"}
+{"tu_id": 1617, "source": "C (Static) kN", "target": "C (Tĩnh) kN"}
+{"tu_id": 1618, "source": "Fixed side model", "target": "Mã sản phẩm bên cố định"}
+{"tu_id": 1619, "source": "Support side model", "target": "Mã sản phẩm bên ổ đỡ"}
+{"tu_id": 1620, "source": "*The Y dimension must be larger than the full length of the nut", "target": "*Kích thước của Y phải lớn hơn tổng chiều dài của đai ốc"}
+{"tu_id": 1621, "source": "No Retaining Ring Groove on Support Side Shaft End.", "target": "Không gia công rãnh vòng hãm đầu trục bên ổ đỡ."}
+{"tu_id": 1622, "source": "Change the length of the support side shaft end.", "target": "Thay đổi chiều dài đầu trục bên ổ đỡ."}
+{"tu_id": 1623, "source": "When specified simultaneously with 8, 5≤SC≤F-1 SC=1mm increments", "target": "Khi 8 được chỉ định đồng thời, 5≤SC≤F-1 SC=Gia số 1mm"}
+{"tu_id": 1624, "source": "Change dimensions of small steps on the fixed side 8≤F≤13 4≤P≤5 F, P=1mm increments", "target": "Thay đổi kích thước bậc nhỏ bên cố định 8≤F≤13 4≤P≤5 F, P=Gia số 1mm"}
+{"tu_id": 1625, "source": "Change dimensions of big steps on the fixed side 9≤E≤30 6≤U≤E-3 E, U=1mm increments", "target": "Thay đổi kích thước bậc lớn bên cố định 9≤E≤30 6≤U≤E-3 C, U=Gia số 1mm"}
+{"tu_id": 1626, "source": "EOnly one of 1, 3 and 4 can be selected.", "target": "EChỉ được chọn một trong các số 1, 3, 4."}
+{"tu_id": 1627, "source": "EOnly one of 7 and 8 can be selected.", "target": "EChỉ được chọn một trong các số 7, 8."}
+{"tu_id": 1629, "source": "Please reconfirm.", "target": "vui lòng xác nhận lại."}
+{"tu_id": 1630, "source": "R0.3or less", "target": "R0.3trở xuống"}
+{"tu_id": 1631, "source": "Whenmachiningis specified", "target": "Chỉ định"}
+{"tu_id": 1634, "source": "φ8 Counterbored Depth 4.5", "target": "Lỗ bậc φ8 chiều sâu 4.5"}
+{"tu_id": 1635, "source": "2≤KC≤8 When specified simultaneously with 0, 2≤KC≤F-1", "target": "2≤KC≤8 Khi 0 được chỉ định đồng thời, 2≤KC≤F-1"}
+{"tu_id": 1637, "source": "The machining position of keyways at fixed side shaft end can be specified.", "target": "Vị trí gia công rãnh then ở đầu trục bên cố định có thể được xác định cụ thể."}
+{"tu_id": 1638, "source": "(Keyway size is the same as KC.)", "target": "(Kích thước rãnh then giống với KC)."}
+{"tu_id": 1639, "source": "When specified simultaneously with 0, 2≤K≤16 K+S≤F-1", "target": "Khi 0 được chỉ định đồng thời, 2≤K≤16 K+S≤F-1"}
+{"tu_id": 1640, "source": "K, S=1mm increments", "target": "K, S=Gia số 1mm"}
+{"tu_id": 1641, "source": "QEK Shaft End", "target": "QĐầu trục kiểu EK"}
+{"tu_id": 1642, "source": "4Overall Length L (1mm increments)", "target": "4Tổng chiều dài L (Gia số 1mm)"}
+{"tu_id": 1643, "source": "Twisting Direction", "target": "Chiều ren"}
+{"tu_id": 1644, "source": "QBK Shaft End", "target": "QĐầu trục kiểu BK"}
+{"tu_id": 1645, "source": "Square Type (Space-saving)", "target": "Loại vuông (Tiết kiệm không gian)"}
+{"tu_id": 1646, "source": "Y (Nut Movement Range)", "target": "Y (Hành trình của đai ốc)"}
+{"tu_id": 1647, "source": "EWhen specified, Y dimension will become shorter.", "target": "EKích thước Y sẽ ngắn hơn khi được chỉ định."}
+{"tu_id": 1648, "source": "R0.3 or less", "target": "R0.3 trở xuống"}
+{"tu_id": 1649, "source": "When machining is specified", "target": "Chỉ định"}
+{"tu_id": 1650, "source": "When specified simultaneously with 0, 2≤KC≤F-1XP=5 is not applicable", "target": "Khi 0 được chỉ định đồng thời, 2≤KC≤F-1XP = 5 không áp dụng"}
+{"tu_id": 1651, "source": "When specified simultaneously with 0, 2≤K≤16 K+S≤F-1", "target": "Khi 0 được chỉ định đồng thời, 2≤K≤16 K+S≤F-1"}
+{"tu_id": 1652, "source": "3≤KC≤14 When specified simultaneously with Q, 3≤KC≤F-1", "target": "3≤KC≤14 Khi Q được chỉ định đồng thời, 3≤KC≤F-1"}
+{"tu_id": 1653, "source": "When specified simultaneously with Q, 3≤K≤22  K+S≤F-1", "target": "Khi Q được chỉ định đồng thời, 3≤K≤22  K+S≤F-1"}
+{"tu_id": 1654, "source": "5≤SC≤14 When specified simultaneously with Q, 5≤SC≤F-1", "target": "5≤SC≤14 Khi Q được chỉ định đồng thời, 5≤SC≤F-1"}
+{"tu_id": 1655, "source": "SC=1mm increments", "target": "SC=Gia số 1mm"}
+{"tu_id": 1658, "source": "3≤KC≤14 When specified simultaneously with Q, 3≤KC≤F-1 KC=1mm increments", "target": "3≤KC≤14 Khi Q được chỉ định đồng thời, 3≤KC≤F-1 KC=Gia số 1mm"}
+{"tu_id": 1659, "source": "5≤SC≤14 When specified simultaneously with Q, 5≤SC≤F-1 SC=1mm increments", "target": "5≤SC≤14 Khi Q được chỉ định đồng thời, 5≤SC≤F-1 SC=Gia số 1mm"}
+{"tu_id": 1660, "source": "11≤FC≤30 FC=1mm increments", "target": "11≤FC≤30 FC=Gia số 1mm"}
+{"tu_id": 1661, "source": "4≤KC≤19 When specified simultaneously with Q, 4≤KC≤F-1 KC=1mm increments", "target": "4≤KC≤19 Khi Q được chỉ định đồng thời, 4≤KC≤F-1 KC=Gia số 1mm"}
+{"tu_id": 1662, "source": "4≤K≤18 K+S≤19 When specified simultaneously with Q, 4≤K≤34  K+S≤F-1", "target": "4≤K≤18 K+S≤19 Khi Q được chỉ định đồng thời, 4≤K≤34  K+S≤F-1"}
+{"tu_id": 1663, "source": "5≤SC≤19 When specified simultaneously with Q, 5≤SC≤F-1 SC=1mm increments", "target": "5≤SC≤19 Khi Q được chỉ định đồng thời, 5≤SC≤F-1 SC=1mm increments"}
+{"tu_id": 1664, "source": "Screw ShaftO.D.", "target": "Đường kínhtrục vít"}
+{"tu_id": 1665, "source": "Lead(mm)", "target": "Bước ren(mm)"}
+{"tu_id": 1666, "source": "Economy series Left and Right Hand Precision Ball Screws", "target": "Dòng Economy Vít Me Bi chính xác, hai chiều"}
+{"tu_id": 1667, "source": "Shaft dia. is φ4~10, length can be specified in 1mm increments, available with multiple alteration options.", "target": "Đường kính trục φ4~10, chiều dài có thể cấu hình với gia số 1mm, có thể tùy chọn gia công bổ sung."}
+{"tu_id": 1668, "source": "QHigh precision machining equipment and detecting instruments are adopted to guarantee screw accuracy.", "target": "QSử dụng thiết bị gia công và máy móc kiểm tra có độ chính xác cao, độ chính xác của Vít Me Bi được đảm bảo."}
+{"tu_id": 1669, "source": "· Auto-adjustable high-speed spindle", "target": "· Trục chính tốc độ cao có thể tự động điều chỉnh"}
+{"tu_id": 1670, "source": "· High accuracy detecting instruments like precision contour measuring instruments", "target": "· Máy móc kiểm tra có độ chính xác cao như máy đo độ nhám chính xác"}
+{"tu_id": 1671, "source": "▲One of the factors affecting the screw accuracy", "target": "▲Một trong những yếu tố ảnh hưởng đến độ chính xác của vít me"}
+{"tu_id": 1672, "source": "▲Compliance with MISUMI’s catalog standard is guaranteed", "target": "▲Đảm bảo đáp ứng tiêu chuẩn theo catalog MISUMI"}
+{"tu_id": 1673, "source": "QShaft dia. is φ4~10, and length can be specified in 1mm increments.", "target": "QđườngĐường kính trục φ4~10, chiều dài có thể cấu hình với gia số 1mm."}
+{"tu_id": 1674, "source": "5≤SC≤6 SC=1mm increments", "target": "5≤SC≤6 SC=Gia số 1mm"}
+{"tu_id": 1675, "source": "Part Number / Type", "target": "Loại"}
+{"tu_id": 1676, "source": "2025 Cost-Effective Solutions", "target": "Giải pháp tiết kiệm chi phí 2025"}
+{"tu_id": 1677, "source": "C7 Compact Size of Ball Screws which has a screw dia.6 with Lead Variation \"1/2/6/10\".", "target": "Vít Me Bi kích thước nhỏ cấp C7, với đường kính trục 6 và các tùy chọn bước ren “1/2/6/10”."}
+{"tu_id": 1678, "source": "-The most suitable application is for Feeding Mechanism in FA Automation.", "target": "-Phù hợp nhất để ứng dụng cho cơ cấu cấp liệu trong ngành tự động hóa FA."}
+{"tu_id": 1679, "source": "-Various End Shaft Processing is selectable.", "target": "-Nhiều tùy chọn gia công đầu trục."}
+{"tu_id": 1680, "source": "C7 Ball Screws which has a screw dia.12 with Lead Variation \"4/5/10\".", "target": "Vít Me Bi cấp C7, với đường kính trục 12 và các tùy chọn bước ren “4/5/10”."}
+{"tu_id": 1681, "source": "-The most suitable application is for Feeding Mechanism in FA Automation.", "target": "-Phù hợp nhất để ứng dụng cho cơ cấu cấp liệu trong ngành tự động hóa FA."}
+{"tu_id": 1682, "source": "C7 Ball Screws which has a screw dia.20 with Lead Variation \"5/10/20\".", "target": "Vít Me Bi cấp C7, với đường kính trục 20 và các tùy chọn bước ren “5/10/20”."}
+{"tu_id": 1683, "source": "C7 Ball Screws which has a screw dia.32 with Lead Variation \"5/10/32\".", "target": "Vít Me Bi cấp C7, với đường kính trục 32 và các tùy chọn bước ren “5/10/32”."}
+{"tu_id": 1684, "source": "C5 Precision Compact Size of Ball Screw which has a shaft dia.4 and lead of \"1/2\".", "target": "Vít Me Bi kích thước nhỏ độ chính xác C5, với đường kính trục 4 và bước ren “1/2”."}
+{"tu_id": 1685, "source": "-Suitable application is precise positioning in FA automation equipment.", "target": "-Phù hợp cho ứng dụng định vị chính xác trong thiết bị tự động hóa FA."}
+{"tu_id": 1686, "source": "C5 Precision Ball Screw which has a shaft dia.10 and lead of \"2/4\".", "target": "Vít Me Bi chính xác cấp C5, với đường kính trục 10 và bước ren “2/4”."}
+{"tu_id": 1687, "source": "C5 Precision Ball Screw which has a shaft dia.15 and lead of \"5/10/20\".", "target": "Vít Me Bi chính xác cấp C5, với đường kính trục 15 và bước ren “5/10/20”."}
+{"tu_id": 1688, "source": "C5 Precision Ball Screw which has a shaft dia.25 and lead of \"5/10/25\".", "target": "Vít Me Bi chính xác, độ chính xác C5, với đường kính trục 25 và bước ren “5/10/25”."}
+{"tu_id": 1689, "source": "C5 Precision Left / Right Hand Ball Screw which has a shaft dia.5 and lead of \"1/2/4/5/10\".", "target": "Vít Me Bi hai chiều, độ chính xác C5, với đường kính trục 5 và bước ren “1/2/4/5/10”."}
+{"tu_id": 1690, "source": "-Suitable application is precise positioning or centering in FA automation equipment.", "target": "-Phù hợp cho ứng dụng định vị chính xác hoặc định tâm trong thiết bị tự động hóa FA."}
+{"tu_id": 1691, "source": "C5 Precision Left / Right Hand Ball Screw which has a shaft dia.10 and lead of \"2/4/10\".", "target": "Vít Me Bi hai chiều, độ chính xác C5, với đường kính trục 10 và bước ren “2/4/10”."}
+{"tu_id": 1692, "source": "The support unit plays a role in achieving high-precision positioning and extending the overall service life of the machine.", "target": "Gối đỡ góp phần đảm bảo định vị chính xác cao và kéo dài tuổi thọ chung của máy."}
+{"tu_id": 1693, "source": "Radial and thrust loads are supported by angular contact bearings sealed within the unit.", "target": "Tải trọng hướng tâm và tải trọng dọc trục được hỗ trợ bởi các vòng bi tiếp xúc góc, được bịt kín bên trong gối đỡ."}
+{"tu_id": 1694, "source": "\"Support Side\" Unit supports the ball screw shaft end using radial bearings.", "target": "Gối đỡ “bên ổ đỡ” hỗ trợ đầu trục vít me bi bằng vòng bi hướng tâm."}
+{"tu_id": 1695, "source": "When used in combination with the fixed-side unit, it helps maintain the perpendicularity and concentricity of the ball screw, contributing to high-precision positioning and smooth linear motion in the system.", "target": "Khi kết hợp với gối đỡ bên cố định, gối đỡ “bên ổ đỡ” giúp đảm bảo độ vuông góc và độ đồng tâm của vít me bi, góp phần giúp hệ thống có thể định vị chính xác cao và chuyển động tuyến tính mượt mà."}
+{"tu_id": 1696, "source": "\"Round Type\" C-TFK serves the same function as \"Square Type\" C-TEK, but its flanged design allows for wall mounting.", "target": "C-TFK “loại tròn” có chức năng tương tự như C-TEK “loại vuông”, nhưng thiết kế dạng mặt bích của C-TFK cho phép có thể gắn trên tường."}
+{"tu_id": 1697, "source": "It is recommended to select the appropriate type based on specific design requirements.", "target": "Nên lựa chọn loại phù hợp dựa trên yêu cầu thiết kế cụ thể."}
+{"tu_id": 1698, "source": "\"Low Profile Type\" E-TLK is designed for space saving recommended to the machanism which has space limitation.", "target": "E-TLK “loại thấp” được thiết kế để tiết kiệm không gian, khuyến nghị sử dụng cho các cơ cấu có giới hạn về không gian."}
+{"tu_id": 1699, "source": "\"E-TLF\" is mated unit of support side.", "target": "“E-TLF” là bộ phận đồng bộ với bên ổ đỡ."}
+{"tu_id": 1700, "source": "Aluminum Alloy Bracket which is compatible with various motor brands, including MISUMI(New Products in 2025 Aug), Yaskawa, Mitsubishi, Delta, Inovance, and Panasonic.", "target": "Giá Đỡ hợp kim nhôm tương thích với nhiều nhãn hiệu động cơ, bao gồm MISUMI (sản phẩm mới ra mắt tháng 8 năm 2025), Yaskawa, Mitsubishi, Delta, Inovance và Panasonic."}
+{"tu_id": 1701, "source": "By adding \"-SET\" to the end of the part number, it is possible to purchase the corresponding support unit together as a set.", "target": "Khách hàng có thể mua gối đỡ tương ứng để tạo thành bộ sản phẩm hoàn chỉnh bằng cách thêm ký hiệu “-SET” vào cuối mã sản phẩm."}
+{"tu_id": 1702, "source": "Both End Stepped (one step for each) Lead Screws which is suitable for Cantilevered Feed Mechanisms (ex:", "target": "Vít Me loại hai đầu kiểu bậc (mỗi đầu một bậc) phù hợp với Cơ cấu cấp liệu kiểu dầm chìa (ví dụ:"}
+{"tu_id": 1703, "source": "One end Fixed, One end supported by Radial Bearing)", "target": "một đầu cố định, một đầu được đỡ bởi vòng bi hướng tâm)"}
+{"tu_id": 1704, "source": "Both End Stepped (one end double stepped) Lead Screws which is suitable when shaft end supported by Support Units (C-MDWZ &amp; C-MDUZ, C-MRWZ &amp; C-MRUZ)", "target": "Vít Me loại hai đầu kiểu bậc (một đầu kiểu bậc kép) phù hợp sử dụng khi đầu trục được đỡ bởi các Gối Đỡ (C-MDWZ &amp; C-MDUZ, C-MRWZ &amp; C-MRUZ)"}
+{"tu_id": 1705, "source": "One End Stepped (one step) Lead Screws which is suitable for Space Saving or Cantilevered Feed Mechanisms (Light-Mid weight Feeding with no accuracy required).", "target": "Vít Me loại một đầu kiểu bậc (một bậc) phù hợp cho các cơ cấu tiết kiệm không gian hoặc cấp liệu kiểu dầm chìa (cấp liệu trọng lượng nhẹ đến trung bình, không yêu cầu độ chính xác)."}
+{"tu_id": 1706, "source": "MISUMI has both Ball Screw Support Units and Lead Screw Support Units.", "target": "MISUMI cung cấp cả Gối Đỡ cho Vít Me Bi và Gối Đỡ cho Vít Me."}
+{"tu_id": 1707, "source": "C-MDWZ is designed for Lead Screw Use to optimize Cost and Functoins.2 Radial Bearings are sealed to the Unit which support smooth rotation as well as heavy load.", "target": "C-MDWZ được thiết kế để sử dụng với Vít Me, giúp tối ưu chi phí và chức năng. Gối Đỡ được tích hợp 2 vòng bi hướng tâm, hỗ trợ chuyển động quay trơn tru và có thể chịu tải trọng nặng."}
+{"tu_id": 1708, "source": "\"C-MDUZ\" is the mated product of support side.", "target": "“C-MDUZ” là sản phẩm đồng bộ với bên ổ đỡ."}
+{"tu_id": 1709, "source": "Economy series Ball Screws", "target": "Vít me bi dòng Economy"}
+{"tu_id": 1710, "source": "The compact position indicator is primarily used to monitor the travel distance of feed mechanisms designed with lead screws.", "target": "Bộ Hiển Thị Vị Trí nhỏ gọn chủ yếu được dùng để theo dõi khoảng cách di chuyển của cơ cấu cấp liệu có sử dụng vít me."}
+{"tu_id": 1711, "source": "The E-DPNR is one of available models, offering variations in material, display orientation, and counting direction (left or right), among MISUMI's whole specifications.", "target": "E-DPNR là một trong các mẫu có sẵn, cung cấp nhiều lựa chọn về vật liệu, hướng hiển thị và hướng đếm (trái hoặc phải), nằm trong danh mục thông số kỹ thuật đầy đủ của MISUMI."}
+{"tu_id": 1712, "source": "Actual Travel (la) Line", "target": "Đường (la) Độ chuyển động thực tế"}
+{"tu_id": 1713, "source": "Nominal Travel (lo) Line", "target": "Đường (lo) Độ chuyển động danh nghĩa"}
+{"tu_id": 1714, "source": "Representative Travel (lm) Line", "target": "Đường (lm) Độ chuyển động đại diện"}
+{"tu_id": 1716, "source": "Standard Travel (ls) Line", "target": "Đường (ls) Độ chuyển động cơ bản"}
+{"tu_id": 1717, "source": "Keyway Machined on Fixed Side Shaft End", "target": "Gia công rãnh then ở đầu trục bên cố định"}
+{"tu_id": 1718, "source": "EC7(Economy series) representative distance error (ep) can be calculated based on ep=2·lu/300·V300.", "target": "EsaiSai số của chuyển động đại diện (ep) của C7 (Dòng Economy) được tính toán theo ep=2·lu/300·V300."}
+{"tu_id": 1719, "source": "· Detailed dimension of alteration KC·KLC keyway", "target": "· Gia công bổ sung KC·KLC \nKích thước chi tiết của rãnh then"}
+{"tu_id": 1720, "source": "Variation for an arbitrary one revolution (2πrad) taken within the effective thread length of screw shaft.", "target": "V2π: Chiều rộng lớn nhất tương ứng với 1 vòng bất kỳ (2πrad) trong chiều dài hiệu dụng của sợi."}
+{"tu_id": 1721, "source": "This value is set to compensate for possible screw shaft expansion and contraction due to temperature changes and applied loads.", "target": "Khi xét đến sự co giãn của trục vít do thay đổi nhiệt độ và tải trọng bên ngoài, cần phải bù độ biến dạng trước khi xác định."}
+{"tu_id": 1722, "source": "The value is to be determined based on experiments or experiences.", "target": "Giá trị đó có được nhờ thử nghiệm hoặc theo kinh nghiệm."}
+{"tu_id": 1723, "source": "Screw Shaft O.D.", "target": "Đường kính vít me"}
+{"tu_id": 1724, "source": "(1)If the nut is removed from the screw shaft, the ball will fall off the nut and cannot be used.", "target": "(1)Nếu tháo đai ốc ra khỏi trục vít, bi sẽ văng ra khỏi đai ốc và không thể dùng được."}
+{"tu_id": 1725, "source": "Do not disassemble, as this may cause impurities to enter the interior and damage the assembly accuracy of each part.", "target": "Không được tháo rời, nếu không sẽ khiến tạp chất xâm nhập vào bên trong và làm giảm độ chính xác khi lắp ráp các bộ phận."}
+{"tu_id": 1726, "source": "When the nut needs to be removed, use a special auxiliary shaft.", "target": "Khi cần phải tháo đai ốc, vui lòng sử dụng trục bổ trợ chuyên dụng."}
+{"tu_id": 1727, "source": "(2)The outer circle, spiral groove and circulating parts of the screw shaft will be damaged by external force impact, resulting in poor circulation and loss of function.", "target": "(2)Ngoại lực tác động sẽ tổn hại vòng tròn ngoài, rãnh xoắn và các bộ phận tuần hoàn của trục vít, dẫn đến tuần hoàn kém hoặc giảm mất chức năng,"}
+{"tu_id": 1728, "source": "Please take care to avoid it.", "target": "vì vậy hãy cẩn thận."}
+{"tu_id": 1729, "source": "(3)Ball screws and nuts placed with an inclination may fall due to weight.", "target": "(3)Nếu vít me bi và đai ốc bị lắp lệch, chúng có thể tự rơi ra,"}
+{"tu_id": 1730, "source": "Please be careful.", "target": "vì vậy hãy cẩn thận."}
+{"tu_id": 1731, "source": "Especially when it is used as a vertical axis, the nuts are likely to fall due to weight.", "target": "Đặc biệt là khi nó được sử dụng làm trục đứng, đai ốc dễ bị tự rơi do trọng lượng của chính nó."}
+{"tu_id": 1732, "source": "Please set up a fall prevention mechanism.", "target": "Vì vậy hãy lắp thêm cơ cấu chống rơi."}
+{"tu_id": 1733, "source": "Checking by reverse operation", "target": "Kiểm tra vận hành ngược chiều"}
+{"tu_id": 1734, "source": "QUse the following steps to select a ball screws suited to the usage criteria.", "target": "QÁp dụng các bước sau để chọn vít me bi phù hợp với tiêu chí ứng dụng."}
+{"tu_id": 1735, "source": "Determination", "target": "Xác định"}
+{"tu_id": 1736, "source": "OK", "target": "OK"}
+{"tu_id": 1737, "source": "• Check on Operating Conditions", "target": "• Kiểm tra điều kiện sử dụng"}
+{"tu_id": 1738, "source": "• Interim Selection of Ball Screw", "target": "• Lựa chọn vít me bi tạm thời"}
+{"tu_id": 1740, "source": "Check on Operating Conditions", "target": "Kiểm tra điều kiện sử dụng"}
+{"tu_id": 1741, "source": "Refer to Operating Conditions below.", "target": "Tham khảo điều kiện vận hành dưới đây."}
+{"tu_id": 1742, "source": "NO", "target": "KHÔNG"}
+{"tu_id": 1743, "source": "Travel Speeds", "target": "Tốc độ chuyển động"}
+{"tu_id": 1744, "source": "Drive Motor Speed", "target": "Tốc độ động cơ truyền động"}
+{"tu_id": 1745, "source": "Weight of Workpiece and Table", "target": "Trọng lượng của phôi và bàn trượt"}
+{"tu_id": 1746, "source": "Mounting Orientation (horizontal or vertical)", "target": "Hướng lắp đặt (ngang hay dọc)"}
+{"tu_id": 1747, "source": "• Life Check", "target": "• Kiểm tra tuổi thọ"}
+{"tu_id": 1748, "source": "Life Hours", "target": "Tuổi thọ (giờ)"}
+{"tu_id": 1749, "source": "Figure 1 (Ex.)", "target": "Hình 1 (Ví dụ)"}
+{"tu_id": 1750, "source": "Motion pattern (Duty Cycle Line Diagram) (See Figure 1)", "target": "Mô hình chuyển động (Biểu đồ chu kỳ hoạt động) (Xem Hình 1)"}
+{"tu_id": 1751, "source": "Duty Cycle Line Diagram", "target": "Biểu đồ chu kỳ hoạt động"}
+{"tu_id": 1752, "source": "Interim Selection of Ball Screw", "target": "Lựa chọn Vít Me Bi sơ bộ"}
+{"tu_id": 1753, "source": "&lt;Impact on Positioning Precision of Axial Clearance&gt;", "target": "(Tác động của khe hở hướng trục đến độ chính xác định vị)"}
+{"tu_id": 1754, "source": "If the ball screw has axial clearance, when positioning operation is performed from the positive direction, because the work does not move even when the screw shaft rotates, a difference occurs in the clearance interval between the theoretical movement amount obtained from the revolution speed of the screw shaft and the actual movement amount.", "target": "Nếu Vít Me Bi có khe hở hướng trục, khi thực hiện thao tác định vị theo chiều dương, do cấu trúc không dịch chuyển ngay cả khi trục vít quay nên sẽ có sự chênh lệch về khoảng hở giữa mức độ dịch chuyển lý thuyết tính dựa trên tốc độ quay của trục vít và mức độ dịch chuyển thực tế."}
+{"tu_id": 1755, "source": "Consider the applicability of the following items to the conditions confirmed in step 1 and provisionally decide the ball screws.", "target": "Hãy xem xét khả năng áp dụng những yếu tố sau cho các điều kiện đã xác nhận ở bước 1 và tiến hành lựa chọn sơ bộ Vít Me Bi."}
+{"tu_id": 1756, "source": "Selection of Lead Accuracy of Ball Screws", "target": "Lựa chọn độ chính xác bước ren của Vít Me Bi"}
+{"tu_id": 1757, "source": "1 Select the ball screws that satisfies the positioning precision.", "target": "1 Chọn Vít Me Bi thỏa mãn yêu cầu về độ chính xác định vị."}
+{"tu_id": 1758, "source": "Check the following two points.", "target": "Kiểm tra hai điểm sau đây."}
+{"tu_id": 1759, "source": "Lead Accuracy :", "target": "Độ chính xác của bước ren:"}
+{"tu_id": 1760, "source": "D For details, see P.B-029 on the catalog.", "target": "D Xem T.B-029 của catalog để biết chi tiết."}
+{"tu_id": 1761, "source": "Selection of Ball Screw Shaft Length", "target": "Lựa chọn chiều dài trục của Vít Me Bi"}
+{"tu_id": 1762, "source": "Generally, the shaft length should be 2 stroke+shaft end of 50~150mm+allowance.", "target": "Nhìn chung, chiều dài trục nên là 2 hành trinh+đầu trục 50~150mm+dung sai."}
+{"tu_id": 1763, "source": "The allowance is to prevent detachment, and one end should be (lead x 1.5~2) mm or more.", "target": "Dung sai được tính vào nhằm tránh trường hợp Vít me Bi bị tách rời, và một đầu trục nên có chiều dài tối thiểu bằng (bước ren x 1.5~2) trở lên."}
+{"tu_id": 1764, "source": "Provisional positioning of lead", "target": "Định vị tạm thời bước ren"}
+{"tu_id": 1765, "source": "3 Travel speeds, and 4 speed of the drive motor should be used to select the lead.", "target": "Để chọn bước ren, nên dựa trên các thông số gồm 3 tốc độ chuyển động và 4 tốc độ của động cơ truyền động."}
+{"tu_id": 1766, "source": "Temporary selection of the shaft diameter", "target": "Lựa chọn đường kính trục tạm thời"}
+{"tu_id": 1767, "source": "5 Weight of work and table, and 6 mounting position, and provisionally decided lead should be used to select the shaft diameter.", "target": "Để chọn đường kính trục, nên dựa trên các thông số gồm 5 trọng lượng của phôi và bàn trượt, và 6 vị trí lắp đặt cũng như bước ren đã xác định tạm thời."}
+{"tu_id": 1768, "source": "During buckling", "target": "Khi bị uốn cong"}
+{"tu_id": 1769, "source": "The max. axial load to the ball screw must be equal to or less than the allowable axial load value.", "target": "Tải trọng hướng trục tối đa lên Vít Me Bi phải bằng hoặc thấp hơn giá trị tải trọng hướng trục cho phép."}
+{"tu_id": 1770, "source": "If a load exceeding the allowable axial loading is applied, it is possible that the ball screw’s screw shaft will buckle.", "target": "Nếu tải trọng áp dụng vượt quá giá trị tải trọng hướng trục cho phép, trục Vít Me Bi có thể bị uốn cong."}
+{"tu_id": 1771, "source": "Loading direction", "target": "Hướng tải trọng"}
+{"tu_id": 1772, "source": "The allowable axial load represents an allowed maximum load, including a safety margin, to prevent shaft buckling from occurrence.", "target": "Tải trọng hướng trục cho phép biểu thị mức tải trọng tối đa có thể áp dụng, trong đó đã bao gồm biên độ an toàn, nhằm ngăn ngừa tình trạng trục bị uốn cong."}
+{"tu_id": 1773, "source": "The finer the shaft diameter or the longer the shaft the easier it is for buckling to occur.", "target": "Đường kính trục càng nhỏ hoặc trục càng dài thì hiện tượng uốn cong càng dễ xảy ra."}
+{"tu_id": 1774, "source": "D For details, see P.B-031 on the catalog.", "target": "D Xem T.B-031 của catalog để biết chi tiết."}
+{"tu_id": 1775, "source": "Figure 2 Buckled Ball Screw", "target": "Hình 2. Vít Me Bi bị uốn cong"}
+{"tu_id": 1776, "source": "Displacement in (+) and (-) directions", "target": "Dịch chuyển theo chiều dương (+) và âm (-)"}
+{"tu_id": 1777, "source": "240mm (Stroke)", "target": "240 (Hành trình)"}
+{"tu_id": 1778, "source": "4.1 (1 Cycle)", "target": "4.1 (1 chu kỳ)"}
+{"tu_id": 1779, "source": "Allowable Rotational Speed Check", "target": "Kiểm tra tốc độ quay cho phép"}
+{"tu_id": 1780, "source": "3 Steel Ball", "target": "3 Bi thép"}
+{"tu_id": 1781, "source": "The rotational speed of the ball screws must be less than the allowable rotational speed.", "target": "Tốc độ quay của Vít Me Bi phải nhỏ hơn tốc độ quay cho phép."}
+{"tu_id": 1782, "source": "If it exceeds the allowed rotational speed, the thread and the nut will be affected in the following way.", "target": "Nếu vượt quá tốc độ quay cho phép, ren và đai ốc sẽ bị ảnh hưởng như sau."}
+{"tu_id": 1783, "source": "When the allowable rotational speed is exceeded, resonance will begin at a unique oscillating frequency and this might disable operation.", "target": "Khi vượt quá tốc độ quay cho phép, hiện tượng cộng hưởng sẽ xảy ra ở một tần số dao động riêng và điều này có thể gây cản trở hoạt động."}
+{"tu_id": 1784, "source": "If the orbital speed of the steel balls inside the nut becomes large, it is possible that the circulation components will be damaged by the impact force.", "target": "Nếu tốc độ quỹ đạo của bi thép bên trong đai ốc tăng cao, các bộ phận tuần hoàn bi thép có thể bị hỏng do lực tác động."}
+{"tu_id": 1785, "source": "Figure 3 Resonating Ball Screw", "target": "Hình 3. Vít Me Bi bị cộng hưởng"}
+{"tu_id": 1786, "source": "Refers to the allowable rotational speed that is 80% or less of the critical speed that matches the rotational speed of a ball screw at which there is a unique oscillation possessed by the screw shaft.", "target": "Là tốc độ quay được phép áp dụng, bằng hoặc nhỏ hơn 80% tốc độ tới hạn tương ứng với tốc độ quay của vít me bi, mà ở tốc độ đó, trục vít có độ dao động riêng."}
+{"tu_id": 1787, "source": "The ball screw rotational speed is decided by the necessary travel speed and ball screw lead.", "target": "Tốc độ quay của Vít Me Bi phụ thuộc vào tốc độ chuyển động cần thiết và bước ren của Vít Me Bi."}
+{"tu_id": 1788, "source": "To decide the allowable rotational speed, it is necessary to consider the following two elements.", "target": "Để xác định tốc độ quay cho phép, cần xem xét hai yếu tố sau."}
+{"tu_id": 1789, "source": "Critical speed for the rotating shaft", "target": "Tốc độ tới hạn của trục quay"}
+{"tu_id": 1790, "source": "Limit rotational speed of the balls circulating inside the nut", "target": "Tốc độ quay giới hạn của các bi trượt bên trong đai ốc"}
+{"tu_id": 1791, "source": "Life Check", "target": "Kiểm tra tuổi thọ"}
+{"tu_id": 1792, "source": "Figure 4 Ball Screw Circulation Structure (Tube Style)", "target": "Hình 4. Cấu trúc tuần hoàn của Vít Me Bi (dạng ống)"}
+{"tu_id": 1793, "source": "In order to use the equipment beyond the expected life, life calculations are required.", "target": "Để sử dụng thiết bị vượt quá thời gian vận hành dự kiến, cần tính toán tuổi thọ của thiết bị."}
+{"tu_id": 1794, "source": "Operating Hours of Ball Screws", "target": "Số giờ vận hành của Vít Me Bi"}
+{"tu_id": 1795, "source": "This refers to the total revolutions, time, or distance up until chipping begins to occur due to fatigue causes by some kind of repetitive stress on the ball rolling surface or balls.", "target": "Là tổng số vòng quay, thời gian vận hành hoặc khoảng cách di chuyển cho đến khi bắt đầu xuất hiện hiện tượng bong tróc do mỏi vật liệu, gây ra bởi một số ứng suất lặp lại trên bề mặt lăn của bi hoặc các bi."}
+{"tu_id": 1796, "source": "The lifespan of the ball screw is calculated from the basic dynamic load rating.", "target": "Tuổi thọ của Vít Me Bi được tính toán dựa trên mức tải động cơ sở."}
+{"tu_id": 1797, "source": "See Figures 5 and 6 for expired parts that have chips.", "target": "Tham khảo Hình 5 và Hình 6 để xem các bộ phận đã vượt quá tuổi thọ và có dấu hiệu bong tróc."}
+{"tu_id": 1798, "source": "When a certain group of the same ball screws are operated with a certain axial load and 90% of the screws achieve 1 million rotations (106) without flaking in its operating life, such axial load is defined as a basic dynamic load rating.", "target": "Khi một nhóm vít me bi giống nhau vận hành với tải trọng hướng trục nhất định và 90% số vít đạt 1 triệu vòng quay (106) mà không bị bong tróc trong thời gian hoạt động, tải trọng hướng trục đó được xác định là mức tải động cơ sở."}
+{"tu_id": 1799, "source": "Figure 5 Thread Inside Nut", "target": "Hình 5. Phần ren bên trong đai ốc"}
+{"tu_id": 1800, "source": "Steel Ball", "target": "Bi thép"}
+{"tu_id": 1801, "source": "Threads inside nut (Magnification of Figure 5)", "target": "Phần ren bên trong đai ốc (Phóng to Hình 5)"}
+{"tu_id": 1802, "source": "Unused", "target": "Bi thép khi chưa sử dụng"}
+{"tu_id": 1803, "source": "Flaking on steel balls", "target": "Bi thép khi bị bong tróc"}
+{"tu_id": 1804, "source": "Flaking on Threads", "target": "Ren khi bị bong tróc"}
+{"tu_id": 1805, "source": "Figure 6 Flaking on Ball Screw Components", "target": "Hình 6. Hiện tượng bong tróc trên các bộ phận của Vít Me Bi"}
+{"tu_id": 1806, "source": "QWhen choosing, it is necessary to ensure the temperature impact and rigidity is suitable for the usage environment and selection criteria.", "target": "QKhi lựa chọn Vít Me Bi, cần đảm bảo ảnh hưởng của nhiệt độ và độ cứng của Vít Me Bi phù hợp với môi trường sử dụng cũng như các tiêu chí lựa chọn."}
+{"tu_id": 1807, "source": "For details, see P.B-029~B-035 of the catalog technical pages and choose a ball screws that is suitable for the purpose of use.", "target": "Để biết thêm chi tiết, vui lòng tham khảo trang T.B-029~B-035 trong phần Tài Liệu Kỹ Thuật Tham Khảo của catalog và chọn loại Vít Me Bi phù hợp với mục đích sử dụng."}
+{"tu_id": 1809, "source": "The grease forms an oil film on the ball screw’s screw shaft, rolling surface inside the nut, and surface of the balls and acts to reduce friction and prevent heat damage.", "target": "Mỡ bôi trơn tạo thành một lớp màng dầu trên trục Vít Me Bi, bề mặt lăn bên trong đai ốc và bề mặt bi, giúp giảm ma sát và ngăn ngừa hư hỏng do nhiệt."}
+{"tu_id": 1810, "source": "MISUMI ball screws are filled with grease before shipping, however after commencing use, it is necessary to perform regular and appropriate inspection and grease replenishment.", "target": "Vít Me Bi của MISUMI được tra mỡ trước khi xuất xưởng, tuy nhiên, sau khi bắt đầu sử dụng, cần kiểm tra định kỳ và bổ sung mỡ đúng cách."}
+{"tu_id": 1811, "source": "When adding grease, use the same grease that was used at shipment and do not mix with other greases.", "target": "Khi tra thêm mỡ, phải sử dụng cùng loại mỡ bôi trơn đã được dùng khi xuất xưởng và không trộn lẫn với các loại mỡ khác."}
+{"tu_id": 1812, "source": "QLubrication (grease inspection and replenishment)", "target": "QBôi trơn (kiểm tra và bổ sung mỡ bôi trơn)"}
+{"tu_id": 1813, "source": "• Guides for inspection and grease replenishment", "target": "• Hướng dẫn kiểm tra và bổ sung mỡ bôi trơn"}
+{"tu_id": 1814, "source": "• Available grease in the market", "target": "• Các loại mỡ bôi trơn có sẵn trên thị trường"}
+{"tu_id": 1815, "source": "After 2~3 months of operation, if the grease is very dirty, we recommend to remove the old grease and fill with new grease.", "target": "Sau 2~3 tháng sử dụng, nếu mỡ bôi trơn quá bẩn, nên loại bỏ lớp mỡ cũ và tra mỡ bôi trơn mới."}
+{"tu_id": 1816, "source": "Subsequent inspection intervals are recommended to be every 6 months, however, we recommend this timing be adjusted to an interval appropriate for the usage environment.", "target": "Sau đó, nên thực hiện kiểm tra định kỳ 6 tháng/lần, tuy nhiên, có thể điều chỉnh tần suất kiểm tra phù hợp với môi trường sử dụng."}
+{"tu_id": 1817, "source": "Here is some representative grease which can be applied to Ball Screw.", "target": "Sau đây là một số loại mỡ bôi trơn tiêu biểu có thể dùng cho Vít Me Bi."}
+{"tu_id": 1818, "source": "-Alvania Grease S2 made by Showa Shell Sekiyu) / Multemp Grease PS2 made by Kyodo Yushi)", "target": "-Alvania Grease S2 (Nhà sản xuất: Showa Shell Sekiyu) / Multemp Grease PS2 (Nhà sản xuất: Kyodo Yushi)"}
+{"tu_id": 1819, "source": "-ET-100 (Made by Kyodo Yushi) / LG2 (Made by NSK) / AFF (Made by THIK)", "target": "-ET-100 (Nhà sản xuất: Kyodo Yushi) / LG2 (Nhà sản xuất: NSK) / AFF (Nhà sản xuất: THIK)"}
+{"tu_id": 1820, "source": "Each grease has different performance, please select suitable grease to meet to the operating condition.", "target": "Mỗi loại mỡ bôi trơn có hiệu suất khác nhau, vui lòng chọn loại phù hợp với điều kiện vận hành."}
+{"tu_id": 1821, "source": "4 Steel Ball Recirculation Part", "target": "4 Bộ phận tuần hoàn của bi thép"}
+{"tu_id": 1822, "source": "EWhen specifying any alteration, the nut motion range (Y dimension) may become shorter.", "target": "EKhi chỉ định bất kỳ gia công bổ sung nào, hành trình của đai ốc (kích thước Y) có thể bị rút ngắn,"}
+{"tu_id": 1823, "source": "Please make sure that the nut motion range is greater than the full length of the nut.", "target": "vui lòng đảm bảo rằng hành trình của đai ốc lớn hơn tổng chiều dài của đai ốc."}
+{"tu_id": 1824, "source": "EWhen 9 and 0 are specified simultaneously, no male thread will be machined regardless of the value specified for U in 9.", "target": "EKhi 9, 0 được chỉ định đồng thời, bất kể giá trị nào được chỉ định cho U trong 9, ren ngoài sẽ không được gia công."}
+{"tu_id": 1825, "source": "EWhen 9 or 0 is specified, the recommended support unit may not be available.", "target": "EKhi 9 hoặc 0 được chỉ định, gối đỡ được khuyến nghị có thể không dùng được,"}
+{"tu_id": 1826, "source": "E9 and 0 cannot be specified simultaneously.", "target": "E9, 0 không thể chỉ định đồng thời."}
+{"tu_id": 1827, "source": "EWhen Q and W are specified simultaneously, no male thread will be machined regardless of the value specified for U in Q.", "target": "EKhi Q, W được chỉ định đồng thời, bất kể giá trị nào được chỉ định cho U trong Q, ren ngoài sẽ không được gia công."}
+{"tu_id": 1828, "source": "EWhen Q or W is specified, the recommended support unit may not be available.", "target": "EKhi Q hoặc W được chỉ định, gối đỡ được khuyến nghị có thể không dùng được,"}
+{"tu_id": 1829, "source": "*C-TBSE1505 / 1510 have the actual dimension diameter of φ16.", "target": "*C-TBSE1505 / 1510 có kích thước đường kính thực tế là φ16."}
+{"tu_id": 1830, "source": "Ewhen Q and W are specified simultaneously, no male thread will be machined regardless of the value specified for U in Q.", "target": "EKhi Q, W được chỉ định đồng thời, bất kể giá trị nào được chỉ định cho U trong Q, ren ngoài sẽ không được gia công."}
+{"tu_id": 1831, "source": "Ewhen Q or W is specified, the recommended support unit may not be available.", "target": "EKhi Q hoặc W được chỉ định, gối đỡ được khuyến nghị có thể không dùng được,"}
+{"tu_id": 1832, "source": "Changes the machining on the support side.", "target": "Thay đổi nội dung gia công bên ổ đỡ."}
+{"tu_id": 1833, "source": "5≤G≤24 Q is selected from 6 and 8 G=1mm increments", "target": "5≤G≤24 Q được chọn từ 6 và 8 G=Gia số 1mm"}
+{"tu_id": 1834, "source": "EOnly one of 1, 3, 4 and 5 can be selected.", "target": "EChỉ được chọn một trong các số 1, 3, 4, 5."}
+{"tu_id": 1835, "source": "E0 and Q cannot be specified simultaneously.", "target": "E0, Q không thể chỉ định đồng thời."}
+{"tu_id": 1836, "source": "Ewhen W and e are specified simultaneously, no male thread will be machined regardless of the value specified for U in W.", "target": "EKhi W, e được chỉ định đồng thời, bất kể giá trị nào được chỉ định cho U trong W, ren ngoài sẽ không được gia công."}
+{"tu_id": 1837, "source": "Ewhen W or e is specified, the recommended support unit may not be available.", "target": "EKhi W hoặc e được chỉ định, gối đỡ được khuyến nghị có thể không dùng được,"}
+{"tu_id": 1838, "source": "*C-KBS1505 / 1510 have the actual dimension diameter of φ16.", "target": "*C-KBS1505 / 1510 có đường kính thực tế là φ16."}
+{"tu_id": 1839, "source": "5≤G≤36 Q is selected from 8, 10 and 12 G=1mm increments", "target": "5≤G≤36 Q được chọn từ 8, 10 và 12 G=Gia số 1mm"}
+{"tu_id": 1840, "source": "EOnly one of 0 and Q can be selected.", "target": "EChỉ được chọn một trong các số 0, Q."}
+{"tu_id": 1841, "source": "EWhen W and e are specified simultaneously, no male thread will be machined regardless of the value specified for U in W.", "target": "EKhi W, e được chỉ định đồng thời, bất kể giá trị nào được chỉ định cho U trong W, ren ngoài sẽ không được gia công."}
+{"tu_id": 1842, "source": "EWhen W or e is specified, the recommended support unit may not be available.", "target": "EKhi W hoặc e được chỉ định, gối đỡ được khuyến nghị có thể không dùng được,"}
+{"tu_id": 1843, "source": "5≤G≤45 Q is selected from 10, 12 and 15 G=1mm increments", "target": "5≤G≤45 Q được chọn từ 10, 12 và 15 G=Gia số 1mm"}
+{"tu_id": 1844, "source": "5≤G≤60 Q is selected from 10, 12, 15 and 20 G=1mm increments", "target": "5≤G≤60 Q được chọn từ 10, 12, 15 và 20 G=Gia số 1mm"}
+{"tu_id": 1845, "source": "ESee P.03-012~P.03-013 for lead accuracy grade and runout tolerance.", "target": "EXem T.03-012~T.03-013 để biết thêm chi tiết về độ chính xác bước ren và dung sai độ đảo."}
+{"tu_id": 1846, "source": "Cover not provided", "target": "Không có nắp đậy"}
+{"tu_id": 1847, "source": "Rotational Speed", "target": "tốc độ quay"}
+{"tu_id": 1848, "source": "P.04-015", "target": "T.04-015"}
+{"tu_id": 1849, "source": "P.01-075", "target": "T.01-075"}
+{"tu_id": 1850, "source": "EC7(Economy series) representative distance error (ep) can be calculated based on ep=2·lu/300·V300.", "target": "ESai số của chuyển động đại diện (ep) của C7 (Dòng Economy) được tính toán theo ep=2·lu/300·V300."}
+{"tu_id": 1851, "source": "When a certain group of the same ball screws are operated with a certain axial load and 90% of the screws achieve 1 million rotations (106) without flaking in its operating life, such axial load is defined as a basic dynamic load rating.", "target": "Khi một nhóm Vít Me Bi giống nhau vận hành với một tải trọng hướng trục nhất định và 90% số Vít Me Bi đạt được 1 triệu vòng quay (106) mà không xảy ra bong tróc bề mặt trong thời gian hoạt động, thì tải trọng hướng trục đó được xác định là mức tải động cơ sở."}
+{"tu_id": 1853, "source": "DC", "target": "Chiết khấu"}
+{"tu_id": 1854, "source": "QShaft dia. is φ4~10, and length can be specified in 1mm increments.", "target": "QĐường kính trục φ4~10, chiều dài có thể cấu hình với gia số 1mm."}
+{"tu_id": 1855, "source": "Precision Ball Screws", "target": "Vít Me Bi chính xác"}
+{"tu_id": 1856, "source": "90% OFF", "target": "TIẾT KIỆM 90%"}
+{"tu_id": 1857, "source": "84% OFF", "target": "TIẾT KIỆM 84%"}
+{"tu_id": 1858, "source": "89% OFF", "target": "TIẾT KIỆM 89%"}
+{"tu_id": 1859, "source": "82% OFF", "target": "TIẾT KIỆM 82%"}
+{"tu_id": 1860, "source": "85% OFF", "target": "TIẾT KIỆM 85%"}
+{"tu_id": 1861, "source": "51% OFF", "target": "TIẾT KIỆM 51%"}
+{"tu_id": 1862, "source": "55% OFF", "target": "TIẾT KIỆM 55%"}
+{"tu_id": 1863, "source": "76% OFF", "target": "TIẾT KIỆM 76%"}
+{"tu_id": 1864, "source": "Generally, the shaft length should be 2 stroke+shaft end of 50~150mm+allowance.", "target": "Thông thường, chiều dài trục nên được tính bằng 2 hành trình+đầu trục trong phạm vi 50~150mm+dung sai."}
+{"tu_id": 1865, "source": "Refers to the allowable rotational speed that is 80% or less of the critical speed that matches the rotational speed of a ball screw at which there is a unique oscillation possessed by the screw shaft.", "target": "Là tốc độ quay được phép áp dụng, bằng hoặc nhỏ hơn 80% tốc độ tới hạn tương ứng với tốc độ quay của Vít Me Bi mà tại đó, trục vít có tần số dao động riêng."}
+{"tu_id": 1866, "source": "The ball screw shaft’s lock nut should be temporarily tightened.", "target": "Nên siết tạm thời đai ốc chặn của trục vít me bi."}
+{"tu_id": 1867, "source": "Rail length 670mm", "target": "Chiều dài thanh ray: 670mm"}
+{"tu_id": 1868, "source": "Axial Clearance", "target": "Khe hở dọc trục"}
+{"tu_id": 1870, "source": "Change dimensions of big steps on the fixed side 7≤C≤22 4≤U≤C-3 C, U=1mm increments", "target": "Thay đổi kích thước bậc lớn bên cố định 7≤C≤22 4≤U≤C-3 C, U = Gia số 1mm"}
+{"tu_id": 1871, "source": "When specified simultaneously with 8, 5≤SC≤F-1 SC=1mm increments", "target": "Khi 8 được chỉ định đồng thời, 5≤SC≤F-1 SC = Gia số 1mm"}
+{"tu_id": 1872, "source": "Change dimensions of small steps on the fixed side 8≤F≤13 4≤P≤5 F, P=1mm increments", "target": "Thay đổi kích thước bậc nhỏ bên cố định 8≤F≤13 4≤P≤5 F, P = Gia số 1mm"}
+{"tu_id": 1873, "source": "Change dimensions of big steps on the fixed side 9≤E≤30 6≤U≤E-3 E, U=1mm increments", "target": "Thay đổi kích thước bậc lớn bên cố định 9≤E≤30 6≤U≤E-3 E, U = Gia số 1mm"}
+{"tu_id": 1874, "source": "K, S=1mm increments", "target": "K, S = Gia số 1mm"}
+{"tu_id": 1875, "source": "5≤G≤24 Q is selected from 6 and 8 G=1mm increments", "target": "5≤G≤24 Chọn Q từ 6 và 8 G = Gia số 1mm"}
+{"tu_id": 1876, "source": "3≤KC≤14 When specified simultaneously with Q, 3≤KC≤F-1 KC=1mm increments", "target": "3≤KC≤14 Khi Q được chỉ định đồng thời, 3≤KC≤F-1 KC = Gia số 1mm"}
+{"tu_id": 1877, "source": "5≤SC≤14 When specified simultaneously with Q, 5≤SC≤F-1 SC=1mm increments", "target": "5≤SC≤14 Khi Q được chỉ định đồng thời, 5≤SC≤F-1 SC = Gia số 1mm"}
+{"tu_id": 1878, "source": "11≤FC≤30 FC=1mm increments", "target": "11≤FC≤30 FC = Gia số 1mm"}
+{"tu_id": 1879, "source": "5≤G≤36 Q is selected from 8, 10 and 12 G=1mm increments", "target": "5≤G≤36 Chọn Q từ 8, 10 và 12 G = Gia số 1mm"}
+{"tu_id": 1880, "source": "4≤KC≤19 When specified simultaneously with Q, 4≤KC≤F-1 KC=1mm increments", "target": "4≤KC≤19 Khi Q được chỉ định đồng thời, 4≤KC≤F-1 KC = Gia số 1mm"}
+{"tu_id": 1881, "source": "5≤G≤45 Q is selected from 10, 12 and 15 G=1mm increments", "target": "5≤G≤45 Q được chọn từ 10, 12 và 15 G = Gia số 1mm"}
+{"tu_id": 1882, "source": "5≤G≤60 Q is selected from 10, 12, 15 and 20 G=1mm increments", "target": "5≤G≤60 Chọn Q từ 10, 12, 15 và 20 G = Gia số 1mm"}
+{"tu_id": 1883, "source": "FE, FW, FY=0.5mm increments", "target": "FE, FW, FY = Gia số 0.5mm"}
+{"tu_id": 1884, "source": "XP=5 is not applicable", "target": "XP = 5 không áp dụng"}
+{"tu_id": 1885, "source": "Q Complete specifications, stock items will be shipped in same day at the earliest.", "target": "Q Thông số kỹ thuật hoàn chỉnh, với các sản phẩm có sẵn tồn kho, giao hàng nhanh nhất trong cùng ngày."}
+{"tu_id": 1886, "source": "Housing", "target": "Gối đỡ vòng bi"}
+{"tu_id": 1887, "source": "Radial Bearing", "target": "Ổ trục hướng tâm"}
+{"tu_id": 1888, "source": "EThe recommended MISUMI Economy series Ball Screw is only for reference. ", "target": "EVít me bi dòng MISUMI Economy được khuyến nghị chỉ mang tính chất tham khảo, "}
+{"tu_id": 1889, "source": " Please check the specific model on the official website.", "target": "vui lòng xem trang web chính thức để tìm hiểu các mã sản phẩm cụ thể."}
+{"tu_id": 1890, "source": " Please select the type according to the actual situation. ", "target": " vui lòng chọn mẫu tùy theo tình hình thực tế. "}
+{"tu_id": 1891, "source": "Keyway", "target": "Gia công rãnh then"}
+{"tu_id": 1893, "source": "Retaining Ring for Shaft", "target": "Vòng hãm trục"}
+{"tu_id": 1895, "source": "ball screw c7", "target": "ball screw c7"}
+{"tu_id": 1896, "source": "4Overall Length L (1mm increments)", "target": "4Tổng chiều dài L (Gia số 1mm)"}
+{"tu_id": 1897, "source": "E1, 2, and 3 are a split structure, so please keep them safe.", "target": "E1, 2, 3 là kết cấu tháo rời, vui lòng bảo quản đúng cách."}
+{"tu_id": 1898, "source": "Flat Machining", "target": "Gia công bổ sung vát 1 cạnh"}
+{"tu_id": 1899, "source": "XQ=7·9·16 is not applicable", "target": "XQ = 7, 9, 16 không áp dụng"}
+{"tu_id": 1900, "source": "Body", "target": "Thân chính"}
+{"tu_id": 1901, "source": "Body", "target": "Thân gối đỡ"}
+{"tu_id": 1902, "source": "10≤FC≤20 FC=1mm increments", "target": "10≤FC≤20 FC = Gia số 1mm"}

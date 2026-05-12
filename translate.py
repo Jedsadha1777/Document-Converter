@@ -16,6 +16,7 @@ from config import (
     APPLE_SHORTCUT_EN,
     APPLE_SHORTCUT_JA,
     APPLE_SHORTCUT_TH,
+    APPLE_SHORTCUT_VI,
     GEMINI_API_KEY,
     GEMINI_MODEL,
     GEMINI_TIMEOUT,
@@ -131,6 +132,8 @@ def _output_has_unwanted_script(target: str, text: str) -> bool:
         return _has_cjk(text) or _has_thai(text)
     if target == "ja":
         return _has_thai(text)
+    if target == "vi":
+        return _has_cjk(text) or _has_thai(text)
     return False
 
 
@@ -334,6 +337,42 @@ TRANSLATE_PROMPTS = {
         "about to emit a Chinese-only character, write hiragana instead.\n"
         "If the input is already Japanese, return it unchanged."
     ),
+    "vi": (
+        "Translate the user's text to natural Vietnamese.\n"
+        "Output ONLY the Vietnamese translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES — STRICTLY FOLLOWED:\n"
+        "- The output MUST be in Vietnamese script (Latin alphabet with diacritics) ONLY.\n"
+        "  Allowed characters: Latin letters A-Z a-z, the Vietnamese-specific letters "
+        "  Đ đ Ơ ơ Ư ư, all Vietnamese tone/diacritic combinations (à á ả ã ạ â ấ ầ ẩ "
+        "  ẫ ậ ă ằ ắ ẳ ẵ ặ è é ẻ ẽ ẹ ê ề ế ể ễ ệ ì í ỉ ĩ ị ò ó ỏ õ ọ ô ồ ố ổ ỗ ộ ơ ờ "
+        "  ớ ở ỡ ợ ù ú ủ ũ ụ ư ừ ứ ử ữ ự ỳ ý ỷ ỹ ỵ and their uppercase forms), "
+        "  Arabic digits 0-9, and basic punctuation.\n"
+        "  FORBIDDEN: ANY Chinese characters (汉字), Japanese hiragana/katakana/kanji, "
+        "  Thai script (ก-๛), or Korean Hangul.\n"
+        "- DIACRITICS — ABSOLUTE RULE: Vietnamese without diacritics is wrong. Every "
+        "  word that needs a tone or vowel mark MUST carry it (write 'tiếng Việt', "
+        "  NEVER 'tieng Viet'; write 'phở', NEVER 'pho' unless that bare spelling is "
+        "  the established international form like the dish name in an English menu).\n"
+        "- NUMBERS — ABSOLUTE RULE: NEVER translate, modify, convert, or normalize any number.\n"
+        "  Every digit (0-9) in the input MUST appear EXACTLY THE SAME in the output, "
+        "  in the SAME ORDER.\n"
+        "  NEVER convert digits to Vietnamese words ('25' stays '25', NOT 'hai mươi lăm').\n"
+        "  NEVER change thousand or decimal separators (keep '1,000' as '1,000'; keep "
+        "  '3.14' as '3.14'). Do not switch between English-style and Vietnamese-style "
+        "  separators.\n"
+        "  NEVER convert calendars, units, or currency.\n"
+        "  NEVER round or simplify.\n"
+        "  Applies to: years, dates, times, prices, percentages, phone numbers, "
+        "  measurements, list/version numbers — every numeric token.\n"
+        "- PERSON NAMES & PROPER NOUNS: NEVER translate the meaning of a name.\n"
+        "  Foreign names stay in their Latin form (Smith → Smith, Microsoft → Microsoft).\n"
+        "  Katakana names → romanize by SOUND (ミノル → 'Minoru', NOT 'Trái cây').\n"
+        "  Japanese kanji names → use the romanized reading; never keep kanji in the output.\n"
+        "  Thai names → romanize by sound (สมชาย → 'Somchai').\n"
+        "- Established Latin-script brand names (Microsoft, Google, iPhone) stay in Latin script.\n"
+        "If the input is already Vietnamese, return it unchanged."
+    ),
 }
 
 
@@ -362,6 +401,30 @@ TRANSLATE_PROMPTS_BY_PAIR = {
         "  Established Latin-script brand names (Microsoft, Google, iPhone) may "
         "  stay in Latin script when that is the conventional form.\n"
         "If the input is already Thai, return it unchanged."
+    ),
+    ("en", "vi"): (
+        "Translate the user's text from English to natural Vietnamese.\n"
+        "Output ONLY the Vietnamese translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES — STRICTLY FOLLOWED:\n"
+        "- The output MUST be in Vietnamese script (Latin alphabet with diacritics) ONLY.\n"
+        "  Allowed: Latin letters A-Z a-z, Vietnamese-specific letters Đ đ Ơ ơ Ư ư, "
+        "  all Vietnamese tone marks on vowels, Arabic digits 0-9, and basic punctuation.\n"
+        "  FORBIDDEN: any non-Latin script in the output.\n"
+        "- DIACRITICS: write proper Vietnamese with full tone and vowel marks "
+        "  ('tiếng Việt', NOT 'tieng Viet').\n"
+        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear "
+        "  EXACTLY THE SAME and in the SAME ORDER in the output.\n"
+        "  NEVER spell digits as Vietnamese words ('25' stays '25', NOT 'hai mươi lăm').\n"
+        "  NEVER change thousand or decimal separators (keep '1,000' as '1,000'; keep "
+        "  '3.14' as '3.14').\n"
+        "  NEVER convert calendars, units, or currency. NEVER round or simplify.\n"
+        "  Applies to: years, dates, times, prices, percentages, phone numbers, "
+        "  measurements, list/version numbers — every numeric token.\n"
+        "- PROPER NOUNS / NAMES: keep foreign names in their Latin form (Smith → Smith). "
+        "  Never translate the meaning of a name. Established brand names (Microsoft, "
+        "  Google, iPhone) stay in Latin script.\n"
+        "If the input is already Vietnamese, return it unchanged."
     ),
     ("th", "en"): (
         "Translate the user's text from Thai to natural English.\n"
@@ -435,7 +498,7 @@ def translate_text(text: str, target: str = "th",
         out = _call_ollama_translate(text_protected, prompt_factual, timeout)
         if out and _is_refusal(out):
             print(f"[translate] refusal detected: {out!r}", flush=True)
-            target_name = {"th": "Thai", "ja": "Japanese"}.get(target, "English")
+            target_name = {"th": "Thai", "ja": "Japanese", "vi": "Vietnamese"}.get(target, "English")
             retry_prompt = (
                 f"Translate the input to {target_name}. "
                 "Output only the translation. No commentary, no warnings, no refusals."
@@ -451,6 +514,8 @@ def translate_text(text: str, target: str = "th",
                 strict_extra = "DO NOT output any Chinese (汉字) or Japanese (kana/kanji) — convert them to Thai sound."
             elif target == "ja":
                 strict_extra = "DO NOT output any Thai (ก-๛) or Hangul characters — use only Japanese script (hiragana/katakana/kanji), Latin letters, and digits."
+            elif target == "vi":
+                strict_extra = "DO NOT output any Chinese (汉字), Japanese (kana/kanji), Thai (ก-๛), or Hangul — use only Vietnamese script (Latin letters with diacritics, Đ đ Ơ ơ Ư ư), digits, and basic punctuation."
             else:
                 strict_extra = "DO NOT output any non-English characters — use only A-Z, 0-9, basic punctuation."
             stricter = prompt + "\n\nCRITICAL: Your previous attempt contained foreign script characters. " + strict_extra
@@ -464,6 +529,8 @@ def translate_text(text: str, target: str = "th",
                     out = "".join(c for c in (retry_out or out) if not (_has_cjk(c) or _has_thai(c)))
                 elif target == "ja":
                     out = "".join(c for c in (retry_out or out) if not _has_thai(c))
+                elif target == "vi":
+                    out = "".join(c for c in (retry_out or out) if not (_has_cjk(c) or _has_thai(c)))
                 out = re.sub(r"\s+", " ", out).strip()
                 print(f"[translate] forced-strip: {out!r}", flush=True)
         out = out or text_protected
@@ -550,17 +617,197 @@ def _coerce_int_id(v) -> int | None:
     return None
 
 
+def _unescape_json_string(s: str) -> str:
+    """Apply the standard JSON string escape rules to a captured value."""
+    out: list[str] = []
+    i = 0
+    n = len(s)
+    while i < n:
+        c = s[i]
+        if c == "\\" and i + 1 < n:
+            nxt = s[i + 1]
+            if nxt == '"':
+                out.append('"')
+            elif nxt == "\\":
+                out.append("\\")
+            elif nxt == "/":
+                out.append("/")
+            elif nxt == "n":
+                out.append("\n")
+            elif nxt == "r":
+                out.append("\r")
+            elif nxt == "t":
+                out.append("\t")
+            elif nxt == "b":
+                out.append("\b")
+            elif nxt == "f":
+                out.append("\f")
+            elif nxt == "u" and i + 5 < n:
+                try:
+                    out.append(chr(int(s[i + 2:i + 6], 16)))
+                    i += 6
+                    continue
+                except ValueError:
+                    out.append(c)
+                    i += 1
+                    continue
+            else:
+                # unknown escape — keep both chars
+                out.append(c)
+                out.append(nxt)
+            i += 2
+            continue
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
+def _extract_items_lenient(raw: str) -> list[dict]:
+    """Char-level state-machine parser for {"items": [{"id": N, "text": "..."}, ...]}.
+    Tolerates unescaped `"` inside text values — the closing `"` of a text field is
+    only accepted when the next non-whitespace character is `,` or `}` (the JSON-legal
+    delimiters that follow a property value). Numbers and standard escapes are handled.
+    Returns []  if structure can't be located."""
+    items: list[dict] = []
+    n = len(raw)
+    # locate the "items" array
+    items_kw = raw.find('"items"')
+    if items_kw < 0:
+        return items
+    i = raw.find("[", items_kw)
+    if i < 0:
+        return items
+    i += 1  # past `[`
+
+    def skip_ws(p: int) -> int:
+        while p < n and raw[p] in " \t\r\n":
+            p += 1
+        return p
+
+    while True:
+        i = skip_ws(i)
+        if i >= n or raw[i] == "]":
+            break
+        if raw[i] == ",":
+            i += 1
+            continue
+        if raw[i] != "{":
+            i += 1
+            continue
+        i += 1  # past `{`
+        id_val: int | None = None
+        text_val: str | None = None
+        while True:
+            i = skip_ws(i)
+            if i >= n:
+                break
+            if raw[i] == "}":
+                i += 1
+                break
+            if raw[i] == ",":
+                i += 1
+                continue
+            if raw[i] != '"':
+                i += 1
+                continue
+            # parse key (strict — keys don't have unescaped quote issues)
+            i += 1
+            key_start = i
+            while i < n:
+                if raw[i] == "\\" and i + 1 < n:
+                    i += 2
+                    continue
+                if raw[i] == '"':
+                    break
+                i += 1
+            key = raw[key_start:i]
+            i += 1  # past closing key quote
+            i = skip_ws(i)
+            if i < n and raw[i] == ":":
+                i += 1
+            i = skip_ws(i)
+            if i >= n:
+                break
+            # parse value
+            if raw[i] == '"':
+                i += 1
+                val_start = i
+                while i < n:
+                    if raw[i] == "\\" and i + 1 < n:
+                        i += 2
+                        continue
+                    if raw[i] == '"':
+                        # peek: real closing if next non-ws is ',' or '}'
+                        j = i + 1
+                        while j < n and raw[j] in " \t\r\n":
+                            j += 1
+                        if j < n and raw[j] in ",}":
+                            val_raw = raw[val_start:i]
+                            i += 1
+                            break
+                        # not a real terminator — treat as literal " inside text
+                        i += 1
+                        continue
+                    i += 1
+                else:
+                    val_raw = raw[val_start:i]
+                val = _unescape_json_string(val_raw)
+                if key == "id":
+                    try:
+                        id_val = int(val)
+                    except (ValueError, TypeError):
+                        pass
+                elif key == "text":
+                    text_val = val
+            elif raw[i].isdigit() or raw[i] == "-":
+                val_start = i
+                while i < n and (raw[i].isdigit() or raw[i] in "-+.eE"):
+                    i += 1
+                num_str = raw[val_start:i]
+                if key == "id":
+                    try:
+                        id_val = int(num_str)
+                    except ValueError:
+                        pass
+            else:
+                # unrecognized value — skip until delimiter
+                while i < n and raw[i] not in ",}":
+                    i += 1
+        if id_val is not None and text_val is not None:
+            items.append({"id": id_val, "text": text_val})
+    return items
+
+
+def _strip_markdown_fence_only(raw: str) -> str:
+    s = (raw or "").strip()
+    if not s.startswith("```"):
+        return s
+    nl = s.find("\n")
+    if nl > 0:
+        s = s[nl + 1:]
+    if s.rstrip().endswith("```"):
+        s = s.rstrip()[:-3].rstrip()
+    return s
+
+
 def _parse_batch_json(raw: str, n: int, id_start: int = 1,
                       ids: list[int] | None = None) -> list[str | None]:
     """ids: optional explicit list — รับเฉพาะ id ที่อยู่ใน list. ถ้าไม่ใส่ → ช่วง [id_start, id_start+n-1].
-    id ใน items รองรับทั้ง int และ string-of-int (LLM web UI ส่ง "9" บ่อย)"""
+    Falls back to lenient char-level parser when strict json.loads fails."""
     result: list[str | None] = [None] * n
+    s = _strip_markdown_fence_only(raw)
+    items = None
     try:
-        obj = json.loads(raw)
+        obj = json.loads(s)
+        if isinstance(obj, dict):
+            items = obj.get("items")
     except Exception:
-        return result
-    items = obj.get("items") if isinstance(obj, dict) else None
-    if not isinstance(items, list):
+        items = None
+    if not isinstance(items, list) or not items:
+        items = _extract_items_lenient(s)
+        if items:
+            print(f"[translate] strict json.loads failed; lenient parser recovered {len(items)} items", flush=True)
+    if not isinstance(items, list) or not items:
         return result
     if ids:
         id_to_pos = {gid: pos for pos, gid in enumerate(ids)}
@@ -889,8 +1136,7 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
     eff_speakers = sp_list if (has_real_speaker or has_skip) else None
     _, per_item = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
 
-    cleaned = _strip_markdown_fence(raw_response)
-    parsed = _parse_batch_json(cleaned, n, id_start=id_start, ids=ids)
+    parsed = _parse_batch_json(raw_response, n, id_start=id_start, ids=ids)
     sub_t, sub_e = _post_process_batch(list(texts), parsed, per_item, target)
 
     for i in range(n):
@@ -1016,6 +1262,7 @@ def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None
     name = {
         "th": APPLE_SHORTCUT_TH,
         "ja": APPLE_SHORTCUT_JA,
+        "vi": APPLE_SHORTCUT_VI,
     }.get(target, APPLE_SHORTCUT_EN)
     if name not in _list_shortcuts():
         return text, (

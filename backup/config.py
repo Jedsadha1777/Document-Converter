@@ -40,4 +40,5 @@ ELEMENT_KEYS = ["texts", "tables", "pictures", "groups", "pages", "key_value_ite
 
 APPLE_SHORTCUT_TH = "DoclingTranslateTH"
 APPLE_SHORTCUT_EN = "DoclingTranslateEN"
+APPLE_SHORTCUT_JA = "DoclingTranslateJA"
 APPLE_MIN_INPUT_CHARS = 3  # < threshold นี้ Apple จับภาษาไม่ได้

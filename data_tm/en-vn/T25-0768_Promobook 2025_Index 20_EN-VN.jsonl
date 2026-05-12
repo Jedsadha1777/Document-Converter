@@ -1,0 +1,307 @@
+{"tu_id": 1, "source": "###", "target": "###"}
+{"tu_id": 2, "source": "QPlate type", "target": "QLoại mặt bích"}
+{"tu_id": 4, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 5, "source": "s Surface Treatment", "target": "s Xử lý bề mặt"}
+{"tu_id": 6, "source": "M Material (Color)", "target": "M Vật liệu (Màu sắc)"}
+{"tu_id": 7, "source": "Body Type", "target": "Loại thân chính"}
+{"tu_id": 8, "source": "Fixed", "target": "Loại cố định"}
+{"tu_id": 9, "source": "Swivel", "target": "Loại xoay"}
+{"tu_id": 10, "source": "Swivel with Stopper", "target": "Loại xoay có khóa"}
+{"tu_id": 11, "source": "EFor more information on product specifications and dimensional drawings, please refer to product catalog on the website.", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 12, "source": "B", "target": "B"}
+{"tu_id": 13, "source": "E", "target": "E"}
+{"tu_id": 14, "source": "t", "target": "t"}
+{"tu_id": 15, "source": "Allowable Load (daN)", "target": "Tải trọng cho phép (daN)"}
+{"tu_id": 16, "source": "1Type", "target": "1Loại"}
+{"tu_id": 17, "source": "2Wheel Dia. D", "target": "2Đường kính bánh xe D"}
+{"tu_id": 18, "source": "3Wheel Material", "target": "3Vật liệu bánh xe"}
+{"tu_id": 19, "source": "E-CPSK", "target": "E-CPSK"}
+{"tu_id": 20, "source": "U (Urethane)", "target": "U (Urethane)"}
+{"tu_id": 21, "source": "E-CPSJ", "target": "E-CPSJ"}
+{"tu_id": 22, "source": "E-CPSS", "target": "E-CPSS"}
+{"tu_id": 23, "source": "Part Number (1Type · 2Wheel Dia. D)", "target": "Mã sản phẩm (1Loại · 2Đường kính bánh xe D)"}
+{"tu_id": 25, "source": "U", "target": "U"}
+{"tu_id": 26, "source": "QScrew-in type", "target": "QLoại cọc vít"}
+{"tu_id": 27, "source": "Urethane (Brownish Red)", "target": "Urethane (Màu nâu đỏ)"}
+{"tu_id": 28, "source": "Screw-in", "target": "Loại cọc vít"}
+{"tu_id": 29, "source": "Body", "target": "Thân chính"}
+{"tu_id": 30, "source": "Screw-in with Stopper", "target": "Loại cọc vít có khóa"}
+{"tu_id": 31, "source": "EFor more information on product specifications and dimensional drawings, please refer to product catalog on the website.", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 32, "source": "E-CPSN", "target": "E-CPSN"}
+{"tu_id": 33, "source": "E-CPSNS", "target": "E-CPSNS"}
+{"tu_id": 34, "source": "X", "target": "X"}
+{"tu_id": 35, "source": "H", "target": "H"}
+{"tu_id": 36, "source": "2D", "target": "2D"}
+{"tu_id": 37, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 38, "source": "Zinc plating", "target": "Mạ kẽm"}
+{"tu_id": 39, "source": "Polyurethane-PU (Brown Red)", "target": "Polyurethane-PU (Màu nâu đỏ)"}
+{"tu_id": 40, "source": "Plastic core", "target": "Lõi nhựa"}
+{"tu_id": 41, "source": "Not provided", "target": "Không có"}
+{"tu_id": 42, "source": "Allowable Load(daN)", "target": "Tải trọng cho phép(daN)"}
+{"tu_id": 43, "source": "1Type (fork material)", "target": "1Loại (vật liệu càng)"}
+{"tu_id": 44, "source": "2No.", "target": "2Thông số"}
+{"tu_id": 45, "source": "EC-DL174(Steel fork)EC-DL179(SUS304 fork)", "target": "EC-DL174(Càng bằng thép)EC-DL179(Càng bằng SUS304)"}
+{"tu_id": 46, "source": "PU", "target": "PU"}
+{"tu_id": 47, "source": "Part Number (1Type)", "target": "Mã sản phẩm (1Loại)"}
+{"tu_id": 48, "source": "· 3Wheel Material", "target": "· 3Vật liệu bánh xe"}
+{"tu_id": 49, "source": "QNylon Wheel", "target": "QBánh Nylon"}
+{"tu_id": 50, "source": "Nylon (Black)", "target": "Nylon (Màu đen)"}
+{"tu_id": 51, "source": "Swivel with stopper", "target": "Loại xoay có khóa"}
+{"tu_id": 52, "source": "Electrophoresis (Black)", "target": "Điện di (Màu đen)"}
+{"tu_id": 53, "source": "D=65/75mm", "target": "D=65/75mm"}
+{"tu_id": 54, "source": "E-CLHK", "target": "E-CLHK"}
+{"tu_id": 55, "source": "N (Nylon)", "target": "N (Nylon)"}
+{"tu_id": 56, "source": "E-CLHJ", "target": "E-CLHJ"}
+{"tu_id": 57, "source": "E-CLHS", "target": "E-CLHS"}
+{"tu_id": 58, "source": "N", "target": "N"}
+{"tu_id": 59, "source": "QMore cost-saving products", "target": "QSản phẩm tối ưu chi phí hơn"}
+{"tu_id": 60, "source": "a", "target": "a"}
+{"tu_id": 61, "source": "b", "target": "b"}
+{"tu_id": 62, "source": "c", "target": "c"}
+{"tu_id": 63, "source": "d", "target": "d"}
+{"tu_id": 64, "source": "Mounting hole(l-w)", "target": "Lỗ lắp đặt(l-w)"}
+{"tu_id": 65, "source": "r", "target": "r"}
+{"tu_id": 66, "source": "POL", "target": "POL"}
+{"tu_id": 67, "source": "10.5×8.5", "target": "10.5×8.5"}
+{"tu_id": 68, "source": "4-φ6.6", "target": "4-φ6.6"}
+{"tu_id": 69, "source": "l", "target": "l"}
+{"tu_id": 70, "source": "w", "target": "w"}
+{"tu_id": 71, "source": "Casters Part", "target": "Phần bánh xe"}
+{"tu_id": 72, "source": "Caster Wheel", "target": "Bánh xe"}
+{"tu_id": 73, "source": "Nylon-PP (Yellow white)", "target": "Nylon-PP (Màu trắng ngả vàng)"}
+{"tu_id": 75, "source": "Nylon-PA (White)", "target": "Nylon-PA (Màu trắng)"}
+{"tu_id": 76, "source": "EC-DL183", "target": "EC-DL183"}
+{"tu_id": 78, "source": "SUS304 (Shiny)", "target": "SUS304 (Trơn bóng)"}
+{"tu_id": 79, "source": "SUS304 (Rough)", "target": "SUS304 (Thô ráp)"}
+{"tu_id": 80, "source": "Bearing", "target": "Vòng bi"}
+{"tu_id": 81, "source": "Fitting Type", "target": "Loại lắp đặt"}
+{"tu_id": 82, "source": "NYPP", "target": "NYPP"}
+{"tu_id": 83, "source": "EC-DL183(Shiny)EC-DL184(Rough)", "target": "EC-DL183(Trơn bóng)EC-DL184(Thô ráp)"}
+{"tu_id": 84, "source": "NYPA", "target": "NYPA"}
+{"tu_id": 85, "source": "EC-DL183(Shiny)EC-DL184(Rough)", "target": "EC-DL183(Trơn bóng)EC-DL184(Thô ráp)"}
+{"tu_id": 86, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 87, "source": "Thermoplastic Rubber-TPR", "target": "Cao su nhiệt dẻo-TPR"}
+{"tu_id": 88, "source": "1Type (Color)", "target": "1Loại (Màu sắc)"}
+{"tu_id": 89, "source": "EC-DL172(Grey)EC-DL173(Blue)", "target": "EC-DL172(Màu xám)EC-DL173(Màu xanh dương)"}
+{"tu_id": 90, "source": "TPR (Grey)TPR (Blue)", "target": "TPR (Màu xám)TPR (Màu xanh dương)"}
+{"tu_id": 91, "source": "Bracket M Material", "target": "Giá đỡ M Vật liệu"}
+{"tu_id": 92, "source": "Wheel M Material", "target": "Bánh xe M Vật liệu"}
+{"tu_id": 93, "source": "C-FMJ", "target": "C-FMJ"}
+{"tu_id": 94, "source": "EFor height adjustment blocks, No.40 only have yellow adjustment blocks.", "target": "EĐối với phần Núm Vặn điều chỉnh độ cao, dòng 40 chỉ có núm vặn điều chỉnh (màu vàng)."}
+{"tu_id": 95, "source": "No.60, 80 and 100 have yellow adjustment blocks and adjusting nuts.", "target": "Dòng 60, 80, 100 có núm vặn điều chỉnh (màu vàng) và đai ốc điều chỉnh."}
+{"tu_id": 96, "source": "Mounting height H", "target": "Chiều cao lắp đặt H"}
+{"tu_id": 97, "source": "H1", "target": "H1"}
+{"tu_id": 98, "source": "A", "target": "A"}
+{"tu_id": 99, "source": "C", "target": "C"}
+{"tu_id": 100, "source": "F1", "target": "F1"}
+{"tu_id": 101, "source": "Mass (g)", "target": "Khối lượng (g)"}
+{"tu_id": 102, "source": "2Specifications", "target": "2Thông số kỹ thuật"}
+{"tu_id": 103, "source": "Part Number (1Type · 2Specifications)", "target": "Mã sản phẩm (1Loại · 2Thông số kỹ thuật)"}
+{"tu_id": 104, "source": "C-FMS", "target": "C-FMS"}
+{"tu_id": 105, "source": "D", "target": "D"}
+{"tu_id": 106, "source": "M", "target": "M"}
+{"tu_id": 107, "source": "l1", "target": "l1"}
+{"tu_id": 108, "source": "Mass (g)", "target": "Khối lượng (g)"}
+{"tu_id": 109, "source": "4-d", "target": "4-d"}
+{"tu_id": 110, "source": "MISUMI Economy series", "target": "Dòng MISUMI Economy"}
+{"tu_id": 111, "source": "Load Range (KG)", "target": "Phạm vi tải trọng (KG)"}
+{"tu_id": 112, "source": "Metal Pad Swivel Bolt, Heavy Load", "target": "Đế kim loại, bu lông xoay, loại tải nặng"}
+{"tu_id": 113, "source": "Rubber Pad Swivel Bolt, Heavy Load", "target": "Đế cao su, bu lông xoay, loại tải nặng"}
+{"tu_id": 114, "source": "Suitable for heavy load anti-slip equipment", "target": "Thích hợp cho thiết bị tải nặng và yêu cầu chống trượt"}
+{"tu_id": 115, "source": "Metal Pad Fixed Bolt, Medium Load, 4 Holes", "target": "Đế kim loại, bu lông cố định, loại tải trung, 4 lỗ"}
+{"tu_id": 116, "source": "Suitable for equipment that needs to be fixed", "target": "Thích hợp cho thiết bị cần cố định vị trí"}
+{"tu_id": 117, "source": "Metal Pad Fixed Bolt, Light Load", "target": "Đế kim loại, bu lông cố định, loại tải nhẹ"}
+{"tu_id": 118, "source": "Suitable for installation in narrow space", "target": "Thích hợp cho các không gian lắp đặt hẹp"}
+{"tu_id": 119, "source": "Economy series Leveling Mounts", "target": "Dòng Economy - Chân Tăng Chỉnh"}
+{"tu_id": 120, "source": "NewSpecs", "target": "Bổ sung quy cách"}
+{"tu_id": 121, "source": "QNew MISUMI Economy series Products", "target": "QSản phẩm mới dòng MISUMI Economy"}
+{"tu_id": 122, "source": "Q MISUMI Economy series load assurance", "target": "Q Tải trọng đảm bảo"}
+{"tu_id": 123, "source": "· The load of MISUMI Economy series leveling mounts is clearly indicated, and it is guaranteed by third-party testing for more assured use.", "target": "· Tải trọng của Chân Tăng Chỉnh dòng MISUMI Economy được thể hiện rõ ràng, và được đảm bảo bằng kiểm định của bên thứ ba, giúp khách hàng an tâm khi sử dụng."}
+{"tu_id": 124, "source": "Test results of allowable load are according to GB standard.", "target": "Kết quả kiểm tra tải trọng cho phép theo tiêu chuẩn GB."}
+{"tu_id": 125, "source": "No obvious mechanical damage on the sample surface", "target": "Bề mặt mẫu không có tổn hại cơ học rõ ràng"}
+{"tu_id": 126, "source": "Bolt", "target": "Bu lông"}
+{"tu_id": 127, "source": "Resin Base", "target": "Đế nhựa"}
+{"tu_id": 128, "source": "C-CFJLM", "target": "C-CFJLM"}
+{"tu_id": 129, "source": "C-CFJLMS", "target": "C-CFJLMS"}
+{"tu_id": 130, "source": "EThe bottom of the product is hollow.", "target": "EPhần đế có lỗ."}
+{"tu_id": 131, "source": "E\"Allowable load\" in this specification table is for the vertical direction only", "target": "E“Tải trọng cho phép” trong bảng thông số kỹ thuật này chỉ áp dụng cho phương thẳng đứng."}
+{"tu_id": 132, "source": "EFor more information on product specifications and dimensional drawings, please refer to product catalog on the website.", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 133, "source": "3Thread Size M", "target": "3Kích thước ren M"}
+{"tu_id": 134, "source": "4Thread Length A", "target": "4Chiều dài ren A"}
+{"tu_id": 135, "source": "Body Height L", "target": "Chiều dài thân L"}
+{"tu_id": 136, "source": "L1", "target": "L1"}
+{"tu_id": 137, "source": "(kN)", "target": "(kN)"}
+{"tu_id": 138, "source": "2Width D", "target": "2Chiều rộng D"}
+{"tu_id": 139, "source": "Part Number (1Type · 2Width D)", "target": "Mã sản phẩm (1Loại · 2Chiều rộng D)"}
+{"tu_id": 140, "source": "3M (Coarse Thread)", "target": "3M (Ren thô)"}
+{"tu_id": 141, "source": "EC-DL183(Shiny)EC-DL184(Rough)", "target": "EC-DL183(Bóng)EC-DL184(Thô)"}
+{"tu_id": 142, "source": "4A", "target": "4A"}
+{"tu_id": 143, "source": "L", "target": "L"}
+{"tu_id": 144, "source": "QNylon Pad Swivel Bolt, Light Load", "target": "QĐế Nylon, bu lông xoay, loại tải nhẹ"}
+{"tu_id": 145, "source": "C-CAJPD", "target": "C-CAJPD"}
+{"tu_id": 146, "source": "C-CAJPDS", "target": "C-CAJPDS"}
+{"tu_id": 147, "source": "EFor more information on product specifications and dimensional drawings, please refer to product catalog on the website.", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 148, "source": "Allowable Load (kN)", "target": "Tải trọng cho phép (kN)"}
+{"tu_id": 149, "source": "Part Number (1Type · 2Thread Size M)", "target": "Mã sản phẩm (1Loại · 2Kích thước ren M)"}
+{"tu_id": 150, "source": "3 Thread Length A", "target": "3 Chiều dài ren A"}
+{"tu_id": 151, "source": "LVC-CAJPD", "target": "LVC-CAJPD"}
+{"tu_id": 152, "source": "4Thread Length Z", "target": "4Chiều dài ren Z"}
+{"tu_id": 153, "source": "Allowable Load (kg)", "target": "Tải trọng cho phép (kg)"}
+{"tu_id": 154, "source": "3M (Coarse Thread)", "target": "3M (Ren thô)"}
+{"tu_id": 155, "source": "4Z", "target": "4Z"}
+{"tu_id": 156, "source": "QPVC Pad Fixed Bolt, Heavy Load", "target": "QĐế PVC, Bu lông cố định, loại tải nặng"}
+{"tu_id": 157, "source": "S Surface treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 158, "source": "Metal Base", "target": "Đế kim loại"}
+{"tu_id": 159, "source": "C-CPVC", "target": "C-CPVC"}
+{"tu_id": 160, "source": "Steel (Q235)", "target": "Thép (Q235)"}
+{"tu_id": 161, "source": "Polyvinyl Chloride-PVC", "target": "Polyvinyl Chloride-PVC"}
+{"tu_id": 162, "source": "E\"Allowable load\" in this specification table is for the vertical direction only", "target": "E“Tải trọng cho phép” trong bảng thông số kỹ thuật này chỉ áp dụng cho phương thẳng đứng."}
+{"tu_id": 163, "source": "EFor more information on product specifications and dimensional drawings, please refer to product catalog on the website", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 164, "source": "LVC-CPVC", "target": "LVC-CPVC"}
+{"tu_id": 165, "source": "LVC-CPVCS", "target": "LVC-CPVCS"}
+{"tu_id": 166, "source": "Stainless Steel", "target": "Thép không gỉ"}
+{"tu_id": 167, "source": "(Steel)", "target": "(Thép)"}
+{"tu_id": 168, "source": "(Stainless steel)", "target": "(Thép không gỉ)"}
+{"tu_id": 169, "source": "QPVC Pad Fixed Bolt, Heavy Load 2 Holes", "target": "QĐế PVC, Bu lông cố định, loại tải nặng, 2 lỗ"}
+{"tu_id": 170, "source": "C-CPVCH", "target": "C-CPVCH"}
+{"tu_id": 171, "source": "E\"Allowable load\" in this specification table is for the vertical direction only", "target": "E“Tải trọng cho phép” trong bảng thông số kỹ thuật này chỉ áp dụng cho phương thẳng đứng."}
+{"tu_id": 172, "source": "LVC-CPVCH", "target": "LVC-CPVCH"}
+{"tu_id": 173, "source": "2×φ12.5", "target": "2×φ12.5"}
+{"tu_id": 174, "source": "QRubber Pad Fixed Bolt, Heavy Load", "target": "QĐế cao su, bu lông cố định, loại tải nặng"}
+{"tu_id": 175, "source": "Rubber Base", "target": "Đế cao su"}
+{"tu_id": 176, "source": "C-CFJFNV", "target": "C-CFJFNV"}
+{"tu_id": 177, "source": "C-CFJFNVS", "target": "C-CFJFNVS"}
+{"tu_id": 178, "source": "3Thread Size M", "target": "3Kích thước ren M"}
+{"tu_id": 179, "source": "4Thread Length A", "target": "4Chiều dài ren A"}
+{"tu_id": 180, "source": "Allowable Load (kN)", "target": "Tải trọng cho phép (kN)"}
+{"tu_id": 181, "source": "2Width D", "target": "2Chiều rộng D"}
+{"tu_id": 182, "source": "LVC-CFJFNV", "target": "LVC-CFJFNV"}
+{"tu_id": 183, "source": "LVC-CFJFNVS", "target": "LVC-CFJFNVS"}
+{"tu_id": 184, "source": "(Steel)LVC-CFJFNVS(Stainless steel)", "target": "(Thép)LVC-CFJFNVS(Thép không gỉ)"}
+{"tu_id": 185, "source": "QRubber Pad Fixed Bolt, Medium Load", "target": "QĐế cao su, bu lông cố định, loại tải trung bình"}
+{"tu_id": 186, "source": "M Material", "target": "M Vật liệu"}
+{"tu_id": 187, "source": "S Surface treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 188, "source": "C-CFJGN", "target": "C-CFJGN"}
+{"tu_id": 189, "source": "LVC-CFJGN", "target": "LVC-CFJGN"}
+{"tu_id": 190, "source": "QRubber Pad Fixed Bolt, Light Load / Ultra Light Load", "target": "QĐế cao su, bu lông cố định, loại tải nhẹ / siêu nhẹ"}
+{"tu_id": 191, "source": "C-CFJSN", "target": "C-CFJSN"}
+{"tu_id": 192, "source": "Eletro plating (Black)", "target": "Sơn điện di (Màu đen)"}
+{"tu_id": 193, "source": "C-CFJSNS", "target": "C-CFJSNS"}
+{"tu_id": 194, "source": "Eletrolytic Polishing", "target": "Đánh bóng điện giải"}
+{"tu_id": 195, "source": "LVC-CFJSN", "target": "LVC-CFJSN"}
+{"tu_id": 196, "source": "LVC-CFJSNS", "target": "LVC-CFJSNS"}
+{"tu_id": 197, "source": "QRubber Pad Fixed Bolt, Supper Light Load", "target": "QĐế cao su, bu lông cố định, loại tải siêu nhẹ"}
+{"tu_id": 198, "source": "S Surface Treatment", "target": "S Xử lý bề mặt"}
+{"tu_id": 199, "source": "C-CFBR", "target": "C-CFBR"}
+{"tu_id": 200, "source": "E\"Allowable load\" in this specification table is for the vertical direction only", "target": "E“Tải trọng cho phép” trong bảng thông số kỹ thuật này chỉ áp dụng cho phương thẳng đứng."}
+{"tu_id": 201, "source": "EFor more information on product specifications and dimensional drawings, please refer to product catalog on the website", "target": "EThông số chi tiết có trên trang web chính thức."}
+{"tu_id": 202, "source": "LVC-CFBR", "target": "LVC-CFBR"}
+{"tu_id": 203, "source": "X View", "target": "Hướng nhìn X"}
+{"tu_id": 204, "source": "Rubber Part", "target": "Đế đệm"}
+{"tu_id": 205, "source": "E-CFJFNVD", "target": "E-CFJFNVD"}
+{"tu_id": 206, "source": "E-CFJFNVDS", "target": "E-CFJFNVDS"}
+{"tu_id": 207, "source": "Polishing", "target": "Đánh bóng"}
+{"tu_id": 208, "source": "EThe bottom of the product is solid.", "target": "EPhần đáy liền khối, không có lỗ."}
+{"tu_id": 209, "source": "h", "target": "h"}
+{"tu_id": 210, "source": "15°", "target": "15°"}
+{"tu_id": 211, "source": "QMetal Pad Fixed Bolt, Heavy Load", "target": "QĐế kim loại, bu lông cố định, loại tải nặng"}
+{"tu_id": 212, "source": "C-CFJFN", "target": "C-CFJFN"}
+{"tu_id": 213, "source": "C-CFJFNS", "target": "C-CFJFNS"}
+{"tu_id": 214, "source": "4Thread Length A", "target": "4Chiều dài ren A"}
+{"tu_id": 215, "source": "(Q235)", "target": "(Q235)"}
+{"tu_id": 216, "source": "Part Number (1Type · 2Width D)", "target": "Mã sản phẩm (1Loại · 2Chiều rộng D)"}
+{"tu_id": 217, "source": "LVC-CFJFN", "target": "LVC-CFJFN"}
+{"tu_id": 218, "source": "LVC-CFJFNS", "target": "LVC-CFJFNS"}
+{"tu_id": 219, "source": "QMetal Pad Fixed Bolt, Medium Load", "target": "QĐế kim loại, bu lông cố định, loại tải trung"}
+{"tu_id": 220, "source": "C-CNFJN", "target": "C-CNFJN"}
+{"tu_id": 221, "source": "C-CNFJNS", "target": "C-CNFJNS"}
+{"tu_id": 222, "source": "Electrolytic Polishing", "target": "Đánh bóng điện giải"}
+{"tu_id": 223, "source": "LVC-CNFJN", "target": "LVC-CNFJN"}
+{"tu_id": 224, "source": "LVC-CNFJNS", "target": "LVC-CNFJNS"}
+{"tu_id": 225, "source": "QMetal Pad Fixed Bolt, Medium Load 1 Hole / 4 Holes", "target": "QĐế kim loại, bu lông cố định, loại tải trung, 1 lỗ / 4 lỗ"}
+{"tu_id": 226, "source": "E-FJWNQ", "target": "E-FJWNQ"}
+{"tu_id": 227, "source": "Body HeightL", "target": "Chiều dài thânL"}
+{"tu_id": 228, "source": "LVC-FJKN", "target": "LVC-FJKN"}
+{"tu_id": 229, "source": "LVC-FJKNS", "target": "LVC-FJKNS"}
+{"tu_id": 230, "source": "φ6.5", "target": "φ6.5"}
+{"tu_id": 231, "source": "QFixed Bolt, Light Load", "target": "QBu lông cố định, loại tải nhẹ"}
+{"tu_id": 232, "source": "E-FJWH", "target": "E-FJWH"}
+{"tu_id": 233, "source": "E-FJWHB", "target": "E-FJWHB"}
+{"tu_id": 234, "source": "E-FJWHS", "target": "E-FJWHS"}
+{"tu_id": 235, "source": "(Q235, Zinc Plating)", "target": "(Q235, Mạ kẽm)"}
+{"tu_id": 236, "source": "(Q235, Electro Plated)", "target": "(Q235, Sơn điện di)"}
+{"tu_id": 237, "source": "(SUS304, Polishing)", "target": "(SUS304 , Đánh bóng)"}
+{"tu_id": 238, "source": "QSwivel Bolt, Heavy Load", "target": "QBu lông xoay, loại tải nặng"}
+{"tu_id": 239, "source": "E-CFJFND", "target": "E-CFJFND"}
+{"tu_id": 240, "source": "E-CFJFNDS", "target": "E-CFJFNDS"}
+{"tu_id": 241, "source": "Casters Plate Type, Medium Load Urethane Wheel", "target": "Bánh Xe loại Mặt Bích, tải trung, bánh Urethane"}
+{"tu_id": 242, "source": "Medium Load Urethane Wheel (Fixed Type), Zinc-plated SPHC body for rust resistance", "target": "Bánh xe Urethane tải trung (loại cố định), thân làm từ vật liệu SPHC mạ kẽm mang lại khả năng chống gỉ"}
+{"tu_id": 243, "source": "Casters Plate Type, Medium Load PP Wheel", "target": "Bánh Xe loại Mặt Bích, tải trung, bánh PP"}
+{"tu_id": 244, "source": "Medium Load PP Wheel (Swivel Type), Zinc-plated SPHC body for rust resistance", "target": "Bánh xe PP tải trung (loại xoay), thân làm từ vật liệu SPHC mạ kẽm mang lại khả năng chống gỉ"}
+{"tu_id": 245, "source": "- Good stiffness, smooth movement, little deformation", "target": "- Độ cứng tốt, chuyển động mượt mà, ít bị biến dạng"}
+{"tu_id": 246, "source": "83% OFF", "target": "TIẾT KIỆM 83%"}
+{"tu_id": 247, "source": "71% OFF", "target": "TIẾT KIỆM 71%"}
+{"tu_id": 248, "source": "Casters Screw-in Type, Medium Load Nylon Wheel", "target": "Bánh Xe loại Cọc Vít, tải trung, bánh Nylon"}
+{"tu_id": 249, "source": "Nylon Casters Swivel Screw-in Type, Zinc-plated SPHC body for rust resistance", "target": "Bánh Xe Nylon loại Cọc Vít xoay, thân làm từ vật liệu SPHC mạ kẽm mang lại khả năng chống gỉ"}
+{"tu_id": 250, "source": "Casters Screw-in Type, Medium Load TPU Wheel", "target": "Bánh Xe loại Cọc Vít, tải trung, bánh TPU"}
+{"tu_id": 251, "source": "Medium Load Red TPU Caster Screw-in Type, Zinc-plated SPHC body for rust resistance", "target": "Bánh xe loại Cọc Vít, bánh TPU màu đỏ, tải trung, thân làm từ vật liệu SPHC mạ kẽm mang lại khả năng chống gỉ"}
+{"tu_id": 252, "source": "- Smooth movement with bearings in turning and wheel parts", "target": "- Khả năng chuyển động mượt mà nhờ vòng bi ở phần xoay và bánh xe"}
+{"tu_id": 253, "source": "Casters Plate Type, Heavy Load Nylon Wheel", "target": "Bánh Xe loại Mặt Bích, tải nặng, bánh Nylon"}
+{"tu_id": 254, "source": "Heavy Load Nylon PA Rough 304 Caster Fixed type, SUS304 body for excellent rust resistance", "target": "Bánh Xe Nylon PA thô 304, loại cố định, tải nặng, thân làm từ thép SUS304 mang lại khả năng chống gỉ vượt trội"}
+{"tu_id": 255, "source": "- Various mounting heights:", "target": "- Nhiều chiều cao lắp đặt khác nhau:"}
+{"tu_id": 256, "source": "Leveling Mounts Nylon Pad Fixed Bolt, Medium Load", "target": "Chân Tăng Chỉnh đế Nylon, bu lông cố định, loại tải trung"}
+{"tu_id": 257, "source": "88% OFF", "target": "TIẾT KIỆM 88%"}
+{"tu_id": 258, "source": "Leveling Mounts PVC Pad Fixed Bolt, Heavy Load", "target": "Chân Tăng Chỉnh đế PVC, bu lông cố định, loại tải nặng"}
+{"tu_id": 259, "source": "Leveling Mounts PVC Yellow Pad, Body material:", "target": "Chân Tăng Chỉnh đế PVC, Vật liệu phần thân:"}
+{"tu_id": 260, "source": "50~200mm / Pad diameter:", "target": "50~200mm / Đường kính phần đế:"}
+{"tu_id": 261, "source": "φ50~100mm", "target": "φ50~100mm"}
+{"tu_id": 262, "source": "60~200mm, Pad diameter: φ40~100mm", "target": "60~200mm, Đường kính phần đế: φ40~100mm"}
+{"tu_id": 263, "source": "Leveling Mounts Rubber Pad Fixed Bolt, Light load", "target": "Chân Tăng Chỉnh đế Cao su, bu lông cố định, loại tải nhẹ"}
+{"tu_id": 264, "source": "Leveling Mounts Anti-Vibration, Body material selection:", "target": "Chân Tăng Chỉnh chống rung, Lựa chọn vật liệu phần thân:"}
+{"tu_id": 265, "source": "87% OFF", "target": "TIẾT KIỆM 87%"}
+{"tu_id": 266, "source": "76% OFF", "target": "TIẾT KIỆM 76%"}
+{"tu_id": 267, "source": "Leveling Mounts Metal Pad Fixed Bolt, Heavy load", "target": "Chân Tăng Chỉnh đế Kim Loại, bu lông cố định, loại tải nặng"}
+{"tu_id": 268, "source": "Leveling Mounts Metal Pad For Heavy Load, Body material selection:", "target": "Chân Tăng Chỉnh đế Kim Loại, loại tải nặng, Lựa chọn vật liệu phần thân:"}
+{"tu_id": 269, "source": "Leveling Mounts Metal Pad Fixed Bolt, Medium Load 4 Holes", "target": "Chân Tăng Chỉnh đế Kim Loại, bu lông cố định, loại tải trung, 4 lỗ"}
+{"tu_id": 270, "source": "Leveling Mounts Metal Pad With Positioning Holes, Body material:", "target": "Chân Tăng Chỉnh đế Kim Loại có lỗ định vị, Vật liệu phần thân:"}
+{"tu_id": 271, "source": "φ75mm.", "target": "φ75mm."}
+{"tu_id": 272, "source": "73% OFF", "target": "TIẾT KIỆM 73%"}
+{"tu_id": 273, "source": "Economy series Casters", "target": "Dòng Economy - Bánh Xe"}
+{"tu_id": 274, "source": "Q Usage difference between MISUMI Economy series and MISUMI Standard products", "target": "Q So sánh Bánh Xe dòng MISUMI Economy và dòng tiêu chuẩn MISUMI"}
+{"tu_id": 275, "source": "Q Advantages of MISUMI Economy series Casters", "target": "Q Tính ưu việt của Bánh Xe dòng MISUMI Economy"}
+{"tu_id": 276, "source": "· MISUMI Economy series Casters are strictly tested following ANSI ICWM-2018 standard.", "target": "· Bánh Xe dòng MISUMI Economy được kiểm tra nghiêm ngặt theo tiêu chuẩn ANSI ICWM-2018."}
+{"tu_id": 277, "source": "Test results under the same allowable load", "target": "Kết quả thử nghiệm của Bánh Xe với tải trọng cho phép tối đa"}
+{"tu_id": 278, "source": "No deformation Passed", "target": "Không bị biến dạng Đạt tiêu chuẩn"}
+{"tu_id": 279, "source": "DeformationUnqualified", "target": "Biến dạngKhông đạt tiêu chuẩn"}
+{"tu_id": 280, "source": "Generic products on the market, which make customers confused on usage", "target": "Các sản phẩm lưu thông trên thị trường"}
+{"tu_id": 281, "source": "Since there is no dust cover on the wheel part, foreign dust is easy to get in the wheel, affecting the wheel rotation.", "target": "Phần bánh xe không có lớp chắn bụi, dị vật dễ chui vào gây ảnh hưởng đến sự xoay chuyển của bánh xe."}
+{"tu_id": 282, "source": "* Only urethane and TPR casters have dust covers", "target": "* Chỉ bánh xe bằng vật liệu Urethane và TPR là có nắp chắn bụi"}
+{"tu_id": 283, "source": "2No.", "target": "2Thông số"}
+{"tu_id": 284, "source": "1Type (color)", "target": "1Loại (màu sắc)"}
+{"tu_id": 285, "source": "Urethane (brownish red)", "target": "Urethane (màu nâu đỏ)"}
+{"tu_id": 286, "source": "Swivel Swivel with Stopper", "target": "Loại xoay Loại xoay có khóa"}
+{"tu_id": 288, "source": "U(Urethane)", "target": "U(Urethane)"}
+{"tu_id": 289, "source": "QMedium Load PP Wheel", "target": "QLoại tải trung, bánh PP"}
+{"tu_id": 290, "source": "Swivel with Stopper", "target": "Loại xoay có khóa"}
+{"tu_id": 291, "source": "EC-DL191(Yellow white)EC-DL192(Grey)", "target": "EC-DL191(Màu trắng ngả vàng)EC-DL192(Màu xám)"}
+{"tu_id": 292, "source": "QSteel fork", "target": "QLoại càng thép"}
+{"tu_id": 293, "source": "Nylon (white)", "target": "Nylon (màu trắng)"}
+{"tu_id": 294, "source": "Thermoplastic Rubber-TPR (Gray)", "target": "Cao su nhiệt dẻo-TPR (Màu xám)"}
+{"tu_id": 295, "source": "By Keyword", "target": "Nhập Từ khóa"}
+{"tu_id": 296, "source": "Search on MISUMI official website", "target": "Trang web của MISUMI"}
+{"tu_id": 297, "source": "Step 2 Select Economy series", "target": "Bước 2 Lựa chọn dòng Economy"}
+{"tu_id": 298, "source": "# Only MISUMI Economy series", "target": "# Chỉ dòng MISUMI Economy"}
+{"tu_id": 299, "source": "Search on MISUMI official website and get your product", "target": "Tìm kiếm và xem sản phẩm trên trang web của MISUMI"}
+{"tu_id": 300, "source": "Polyvinyl Chloride-PVC (Black)", "target": "Polyvinyl Chloride-PVC (Màu đen)"}
+{"tu_id": 301, "source": "Polyvinyl Chloride-PVC (Red)", "target": "Polyvinyl Chloride-PVC (Màu đỏ)"}
+{"tu_id": 302, "source": "Polyvinyl Chloride-PVC (Brown Red)", "target": "Polyvinyl Chloride-PVC (Màu nâu đỏ)"}
+{"tu_id": 303, "source": "Thermoplastic Polyurethane-TPU (Grey)Thermoplastic Polyurethane-TPU (Red)", "target": "Thermoplastic Polyurethane-TPU (Màu xám)Thermoplastic Polyurethane-TPU (Màu đỏ)"}
+{"tu_id": 304, "source": "Thermoplastic Polyurethane-TPU (Red)", "target": "Thermoplastic Polyurethane-TPU (Màu đỏ)"}
+{"tu_id": 305, "source": "Thermoplastic Polyurethane-TPU (Grey)", "target": "Thermoplastic Polyurethane-TPU (Màu xám)"}
+{"tu_id": 306, "source": "EC-DL189 (red)EC-DL190 (grey)", "target": "EC-DL189 (Màu đỏ)EC-DL190 (Màu xám)"}
+{"tu_id": 307, "source": "QHeavy Load Urethane Wheel, Cast Iron core", "target": "QLoại tải nặng bánh Urethane, lõi gang"}
+{"tu_id": 308, "source": "Casters Material", "target": "Vật liệu bánh xe"}
+{"tu_id": 309, "source": "EC-DL176 (without wheel cover)EC-DL177 (with wheel cover)", "target": "EC-DL176 (không có nắp bánh xe)EC-DL177 (có nắp bánh xe)"}
+{"tu_id": 310, "source": " No.60, 80 and 100 have yellow adjustment blocks and adjusting nuts. ", "target": " Dòng 60, 80, 100 có núm vặn điều chỉnh (màu vàng) và đai ốc điều chỉnh. "}
+{"tu_id": 311, "source": "Polypropylene-PP", "target": "Polypropylene-PP"}
+{"tu_id": 312, "source": "The dust cover attached to the wheel prevents contamination and ensures smooth rotation of the wheel.", "target": "Phần bánh xe có lớp chắn bụi, ngăn dị vật chui vào, đảm bảo bánh xe xoay chuyển trơn tru."}

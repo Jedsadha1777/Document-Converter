@@ -10,6 +10,7 @@ from config import (
     APPLE_SHORTCUT_EN,
     APPLE_SHORTCUT_JA,
     APPLE_SHORTCUT_TH,
+    APPLE_SHORTCUT_VI,
     ELEMENT_KEYS,
     GEMINI_AVAILABLE,
     GEMINI_BATCH_DELAY_MS,
@@ -48,10 +49,11 @@ from translate import (
     translate_batch,
     translate_text,
 )
+import tm
 
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100 MB
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 * 1024  # 2 GB
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.jinja_env.auto_reload = True
 
@@ -145,8 +147,14 @@ def apple_translate_status():
             "th": APPLE_SHORTCUT_TH in sc,
             "en": APPLE_SHORTCUT_EN in sc,
             "ja": APPLE_SHORTCUT_JA in sc,
+            "vi": APPLE_SHORTCUT_VI in sc,
         },
-        "required": {"th": APPLE_SHORTCUT_TH, "en": APPLE_SHORTCUT_EN, "ja": APPLE_SHORTCUT_JA},
+        "required": {
+            "th": APPLE_SHORTCUT_TH,
+            "en": APPLE_SHORTCUT_EN,
+            "ja": APPLE_SHORTCUT_JA,
+            "vi": APPLE_SHORTCUT_VI,
+        },
     })
 
 
@@ -157,6 +165,7 @@ def apple_translate_setup():
         sh_th=APPLE_SHORTCUT_TH,
         sh_en=APPLE_SHORTCUT_EN,
         sh_ja=APPLE_SHORTCUT_JA,
+        sh_vi=APPLE_SHORTCUT_VI,
     )
 
 
@@ -351,6 +360,54 @@ def translate_batch_endpoint():
         import traceback
         traceback.print_exc()
         return jsonify({"error": f"server exception: {exc}"}), 500
+
+
+@app.route("/tm/status", methods=["GET"])
+def tm_status():
+    pair = (request.args.get("pair") or "en-vn").strip()
+    try:
+        return jsonify(tm.status(pair))
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"tm.status: {exc}"}), 500
+
+
+@app.route("/tm/build", methods=["POST"])
+def tm_build():
+    payload = request.get_json(silent=True) or {}
+    pair = (payload.get("pair") or "en-vn").strip()
+    try:
+        manifest = tm.build_index(pair)
+        tm.invalidate_cache(pair)
+        return jsonify({"ok": True, "manifest": manifest})
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"tm.build: {exc}"}), 500
+
+
+@app.route("/tm/suggest", methods=["POST"])
+def tm_suggest():
+    payload = request.get_json(silent=True) or {}
+    texts = payload.get("texts") or []
+    pair = (payload.get("pair") or "en-vn").strip()
+    top_k_per_query = int(payload.get("top_k_per_query") or 0) or None
+    final_k = int(payload.get("final_k") or 0) or None
+    auto_build = bool(payload.get("auto_build", True))
+    if not isinstance(texts, list) or not texts:
+        return jsonify({"error": "texts must be a non-empty list"}), 400
+    kwargs = {"pair": pair, "auto_build": auto_build}
+    if top_k_per_query:
+        kwargs["top_k_per_query"] = top_k_per_query
+    if final_k:
+        kwargs["final_k"] = final_k
+    try:
+        return jsonify(tm.suggest([str(t) for t in texts], **kwargs))
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"tm.suggest: {exc}"}), 500
 
 
 @app.route("/convert", methods=["POST"])
