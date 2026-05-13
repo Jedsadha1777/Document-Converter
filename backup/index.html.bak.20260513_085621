@@ -1715,15 +1715,16 @@ async function tmSuggest() {
 }
 
 async function tmBuild() {
-    if (!confirm("Rebuild ALL TM indexes (every pair folder under data_tm/)? This calls the embedding model for every TU and can take several minutes per pair.")) return;
+    if (!confirm("Rebuild the TM index? This calls the embedding model for every TU and can take several minutes.")) return;
+    const pair = tmPairSel.value || "en-vn";
     tmBuildBtn.disabled = true;
     tmStatusEl.style.color = "#6b7280";
-    tmStatusEl.textContent = "building all indexes…";
+    tmStatusEl.textContent = "building index…";
     try {
         const res = await fetch("/tm/build", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: "{}",
+            body: JSON.stringify({ pair }),
         });
         const ct = res.headers.get("content-type") || "";
         if (!ct.includes("application/json")) {
@@ -1732,10 +1733,9 @@ async function tmBuild() {
         }
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
-        const ms = data.manifests || [];
-        const summary = ms.map(m => `${m.pair}(n=${m.n_rows})`).join(", ");
+        const m = data.manifest || {};
         tmStatusEl.style.color = "#15803d";
-        tmStatusEl.textContent = `built ✓ pairs=${ms.length} → ${summary}`;
+        tmStatusEl.textContent = `built ✓ n_rows=${m.n_rows} dim=${m.dim} model=${m.model}`;
     } catch (err) {
         tmStatusEl.style.color = "#b91c1c";
         tmStatusEl.textContent = "build error: " + err.message;

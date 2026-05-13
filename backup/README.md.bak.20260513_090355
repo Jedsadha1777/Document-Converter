@@ -19,7 +19,6 @@ Web UI สำหรับสกัดข้อความจากเอกส�
 | **Manual edit** | คลิกแก้ทั้งช่อง corrected และ translation ได้เอง |
 | **Compare table** | diff ระดับตัวอักษร OCR ↔ corrected พร้อมคำแปล + speaker dropdown |
 | **Google Lens overlay** | ซ้อนคำแปลทับบนภาพต้นฉบับในตำแหน่งเดิม |
-| **Translation Memory (TM)** | Faiss-based retrieval จาก jsonl TUs — embed source ด้วย Ollama, ดึง top hits มาใส่เป็น glossary ใน prompt |
 
 ## ข้อกำหนด
 
@@ -205,92 +204,6 @@ docling/
 | `POST` | `/translate-batch/preview` | ดู prompt ที่จะส่ง LLM (ไม่เรียก API) |
 | `GET` | `/apple-translate-status` | ตรวจ Apple Shortcut พร้อมหรือยัง |
 | `GET` | `/apple-translate-setup` | หน้าคำแนะนำสร้าง Shortcut |
-
-## Translation Memory (TM)
-
-TM เก็บ translation units (TUs) เป็นไฟล์ `.jsonl` ใน `data_tm/<pair>/` — ตอนแปลจะ embed source ของแต่ละแถว → ค้นใน Faiss → ดึง top hits ที่ใกล้เคียงมาเป็น glossary แนบ prompt
-
-### โครงสร้างโฟลเดอร์
-
-```
-data_tm/
-├── en-vn/                      # ชื่อโฟลเดอร์ = pair (ตั้งอิสระ ใช้เป็น identifier)
-│   ├── glossary.jsonl          # ไฟล์ TU (ตั้งชื่ออะไรก็ได้)
-│   ├── promobook.jsonl
-│   ├── _index.faiss            # auto-generated ตอน rebuild — ห้ามแก้
-│   ├── _meta.jsonl             # auto-generated — ห้ามแก้
-│   └── _manifest.json          # auto-generated — เก็บ hash ไฟล์, model, dim, n_rows
-├── ja-en/
-│   └── ...
-```
-
-### Format ของไฟล์ TU (ล็อก)
-
-**File-level rules:**
-- Encoding: **UTF-8** (ไม่มี BOM)
-- รูปแบบ: **JSON Lines (JSONL)** — 1 object ต่อ 1 บรรทัด
-  - ⚠️ **ไม่รองรับ JSON array** — ถึงแม้นามสกุลจะเป็น `.json` ก็ต้องเป็น JSONL
-  - ⚠️ **ไม่รองรับ pretty-printed JSON** ที่หนึ่ง object กินหลายบรรทัด (parser ตัดทีละบรรทัด)
-- นามสกุลไฟล์: `.jsonl` หรือ `.json` เท่านั้น
-- ชื่อไฟล์ห้ามขึ้นต้นด้วย `_` (สงวนให้ `_index.faiss` / `_meta.jsonl` / `_manifest.json`)
-- ไฟล์อ่านชั้นเดียวใน `data_tm/<pair>/` (ไม่ recursive ลง subfolder ลึกกว่านั้น)
-
-**Row-level schema** — แต่ละบรรทัดเป็น JSON object:
-
-| key | type | required | คำอธิบาย |
-|---|---|---|---|
-| `source` | string | ✅ ต้องมี + ไม่ว่าง | ข้อความต้นฉบับ ใช้ embed + retrieve — ถ้าไม่มี/whitespace ล้วน → skip บรรทัด |
-| `target` | string | optional | คำแปล — ถ้าไม่มีจะเก็บเป็น `""` |
-| `tu_id` | string \| null | optional | id อ้างอิงสำหรับ debug — ถ้าไม่มีจะเก็บเป็น `null` |
-
-key อื่น ๆ จะถูก **ignore ทั้งหมด** — ถ้าไฟล์เดิมใช้ key ชื่อ `src` / `tgt` / `text` / `translation` / `en` / `vn` ฯลฯ ต้องแปลงเป็น `source`/`target` ก่อน (ไม่งั้น row จะถูก skip เพราะไม่มี `source`)
-
-**Behavior ของ row ที่ผิดปกติ:**
-
-| สถานการณ์ | ผลลัพธ์ |
-|---|---|
-| บรรทัดว่าง (เฉพาะ whitespace) | skip เงียบ ๆ |
-| JSON parse ไม่ผ่าน | skip + print `[tm] skip bad jsonl: <file>:<line>` |
-| `source` เป็น `null` / ไม่มี key / `""` / `"   "` | skip (ไม่นับเข้า index) |
-| มี key เกินจาก `source`/`target`/`tu_id` | ignore key ส่วนเกิน, row ใช้ได้ปกติ |
-| ทั้งไฟล์ไม่มี row ที่ใช้ได้เลย | `build_index` raise `ValueError("no usable rows...")` → ทั้ง pair fail |
-
-**ตัวอย่างที่ใช้ได้** (`data_tm/en-vn/glossary.jsonl`):
-```json
-{"tu_id": "T25-0768-001", "source": "Hello world", "target": "Xin chào thế giới"}
-{"tu_id": "T25-0768-002", "source": "OK", "target": "Được"}
-{"source": "Thank you", "target": "Cảm ơn"}
-```
-
-**ตัวอย่างที่ใช้ไม่ได้** (จะถูก skip หรือ build fail):
-```json
-[{"source": "...", "target": "..."}]                              ← JSON array (parser อ่าน line by line)
-{"src": "Hello", "tgt": "Xin chào"}                               ← key ผิด → ไม่มี source → skip
-{"source": "", "target": "Cảm ơn"}                                ← source ว่าง → skip
-{"source": "Hello",                                               ← pretty-print หลายบรรทัด → parse fail
- "target": "Xin chào"}
-```
-
-### ปุ่ม ⚙️ Build TM index
-
-- **rebuild ทุก pair** ใน `data_tm/` ทีละโฟลเดอร์ (ไม่เลือกตัวใดตัวหนึ่ง)
-- ใช้ Ollama embedding model (default `OLLAMA_MODEL_EMBED` ใน `config.py`) — ต้อง pull โมเดลให้พร้อมก่อน
-- เป็น **blocking call** — UI โชว์ `building all indexes…` แช่จนเสร็จ ไม่มี progress %
-- ถ้า pair ตัวไหน fail → **หยุดทันที** + รายงานชื่อ pair ที่พังใน status (เช่น `build error: build failed at pair='ja-en': ...`)
-- จบแล้วโชว์สรุป: `built ✓ pairs=2 → en-vn(n=18000), ja-en(n=5000)`
-
-### ปุ่ม 🔎 Suggest from TM
-
-- ใช้ pair ที่เลือกใน dropdown `tmPair` (default `en-vn`)
-- ถ้า manifest hash ไม่ตรงกับไฟล์ปัจจุบัน → auto-rebuild ก่อน search
-
-### TM endpoints
-
-| Method | Path | Use |
-|---|---|---|
-| `POST` | `/tm/build` | rebuild ทุก pair (ignore body) |
-| `POST` | `/tm/suggest` | embed queries → top hits + glossary rules |
-| `GET` | `/tm/status?pair=<pair>` | check manifest / needs_rebuild |
 
 ## Troubleshooting
 

@@ -41,13 +41,6 @@ def _list_source_files(pair: str) -> list[Path]:
     return sorted([p for p in folder.iterdir() if _is_tm_file(p)])
 
 
-def _list_pairs() -> list[str]:
-    root = Path(TM_DIR)
-    if not root.exists():
-        return []
-    return sorted([p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith("_")])
-
-
 def _file_hash(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as f:
@@ -193,22 +186,6 @@ def build_index(pair: str, model: str = OLLAMA_MODEL_EMBED) -> dict:
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[tm] built - n_rows={len(rows)} dim={dim}", flush=True)
     return manifest
-
-
-def build_all_indexes(model: str = OLLAMA_MODEL_EMBED) -> list[dict]:
-    """Rebuild every pair folder under TM_DIR. Stops on first failure and re-raises
-    with the failing pair name embedded in the message."""
-    pairs = _list_pairs()
-    if not pairs:
-        raise FileNotFoundError(f"no pair folders under {TM_DIR}")
-    manifests: list[dict] = []
-    for pair in pairs:
-        try:
-            manifests.append(build_index(pair, model))
-            invalidate_cache(pair)
-        except Exception as exc:
-            raise RuntimeError(f"build failed at pair='{pair}': {exc}") from exc
-    return manifests
 
 
 _index_cache: dict[str, tuple[faiss.Index, list[dict], dict]] = {}

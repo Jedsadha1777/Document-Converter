@@ -375,9 +375,12 @@ def tm_status():
 
 @app.route("/tm/build", methods=["POST"])
 def tm_build():
+    payload = request.get_json(silent=True) or {}
+    pair = (payload.get("pair") or "en-vn").strip()
     try:
-        manifests = tm.build_all_indexes()
-        return jsonify({"ok": True, "manifests": manifests})
+        manifest = tm.build_index(pair)
+        tm.invalidate_cache(pair)
+        return jsonify({"ok": True, "manifest": manifest})
     except Exception as exc:
         import traceback
         traceback.print_exc()

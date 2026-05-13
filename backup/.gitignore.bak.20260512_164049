@@ -1,0 +1,52 @@
+# ── Python ──
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Editor / IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Project-specific ──
+# โมเดล / cache
+.cache/
+*.log
+*.tmp
+
+# tmp files
+/tmp/_*.txt
+/tmp/_*.out
+
+# ไฟล์ทดสอบ / sample (ไม่อัปเข้า repo)
+samples/
+test_files/
+*.pdf
+*.docx
+*.xlsx
+*.pptx
+!templates/*.html
+
+# secrets
+.env
+.env.*
+!.env.example
+secrets.json
