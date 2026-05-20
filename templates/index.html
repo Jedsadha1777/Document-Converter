@@ -160,6 +160,18 @@
         }
 
         /* Floating speaker popup for Visual Preview */
+        /* Edit mode — Visual Preview */
+        button.ghost.active {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+        .canvas-wrap.edit-mode { cursor: crosshair; }
+        .canvas-wrap.edit-mode.dragging { cursor: grabbing; }
+        #editToolbar button {
+            padding: 4px 8px; font-size: 12px; min-width: 30px;
+        }
+
         .bbox-popup {
             position: fixed;
             background: #fff;
@@ -459,6 +471,16 @@ Examples:
             <label style="margin-left:8px; padding:4px 8px; background:#fef3c7; border-radius:6px;">
                 <input type="checkbox" id="showOverlay"> 📝 Overlay translation on image
             </label>
+            <button type="button" id="editModeBtn" class="ghost" style="margin-left:6px;"
+                    title="โหมดแก้กล่อง overlay — ลาก/resize ได้, ปรับ font/align">✏️ Edit</button>
+            <div id="editToolbar" style="display:none; margin-left:6px; gap:4px; align-items:center;">
+                <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์">A−</button>
+                <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์">A+</button>
+                <button type="button" id="alignLeftBtn" class="ghost" title="ชิดซ้าย">⬅</button>
+                <button type="button" id="alignCenterBtn" class="ghost" title="กึ่งกลาง">═</button>
+                <button type="button" id="alignRightBtn" class="ghost" title="ชิดขวา">➡</button>
+                <button type="button" id="resetBboxBtn" class="ghost" title="คืนค่า bbox นี้">↺ reset</button>
+            </div>
 
             <span class="legend">
                 <span class="legend-item" id="legendTexts"><span class="legend-swatch" style="border-color:#2563eb"></span>texts</span>
@@ -692,21 +714,21 @@ function _ensurePretextLocale(text) {
 }
 
 // Pretext: word/grapheme segmentation + Unicode line-break rules (Thai/JP/CJK ถูก)
-// Fallback: split-by-space + break-by-char (ไม่รู้ขอบคำ Thai/JP)
-function wrapTextSmart(ctx, text, maxWidth) {
+// คืน array ของ { text, width } — width จาก Pretext เท่านั้น (ห้ามใช้ ctx.measureText ซ้ำ)
+// อิง pattern Ketchup/utils/TextLayout.js → layoutText()
+function wrapTextSmart(ctx, text, maxWidth, lineHeight) {
     if (!text) return [];
     if (typeof Pretext !== "undefined") {
         try {
             _ensurePretextLocale(text);
-            // ต้องใช้ prepareWithSegments — layoutWithLines ต้องการ segments
-            const prepared = Pretext.prepareWithSegments(text, ctx.font);
-            const out = Pretext.layoutWithLines(prepared, maxWidth, 1);
-            return out.lines.map(l => l.text);
+            const prepared = Pretext.prepareWithSegments(text, ctx.font, { whiteSpace: "pre-wrap" });
+            const out = Pretext.layoutWithLines(prepared, Math.max(maxWidth, 1), lineHeight || 1);
+            return out.lines.map(l => ({ text: l.text, width: l.width }));
         } catch (e) {
             console.warn("[wrapTextSmart] Pretext failed, fallback:", e);
         }
     }
-    // ── fallback ถ้า Pretext ยังไม่โหลด ──
+    // ── fallback ──
     const tokens = text.split(/(\s+)/);
     const lines = [];
     let line = "";
@@ -743,80 +765,206 @@ function wrapTextSmart(ctx, text, maxWidth) {
         }
     }
     if (line.trim()) lines.push(line);
-    return lines;
+    return lines.map(t => ({ text: t, width: ctx.measureText(t).width }));
 }
 
-// วาดคำแปลในกล่องเดิม (ไม่ขยายออก) — ถ้าเกินก็ตัด … ให้ดูเต็มจาก hover
-function drawTextInBox(ctx, text, x, y, w, h) {
-    if (!text || w < 6 || h < 6) return { x, y, w, h, truncated: false };
-    // ยุบ whitespace ทั้งหมดให้เป็น space เดียว — text จะไหลตาม wrap ของกล่องแทนที่จะมีเคาะบรรทัด
-    text = String(text).replace(/\s+/g, " ").trim();
-    if (!text) return { x, y, w, h, truncated: false };
-    const padding = 2;
-    const innerW = w - padding * 2;
-    const FONT_FAMILY = '-apple-system, "Helvetica Neue", "Sarabun", sans-serif';
-    const MIN_FONT = 7;
-    const startFont = Math.min(Math.max(Math.floor(h * 0.65), MIN_FONT), 22);
+const TEXTBOX_PADDING = 4;
+const TEXTBOX_FONT_FAMILY = '-apple-system, "Helvetica Neue", "Sarabun", sans-serif';
 
-    // line-height multiplier — Thai มีสระบน/ล่าง + วรรณยุกต์ ต้องเผื่อกว่า Latin
-    const hasThai = /[฀-๿]/.test(text);
-    const LH_MULT = hasThai ? 1.45 : 1.18;
-    // top padding ใหญ่กว่าปกติสำหรับ Thai — สระบน + วรรณยุกต์ stack กันแล้ว extend นอก EM box
-    const topPadFor = (f) => hasThai ? Math.max(padding, Math.ceil(f * 0.25)) : padding;
+// คำนวณ layout — font size ต้องมาจาก OCR (opts.fixedFontSize หรือ opts.ocrFontSize) ห้ามเดา
+// metrics วัดจาก text จริง — ascent/descent ครอบคลุมสระไทยที่อยู่ใน text นั้น
+function measureTextInBox(ctx, text, w, opts) {
+    opts = opts || {};
+    const f = opts.fixedFontSize || opts.ocrFontSize;
+    if (!f || f <= 0) return null;  // ไม่มี font size → caller จัดการเอง
+    ctx.font = `${f}px ${TEXTBOX_FONT_FAMILY}`;
+    const innerW = Math.max(w - TEXTBOX_PADDING * 2, 1);
+    const clean = String(text || "").replace(/\s+/g, " ").trim();
+    if (!clean) return { fontSize: f, ascent: 0, descent: 0, lineHeight: f, lines: [], requiredH: TEXTBOX_PADDING * 2 };
 
-    // ลองขนาดฟอนต์จากใหญ่ → เล็ก จนกว่าทุกบรรทัดใส่ได้
-    let chosen = null;
-    for (let f = startFont; f >= MIN_FONT; f--) {
-        ctx.font = `${f}px ${FONT_FAMILY}`;
-        const lh = f * LH_MULT;
-        const topPad = topPadFor(f);
-        const innerH = h - topPad - padding;
-        const lines = wrapTextSmart(ctx, text, innerW);
-        if (lines.length * lh <= innerH) {
-            chosen = { fontSize: f, lineHeight: lh, lines, topPad, overflow: false };
-            break;
-        }
-        chosen = { fontSize: f, lineHeight: lh, lines, topPad, overflow: true };
-    }
-    if (!chosen) return { x, y, w, h, truncated: false };
+    const tm = ctx.measureText(clean);
+    const ascent = Math.ceil(tm.actualBoundingBoxAscent);
+    const descent = Math.ceil(tm.actualBoundingBoxDescent);
+    const lineHeight = ascent + descent;
 
-    // พื้นหลัง + กรอบ — ใช้ขนาดเดิม
+    const lines = wrapTextSmart(ctx, clean, innerW, lineHeight);
+    const requiredH = Math.ceil(lines.length * lineHeight + TEXTBOX_PADDING * 2);
+    return { fontSize: f, ascent, descent, lineHeight, lines, requiredH };
+}
+
+// วาดคำแปลในกล่อง — ใช้ font คงที่ (ไม่ auto-fit ขนาดตามกล่อง)
+// caller ต้อง measureTextInBox ก่อนแล้วโตกล่องเอง (มิฉะนั้น text จะถูก clip)
+// opts: { fixedFontSize?, align? }
+function drawTextInBox(ctx, text, x, y, w, h, opts) {
+    if (!text || w < 6 || h < 6) return { x, y, w, h, truncated: false, requiredH: 0 };
+    opts = opts || {};
+    const align = opts.align || "left";
+    const layout = measureTextInBox(ctx, text, w, opts);
+    if (!layout.lines.length) return { x, y, w, h, truncated: false, requiredH: 0 };
+
+    // พื้นหลัง + กรอบ
     ctx.fillStyle = "rgba(255,255,255,0.95)";
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = "#1e40af";
     ctx.lineWidth = 1;
     ctx.strokeRect(x, y, w, h);
 
-    // clip กันข้อความออกขอบ
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, y, w, h);
     ctx.clip();
 
-    ctx.font = `${chosen.fontSize}px ${FONT_FAMILY}`;
+    ctx.font = `${layout.fontSize}px ${TEXTBOX_FONT_FAMILY}`;
     ctx.fillStyle = "#0f172a";
-    ctx.textBaseline = "top";
+    ctx.textBaseline = "alphabetic";   // baseline ที่ y → ใช้ ascent คำนวณ
+    ctx.textAlign = "left";
 
-    const innerH = h - chosen.topPad - padding;
-    const maxLines = Math.max(1, Math.floor(innerH / chosen.lineHeight));
-    const visibleLines = chosen.lines.slice(0, maxLines);
-    const truncated = chosen.lines.length > maxLines;
-
-    visibleLines.forEach((ln, i) => {
-        let toDraw = ln;
-        // บรรทัดสุดท้ายถ้ามีของถูกตัด → ใส่ … ปลายข้อความ
-        if (truncated && i === visibleLines.length - 1) {
-            while (toDraw && ctx.measureText(toDraw + "…").width > innerW) {
-                toDraw = toDraw.slice(0, -1);
-            }
-            toDraw += "…";
-        }
-        ctx.fillText(toDraw, x + padding, y + chosen.topPad + i * chosen.lineHeight);
+    // baseline บรรทัดแรก = ขอบบน + padding + ascent (สระบนไทยอยู่ใน ascent)
+    const firstBaselineY = y + TEXTBOX_PADDING + layout.ascent;
+    layout.lines.forEach((ln, i) => {
+        let lineX;
+        if (align === "center") lineX = x + (w - ln.width) / 2;
+        else if (align === "right") lineX = x + w - TEXTBOX_PADDING - ln.width;
+        else lineX = x + TEXTBOX_PADDING;
+        ctx.fillText(ln.text, lineX, firstBaselineY + i * layout.lineHeight);
     });
 
     ctx.restore();
-    return { x, y, w, h, truncated };
+    const truncated = layout.requiredH > h;
+    return { x, y, w, h, truncated, requiredH: layout.requiredH };
 }
+
+// ═════════ EDIT MODE — wire up buttons ═════════
+(function setupEditMode() {
+    const btn = document.getElementById("editModeBtn");
+    const toolbar = document.getElementById("editToolbar");
+    const fontInc = document.getElementById("fontIncBtn");
+    const fontDec = document.getElementById("fontDecBtn");
+    const alignL = document.getElementById("alignLeftBtn");
+    const alignC = document.getElementById("alignCenterBtn");
+    const alignR = document.getElementById("alignRightBtn");
+    const resetBtn = document.getElementById("resetBboxBtn");
+
+    btn.addEventListener("click", () => {
+        editMode = !editMode;
+        btn.textContent = editMode ? "✓ Done" : "✏️ Edit";
+        btn.classList.toggle("active", editMode);
+        toolbar.style.display = editMode ? "inline-flex" : "none";
+        if (!editMode) {
+            selectedRef = null;
+            _drag = null;
+            if (_bboxPopup) _bboxPopup.style.display = "none";
+        }
+        if (lastResult && document.querySelector(".tab.active").dataset.tab === "visual") {
+            renderPreview();
+        }
+    });
+
+    function _adjustFont(delta) {
+        if (!selectedRef) return;
+        const ov = bboxOverrides[selectedRef] = bboxOverrides[selectedRef] || {};
+        // default = อ่านขนาดปัจจุบันจาก auto-fit (ประมาณ): h * 0.65
+        const sel = (window._previewWrap?._drawn || []).find(d => d.item.self_ref === selectedRef);
+        const curSize = ov.fontSize || (sel ? Math.min(Math.max(Math.floor(sel.h * 0.65), 7), 22) : 14);
+        ov.fontSize = Math.max(7, Math.min(64, curSize + delta));
+        renderPreview();
+    }
+    function _setAlign(a) {
+        if (!selectedRef) return;
+        const ov = bboxOverrides[selectedRef] = bboxOverrides[selectedRef] || {};
+        ov.align = a;
+        // ไฮไลต์ปุ่ม align ที่เลือก
+        [alignL, alignC, alignR].forEach(b => b.classList.remove("active"));
+        ({left: alignL, center: alignC, right: alignR}[a])?.classList.add("active");
+        renderPreview();
+    }
+
+    fontInc.addEventListener("click", () => _adjustFont(+2));
+    fontDec.addEventListener("click", () => _adjustFont(-2));
+    alignL.addEventListener("click", () => _setAlign("left"));
+    alignC.addEventListener("click", () => _setAlign("center"));
+    alignR.addEventListener("click", () => _setAlign("right"));
+    resetBtn.addEventListener("click", () => {
+        if (!selectedRef) return;
+        delete bboxOverrides[selectedRef];
+        [alignL, alignC, alignR].forEach(b => b.classList.remove("active"));
+        renderPreview();
+    });
+})();
+
+
+// ═════════ EDIT MODE state (Visual Preview) ═════════
+let editMode = false;
+let selectedRef = null;               // ref ที่ถูกเลือกตอน edit
+const bboxOverrides = {};             // {ref: {x, y, w, h, fontSize, align}} — override default bbox
+let _drag = null;                     // {ref, mode: "move"|"nw"|"ne"|"sw"|"se"|"n"|"s"|"e"|"w", startX, startY, startBox}
+const HANDLE_SIZE = 8;                // square handle in display px
+const MIN_BOX = 12;                   // min width/height of bbox
+
+function getEffectiveBox(item, sx, sy, pageW, pageH) {
+    /* คืนกล่อง display (px) — รวม override ถ้ามี */
+    const b = item.bbox;
+    const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
+    let x = b.l * sx;
+    let w = (b.r - b.l) * sx;
+    let y, h;
+    if (isBL) {
+        y = (pageH - b.t) * sy;
+        h = (b.t - b.b) * sy;
+    } else {
+        y = b.t * sy;
+        h = (b.b - b.t) * sy;
+    }
+    const ov = bboxOverrides[item.self_ref];
+    if (ov) {
+        if (typeof ov.x === "number") x = ov.x;
+        if (typeof ov.y === "number") y = ov.y;
+        if (typeof ov.w === "number") w = ov.w;
+        if (typeof ov.h === "number") h = ov.h;
+    }
+    return { x, y, w, h };
+}
+
+function _hitHandle(box, px, py) {
+    /* ตรวจว่าคลิกตรง corner/edge handle ไหน — return mode string หรือ null */
+    const hs = HANDLE_SIZE;
+    const halves = [
+        { name: "nw", cx: box.x,          cy: box.y },
+        { name: "n",  cx: box.x + box.w/2, cy: box.y },
+        { name: "ne", cx: box.x + box.w,   cy: box.y },
+        { name: "e",  cx: box.x + box.w,   cy: box.y + box.h/2 },
+        { name: "se", cx: box.x + box.w,   cy: box.y + box.h },
+        { name: "s",  cx: box.x + box.w/2, cy: box.y + box.h },
+        { name: "sw", cx: box.x,           cy: box.y + box.h },
+        { name: "w",  cx: box.x,           cy: box.y + box.h/2 },
+    ];
+    for (const h of halves) {
+        if (Math.abs(px - h.cx) <= hs && Math.abs(py - h.cy) <= hs) return h.name;
+    }
+    return null;
+}
+
+function _drawHandles(ctx, box) {
+    const hs = HANDLE_SIZE;
+    const pts = [
+        [box.x,              box.y],
+        [box.x + box.w/2,    box.y],
+        [box.x + box.w,      box.y],
+        [box.x + box.w,      box.y + box.h/2],
+        [box.x + box.w,      box.y + box.h],
+        [box.x + box.w/2,    box.y + box.h],
+        [box.x,              box.y + box.h],
+        [box.x,              box.y + box.h/2],
+    ];
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#2563eb";
+    ctx.lineWidth = 2;
+    for (const [px, py] of pts) {
+        ctx.fillRect(px - hs/2, py - hs/2, hs, hs);
+        ctx.strokeRect(px - hs/2, py - hs/2, hs, hs);
+    }
+}
+
 
 // floating popup ที่ Visual Preview สำหรับเลือก speaker
 let _bboxPopup = null;
@@ -919,66 +1067,192 @@ function renderPreview() {
         });
 
         const ctx = canvas.getContext("2d");
+
+        // drawn อยู่นอก closure เพื่อให้ mouse handlers ด้านล่างใช้ได้
+        let drawn = [];
+
+        // === closure ที่ redraw canvas เท่านั้น — ไม่ rebuild DOM (ลด flicker ตอนลาก) ===
+        const doDraw = () => {
         ctx.clearRect(0, 0, dispW, dispH);
         ctx.lineWidth = 2;
         ctx.font = "11px ui-monospace, Menlo, monospace";
 
         const overlayMode = document.getElementById("showOverlay").checked;
-        const drawn = [];
+        drawn = [];
+
+        // Pass 0: เก็บ render plan + auto-grow (skip auto-grow ขณะ drag — กันสู้กับ user resize)
+        const overlayRenders = [];
+        const normalRenders = [];
         items.forEach(it => {
             const b = it.bbox;
             if (!b) return;
-            const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
-            const x = b.l * sx;
-            const w = (b.r - b.l) * sx;
-            let y, h;
-            if (isBL) {
-                y = (pageH - b.t) * sy;
-                h = (b.t - b.b) * sy;
-            } else {
-                y = b.t * sy;
-                h = (b.b - b.t) * sy;
-            }
+            const eff = getEffectiveBox(it, sx, sy, pageW, pageH);
+            let { x, y, w, h } = eff;
             const color = COLOR[it.category] || "#6b7280";
             const corr = it.self_ref ? corrections[it.self_ref] : undefined;
             const tr = it.self_ref ? translations[it.self_ref] : undefined;
             const wasCorrected = corr !== undefined && corr.trim() !== (it.text || "").trim();
+            const ov = bboxOverrides[it.self_ref] || {};
 
             if (overlayMode && tr) {
-                // ทับคำแปลในกล่องเดิม — ถ้าเกินจะตัด … ให้ดูเต็มจาก hover
-                drawTextInBox(ctx, tr, x, y, w, h);
+                const layout = measureTextInBox(ctx, tr, w, {
+                    fixedFontSize: ov.fontSize,
+                    ocrFontSize: it.font_size,
+                });
+                if (!layout) {
+                    // ไม่มี font_size จาก OCR + user ยังไม่ override → fallback ไป normal bbox
+                    normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it });
+                    drawn.push({ x, y, w, h, item: it });
+                    return;
+                }
+                // auto-grow height — ไม่ทำตอน drag (กันสู้กับ user resize)
+                if (!_drag && layout.requiredH > h) {
+                    bboxOverrides[it.self_ref] = bboxOverrides[it.self_ref] || {};
+                    bboxOverrides[it.self_ref].h = layout.requiredH;
+                    h = layout.requiredH;
+                }
+                overlayRenders.push({ x, y, w, h, tr, layout, align: ov.align || "left", item: it });
                 drawn.push({ x, y, w, h, item: it });
                 return;
             }
-            {
-                ctx.strokeStyle = color;
-                ctx.lineWidth = wasCorrected ? 3 : 2;
-                ctx.fillStyle = wasCorrected ? "#fef3c744" : color + "22";
-                ctx.fillRect(x, y, w, h);
-                ctx.strokeRect(x, y, w, h);
-                ctx.lineWidth = 2;
-                if (showLabels.checked) {
-                    const sp = it.self_ref ? speakerByRef[it.self_ref] : null;
-                    let spTag = "";
-                    if (sp === SPEAKER_SKIP) spTag = "🚫 ";
-                    else if (sp) spTag = `👤${sp} `;
-                    const tag = (tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag;
-                    const lbl = tag + it.label;
-                    ctx.fillStyle = tr ? "#1e40af" : (wasCorrected ? "#d97706" : color);
-                    ctx.fillRect(x, Math.max(0, y - 14), Math.min(160, w), 14);
-                    ctx.fillStyle = "#fff";
-                    ctx.fillText(lbl, x + 4, Math.max(11, y - 3));
-                }
-            }
+            normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it });
             drawn.push({ x, y, w, h, item: it });
         });
 
+        // Pass 1: overlay backgrounds + borders (ทั้งหมดก่อน — กันกล่องหลังทับ text กล่องก่อน)
+        overlayRenders.forEach(r => {
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.fillRect(r.x, r.y, r.w, r.h);
+            ctx.strokeStyle = "#1e40af";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(r.x, r.y, r.w, r.h);
+        });
+
+        // Pass 2: overlay text (ทับบน bg ที่วาดครบแล้ว — text ไม่ถูกกินอีก)
+        overlayRenders.forEach(r => {
+            if (!r.layout.lines.length) return;
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(r.x, r.y, r.w, r.h);
+            ctx.clip();
+            ctx.font = `${r.layout.fontSize}px ${TEXTBOX_FONT_FAMILY}`;
+            ctx.fillStyle = "#0f172a";
+            ctx.textBaseline = "alphabetic";
+            ctx.textAlign = "left";
+            const firstBaselineY = r.y + TEXTBOX_PADDING + r.layout.ascent;
+            r.layout.lines.forEach((ln, i) => {
+                let lineX;
+                if (r.align === "center") lineX = r.x + (r.w - ln.width) / 2;
+                else if (r.align === "right") lineX = r.x + r.w - TEXTBOX_PADDING - ln.width;
+                else lineX = r.x + TEXTBOX_PADDING;
+                ctx.fillText(ln.text, lineX, firstBaselineY + i * r.layout.lineHeight);
+            });
+            ctx.restore();
+        });
+
+        // Pass 3: normal-mode bbox stroke + label
+        ctx.lineWidth = 2;
+        ctx.font = "11px ui-monospace, Menlo, monospace";
+        normalRenders.forEach(r => {
+            const { x, y, w, h, color, tr, wasCorrected, item: it } = r;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = wasCorrected ? 3 : 2;
+            ctx.fillStyle = wasCorrected ? "#fef3c744" : color + "22";
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeRect(x, y, w, h);
+            ctx.lineWidth = 2;
+            if (showLabels.checked) {
+                const sp = it.self_ref ? speakerByRef[it.self_ref] : null;
+                let spTag = "";
+                if (sp === SPEAKER_SKIP) spTag = "🚫 ";
+                else if (sp) spTag = `👤${sp} `;
+                const tag = (tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag;
+                const lbl = tag + it.label;
+                ctx.fillStyle = tr ? "#1e40af" : (wasCorrected ? "#d97706" : color);
+                ctx.fillRect(x, Math.max(0, y - 14), Math.min(160, w), 14);
+                ctx.fillStyle = "#fff";
+                ctx.fillText(lbl, x + 4, Math.max(11, y - 3));
+            }
+        });
+
+        // === Edit mode — วาด selection + handles ทับด้านบนสุด ===
+        if (editMode && selectedRef) {
+            const selDrawn = drawn.find(d => d.item.self_ref === selectedRef);
+            if (selDrawn) {
+                ctx.strokeStyle = "#2563eb";
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 4]);
+                ctx.strokeRect(selDrawn.x, selDrawn.y, selDrawn.w, selDrawn.h);
+                ctx.setLineDash([]);
+                _drawHandles(ctx, selDrawn);
+            }
+        }
+        // expose สำหรับ mouse handlers + toolbar
+        wrap._drawn = drawn;
+        window._previewWrap = wrap;
+        };
+        wrap._redraw = doDraw;
+        doDraw();
+
         // hover tooltip via overlay div (canvas is pointer-events: none)
         wrap.style.cursor = "default";
+        if (editMode) wrap.classList.add("edit-mode");
+        else wrap.classList.remove("edit-mode");
+
         wrap.onmousemove = (ev) => {
             const rect = wrap.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             const py = ev.clientY - rect.top;
+
+            // === DRAGGING (edit mode เท่านั้น) — ซ่อน tooltip ===
+            if (editMode && _drag) {
+                tooltip.style.display = "none";
+                const dx = px - _drag.startX;
+                const dy = py - _drag.startY;
+                const sb = _drag.startBox;
+                const ov = bboxOverrides[_drag.ref] = bboxOverrides[_drag.ref] || {};
+                if (_drag.mode === "move") {
+                    ov.x = sb.x + dx;
+                    ov.y = sb.y + dy;
+                    ov.w = sb.w;
+                    ov.h = sb.h;
+                } else {
+                    let nx = sb.x, ny = sb.y, nw = sb.w, nh = sb.h;
+                    if (_drag.mode.includes("w")) { nx = sb.x + dx; nw = sb.w - dx; }
+                    if (_drag.mode.includes("e")) { nw = sb.w + dx; }
+                    if (_drag.mode.includes("n")) { ny = sb.y + dy; nh = sb.h - dy; }
+                    if (_drag.mode.includes("s")) { nh = sb.h + dy; }
+                    if (nw < MIN_BOX) { nx = sb.x + sb.w - MIN_BOX; nw = MIN_BOX; }
+                    if (nh < MIN_BOX) { ny = sb.y + sb.h - MIN_BOX; nh = MIN_BOX; }
+                    ov.x = nx; ov.y = ny; ov.w = nw; ov.h = nh;
+                }
+                doDraw();
+                return;
+            }
+            // === EDIT MODE hover cursor (ไม่ drag) — set cursor แล้ว fall through ไป tooltip ===
+            if (editMode) {
+                let cur = "default";
+                if (selectedRef) {
+                    const sel = drawn.find(d => d.item.self_ref === selectedRef);
+                    if (sel) {
+                        const handle = _hitHandle(sel, px, py);
+                        if (handle) {
+                            const map = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
+                                          nw: "nwse-resize", se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize" };
+                            cur = map[handle] || "default";
+                        }
+                    }
+                }
+                if (cur === "default") {
+                    const overItem = [...drawn].reverse().find(d =>
+                        px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
+                    );
+                    cur = overItem ? "move" : "default";
+                }
+                wrap.style.cursor = cur;
+            }
+            // === Hover tooltip (ทั้ง edit mode + normal mode) ===
+            const overlayModeNow = document.getElementById("showOverlay").checked;
             const hit = [...drawn].reverse().find(d =>
                 px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
             );
@@ -991,7 +1265,7 @@ function renderPreview() {
             const tr = ref ? translations[ref] : undefined;
             let html = "";
 
-            if (overlayMode) {
+            if (overlayModeNow) {
                 // โหมด overlay — ถ้ายังไม่มีคำแปลก็ไม่ต้องเปิด tooltip
                 if (!tr) {
                     tooltip.style.display = "none";
@@ -1030,9 +1304,63 @@ function renderPreview() {
         };
         wrap.onmouseleave = () => tooltip.style.display = "none";
 
-        // คลิก bbox → popup เลือก speaker
-        wrap.style.cursor = "default";
+        // คลิก / mousedown — edit mode → drag/resize, normal → speaker popup
+        wrap.onmousedown = (ev) => {
+            if (!editMode) return;
+            const rect = wrap.getBoundingClientRect();
+            const px = ev.clientX - rect.left;
+            const py = ev.clientY - rect.top;
+            // 1) ถ้ามี selection อยู่แล้ว ดู handle ก่อน
+            if (selectedRef) {
+                const selDrawn = drawn.find(d => d.item.self_ref === selectedRef);
+                if (selDrawn) {
+                    const handle = _hitHandle(selDrawn, px, py);
+                    if (handle) {
+                        ev.preventDefault();
+                        _drag = {
+                            ref: selectedRef, mode: handle,
+                            startX: px, startY: py,
+                            startBox: { x: selDrawn.x, y: selDrawn.y, w: selDrawn.w, h: selDrawn.h },
+                        };
+                        wrap.classList.add("dragging");
+                        return;
+                    }
+                }
+            }
+            // 2) คลิกในกล่อง → select + เริ่ม drag move
+            const hit = [...drawn].reverse().find(d =>
+                px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
+            );
+            if (hit) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                selectedRef = hit.item.self_ref;
+                _drag = {
+                    ref: selectedRef, mode: "move",
+                    startX: px, startY: py,
+                    startBox: { x: hit.x, y: hit.y, w: hit.w, h: hit.h },
+                };
+                wrap.classList.add("dragging");
+                doDraw();
+            } else {
+                // คลิกที่ว่าง → deselect
+                if (selectedRef) {
+                    selectedRef = null;
+                    doDraw();
+                }
+            }
+        };
+
+        wrap.onmouseup = () => {
+            if (_drag) {
+                _drag = null;
+                wrap.classList.remove("dragging");
+                doDraw();  // หลัง drop ค่อย auto-grow ถ้า text ใหญ่กว่ากล่อง
+            }
+        };
+
         wrap.onclick = (ev) => {
+            if (editMode) return;  // edit mode ใช้ mousedown แทน
             const rect = wrap.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             const py = ev.clientY - rect.top;

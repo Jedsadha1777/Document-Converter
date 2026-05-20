@@ -343,6 +343,7 @@ def run_manga_pipeline(path: Path, filename: str):
             "label": "text" + (" [vertical]" if blk.get("vertical") else ""),
             "text": text,
             "page_no": 1,
+            "font_size": float(blk.get("font_size") or 0),
             "bbox": {
                 "l": float(x1), "t": float(y1),
                 "r": float(x2), "b": float(y2),
