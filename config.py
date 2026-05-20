@@ -26,6 +26,9 @@ GEMINI_TIMEOUT = float(os.getenv("GEMINI_TIMEOUT", "120"))
 GEMINI_BATCH_DELAY_MS = int(os.getenv("GEMINI_BATCH_DELAY_MS", "12000"))
 GEMINI_AVAILABLE = bool(GEMINI_API_KEY)
 
+# NLLB-200 local engine — โหลด lazy ครั้งแรกที่เรียก (~2.4 GB ลง HF cache)
+NLLB_MODEL = os.getenv("NLLB_MODEL", "facebook/nllb-200-distilled-600M").strip()
+
 # sentinel — ผู้ใช้เลือก dropdown "ไม่แปล"
 SPEAKER_SKIP = "__skip__"
 

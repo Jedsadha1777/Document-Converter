@@ -32,6 +32,7 @@ from pipelines import (
     build_preview,
     filter_document,
     filter_pages,
+    flatten_xlsx_cells_to_texts,
     get_converter,
     parse_page_spec,
     run_fast_pipeline,
@@ -46,6 +47,7 @@ from translate import (
     _translate_temp_for_attempt,
     apple_translate_text,
     apply_manual_batch,
+    nllb_translate_text,
     translate_batch,
     translate_text,
 )
@@ -174,10 +176,12 @@ def translate_endpoint():
     payload = request.get_json(silent=True) or {}
     text = payload.get("text", "")
     target = payload.get("target", "th")
-    engine = payload.get("engine", "qwen")  # qwen | apple
+    engine = payload.get("engine", "qwen")  # qwen | apple | nllb
 
     if engine == "apple":
         translated, err = apple_translate_text(text, target)
+    elif engine == "nllb":
+        translated, err = nllb_translate_text(text, target)
     else:
         translated, err = translate_text(text, target)
     if err:
@@ -463,6 +467,8 @@ def convert():
                 doc = result.document
                 doc_dict = doc.export_to_dict()
                 preview = build_preview(doc)
+                if path.suffix.lower() in (".xlsx", ".xls"):
+                    flatten_xlsx_cells_to_texts(doc_dict, preview)
         except Exception as exc:
             return jsonify({"error": f"conversion failed: {exc}"}), 500
 

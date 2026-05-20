@@ -37,3 +37,7 @@ google-genai>=0.3.0
 # Embeddings ผ่าน Ollama (nomic-embed-text) — ไม่ต้องเพิ่ม SDK
 faiss-cpu>=1.7.4
 numpy>=1.26
+
+# NLLB-200 local translation engine (PC fallback แทน Apple Translate)
+transformers>=4.40
+sentencepiece>=0.2.0

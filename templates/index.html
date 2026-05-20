@@ -392,6 +392,7 @@
             <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
                 <option value="qwen" selected>Qwen 1.5B</option>
                 <option value="apple">Apple Translate</option>
+                <option value="nllb">NLLB-200 (local)</option>
                 <option value="gemini" {% if not gemini_available %}disabled{% endif %}>
                     Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — set GEMINI_API_KEY in .env{% endif %}
                 </option>
@@ -1758,6 +1759,8 @@ function syncBatchVisibility() {
         engineHint.textContent = "qwen2.5:1.5b via Ollama";
     } else if (eng === "gemini") {
         engineHint.textContent = "Gemini ({{ gemini_model or 'gemini-2.5-flash' }})";
+    } else if (eng === "nllb") {
+        engineHint.textContent = "NLLB-200 distilled-600M (local)";
     } else {
         engineHint.textContent = "Apple Translate (Shortcuts CLI)";
     }

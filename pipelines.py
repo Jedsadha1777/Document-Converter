@@ -243,6 +243,53 @@ def build_preview(doc):
     return {"pages": pages, "items": items}
 
 
+def flatten_xlsx_cells_to_texts(doc_dict: dict, preview: dict) -> int:
+    """docling's XLSX backend dumps every cell into tables[].data.table_cells[].
+    The Compare/Translate UI reads from texts[], so the table cells are invisible there.
+    Flatten each non-empty cell into a texts[] entry (and a preview items[] entry) so
+    spreadsheet content flows through the same correction / translation pipeline.
+    Returns the number of cells added."""
+    tables = doc_dict.get("tables") or []
+    if not tables:
+        return 0
+    texts = doc_dict.setdefault("texts", [])
+    items = preview.setdefault("items", []) if isinstance(preview, dict) else []
+    start_idx = len(texts)
+    added = 0
+    for ti, tbl in enumerate(tables):
+        data = (tbl or {}).get("data") or {}
+        cells = data.get("table_cells") or []
+        provs = tbl.get("prov") or []
+        page_no = provs[0].get("page_no") if provs and isinstance(provs[0], dict) else (ti + 1)
+        for cell in cells:
+            txt = (cell.get("text") or "").strip()
+            if not txt:
+                continue
+            row = cell.get("start_row_offset_idx")
+            col = cell.get("start_col_offset_idx")
+            idx = start_idx + added
+            ref = f"#/texts/{idx}"
+            texts.append({
+                "self_ref": ref,
+                "label": "cell",
+                "table_index": ti,
+                "row": row,
+                "column": col,
+                "text": txt,
+                "orig": txt,
+            })
+            items.append({
+                "self_ref": ref,
+                "category": "texts",
+                "label": f"r{row}c{col}",
+                "text": txt,
+                "page_no": page_no,
+                "bbox": None,
+            })
+            added += 1
+    return added
+
+
 # ── manga mode (mokuro: comic-text-detector + manga-ocr) ──
 _manga_ocr = None
 

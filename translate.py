@@ -20,6 +20,7 @@ from config import (
     GEMINI_API_KEY,
     GEMINI_MODEL,
     GEMINI_TIMEOUT,
+    NLLB_MODEL,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
     SPEAKER_SKIP,
@@ -1305,3 +1306,77 @@ def apple_translate_text(text: str, target: str = "th") -> tuple[str, str | None
                 Path(in_path).unlink(missing_ok=True)
             except Exception:
                 pass
+
+
+# ── NLLB-200 (local HF model — PC fallback แทน Apple Translate) ──
+
+_NLLB_LANG = {
+    "th": "tha_Thai",
+    "en": "eng_Latn",
+    "ja": "jpn_Jpan",
+    "vi": "vie_Latn",
+}
+_NLLB_STATE: dict = {"loaded": False, "model": None, "tokenizer": None, "device": None}
+
+
+def _ensure_nllb() -> str | None:
+    if _NLLB_STATE["loaded"]:
+        return None
+    try:
+        import torch
+        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+    except ImportError as e:
+        return f"transformers/torch not installed: {e}"
+    try:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"[nllb] loading {NLLB_MODEL} on {device} (first call — may take a moment)...", flush=True)
+        tokenizer = AutoTokenizer.from_pretrained(NLLB_MODEL)
+        model = AutoModelForSeq2SeqLM.from_pretrained(NLLB_MODEL).to(device)
+        model.eval()
+        _NLLB_STATE["tokenizer"] = tokenizer
+        _NLLB_STATE["model"] = model
+        _NLLB_STATE["device"] = device
+        _NLLB_STATE["loaded"] = True
+        print(f"[nllb] ready on {device}", flush=True)
+        return None
+    except Exception as e:
+        return f"nllb load failed: {e}"
+
+
+def nllb_translate_text(text: str, target: str = "th") -> tuple[str, str | None]:
+    text = _join_lines(text or "")
+    if not text.strip():
+        return "", None
+    tgt_code = _NLLB_LANG.get(target)
+    if not tgt_code:
+        return text, f"nllb: unsupported target '{target}'"
+    err = _ensure_nllb()
+    if err:
+        return text, err
+    text_protected, mapping = _protect_segments(text)
+    src = _detect_source_language(text)
+    src_code = _NLLB_LANG.get(src or "", "eng_Latn")
+    try:
+        import torch
+        tokenizer = _NLLB_STATE["tokenizer"]
+        model = _NLLB_STATE["model"]
+        device = _NLLB_STATE["device"]
+        tokenizer.src_lang = src_code
+        inputs = tokenizer(
+            text_protected, return_tensors="pt", truncation=True, max_length=512,
+        ).to(device)
+        forced_bos = tokenizer.convert_tokens_to_ids(tgt_code)
+        with torch.inference_mode():
+            output_ids = model.generate(
+                **inputs,
+                forced_bos_token_id=forced_bos,
+                max_new_tokens=512,
+                num_beams=4,
+            )
+        out = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0]
+        out = _join_lines(out)
+        out = _normalize_numerals(out)
+        out = _restore_segments(out, mapping)
+        return out or text, None
+    except Exception as e:
+        return text, f"nllb: {e}"
