@@ -473,6 +473,8 @@ Examples:
             </label>
             <button type="button" id="editModeBtn" class="ghost" style="margin-left:6px;"
                     title="โหมดแก้กล่อง overlay — ลาก/resize ได้, ปรับ font/align">✏️ Edit</button>
+            <button type="button" id="mergeSelectedBtn" class="ghost" style="display:none; margin-left:6px;"
+                    title="รวมกล่องที่เลือก (shift+คลิกเพิ่ม)">🔗 Merge (<span id="mergeCount">0</span>)</button>
             <div id="editToolbar" style="display:none; margin-left:6px; gap:4px; align-items:center;">
                 <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์">A−</button>
                 <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์">A+</button>
@@ -690,6 +692,8 @@ function populatePages(pages) {
  document.getElementById("showOverlay")].forEach(el =>
     el.addEventListener("change", renderPreview)
 );
+// เปลี่ยนหน้าหน้า → ล้าง multi-select (refs อาจมาจากหน้าก่อน)
+pageSelect.addEventListener("change", () => { if (selectedRefs.size) _clearSelection(); });
 
 // sync checkboxes ทันทีตอนเปลี่ยน dropdown — ไม่ต้องรอกดแปลง
 typeSelect.addEventListener("change", () => syncCheckboxesToKind(typeSelect.value));
@@ -771,12 +775,12 @@ function wrapTextSmart(ctx, text, maxWidth, lineHeight) {
 const TEXTBOX_PADDING = 4;
 const TEXTBOX_FONT_FAMILY = '-apple-system, "Helvetica Neue", "Sarabun", sans-serif';
 
-// คำนวณ layout — font size ต้องมาจาก OCR (opts.fixedFontSize หรือ opts.ocrFontSize) ห้ามเดา
+// คำนวณ layout — font size priority: user-fixed → OCR → fallback (height-derived)
 // metrics วัดจาก text จริง — ascent/descent ครอบคลุมสระไทยที่อยู่ใน text นั้น
 function measureTextInBox(ctx, text, w, opts) {
     opts = opts || {};
-    const f = opts.fixedFontSize || opts.ocrFontSize;
-    if (!f || f <= 0) return null;  // ไม่มี font size → caller จัดการเอง
+    const f = opts.fixedFontSize || opts.ocrFontSize || opts.fallbackFontSize;
+    if (!f || f <= 0) return null;  // caller ยังไม่ใส่ fallback เลย → ปล่อย null
     ctx.font = `${f}px ${TEXTBOX_FONT_FAMILY}`;
     const innerW = Math.max(w - TEXTBOX_PADDING * 2, 1);
     const clean = String(text || "").replace(/\s+/g, " ").trim();
@@ -851,7 +855,7 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
         btn.classList.toggle("active", editMode);
         toolbar.style.display = editMode ? "inline-flex" : "none";
         if (!editMode) {
-            selectedRef = null;
+            _clearSelection();
             _drag = null;
             if (_bboxPopup) _bboxPopup.style.display = "none";
         }
@@ -859,6 +863,9 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
             renderPreview();
         }
     });
+
+    const mergeBtn = document.getElementById("mergeSelectedBtn");
+    if (mergeBtn) mergeBtn.addEventListener("click", mergeSelectedBoxes);
 
     function _adjustFont(delta) {
         if (!selectedRef) return;
@@ -895,8 +902,227 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
 
 // ═════════ EDIT MODE state (Visual Preview) ═════════
 let editMode = false;
-let selectedRef = null;               // ref ที่ถูกเลือกตอน edit
+let selectedRef = null;               // ref ที่ active ล่าสุด (ใช้ตอน drag/font/align)
+const selectedRefs = new Set();       // multi-select: shift+คลิกเพิ่ม — ใช้สำหรับ merge
 const bboxOverrides = {};             // {ref: {x, y, w, h, fontSize, align}} — override default bbox
+
+function _updateMergeButton() {
+    const btn = document.getElementById("mergeSelectedBtn");
+    const cnt = document.getElementById("mergeCount");
+    if (!btn || !cnt) return;
+    cnt.textContent = String(selectedRefs.size);
+    btn.style.display = selectedRefs.size >= 2 ? "" : "none";
+}
+
+function _clearSelection() {
+    selectedRef = null;
+    selectedRefs.clear();
+    _updateMergeButton();
+}
+
+function _toggleSelect(ref, additive) {
+    if (!ref) return;
+    if (additive) {
+        if (selectedRefs.has(ref)) {
+            selectedRefs.delete(ref);
+            if (selectedRef === ref) selectedRef = [...selectedRefs].pop() || null;
+        } else {
+            selectedRefs.add(ref);
+            selectedRef = ref;
+        }
+    } else {
+        selectedRefs.clear();
+        selectedRefs.add(ref);
+        selectedRef = ref;
+    }
+    _updateMergeButton();
+}
+
+function mergeSelectedBoxes() {
+    if (!lastResult || selectedRefs.size < 2) return;
+    if (!lastResult.preview || !Array.isArray(lastResult.preview.items)) {
+        console.warn("[merge] preview.items missing");
+        return;
+    }
+
+    const refs = [...selectedRefs];
+    const items = lastResult.preview.items;
+    const texts = Array.isArray(lastResult.texts) ? lastResult.texts : [];
+
+    const bboxOf = (x) => x?.bbox || (Array.isArray(x?.prov) && x.prov[0]?.bbox) || null;
+    // sort ตามลำดับการคลิก (refs เก็บลำดับจาก selectedRefs Set ที่รักษา insertion order)
+    const clickOrder = new Map(refs.map((r, i) => [r, i]));
+    const sortByClickOrder = (a, b) =>
+        (clickOrder.get(a.self_ref) ?? 1e9) - (clickOrder.get(b.self_ref) ?? 1e9);
+
+    // Dedup by self_ref — docling ใส่ items หลาย entries ต่อ ref (multi-prov)
+    const uniq = (arr) => {
+        const seen = new Set();
+        return arr.filter(x => {
+            if (!x.self_ref || seen.has(x.self_ref)) return false;
+            seen.add(x.self_ref); return true;
+        });
+    };
+    const matchedItems = uniq(items.filter(it => refs.includes(it.self_ref))).sort(sortByClickOrder);
+    const matchedTexts = uniq(texts.filter(t => refs.includes(t.self_ref))).sort(sortByClickOrder);
+    if (matchedItems.length < 2 && matchedTexts.length < 2) {
+        console.warn("[merge] fewer than 2 unique items matched");
+        return;
+    }
+
+    // bbox จาก items (preview items มี top-level bbox ตามที่ build_preview สร้าง)
+    // BOTTOMLEFT (docling PDF): t > b — ต้อง max(t)/min(b). TOPLEFT (image): t < b — min(t)/max(b)
+    const allBboxes = [...matchedItems, ...matchedTexts].map(bboxOf).filter(Boolean);
+    const isBL = (allBboxes[0]?.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
+    const mergedBbox = allBboxes.length ? {
+        l: Math.min(...allBboxes.map(b => b.l)),
+        r: Math.max(...allBboxes.map(b => b.r)),
+        t: isBL ? Math.max(...allBboxes.map(b => b.t)) : Math.min(...allBboxes.map(b => b.t)),
+        b: isBL ? Math.min(...allBboxes.map(b => b.b)) : Math.max(...allBboxes.map(b => b.b)),
+        coord_origin: allBboxes[0].coord_origin || "TOPLEFT",
+    } : null;
+
+    // text: ดึงจาก texts ก่อน (มีฉบับเต็ม), fallback items ถ้าไม่มีใน texts
+    const textSource = matchedTexts.length ? matchedTexts : matchedItems;
+    const mergedText = textSource.map(x => (x.text || "").trim()).filter(Boolean).join(" ");
+    if (!mergedText) {
+        console.warn("[merge] mergedText is empty — aborting", { refs, matchedItems, matchedTexts });
+        return;
+    }
+
+    // keepRef = ตัวที่ user คลิกก่อน (refs[0]) — รักษาเจตนา click order
+    const keepRef = refs[0];
+    const dropRefs = new Set(refs.slice(1));
+
+    // กรอง drop + update keep (ทุก entry ที่มี self_ref === keepRef รวมถึง multi-prov ทั้งหมด)
+    const newItems = items.filter(it => !dropRefs.has(it.self_ref));
+    const newTexts = texts.filter(t => !dropRefs.has(t.self_ref));
+
+    let keepItemFound = false;
+    newItems.forEach(it => {
+        if (it.self_ref !== keepRef) return;
+        if (!keepItemFound) {
+            // entry แรก = master: ใส่ bbox + text รวม
+            // เก็บ bbox เดิมไว้ใน _fontBbox ก่อน — fallback font calc ใช้กล่องเดิม
+            // ไม่ใช่ mergedBbox ที่ใหญ่ขึ้น (กัน font บิ๊กเบิ้มหลัง merge)
+            if (it.bbox && !it._fontBbox) it._fontBbox = { ...it.bbox };
+            it.bbox = mergedBbox;
+            it.text = mergedText;
+            keepItemFound = true;
+        } else {
+            // multi-prov entries ที่เหลือของ keep — sync text แต่ keep bbox เดิม (กัน drop ทำให้ visual หาย)
+            it.text = mergedText;
+        }
+    });
+    if (!keepItemFound) console.warn("[merge] keep item not found in newItems", { keepRef });
+
+    newTexts.forEach(t => {
+        if (t.self_ref !== keepRef) return;
+        t.text = mergedText;
+        if ('orig' in t) t.orig = mergedText;
+        // docling texts: bbox อยู่ใน prov[] (top-level bbox ไม่ใช่ canonical)
+        if (Array.isArray(t.prov) && t.prov.length && mergedBbox) {
+            const p0 = t.prov[0];
+            t.prov = [{
+                page_no: p0.page_no || 1,
+                bbox: { ...mergedBbox },
+                charspan: [0, mergedText.length],
+            }];
+        } else if (mergedBbox) {
+            // pipelines อื่น (manga/fast/excel): bbox top-level
+            t.bbox = mergedBbox;
+        }
+    });
+
+    // ล้าง state — ทั้ง dropRefs + keepRef (text เปลี่ยน → correction/translation เก่าใช้ไม่ได้)
+    // bboxOverrides ของ keepRef: ลบเฉพาะ geometry (x/y/w/h) เพราะ bbox รวมใหม่
+    // แต่เก็บ fontSize/align ที่ user ปรับเองไว้
+    dropRefs.forEach(r => {
+        delete corrections[r];
+        delete translations[r];
+        delete bboxOverrides[r];
+        manualEdits.delete(r);
+        manualTranslations.delete(r);
+        delete speakerByRef[r];
+    });
+    delete corrections[keepRef];
+    delete translations[keepRef];
+    manualEdits.delete(keepRef);
+    manualTranslations.delete(keepRef);
+    if (bboxOverrides[keepRef]) {
+        const ov = bboxOverrides[keepRef];
+        delete ov.x; delete ov.y; delete ov.w; delete ov.h;
+        if (!ov.fontSize && !ov.align) delete bboxOverrides[keepRef];
+    }
+
+    // Re-index self_ref ของ newTexts → #/texts/0..N ต่อเนื่อง
+    const refMap = new Map();
+    newTexts.forEach((t, idx) => {
+        const oldRef = t.self_ref;
+        const newRef = `#/texts/${idx}`;
+        refMap.set(oldRef, newRef);
+        t.self_ref = newRef;
+    });
+    newItems.forEach(it => {
+        const nr = refMap.get(it.self_ref);
+        if (nr) it.self_ref = nr;
+    });
+
+    // Remap state dicts
+    const _remapDict = (d) => {
+        const nd = {};
+        Object.keys(d).forEach(k => {
+            const nk = refMap.get(k);
+            if (nk !== undefined) nd[nk] = d[k];
+        });
+        Object.keys(d).forEach(k => delete d[k]);
+        Object.assign(d, nd);
+    };
+    const _remapSet = (s) => {
+        const ns = new Set();
+        s.forEach(k => { const nk = refMap.get(k); if (nk !== undefined) ns.add(nk); });
+        s.clear();
+        ns.forEach(v => s.add(v));
+    };
+    _remapDict(corrections); _remapDict(translations);
+    _remapDict(bboxOverrides); _remapDict(speakerByRef);
+    _remapSet(manualEdits); _remapSet(manualTranslations);
+
+    lastResult.preview.items = newItems;
+    lastResult.texts = newTexts;
+
+    console.log("[merge] done", {
+        refs, keepRef,
+        dropped: [...dropRefs],
+        textsBefore: texts.length,
+        textsAfter: newTexts.length,
+        mergedText: mergedText.slice(0, 80),
+        firstFew: newTexts.slice(0, 3).map(t => ({ ref: t.self_ref, text: (t.text || "").slice(0, 50) })),
+    });
+
+    // Sync JSON output — แทนที่ texts array ตรงๆ, อย่า walk-remap ลึก
+    // (walk recursion อาจทำให้ data corruption ใน parsed object — ปล่อย $ref ใน body/groups dangling ไว้ก่อน)
+    try {
+        const j = JSON.parse(output.value);
+        if (Array.isArray(j.texts)) {
+            // shallow clone newTexts entries เพื่อไม่ให้ JSON.stringify เจอ shared ref ที่อาจมี side-effect
+            j.texts = newTexts.map(t => ({ ...t }));
+            console.log("[merge] j.texts after replace:", j.texts.length, "entries");
+        } else {
+            console.warn("[merge] j.texts not an array — skipping JSON patch");
+        }
+        const out = JSON.stringify(j, null, 2);
+        output.value = out;
+        lastResult.json_text = out;
+        console.log("[merge] output.value updated, length:", out.length);
+    } catch (e) {
+        console.warn("[merge] JSON sync failed", e);
+    }
+
+    _clearSelection();
+    renderPreview();
+    buildCompareTable(true);
+}
 let _drag = null;                     // {ref, mode: "move"|"nw"|"ne"|"sw"|"se"|"n"|"s"|"e"|"w", startX, startY, startBox}
 const HANDLE_SIZE = 8;                // square handle in display px
 const MIN_BOX = 12;                   // min width/height of bbox
@@ -1094,24 +1320,28 @@ function renderPreview() {
             const wasCorrected = corr !== undefined && corr.trim() !== (it.text || "").trim();
             const ov = bboxOverrides[it.self_ref] || {};
 
-            if (overlayMode && tr) {
-                const layout = measureTextInBox(ctx, tr, w, {
+            // overlay = แสดง translation > corrected > original OCR text
+            const overlayText = tr || corr || (it.text || "");
+            if (overlayMode && overlayText) {
+                // fallback เผื่อ OCR ไม่ส่ง font_size — คำนวณจาก bbox **เดิมของ OCR**
+                // ไม่ใช่ effective box ที่ user resize หรือ merge แล้ว (กัน font โต)
+                // _fontBbox = bbox ก่อน merge (set ตอน mergeSelectedBoxes)
+                const b = it._fontBbox || it.bbox || {};
+                const origW = Math.abs((b.r || 0) - (b.l || 0)) * sx;
+                const origH = Math.abs((b.b || 0) - (b.t || 0)) * sy;
+                const fallbackFontSize = Math.min(48, Math.max(10, Math.round(Math.min(origH, origW) * 0.7)));
+                const layout = measureTextInBox(ctx, overlayText, w, {
                     fixedFontSize: ov.fontSize,
                     ocrFontSize: it.font_size,
+                    fallbackFontSize,
                 });
                 if (!layout) {
-                    // ไม่มี font_size จาก OCR + user ยังไม่ override → fallback ไป normal bbox
                     normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it });
                     drawn.push({ x, y, w, h, item: it });
                     return;
                 }
-                // auto-grow height — ไม่ทำตอน drag (กันสู้กับ user resize)
-                if (!_drag && layout.requiredH > h) {
-                    bboxOverrides[it.self_ref] = bboxOverrides[it.self_ref] || {};
-                    bboxOverrides[it.self_ref].h = layout.requiredH;
-                    h = layout.requiredH;
-                }
-                overlayRenders.push({ x, y, w, h, tr, layout, align: ov.align || "left", item: it });
+                // ไม่ auto-grow — ถ้า text เกินกล่อง ให้ clip; user เข้า edit mode ลากขยายเอง
+                overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", isTranslated: !!tr, item: it });
                 drawn.push({ x, y, w, h, item: it });
                 return;
             }
@@ -1123,9 +1353,12 @@ function renderPreview() {
         overlayRenders.forEach(r => {
             ctx.fillStyle = "rgba(255,255,255,0.95)";
             ctx.fillRect(r.x, r.y, r.w, r.h);
-            ctx.strokeStyle = "#1e40af";
+            // translated = น้ำเงินทึบ, ยังไม่แปล = เทาเส้นประ (hint ว่าเป็น OCR raw)
+            ctx.strokeStyle = r.isTranslated ? "#1e40af" : "#9ca3af";
             ctx.lineWidth = 1;
+            if (!r.isTranslated) ctx.setLineDash([4, 3]);
             ctx.strokeRect(r.x, r.y, r.w, r.h);
+            ctx.setLineDash([]);
         });
 
         // Pass 2: overlay text (ทับบน bg ที่วาดครบแล้ว — text ไม่ถูกกินอีก)
@@ -1175,17 +1408,21 @@ function renderPreview() {
             }
         });
 
-        // === Edit mode — วาด selection + handles ทับด้านบนสุด ===
+        // === Selection highlights — multi-select (shift+click) + handles on active ===
+        if (selectedRefs.size) {
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            selectedRefs.forEach(ref => {
+                const sd = drawn.find(d => d.item.self_ref === ref);
+                if (!sd) return;
+                ctx.strokeStyle = ref === selectedRef ? "#2563eb" : "#7c3aed";
+                ctx.strokeRect(sd.x, sd.y, sd.w, sd.h);
+            });
+            ctx.setLineDash([]);
+        }
         if (editMode && selectedRef) {
             const selDrawn = drawn.find(d => d.item.self_ref === selectedRef);
-            if (selDrawn) {
-                ctx.strokeStyle = "#2563eb";
-                ctx.lineWidth = 2;
-                ctx.setLineDash([6, 4]);
-                ctx.strokeRect(selDrawn.x, selDrawn.y, selDrawn.w, selDrawn.h);
-                ctx.setLineDash([]);
-                _drawHandles(ctx, selDrawn);
-            }
+            if (selDrawn) _drawHandles(ctx, selDrawn);
         }
         // expose สำหรับ mouse handlers + toolbar
         wrap._drawn = drawn;
@@ -1310,8 +1547,8 @@ function renderPreview() {
             const rect = wrap.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             const py = ev.clientY - rect.top;
-            // 1) ถ้ามี selection อยู่แล้ว ดู handle ก่อน
-            if (selectedRef) {
+            // 1) ถ้ามี selection อยู่แล้ว ดู handle ก่อน (ไม่นับ shift — shift = multi-select)
+            if (selectedRef && !ev.shiftKey) {
                 const selDrawn = drawn.find(d => d.item.self_ref === selectedRef);
                 if (selDrawn) {
                     const handle = _hitHandle(selDrawn, px, py);
@@ -1327,25 +1564,26 @@ function renderPreview() {
                     }
                 }
             }
-            // 2) คลิกในกล่อง → select + เริ่ม drag move
+            // 2) คลิกในกล่อง → select (shift = toggle เพิ่ม, ไม่ drag)
             const hit = [...drawn].reverse().find(d =>
                 px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
             );
             if (hit) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                selectedRef = hit.item.self_ref;
-                _drag = {
-                    ref: selectedRef, mode: "move",
-                    startX: px, startY: py,
-                    startBox: { x: hit.x, y: hit.y, w: hit.w, h: hit.h },
-                };
-                wrap.classList.add("dragging");
+                _toggleSelect(hit.item.self_ref, ev.shiftKey);
+                if (!ev.shiftKey && selectedRef) {
+                    _drag = {
+                        ref: selectedRef, mode: "move",
+                        startX: px, startY: py,
+                        startBox: { x: hit.x, y: hit.y, w: hit.w, h: hit.h },
+                    };
+                    wrap.classList.add("dragging");
+                }
                 doDraw();
             } else {
-                // คลิกที่ว่าง → deselect
-                if (selectedRef) {
-                    selectedRef = null;
+                if (!ev.shiftKey && (selectedRef || selectedRefs.size)) {
+                    _clearSelection();
                     doDraw();
                 }
             }
@@ -1355,7 +1593,7 @@ function renderPreview() {
             if (_drag) {
                 _drag = null;
                 wrap.classList.remove("dragging");
-                doDraw();  // หลัง drop ค่อย auto-grow ถ้า text ใหญ่กว่ากล่อง
+                doDraw();
             }
         };
 
@@ -1369,7 +1607,15 @@ function renderPreview() {
             );
             if (hit) {
                 ev.stopPropagation();
-                showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
+                if (ev.shiftKey) {
+                    _toggleSelect(hit.item.self_ref, true);
+                    doDraw();
+                } else {
+                    showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
+                }
+            } else if (ev.shiftKey && (selectedRef || selectedRefs.size)) {
+                _clearSelection();
+                doDraw();
             }
         };
     };
