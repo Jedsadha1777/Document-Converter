@@ -257,23 +257,6 @@ def invalidate_cache(pair: str | None = None) -> None:
         _source_tokens_cache.pop(pair, None)
 
 
-def status(pair: str, model: str = OLLAMA_MODEL_EMBED) -> dict:
-    files = _list_source_files(pair)
-    manifest = _read_manifest(pair)
-    need, reason = needs_rebuild(pair, model)
-    return {
-        "pair": pair,
-        "folder": str(_pair_folder(pair)),
-        "n_files": len(files),
-        "files": [p.name for p in files],
-        "indexed": manifest is not None and not need,
-        "needs_rebuild": need,
-        "rebuild_reason": reason,
-        "manifest": manifest,
-        "current_model": model,
-    }
-
-
 def _aggregate_hits(per_query: list[list[tuple[int, float]]],
                     bonus_alpha: float = TM_BONUS_ALPHA) -> list[tuple[int, float, int, float]]:
     """Each per_query[i] is [(row, score), ...] for query i.

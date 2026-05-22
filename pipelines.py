@@ -42,8 +42,14 @@ OCRMAC_AVAILABLE = _ocrmac_available()
 
 
 def make_pipeline_options(kind: str, lang: str = "auto",
-                          engine: str = "easyocr") -> PdfPipelineOptions:
-    """ปิดงานที่ไม่จำเป็นเพื่อความเร็ว"""
+                          engine: str = "easyocr",
+                          images_scale: float = 2.0) -> PdfPipelineOptions:
+    """ปิดงานที่ไม่จำเป็นเพื่อความเร็ว
+    images_scale: 2.0 = 144 DPI (default — ดีพอสำหรับ CJK + Thai OCR)
+                  1.5 = 108 DPI (balanced fallback)
+                  1.0 = 72 DPI (low — เล็กเกินไปสำหรับ preview)
+                  0.75/0.5 = emergency fallback after OOM (Latin OCR ยังพออ่านได้)
+    """
     po = PdfPipelineOptions()
 
     if engine == "ocrmac" and OCRMAC_AVAILABLE:
@@ -54,7 +60,7 @@ def make_pipeline_options(kind: str, lang: str = "auto",
         po.ocr_options = EasyOcrOptions(lang=langs)
 
     po.generate_page_images = True
-    po.images_scale = 2.0  # 144 DPI — ดีพอสำหรับ CJK + Thai OCR
+    po.images_scale = images_scale
 
     if kind == "texts":
         po.do_ocr = True
@@ -71,21 +77,23 @@ def make_pipeline_options(kind: str, lang: str = "auto",
     return po
 
 
-_converter_cache: dict[tuple[str, str, str], DocumentConverter] = {}
+_converter_cache: dict[tuple[str, str, str, float], DocumentConverter] = {}
 
 
 def get_converter(kind: str, lang: str = "auto",
-                  engine: str = "easyocr") -> DocumentConverter:
+                  engine: str = "easyocr",
+                  images_scale: float = 2.0) -> DocumentConverter:
     if engine not in OCR_ENGINES:
         engine = "easyocr"
     if engine == "ocrmac" and not OCRMAC_AVAILABLE:
         engine = "easyocr"
-    key = (kind, lang, engine)
+    key = (kind, lang, engine, images_scale)
     if key not in _converter_cache:
-        po = make_pipeline_options(kind, lang, engine)
+        po = make_pipeline_options(kind, lang, engine, images_scale)
         print(
             f"[docling] creating converter kind={kind} lang={lang} engine={engine} "
-            f"(ocr={po.do_ocr}, table={po.do_table_structure}, langs={po.ocr_options.lang})",
+            f"scale={images_scale} (ocr={po.do_ocr}, table={po.do_table_structure}, "
+            f"langs={po.ocr_options.lang})",
             flush=True,
         )
         _converter_cache[key] = DocumentConverter(

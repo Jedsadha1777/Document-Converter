@@ -370,22 +370,16 @@
     <div id="status" class="status"></div>
 
     <div class="tabs">
-        <button type="button" class="tab active" data-tab="json">JSON</button>
-        <button type="button" class="tab" data-tab="visual">Visual Preview</button>
+        <button type="button" class="tab active" data-tab="visual">Visual Preview</button>
         <button type="button" class="tab" data-tab="compare">Compare (LLM)</button>
     </div>
 
-    <!-- JSON tab -->
-    <div class="tab-panel active" id="panel-json">
-        <div class="toolbar">
-            <strong>JSON output</strong>
-            <div class="toolbar-actions">
-                <button type="button" class="ghost" id="copyBtn">Copy</button>
-                <button type="button" class="ghost" id="downloadBtn">Download</button>
-                <button type="button" class="ghost" id="clearBtn">Clear</button>
-            </div>
-        </div>
-        <textarea id="output" placeholder="JSON output will appear here..." readonly></textarea>
+    <!-- JSON state holder (hidden) — textarea is used by merge/copy/download even though the tab is hidden -->
+    <div id="panel-json" style="display:none;">
+        <button type="button" class="ghost" id="copyBtn" style="display:none;">Copy</button>
+        <button type="button" class="ghost" id="downloadBtn" style="display:none;">Download</button>
+        <button type="button" class="ghost" id="clearBtn" style="display:none;">Clear</button>
+        <textarea id="output" readonly></textarea>
     </div>
 
     <!-- Compare tab -->
@@ -395,6 +389,8 @@
             <button type="button" id="runTranslateBtn">🌐 Translate all</button>
             <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation">👥 Characters</button>
             <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)">🔍 Preview prompt</button>
+            <button type="button" id="copyPromptBtn" class="ghost" title="Build the prompt for the whole table and copy to clipboard (1-click)">📋 Copy prompt</button>
+            <button type="button" id="pastePromptBtn" class="ghost" title="Read LLM response from clipboard and apply to table (1-click — must Copy prompt first)">📥 Paste LLM response</button>
             <select id="translateTarget" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
                 <option value="vi">→ Vietnamese</option>
                 <option value="th">→ Thai</option>
@@ -459,7 +455,7 @@ Examples:
     </div>
 
     <!-- Visual tab -->
-    <div class="tab-panel" id="panel-visual">
+    <div class="tab-panel active" id="panel-visual">
         <div class="preview-controls">
             <label for="pageSelect">Page:</label>
             <select id="pageSelect"></select>
@@ -523,23 +519,27 @@ ocrEngineSelect.addEventListener("change", syncFastVisibility);
 // ── จำค่า dropdown/checkbox ครั้งล่าสุดผ่าน localStorage ──
 const CONVERT_PREFS_KEY = "doclingConvertPrefs";
 const langSelect = document.getElementById("lang");
+const translateTargetSelectEl = document.getElementById("translateTarget");
+const translateEngineSelectEl = document.getElementById("translateEngine");
+const tmPairSelectEl = document.getElementById("tmPair");
+
+function _setSelectIfOption(selectEl, value) {
+    if (!selectEl || !value) return;
+    const opt = selectEl.querySelector(`option[value="${value}"]`);
+    if (opt && !opt.disabled) selectEl.value = value;
+}
+
 function _loadConvertPrefs() {
     try {
         const raw = localStorage.getItem(CONVERT_PREFS_KEY);
         if (!raw) return;
         const p = JSON.parse(raw);
-        if (p.type) {
-            const opt = typeSelect.querySelector(`option[value="${p.type}"]`);
-            if (opt) typeSelect.value = p.type;
-        }
-        if (p.lang) {
-            const opt = langSelect.querySelector(`option[value="${p.lang}"]`);
-            if (opt) langSelect.value = p.lang;
-        }
-        if (p.ocr_engine) {
-            const opt = ocrEngineSelect.querySelector(`option[value="${p.ocr_engine}"]`);
-            if (opt && !opt.disabled) ocrEngineSelect.value = p.ocr_engine;
-        }
+        _setSelectIfOption(typeSelect, p.type);
+        _setSelectIfOption(langSelect, p.lang);
+        _setSelectIfOption(ocrEngineSelect, p.ocr_engine);
+        _setSelectIfOption(translateTargetSelectEl, p.translate_target);
+        _setSelectIfOption(translateEngineSelectEl, p.translate_engine);
+        _setSelectIfOption(tmPairSelectEl, p.tm_pair);
         if (typeof p.fast === "boolean") fastCheckbox.checked = p.fast;
     } catch (_) {}
 }
@@ -549,13 +549,17 @@ function _saveConvertPrefs() {
             type: typeSelect.value,
             lang: langSelect.value,
             ocr_engine: ocrEngineSelect.value,
+            translate_target: translateTargetSelectEl ? translateTargetSelectEl.value : null,
+            translate_engine: translateEngineSelectEl ? translateEngineSelectEl.value : null,
+            tm_pair: tmPairSelectEl ? tmPairSelectEl.value : null,
             fast: fastCheckbox.checked,
         }));
     } catch (_) {}
 }
 _loadConvertPrefs();
-[typeSelect, langSelect, ocrEngineSelect, fastCheckbox].forEach(el =>
-    el.addEventListener("change", _saveConvertPrefs)
+[typeSelect, langSelect, ocrEngineSelect, fastCheckbox,
+ translateTargetSelectEl, translateEngineSelectEl, tmPairSelectEl].forEach(el =>
+    el && el.addEventListener("change", _saveConvertPrefs)
 );
 
 syncFastVisibility();
@@ -633,8 +637,10 @@ form.addEventListener("submit", async (e) => {
     Object.keys(corrections).forEach(k => delete corrections[k]);
     Object.keys(translations).forEach(k => delete translations[k]);
     Object.keys(speakerByRef).forEach(k => delete speakerByRef[k]);
+    Object.keys(bboxOverrides).forEach(k => delete bboxOverrides[k]);
     manualEdits.clear();
     manualTranslations.clear();
+    _clearSelection();
     lastFailedIndexes = [];
     pageSelect.innerHTML = "";
     previewArea.innerHTML = '<div class="empty">Processing...</div>';
@@ -3142,6 +3148,151 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
 }
 
 previewPromptBtn.addEventListener("click", fetchPreview);
+
+// ───────── One-click Copy prompt / Paste LLM response ─────────
+const copyPromptBtn = document.getElementById("copyPromptBtn");
+const pastePromptBtn = document.getElementById("pastePromptBtn");
+
+function _flashBtn(btn, msg, restore, ms) {
+    const orig = restore || btn.dataset.origLabel || btn.textContent;
+    if (!btn.dataset.origLabel) btn.dataset.origLabel = orig;
+    btn.textContent = msg;
+    setTimeout(() => { btn.textContent = btn.dataset.origLabel; }, ms || 1800);
+}
+
+async function copyPromptOneClick() {
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
+    if (!rows.length) { alert("No rows in the table — upload a file first"); return; }
+    const target = document.getElementById("translateTarget").value;
+    const engine = translateEngineSel.value;
+    const customRules = (customRulesEl.value || "").trim();
+    const defaultId = (characters[0] && characters[0].id) || "";
+
+    const indices = rows.map((_, i) => i);
+    const texts = rows.map(r => {
+        const ref = r.dataset.ref;
+        const orig = r.dataset.orig || "";
+        return (corrections[ref] !== undefined) ? corrections[ref] : orig;
+    });
+    const speakerArr = rows.map(r => speakerByRef[r.dataset.ref] || defaultId);
+    const idsArr = indices.map(i => i + 1);
+
+    correctProgress.textContent = "⏳ Building prompt...";
+    try {
+        const res = await fetch("/translate-batch/preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                texts, target, engine,
+                custom_rules: customRules,
+                speakers: speakerArr,
+                characters: characters,
+                id_start: 1,
+                ids: idsArr,
+            }),
+        });
+        const data = await res.json();
+        if (data.error) { correctProgress.textContent = "Error: " + data.error; return; }
+        const body = JSON.stringify(data.request_body || {}, null, 2);
+        await navigator.clipboard.writeText(body);
+        correctProgress.textContent = `✓ Copied prompt (${rows.length} rows) → paste into LLM`;
+        _flashBtn(copyPromptBtn, "✓ Copied");
+    } catch (e) {
+        correctProgress.textContent = "Error: " + e.message;
+    }
+}
+
+async function pastePromptOneClick() {
+    const allRows = Array.from(compareArea.querySelectorAll("tbody tr"));
+    if (!allRows.length) { alert("No rows in the table — upload a file first"); return; }
+
+    let raw;
+    try {
+        raw = await navigator.clipboard.readText();
+    } catch (e) {
+        correctProgress.textContent = "Cannot read clipboard: " + e.message;
+        return;
+    }
+    if (!raw || !raw.trim()) {
+        correctProgress.textContent = "Clipboard is empty";
+        return;
+    }
+
+    // build state จาก table ปัจจุบัน — ไม่ต้องพึ่ง _previewSource (กดได้เลย)
+    const target = document.getElementById("translateTarget").value;
+    const defaultId = (characters[0] && characters[0].id) || "";
+    const indices = allRows.map((_, i) => i);
+    const texts = allRows.map(r => {
+        const ref = r.dataset.ref;
+        const orig = r.dataset.orig || "";
+        return (corrections[ref] !== undefined) ? corrections[ref] : orig;
+    });
+    const speakerArr = allRows.map(r => speakerByRef[r.dataset.ref] || defaultId);
+    const idsArr = indices.map(i => i + 1);
+
+    correctProgress.textContent = "⏳ Applying response...";
+    try {
+        const res = await fetch("/translate-batch/apply-manual", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                texts, target,
+                speakers: speakerArr,
+                characters: characters,
+                raw_response: raw,
+                id_start: 1,
+                ids: idsArr,
+            }),
+        });
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            const body = (await res.text()).slice(0, 200);
+            throw new Error(`HTTP ${res.status}: ${body}`);
+        }
+        const data = await res.json();
+        if (data.error) { correctProgress.textContent = "Error: " + data.error; return; }
+
+        const translations = data.translated || [];
+        const errors = data.errors || [];
+        let ok = 0, warn = 0, fail = 0, skip = 0, notInResp = 0;
+        for (let i = 0; i < translations.length && i < indices.length; i++) {
+            const row = allRows[indices[i]];
+            if (!row) break;
+            const ref = row.dataset.ref;
+            const isUserSkip = ref && speakerByRef[ref] === SPEAKER_SKIP;
+            const isEmptySource = !((texts[i] || "").trim());
+            const tr = translations[i];
+            const er = errors[i];
+            if (isUserSkip || isEmptySource) {
+                skip++;
+            } else if (tr && er) {
+                _applySuccess(row, tr, er);
+                warn++;
+            } else if (tr) {
+                _applySuccess(row, tr);
+                ok++;
+            } else if (er) {
+                _applyError(row, er);
+                fail++;
+            } else {
+                notInResp++;
+            }
+        }
+        const parts = [`applied ${ok}`];
+        if (warn) parts.push(`warn ${warn}`);
+        if (fail) parts.push(`fail ${fail}`);
+        if (skip) parts.push(`skipped ${skip}`);
+        if (notInResp) parts.push(`not in response ${notInResp}`);
+        correctProgress.textContent = parts.join(", ");
+        _flashBtn(pastePromptBtn, "✓ Applied");
+        if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+    } catch (e) {
+        correctProgress.textContent = "Error: " + e.message;
+    }
+}
+
+copyPromptBtn.addEventListener("click", copyPromptOneClick);
+pastePromptBtn.addEventListener("click", pastePromptOneClick);
 
 // ───────── Speaker dropdown change → จดค่าไว้เฉย ๆ ไม่แปลอัตโนมัติ ─────────
 // แปลครั้งเดียวตอนกด "🌐 แปลทั้งหมด" — ไม่ trigger LLM call เปลือง token

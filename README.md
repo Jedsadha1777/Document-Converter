@@ -203,7 +203,6 @@ docling/
 | `POST` | `/translate` | Single text translation (legacy) |
 | `POST` | `/translate-batch` | Batch translation — Qwen / Gemini / Apple |
 | `POST` | `/translate-batch/preview` | ดู prompt ที่จะส่ง LLM (ไม่เรียก API) |
-| `GET` | `/apple-translate-status` | ตรวจ Apple Shortcut พร้อมหรือยัง |
 | `GET` | `/apple-translate-setup` | หน้าคำแนะนำสร้าง Shortcut |
 
 ## Translation Memory (TM)
@@ -290,7 +289,6 @@ key อื่น ๆ จะถูก **ignore ทั้งหมด** — ถ้
 |---|---|---|
 | `POST` | `/tm/build` | rebuild ทุก pair (ignore body) |
 | `POST` | `/tm/suggest` | embed queries → top hits + glossary rules |
-| `GET` | `/tm/status?pair=<pair>` | check manifest / needs_rebuild |
 
 ## Troubleshooting
 

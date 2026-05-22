@@ -3,6 +3,7 @@ import json
 import tempfile
 from pathlib import Path
 
+import psutil
 from flask import Flask, jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
@@ -15,6 +16,7 @@ from config import (
     GEMINI_AVAILABLE,
     GEMINI_BATCH_DELAY_MS,
     GEMINI_MODEL,
+    MIN_FREE_RAM_GB,
     OCR_ENGINES,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
@@ -42,8 +44,6 @@ from translate import (
     _GEMINI_RESPONSE_SCHEMA,
     _build_batch_system_prompt,
     _build_batch_user_msg,
-    _list_shortcuts,
-    _shortcuts_available,
     _translate_temp_for_attempt,
     apple_translate_text,
     apply_manual_batch,
@@ -58,6 +58,14 @@ app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 * 1024  # 2 GB
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.jinja_env.auto_reload = True
+
+
+def _ram_guard(min_gb: float = MIN_FREE_RAM_GB) -> tuple[bool, float]:
+    """Return (ok, available_gb). docling/easyocr peak ~2-3 GB — ถ้า RAM น้อยกว่านี้
+    เสี่ยงโดน OS kill (Windows commit charge / Linux OOM killer) ขณะ run pipeline
+    ซึ่ง Python ไม่ทัน raise exception → Flask ตายเงียบ"""
+    avail_gb = psutil.virtual_memory().available / (1024 ** 3)
+    return (avail_gb >= min_gb, round(avail_gb, 2))
 
 
 print("[docling] pre-warming converter (kind=all, lang=auto, engine=easyocr)...", flush=True)
@@ -136,28 +144,6 @@ def correct_endpoint():
     if err:
         return jsonify({"corrected": text, "error": err}), 200
     return jsonify({"corrected": corrected, "original": text})
-
-
-@app.route("/apple-translate-status", methods=["GET"])
-def apple_translate_status():
-    if not _shortcuts_available():
-        return jsonify({"available": False, "reason": "shortcuts CLI not found"})
-    sc = _list_shortcuts()
-    return jsonify({
-        "available": True,
-        "shortcuts": {
-            "th": APPLE_SHORTCUT_TH in sc,
-            "en": APPLE_SHORTCUT_EN in sc,
-            "ja": APPLE_SHORTCUT_JA in sc,
-            "vi": APPLE_SHORTCUT_VI in sc,
-        },
-        "required": {
-            "th": APPLE_SHORTCUT_TH,
-            "en": APPLE_SHORTCUT_EN,
-            "ja": APPLE_SHORTCUT_JA,
-            "vi": APPLE_SHORTCUT_VI,
-        },
-    })
 
 
 @app.route("/apple-translate-setup")
@@ -366,17 +352,6 @@ def translate_batch_endpoint():
         return jsonify({"error": f"server exception: {exc}"}), 500
 
 
-@app.route("/tm/status", methods=["GET"])
-def tm_status():
-    pair = (request.args.get("pair") or "en-vn").strip()
-    try:
-        return jsonify(tm.status(pair))
-    except Exception as exc:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": f"tm.status: {exc}"}), 500
-
-
 @app.route("/tm/build", methods=["POST"])
 def tm_build():
     try:
@@ -413,6 +388,14 @@ def tm_suggest():
 
 @app.route("/convert", methods=["POST"])
 def convert():
+    ok, avail = _ram_guard()
+    if not ok:
+        return jsonify({
+            "error": f"Not enough free RAM to start OCR — {avail} GB available, "
+                     f"need ≥{MIN_FREE_RAM_GB} GB. Close other apps/tabs and retry.",
+            "available_gb": avail,
+            "required_gb": MIN_FREE_RAM_GB,
+        }), 503
     if "file" not in request.files:
         return jsonify({"error": "no uploaded file found"}), 400
 
@@ -453,22 +436,43 @@ def convert():
         path = Path(tmpdir) / filename
         uploaded.save(path)
 
+        def _run_docling(scale: float):
+            converter = get_converter(kind, lang, ocr_engine, images_scale=scale)
+            if page_range:
+                result = converter.convert(str(path), page_range=page_range)
+            else:
+                result = converter.convert(str(path))
+            doc = result.document
+            d = doc.export_to_dict()
+            pv = build_preview(doc)
+            if path.suffix.lower() in (".xlsx", ".xls"):
+                flatten_xlsx_cells_to_texts(d, pv)
+            return d, pv
+
         try:
             if fast:
                 doc_dict, preview = run_fast_pipeline(path, filename, lang)
             elif lang == "manga":
                 doc_dict, preview = run_manga_pipeline(path, filename)
             else:
-                converter = get_converter(kind, lang, ocr_engine)
-                if page_range:
-                    result = converter.convert(str(path), page_range=page_range)
-                else:
-                    result = converter.convert(str(path))
-                doc = result.document
-                doc_dict = doc.export_to_dict()
-                preview = build_preview(doc)
-                if path.suffix.lower() in (".xlsx", ".xls"):
-                    flatten_xlsx_cells_to_texts(doc_dict, preview)
+                # Retry ladder: 2.0 → 1.5 → 1.0 → 0.75 → 0.5 (เริ่ม 144 DPI, ย่อลงเมื่อ OOM)
+                # หมายเหตุ: ถ้า process ถูก Windows kill จาก native bad_alloc จะ catch ไม่ได้
+                # ต้องการ subprocess isolation ถ้ายังพังอีก
+                last_exc = None
+                for scale in (2.0, 1.5, 1.0, 0.75, 0.5):
+                    try:
+                        doc_dict, preview = _run_docling(scale)
+                        last_exc = None
+                        break
+                    except (MemoryError, RuntimeError) as exc:
+                        msg = str(exc).lower()
+                        if "bad_alloc" in msg or "memory" in msg or "alloc" in msg:
+                            print(f"[docling] OOM at scale={scale}, retrying lower", flush=True)
+                            last_exc = exc
+                            continue
+                        raise
+                if last_exc is not None:
+                    raise last_exc
         except Exception as exc:
             return jsonify({"error": f"conversion failed: {exc}"}), 500
 

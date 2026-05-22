@@ -29,6 +29,10 @@ GEMINI_AVAILABLE = bool(GEMINI_API_KEY)
 # NLLB-200 local engine — โหลด lazy ครั้งแรกที่เรียก (~2.4 GB ลง HF cache)
 NLLB_MODEL = os.getenv("NLLB_MODEL", "facebook/nllb-200-distilled-600M").strip()
 
+# Pre-flight RAM guard — refuse heavy requests ถ้า available RAM ต่ำกว่านี้ (กันถูก OS kill)
+# docling + easyocr peak ~2-3 GB; 3 GB เผื่อ working memory ของ OCR pass + image decoding
+MIN_FREE_RAM_GB = float(os.getenv("MIN_FREE_RAM_GB", "3.0"))
+
 # sentinel — ผู้ใช้เลือก dropdown "ไม่แปล"
 SPEAKER_SKIP = "__skip__"
 

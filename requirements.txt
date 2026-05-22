@@ -41,3 +41,6 @@ numpy>=1.26
 # NLLB-200 local translation engine (PC fallback แทน Apple Translate)
 transformers>=4.40
 sentencepiece>=0.2.0
+
+# Pre-flight RAM check — กัน process ถูก OS kill ระหว่าง OCR (silent OOM)
+psutil>=5.9
