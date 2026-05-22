@@ -133,11 +133,10 @@
             overflow: hidden;
             background: #f9fafb;
         }
-        .canvas-wrap img { display: block; max-width: 100%; height: auto; }
         .canvas-wrap canvas {
-            position: absolute;
-            top: 0; left: 0;
-            pointer-events: none;
+            display: block;
+            max-width: 100%;
+            user-select: none; -webkit-user-select: none;
         }
         .tooltip {
             position: absolute;
@@ -166,8 +165,7 @@
             color: #fff;
             border-color: #2563eb;
         }
-        .canvas-wrap.edit-mode { cursor: crosshair; }
-        .canvas-wrap.edit-mode.dragging { cursor: grabbing; }
+        .canvas-wrap.dragging { cursor: grabbing; }
         #editToolbar button {
             padding: 4px 8px; font-size: 12px; min-width: 30px;
         }
@@ -467,11 +465,11 @@ Examples:
             <label style="margin-left:8px; padding:4px 8px; background:#fef3c7; border-radius:6px;">
                 <input type="checkbox" id="showOverlay"> 📝 Overlay translation on image
             </label>
-            <button type="button" id="editModeBtn" class="ghost" style="margin-left:6px;"
+            <button type="button" id="editModeBtn" class="ghost" style="margin-left:6px; display:none;"
                     title="โหมดแก้กล่อง overlay — ลาก/resize ได้, ปรับ font/align">✏️ Edit</button>
             <button type="button" id="mergeSelectedBtn" class="ghost" style="display:none; margin-left:6px;"
                     title="รวมกล่องที่เลือก (shift+คลิกเพิ่ม)">🔗 Merge (<span id="mergeCount">0</span>)</button>
-            <div id="editToolbar" style="display:none; margin-left:6px; gap:4px; align-items:center;">
+            <div id="editToolbar" style="display:inline-flex; margin-left:6px; gap:4px; align-items:center;">
                 <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์">A−</button>
                 <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์">A+</button>
                 <button type="button" id="alignLeftBtn" class="ghost" title="ชิดซ้าย">⬅</button>
@@ -859,9 +857,7 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
         editMode = !editMode;
         btn.textContent = editMode ? "✓ Done" : "✏️ Edit";
         btn.classList.toggle("active", editMode);
-        toolbar.style.display = editMode ? "inline-flex" : "none";
         if (!editMode) {
-            _clearSelection();
             _drag = null;
             if (_bboxPopup) _bboxPopup.style.display = "none";
         }
@@ -873,6 +869,9 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
     const mergeBtn = document.getElementById("mergeSelectedBtn");
     if (mergeBtn) mergeBtn.addEventListener("click", mergeSelectedBoxes);
 
+    // redraw canvas เท่านั้น ไม่ rebuild DOM — กัน flicker ตอนกดปุ่มซ้ำๆ
+    const _redrawOnly = () => (window._previewWrap?._redraw || renderPreview)();
+
     function _adjustFont(delta) {
         if (!selectedRef) return;
         const ov = bboxOverrides[selectedRef] = bboxOverrides[selectedRef] || {};
@@ -880,7 +879,7 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
         const sel = (window._previewWrap?._drawn || []).find(d => d.item.self_ref === selectedRef);
         const curSize = ov.fontSize || (sel ? Math.min(Math.max(Math.floor(sel.h * 0.65), 7), 22) : 14);
         ov.fontSize = Math.max(7, Math.min(64, curSize + delta));
-        renderPreview();
+        _redrawOnly();
     }
     function _setAlign(a) {
         if (!selectedRef) return;
@@ -889,7 +888,7 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
         // ไฮไลต์ปุ่ม align ที่เลือก
         [alignL, alignC, alignR].forEach(b => b.classList.remove("active"));
         ({left: alignL, center: alignC, right: alignR}[a])?.classList.add("active");
-        renderPreview();
+        _redrawOnly();
     }
 
     fontInc.addEventListener("click", () => _adjustFont(+2));
@@ -901,13 +900,13 @@ function drawTextInBox(ctx, text, x, y, w, h, opts) {
         if (!selectedRef) return;
         delete bboxOverrides[selectedRef];
         [alignL, alignC, alignR].forEach(b => b.classList.remove("active"));
-        renderPreview();
+        _redrawOnly();
     });
 })();
 
 
 // ═════════ EDIT MODE state (Visual Preview) ═════════
-let editMode = false;
+let editMode = true;                  // ตอนนี้เปิดตลอด — ปุ่ม Edit ถูกซ่อนแล้ว
 let selectedRef = null;               // ref ที่ active ล่าสุด (ใช้ตอน drag/font/align)
 const selectedRefs = new Set();       // multi-select: shift+คลิกเพิ่ม — ใช้สำหรับ merge
 const bboxOverrides = {};             // {ref: {x, y, w, h, fontSize, align}} — override default bbox
@@ -1129,7 +1128,10 @@ function mergeSelectedBoxes() {
     renderPreview();
     buildCompareTable(true);
 }
-let _drag = null;                     // {ref, mode: "move"|"nw"|"ne"|"sw"|"se"|"n"|"s"|"e"|"w", startX, startY, startBox}
+let _drag = null;                     // {ref, mode: "move"|"nw"|"ne"|"sw"|"se"|"n"|"s"|"e"|"w", startX, startY, startBox, moved}
+let _marquee = null;                  // {startX, startY, endX, endY, additive, initialSelection: Set} — Ketchup SelectTool pattern
+let _justDragged = false;             // true หลังจาก drag จริง — กัน click trigger speaker popup
+const DRAG_THRESHOLD = 4;             // ขยับน้อยกว่านี้นับเป็น click (ไม่ใช่ drag)
 const HANDLE_SIZE = 8;                // square handle in display px
 const MIN_BOX = 12;                   // min width/height of bbox
 
@@ -1232,7 +1234,8 @@ function showBboxSpeakerPopup(hit, clientX, clientY) {
     // เปลี่ยน → save → redraw canvas + sync dropdown ในแท็บ Compare ด้วย
     sel.onchange = () => {
         speakerByRef[ref] = sel.value;
-        renderPreview();
+        // redraw canvas เท่านั้น — ไม่ rebuild DOM/รูป กัน stutter ตอนเปลี่ยน speaker
+        (window._previewWrap?._redraw || renderPreview)();
         // sync dropdown ของ row เดียวกันในตาราง Compare (ถ้าตารางถูกสร้างไว้แล้ว)
         const compareSel = compareArea.querySelector(
             `tr[data-ref="${CSS.escape(ref)}"] select.speaker-select`
@@ -1270,16 +1273,18 @@ function renderPreview() {
     previewArea.innerHTML = "";
     const wrap = document.createElement("div");
     wrap.className = "canvas-wrap";
-    const img = new Image();
+    const img = new Image();  // โหลดอย่างเดียว ไม่ append เข้า DOM — กัน native image drag
     const canvas = document.createElement("canvas");
     const tooltip = document.createElement("div");
     tooltip.className = "tooltip";
-    wrap.appendChild(img); wrap.appendChild(canvas); wrap.appendChild(tooltip);
+    wrap.appendChild(canvas); wrap.appendChild(tooltip);
     previewArea.appendChild(wrap);
 
     img.onload = () => {
-        const dispW = img.clientWidth;
-        const dispH = img.clientHeight;
+        // คำนวณ display size จาก natural + container width (ไม่พึ่ง img.clientWidth เพราะไม่ได้อยู่ใน DOM)
+        const containerW = previewArea.clientWidth || img.naturalWidth;
+        const dispW = Math.min(containerW, img.naturalWidth);
+        const dispH = Math.round(dispW * img.naturalHeight / img.naturalWidth);
         canvas.width = dispW;
         canvas.height = dispH;
         canvas.style.width = dispW + "px";
@@ -1305,7 +1310,8 @@ function renderPreview() {
 
         // === closure ที่ redraw canvas เท่านั้น — ไม่ rebuild DOM (ลด flicker ตอนลาก) ===
         const doDraw = () => {
-        ctx.clearRect(0, 0, dispW, dispH);
+        // วาดรูปเป็น background layer (ไม่ใช้ <img> DOM — กัน native drag)
+        ctx.drawImage(img, 0, 0, dispW, dispH);
         ctx.lineWidth = 2;
         ctx.font = "11px ui-monospace, Menlo, monospace";
 
@@ -1336,9 +1342,11 @@ function renderPreview() {
                 const origW = Math.abs((b.r || 0) - (b.l || 0)) * sx;
                 const origH = Math.abs((b.b || 0) - (b.t || 0)) * sy;
                 const fallbackFontSize = Math.min(48, Math.max(10, Math.round(Math.min(origH, origW) * 0.7)));
+                // OCR ส่ง font_size หน่วย "px ของรูปต้นฉบับ" → ต้อง scale ด้วย sy ให้เป็น display px
+                const ocrFontSize = it.font_size ? it.font_size * sy : 0;
                 const layout = measureTextInBox(ctx, overlayText, w, {
                     fixedFontSize: ov.fontSize,
-                    ocrFontSize: it.font_size,
+                    ocrFontSize,
                     fallbackFontSize,
                 });
                 if (!layout) {
@@ -1430,6 +1438,22 @@ function renderPreview() {
             const selDrawn = drawn.find(d => d.item.self_ref === selectedRef);
             if (selDrawn) _drawHandles(ctx, selDrawn);
         }
+        // === MARQUEE rectangle overlay (อ้างอิง Ketchup drawOverlay) ===
+        if (_marquee) {
+            const mx = Math.min(_marquee.startX, _marquee.endX);
+            const my = Math.min(_marquee.startY, _marquee.endY);
+            const mw = Math.abs(_marquee.endX - _marquee.startX);
+            const mh = Math.abs(_marquee.endY - _marquee.startY);
+            ctx.save();
+            ctx.strokeStyle = "#0066cc";
+            ctx.fillStyle = "rgba(0, 102, 204, 0.1)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.fillRect(mx, my, mw, mh);
+            ctx.strokeRect(mx, my, mw, mh);
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
         // expose สำหรับ mouse handlers + toolbar
         wrap._drawn = drawn;
         window._previewWrap = wrap;
@@ -1439,19 +1463,55 @@ function renderPreview() {
 
         // hover tooltip via overlay div (canvas is pointer-events: none)
         wrap.style.cursor = "default";
-        if (editMode) wrap.classList.add("edit-mode");
-        else wrap.classList.remove("edit-mode");
+        // cursor ตั้งจาก mousemove (move/resize/default) — ไม่ใช้ class
 
         wrap.onmousemove = (ev) => {
             const rect = wrap.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             const py = ev.clientY - rect.top;
 
-            // === DRAGGING (edit mode เท่านั้น) — ซ่อน tooltip ===
-            if (editMode && _drag) {
+            // === MARQUEE SELECTION (drag คลุมพื้นที่ว่าง) — เพิ่ม/ลบแบบ live เพื่อให้ลำดับตรงกับ drag ===
+            if (_marquee) {
+                _marquee.endX = px;
+                _marquee.endY = py;
+                const dx = _marquee.endX - _marquee.startX;
+                const dy = _marquee.endY - _marquee.startY;
+                if (Math.abs(dx) >= DRAG_THRESHOLD || Math.abs(dy) >= DRAG_THRESHOLD) {
+                    _justDragged = true;
+                }
+                // intersect-test ทุก box: ใส่ตอนเข้า rect (ลำดับ = ลำดับที่โดน), เอาออกตอนออก
+                const x1 = Math.min(_marquee.startX, _marquee.endX);
+                const y1 = Math.min(_marquee.startY, _marquee.endY);
+                const x2 = Math.max(_marquee.startX, _marquee.endX);
+                const y2 = Math.max(_marquee.startY, _marquee.endY);
+                drawn.forEach(d => {
+                    if (!d.item.self_ref) return;
+                    const ref = d.item.self_ref;
+                    const inside = d.x < x2 && d.x + d.w > x1 && d.y < y2 && d.y + d.h > y1;
+                    const wasInitial = _marquee.initialSelection.has(ref);
+                    if (inside && !selectedRefs.has(ref)) {
+                        selectedRefs.add(ref);
+                        selectedRef = ref;
+                    } else if (!inside && selectedRefs.has(ref) && !wasInitial) {
+                        // เข้าไปแล้วถูกใส่ → ถ้าหดกลับมาออกจาก rect → ดึงออก
+                        selectedRefs.delete(ref);
+                        if (selectedRef === ref) selectedRef = [...selectedRefs].pop() || null;
+                    }
+                });
+                _updateMergeButton();
                 tooltip.style.display = "none";
+                doDraw();
+                return;
+            }
+            // === DRAGGING — ซ่อน tooltip ===
+            if (_drag) {
                 const dx = px - _drag.startX;
                 const dy = py - _drag.startY;
+                // threshold: ยังไม่ขยับเกินก็ถือเป็น click → ไม่ commit move
+                if (!_drag.moved && Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+                _drag.moved = true;
+                _justDragged = true;
+                tooltip.style.display = "none";
                 const sb = _drag.startBox;
                 const ov = bboxOverrides[_drag.ref] = bboxOverrides[_drag.ref] || {};
                 if (_drag.mode === "move") {
@@ -1472,28 +1532,26 @@ function renderPreview() {
                 doDraw();
                 return;
             }
-            // === EDIT MODE hover cursor (ไม่ drag) — set cursor แล้ว fall through ไป tooltip ===
-            if (editMode) {
-                let cur = "default";
-                if (selectedRef) {
-                    const sel = drawn.find(d => d.item.self_ref === selectedRef);
-                    if (sel) {
-                        const handle = _hitHandle(sel, px, py);
-                        if (handle) {
-                            const map = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
-                                          nw: "nwse-resize", se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize" };
-                            cur = map[handle] || "default";
-                        }
+            // === hover cursor (ไม่ drag) — set cursor แล้ว fall through ไป tooltip ===
+            let cur = "default";
+            if (selectedRef) {
+                const sel = drawn.find(d => d.item.self_ref === selectedRef);
+                if (sel) {
+                    const handle = _hitHandle(sel, px, py);
+                    if (handle) {
+                        const map = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
+                                      nw: "nwse-resize", se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize" };
+                        cur = map[handle] || "default";
                     }
                 }
-                if (cur === "default") {
-                    const overItem = [...drawn].reverse().find(d =>
-                        px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
-                    );
-                    cur = overItem ? "move" : "default";
-                }
-                wrap.style.cursor = cur;
             }
+            if (cur === "default") {
+                const overItem = [...drawn].reverse().find(d =>
+                    px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
+                );
+                cur = overItem ? "move" : "default";
+            }
+            wrap.style.cursor = cur;
             // === Hover tooltip (ทั้ง edit mode + normal mode) ===
             const overlayModeNow = document.getElementById("showOverlay").checked;
             const hit = [...drawn].reverse().find(d =>
@@ -1547,9 +1605,10 @@ function renderPreview() {
         };
         wrap.onmouseleave = () => tooltip.style.display = "none";
 
-        // คลิก / mousedown — edit mode → drag/resize, normal → speaker popup
+        // คลิก / mousedown — เริ่ม drag (ถ้าขยับ) หรือ click (ถ้าไม่ขยับ → เปิด popup ใน onclick)
         wrap.onmousedown = (ev) => {
-            if (!editMode) return;
+            if (ev.button !== 0) return;  // เฉพาะคลิกซ้าย — กันคลิกขวา/กลางลาก
+            _justDragged = false;
             const rect = wrap.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             const py = ev.clientY - rect.top;
@@ -1588,14 +1647,27 @@ function renderPreview() {
                 }
                 doDraw();
             } else {
+                // คลิกที่ว่าง → ถ้าไม่ shift เคลียร์ก่อน, แล้วเริ่ม marquee (เพิ่ม/ลบ live ใน mousemove)
                 if (!ev.shiftKey && (selectedRef || selectedRefs.size)) {
                     _clearSelection();
                     doDraw();
                 }
+                _marquee = {
+                    startX: px, startY: py,
+                    endX: px, endY: py,
+                    additive: ev.shiftKey,
+                    initialSelection: new Set(selectedRefs),  // snapshot — ไม่แตะ items ที่เลือกก่อน marquee
+                };
             }
         };
 
         wrap.onmouseup = () => {
+            if (_marquee) {
+                // selection ถูก commit live ใน mousemove แล้ว — แค่ clear marquee state
+                _marquee = null;
+                doDraw();
+                return;
+            }
             if (_drag) {
                 _drag = null;
                 wrap.classList.remove("dragging");
@@ -1603,25 +1675,31 @@ function renderPreview() {
             }
         };
 
+        // safety net — ถ้าปล่อยเมาส์นอก wrap (ลาก marquee ออกไปข้างนอก) ก็ commit ให้
+        if (window._previewDocMouseUp) {
+            document.removeEventListener("mouseup", window._previewDocMouseUp);
+        }
+        window._previewDocMouseUp = (e) => {
+            if (_drag || _marquee) wrap.onmouseup(e);
+        };
+        document.addEventListener("mouseup", window._previewDocMouseUp);
+
         wrap.onclick = (ev) => {
-            if (editMode) return;  // edit mode ใช้ mousedown แทน
+            // ถ้าเพิ่ง drag จริง (เกิน threshold) → ไม่เปิด popup
+            if (_justDragged) {
+                _justDragged = false;
+                return;
+            }
+            // selection ตั้งจาก mousedown แล้ว — onclick แค่เปิด speaker popup (เฉพาะ click ปกติ ไม่ shift)
             const rect = wrap.getBoundingClientRect();
             const px = ev.clientX - rect.left;
             const py = ev.clientY - rect.top;
             const hit = [...drawn].reverse().find(d =>
                 px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
             );
-            if (hit) {
+            if (hit && !ev.shiftKey) {
                 ev.stopPropagation();
-                if (ev.shiftKey) {
-                    _toggleSelect(hit.item.self_ref, true);
-                    doDraw();
-                } else {
-                    showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
-                }
-            } else if (ev.shiftKey && (selectedRef || selectedRefs.size)) {
-                _clearSelection();
-                doDraw();
+                showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
             }
         };
     };
@@ -3302,8 +3380,10 @@ compareArea.addEventListener("change", (e) => {
     const ref = sel.dataset.ref;
     if (!ref) return;
     speakerByRef[ref] = sel.value;
-    // sync ไป Visual Preview ถ้ากำลังเปิดอยู่
-    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+    // sync ไป Visual Preview ถ้ากำลังเปิดอยู่ — redraw canvas เท่านั้น ไม่ rebuild DOM
+    if (document.querySelector(".tab.active").dataset.tab === "visual") {
+        (window._previewWrap?._redraw || renderPreview)();
+    }
 });
 </script>
 </body>
