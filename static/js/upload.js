@@ -1,0 +1,201 @@
+// Multi-file upload + merge
+// - 1 ไฟล์: ใช้ data จาก /convert ตรงๆ
+// - หลายไฟล์ (image เท่านั้น): POST ทีละไฟล์ → shift page_no + remap self_ref → merge
+
+import { state } from "./state.js";
+import { history } from "./history.js";
+import { setStatus } from "./status.js";
+import { buildCompareTable, resetCompareUI } from "./compare.js";
+import { renderPreview, clearSelectionAndUI } from "./preview.js";
+import { COLORS } from "./colors.js";
+
+const { corrections, translations, speakerByRef, bboxOverrides, manualEdits, manualTranslations } = state;
+
+const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tiff", ".bmp", ".avif"];
+function _isImageFile(file) {
+    const name = (file.name || "").toLowerCase();
+    return IMAGE_EXTS.some(ext => name.endsWith(ext));
+}
+
+// POST 1 ไฟล์ไป /convert, คืน data หรือ null ถ้า error
+async function _convertOneFile(file) {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("type", "texts");
+    fd.append("lang", document.getElementById("lang").value);
+    fd.append("ocr_engine", document.getElementById("ocr_engine").value);
+    fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
+    fd.append("pages", document.getElementById("pages").value.trim());
+
+    const res = await fetch("/convert", { method: "POST", body: fd });
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+        const body = (await res.text()).slice(0, 400);
+        setStatus(`HTTP ${res.status} (non-JSON): ${body}`, "error");
+        return null;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+        setStatus(data.error || `Error: ${file.name}`, "error");
+        return null;
+    }
+    return data;
+}
+
+// merge ผลของไฟล์ที่ N เข้า combined — shift page_no + remap self_ref + ติดชื่อไฟล์
+function _mergeFileResult(combined, data, pageOffset, textOffset, filename) {
+    const refMap = new Map();
+    (data.texts || []).forEach((t, idx) => {
+        const newRef = `#/texts/${textOffset + idx}`;
+        refMap.set(t.self_ref, newRef);
+        t.self_ref = newRef;
+        if (Array.isArray(t.prov)) {
+            t.prov.forEach(p => { if (typeof p.page_no === "number") p.page_no += pageOffset; });
+        }
+    });
+    (data.preview?.items || []).forEach(it => {
+        const nr = refMap.get(it.self_ref);
+        if (nr) it.self_ref = nr;
+        if (typeof it.page_no === "number") it.page_no += pageOffset;
+    });
+    (data.preview?.pages || []).forEach(p => {
+        if (typeof p.page_no === "number") p.page_no += pageOffset;
+        if (filename) p._filename = filename;  // ใช้แสดงใน pageSelect dropdown
+    });
+    combined.preview.pages.push(...(data.preview?.pages || []));
+    combined.preview.items.push(...(data.preview?.items || []));
+    combined.texts.push(...(data.texts || []));
+}
+
+function _populatePages(pages) {
+    const pageSelect = document.getElementById("pageSelect");
+    pageSelect.innerHTML = "";
+    pages.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.page_no;
+        // multi-image: ใช้ชื่อไฟล์, อื่นๆ: "Page N"
+        opt.textContent = p._filename || ("Page " + p.page_no);
+        pageSelect.appendChild(opt);
+    });
+}
+
+// ล้าง state document ทั้งหมด — เรียกตอนเริ่ม upload ใหม่
+function _resetDocumentState() {
+    state.lastResult = null;
+    Object.keys(corrections).forEach(k => delete corrections[k]);
+    Object.keys(translations).forEach(k => delete translations[k]);
+    Object.keys(speakerByRef).forEach(k => delete speakerByRef[k]);
+    Object.keys(bboxOverrides).forEach(k => delete bboxOverrides[k]);
+    manualEdits.clear();
+    manualTranslations.clear();
+    clearSelectionAndUI();
+    history.clear();
+}
+
+// init: รับ callback ที่ index.html ต้อง trigger หลัง upload สำเร็จ (sync checkboxes ตาม kind)
+export function initUpload({ onAfterConvert } = {}) {
+    const form = document.getElementById("convertForm");
+    const fileInput = document.getElementById("file");
+    const submitBtn = document.getElementById("submitBtn");
+    const output = document.getElementById("output");
+    const previewArea = document.getElementById("previewArea");
+    const pageSelect = document.getElementById("pageSelect");
+
+    // แสดงจำนวนไฟล์ + เตือนถ้า multi กับ non-image
+    fileInput.addEventListener("change", () => {
+        const files = [...fileInput.files];
+        const fc = document.getElementById("fileCount");
+        if (!fc) return;
+        if (files.length <= 1) { fc.textContent = ""; fc.style.color = ""; return; }
+        const nonImg = files.find(f => !_isImageFile(f));
+        if (nonImg) {
+            fc.textContent = `⚠ ${files.length} files — multi-file รับเฉพาะ image (${nonImg.name} ไม่ใช่)`;
+            fc.style.color = COLORS.error;
+        } else {
+            fc.textContent = `📦 ${files.length} images (batch OCR)`;
+            fc.style.color = COLORS.success;
+        }
+    });
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const files = [...fileInput.files];
+        if (!files.length) { setStatus("Please choose a file", "error"); return; }
+        if (files.length > 1) {
+            const nonImg = files.find(f => !_isImageFile(f));
+            if (nonImg) {
+                setStatus(`Multi-file รับเฉพาะ image — '${nonImg.name}' ไม่ใช่ image. PDF/Excel/DOC ให้ยัดทีละไฟล์`, "error");
+                return;
+            }
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Processing...";
+        setStatus(files.length > 1 ? `Converting ${files.length} files...` : "Converting document...", "info");
+        output.value = "";
+        _resetDocumentState();
+        pageSelect.innerHTML = "";
+        previewArea.innerHTML = '<div class="empty">Processing...</div>';
+        resetCompareUI();
+
+        try {
+            // กรณี 1 ไฟล์ — ใช้ data จาก backend ตรงๆ (รักษา json_text เดิม)
+            if (files.length === 1) {
+                const data = await _convertOneFile(files[0]);
+                if (!data) { previewArea.innerHTML = '<div class="empty">An error occurred</div>'; return; }
+                state.lastResult = data;
+                output.value = data.json_text;
+                _populatePages(data.preview.pages);
+                onAfterConvert?.();
+                const notes = [];
+                if (data.engine_fallback) notes.push(`fallback: ${data.engine_fallback}`);
+                if (data.pages_warning) notes.push(data.pages_warning);
+                setStatus(notes.length ? `Converted ✓ (${notes.join("; ")})` : "Converted ✓",
+                          notes.length ? "info" : "success");
+                buildCompareTable(true);
+                if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+                return;
+            }
+
+            // หลายไฟล์ — POST ทีละไฟล์, shift+remap, merge
+            const combined = { preview: { pages: [], items: [] }, texts: [], json_text: "" };
+            const errors = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                setStatus(`Processing file ${i+1}/${files.length}: ${file.name}`, "info");
+                const pageOffset = combined.preview.pages.length;
+                const textOffset = combined.texts.length;
+                const data = await _convertOneFile(file);
+                if (!data) { errors.push(file.name); continue; }
+                _mergeFileResult(combined, data, pageOffset, textOffset, file.name);
+            }
+            if (!combined.preview.pages.length) {
+                previewArea.innerHTML = '<div class="empty">All files failed</div>';
+                return;
+            }
+            // json_text รวม — minimal (เฉพาะ texts) + file list
+            combined.json_text = JSON.stringify({
+                _files: files.map(f => f.name),
+                texts: combined.texts,
+            }, null, 2);
+            state.lastResult = combined;
+            output.value = combined.json_text;
+            _populatePages(combined.preview.pages);
+            onAfterConvert?.();
+            const okN = files.length - errors.length;
+            setStatus(
+                errors.length
+                    ? `Converted ${okN}/${files.length} ✓ — failed: ${errors.join(", ")}`
+                    : `Converted ${okN} files ✓`,
+                errors.length ? "info" : "success"
+            );
+            buildCompareTable(true);
+            if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
+        } catch (err) {
+            setStatus("An error occurred: " + err.message, "error");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Convert to JSON";
+        }
+    });
+}

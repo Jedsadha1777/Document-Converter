@@ -251,27 +251,60 @@ TRANSLATE_PROMPTS = {
         "  NEVER write a translation that does not contain the same digits as the input.\n"
         "  This applies to: years, dates, times, prices, percentages, phone numbers, "
         "  measurements, item counts, list numbers, version numbers — every numeric token.\n"
-        "- KATAKANA WORDS (CRITICAL — most common mistake):\n"
-        "  ALL katakana → transliterate by SOUND into Thai script. NEVER translate by meaning.\n"
-        "  This applies to EVERYTHING in katakana: names, brand names, loanwords, foreign words.\n"
-        "  WRONG examples (do NOT do this):\n"
-        "    ブレザー → 'ชุดจับเอว' / 'เสื้อสูท' (translating by meaning — FORBIDDEN)\n"
-        "    タータンチェック → 'ลายสก๊อต' (translating by meaning — FORBIDDEN)\n"
-        "    スカート → 'กระโปรง' (translating by meaning — FORBIDDEN)\n"
-        "    ミノル → 'ผลไม้' (translating name by meaning — FORBIDDEN)\n"
-        "    カメラ → 'กล้อง' (translating loanword — FORBIDDEN)\n"
-        "  RIGHT examples (do this):\n"
-        "    ブレザー → 'เบลเซอร์' (sound)\n"
-        "    タータンチェック → 'ทาร์ทันเช็ค' (sound)\n"
-        "    スカート → 'สเกิร์ต' (sound)\n"
-        "    ミノル → 'มิโนรุ' (sound)\n"
+        "- KATAKANA WORDS — แยกตามประเภท (อ่านให้ละเอียด ก่อนเลือก):\n"
+        "  (A) NAMES (คน/สถานที่/แบรนด์ที่ไม่มีรูปแบบไทยที่นิยม) → transliterate by SOUND.\n"
+        "    ミノル → 'มิโนรุ' (sound) — person name\n"
         "    シロタ → 'ชิโรตะ' (sound)\n"
         "    ヤマダ タロウ → 'ยามาดะ ทาโร่' (sound)\n"
-        "    ヤクลト → 'ยาคูลท์' (established Thai brand form is OK)\n"
-        "  Rule of thumb: katakana looks/reads like a foreign word, so the Thai must also "
-        "  read like that foreign word's sound, never replaced with a native Thai equivalent.\n"
+        "  (B) COMMON LOANWORDS — คำที่มีคำไทยเทียบเคียงใช้แพร่หลาย → ใช้คำไทยที่มีอยู่จริง.\n"
+        "    カメラ → 'กล้อง' (มีคำไทยมาตรฐาน)\n"
+        "    スカート → 'กระโปรง'\n"
+        "    コーヒー → 'กาแฟ'\n"
+        "    テーブル → 'โต๊ะ'\n"
+        "    ベッド → 'เตียง'\n"
+        "    ホテル → 'โรงแรม'\n"
+        "  (C) LOANWORDS ที่ไม่มีคำไทยมาตรฐาน (fashion/tech/foreign concept) → SOUND.\n"
+        "    ブレザー → 'เบลเซอร์'\n"
+        "    タータンチェック → 'ทาร์ทันเช็ค'\n"
+        "    アプリ → 'แอป' (รูปไทยที่นิยม) หรือ 'แอปพลิเคชัน'\n"
+        "  (D) ESTABLISHED THAI BRAND FORM — ใช้ตามรูปที่คนไทยใช้จริง.\n"
+        "    ヤクルト → 'ยาคูลท์'\n"
+        "  DECISION RULE: ถ้านึกคำไทยมาตรฐาน (ใช้ในชีวิตประจำวัน, มี dictionary entry) ออก "
+        "  ใช้คำไทย; ถ้าไม่มี/ไม่ชัด/เป็นชื่อเฉพาะ ใช้ sound.\n"
         "- For Japanese names written in kanji, transliterate the reading INTO THAI script; "
         "  never keep the kanji and never translate the meaning.\n"
+        "- GREETINGS / FIXED EXPRESSIONS (DEFAULT — character voice overrides this entire section)\n"
+        "  ถ้ามี CHARACTER PROFILE ระบุ persona/voice → ตามตัวละครเสมอ (รวมถึง 'ขอบใจ' / 'บาย' / 'ไฮ')\n"
+        "  ถ้าไม่มี persona หรือเป็น neutral → ใช้ default ด้านล่าง\n"
+        "  IMPORTANT: คนไทย**ไม่**พูด 'สวัสดีตอนเช้า/บ่าย/เย็น/ค่ำ' (แปลตรงตัว ไม่ใช้จริง)\n"
+        "  ทุกช่วงเวลาใช้ 'สวัสดี' คำเดียว; 'อรุณสวัสดิ์' / 'ราตรีสวัสดิ์' = formal เท่านั้น\n"
+        "  Japanese → Thai (neutral):\n"
+        "    おはよう / おはよ → 'อรุณสวัสดิ์' (formal) / 'ตื่นแล้วเหรอ' (casual) / 'สวัสดี'\n"
+        "    こんにちは → 'สวัสดี'\n"
+        "    こんばんは → 'สวัสดี' / 'ราตรีสวัสดิ์' (ถ้ากำลังจะนอน)\n"
+        "    おやすみ → 'ราตรีสวัสดิ์' / 'ฝันดี' / 'นอนแล้วนะ'\n"
+        "    ありがとう → 'ขอบคุณ'\n"
+        "    ごめん / すみません → 'ขอโทษ' (หรือ 'ขอตัวก่อน' ถ้าใช้เรียกความสนใจ)\n"
+        "    さようなら → 'ลาก่อน' / 'แล้วเจอกัน'\n"
+        "    いただきます → 'จะกินแล้วนะ' / ตัดออก (ไม่มีสำนวนไทยตรง)\n"
+        "    ごちそうさま → 'อิ่มแล้ว ขอบคุณ'\n"
+        "    はじめまして → 'ยินดีที่ได้รู้จัก'\n"
+        "  English → Thai (เลือกตามโทน):\n"
+        "    Casual (chat/manga/บทสนทนาเพื่อน):\n"
+        "      hi / hello → 'สวัสดี' / 'ไฮ' (ถ้าโทนทับศัพท์ฝรั่ง)\n"
+        "      hey → 'เฮ้' / 'ว่าไง'\n"
+        "      bye → 'ลาก่อน' / 'บ๊ายบาย' (เด็ก/เพื่อน) / 'ไปก่อนนะ'\n"
+        "      thanks → 'ขอบคุณ' (ห้าม 'ขอบใจ' ถ้าไม่มีบริบทอายุ/ความสนิท)\n"
+        "      sorry → 'ขอโทษ'\n"
+        "      ok → 'โอเค'\n"
+        "    Formal (จดหมาย/news/บทสุภาพ):\n"
+        "      good morning → 'อรุณสวัสดิ์' / 'สวัสดี'\n"
+        "      good afternoon / good evening → 'สวัสดี' (NOT 'สวัสดีตอนบ่าย/เย็น')\n"
+        "      good night → 'ราตรีสวัสดิ์' / 'ฝันดี'\n"
+        "      thank you → 'ขอบคุณ'\n"
+        "    FORBIDDEN: 'มอนิ่ง' เดี่ยวๆ (คนไทยไม่พูด — ใช้ 'อรุณสวัสดิ์' หรือ 'สวัสดี' แทน)\n"
+        "  หลัก: รักษา register/โทนของต้นฉบับ — casual ใช้คำทับศัพท์ที่คนไทยใช้จริงได้, "
+        "  formal ใช้คำไทยทางการ ห้ามแปลตรงตัวจน robotic.\n"
         "If the input is already Thai, return it unchanged."
     ),
     "en": (
@@ -444,6 +477,82 @@ TRANSLATE_PROMPTS_BY_PAIR = {
         "- PROPER NOUNS / THAI NAMES: romanize by sound (สมชาย → 'Somchai'). "
         "  Never translate the meaning of a name.\n"
         "If the input is already English, return it unchanged."
+    ),
+    ("ja", "th"): (
+        "Translate the user's text from Japanese to natural Thai (manga/novel style).\n"
+        "Output ONLY the Thai translation. No explanation, no quotes, no preamble.\n"
+        "Keep the meaning faithful. Do not add or omit information.\n"
+        "RULES — STRICTLY FOLLOWED:\n"
+        "- Output MUST be Thai script ONLY.\n"
+        "  Allowed: Thai (ก-๛), Latin letters (A-Z, a-z) for brand names, "
+        "  Arabic digits (0-9), basic punctuation.\n"
+        "  FORBIDDEN in output: hiragana (あいう), katakana (アイウ), kanji (漢字), "
+        "  Chinese characters. If found, rewrite in Thai before responding.\n"
+        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear EXACTLY "
+        "  THE SAME and in the SAME ORDER in the output.\n"
+        "  NEVER convert to Thai numerals (no ๐๑๒๓๔๕๖๗๘๙).\n"
+        "  NEVER convert calendars (令和7年 stays as-is or use Western form if input has it).\n"
+        "  NEVER convert digits to words ('25' stays '25', NOT 'ยี่สิบห้า').\n"
+        "- KATAKANA — แยกตามประเภท ก่อนเลือก:\n"
+        "  (A) NAMES (คน/สถานที่/แบรนด์ไม่มีรูปไทย) → transliterate by SOUND.\n"
+        "    ミノル → 'มิโนรุ', シロタ → 'ชิโรตะ', ヤマダ タロウ → 'ยามาดะ ทาโร่'\n"
+        "  (B) COMMON LOANWORDS มีคำไทยใช้แพร่หลาย → ใช้คำไทย.\n"
+        "    カメラ → 'กล้อง', スカート → 'กระโปรง', コーヒー → 'กาแฟ',\n"
+        "    テーブル → 'โต๊ะ', ベッド → 'เตียง', ホテル → 'โรงแรม'\n"
+        "  (C) LOANWORDS ไม่มีคำไทยมาตรฐาน → SOUND.\n"
+        "    ブレザー → 'เบลเซอร์', タータンチェック → 'ทาร์ทันเช็ค'\n"
+        "  (D) ESTABLISHED THAI BRAND → ใช้รูปที่คนไทยใช้.\n"
+        "    ヤクルト → 'ยาคูลท์'\n"
+        "  DECISION: นึกคำไทยมาตรฐานออก → ใช้คำไทย; ไม่งั้น → sound.\n"
+        "- KANJI NAMES → transliterate the reading INTO THAI script. "
+        "  NEVER keep kanji in output. NEVER translate the meaning of a name.\n"
+        "    山田太郎 (Yamada Tarō) → 'ยามาดะ ทาโร่' (NOT 'ภูเขาข้าวลูกชายโต')\n"
+        "- POLITENESS LEVEL DETECTION (signal หลัก — Japanese ระบุ register ผ่านท้ายประโยค/สรรพนาม):\n"
+        "  ลำดับการตัดสิน voice ของแต่ละประโยค:\n"
+        "  (1) อ่าน SENTENCE ENDING ในต้นฉบับก่อน — เป็น signal ที่ชัดที่สุด:\n"
+        "      でございます / いたします / 申し上げます → 形式 (very formal) → 'ครับ/ค่ะ' + คำสุภาพ ทางการ\n"
+        "      です / ます / ですか / ますね → polite → 'ครับ/ค่ะ' / 'นะคะ/นะครับ'\n"
+        "      だ / だよ / だね / だな → casual neutral → ลงท้าย 'นะ' / ไม่มีท้าย\n"
+        "      ぞ / ぜ / だぜ / だぞ → rough masculine → 'ว่ะ' / ห้วน / ไม่มีท้าย (drop 'ครับ')\n"
+        "      わ / わよ / かしら / だわ → feminine elegant → 'ค่ะ' + ละมุน / 'นะคะ' / 'น่ะ'\n"
+        "      じゃねえ / じゃん / だろ / だろうが → very casual/rough → 'ว่ะ' / 'อะ' / ไม่มีท้าย\n"
+        "      ですわ / ですの (お嬢様 speech) → high-class feminine → 'เพคะ' / 'นะเพคะ'\n"
+        "      でござる / なり (samurai/archaic) → archaic → 'ขอรับ' / 'หรอก'\n"
+        "  (2) อ่าน PRONOUN ในต้นฉบับ — บ่งบอกระดับและ gender:\n"
+        "      わたくし > わたし / 私 → formal → 'ดิฉัน / ผม / ฉัน' (formal)\n"
+        "      あたし → casual feminine → 'ฉัน' (default; 'หนู' เฉพาะถ้า age=child/teen)\n"
+        "      僕 → polite masculine → 'ผม'\n"
+        "      俺 → casual/rough masculine → 'กู' (รุนแรง) / 'ฉัน' (กลาง)\n"
+        "      おまえ / てめえ / きさま → rough 'you' → 'แก' / 'มึง'\n"
+        "      あなた → polite 'you' → 'คุณ'\n"
+        "  (3) อ่าน HONORIFIC PREFIXES (お~ / ご~) — บ่งบอกความ respectful\n"
+        "      お母さん vs 母さん → 'คุณแม่' vs 'แม่'\n"
+        "      ご飯 vs 飯 → 'อาหาร' vs 'ข้าว'\n"
+        "  (4) CHARACTER PROFILE — เสริม/ทับซ้อนถ้าระบุชัด (ดูข้างล่าง)\n"
+        "  (5) FINAL CHECK: อ่านประโยคที่แปลแล้วทั้งประโยค — เป็นไทยที่อ่านเข้าใจ ไม่ฝืน ไม่แปลก?\n"
+        "      ถ้าแปลก/robotic/mix register → แก้ใหม่ก่อนตอบ\n"
+        "- GREETINGS / FIXED EXPRESSIONS (DEFAULT — character voice overrides this entire section)\n"
+        "  ถ้ามี CHARACTER PROFILE ระบุ persona/voice → ตามตัวละครเสมอ (รวมถึง 'ขอบใจ' / 'บาย' / 'ไฮ')\n"
+        "  ถ้าไม่มี persona หรือเป็น neutral → ใช้ default ด้านล่าง\n"
+        "  IMPORTANT: คนไทย**ไม่**พูด 'สวัสดีตอนเช้า/บ่าย/เย็น/ค่ำ' (แปลตรงตัว ไม่ใช้จริง)\n"
+        "  ทุกช่วงเวลาใช้ 'สวัสดี' คำเดียว; 'อรุณสวัสดิ์' / 'ราตรีสวัสดิ์' = formal เท่านั้น\n"
+        "    おはよう / おはよ → 'อรุณสวัสดิ์' (formal) / 'ตื่นแล้วเหรอ' (casual) / 'สวัสดี'\n"
+        "    こんにちは → 'สวัสดี'\n"
+        "    こんばんは → 'สวัสดี' (หรือ 'ราตรีสวัสดิ์' ถ้ากำลังจะนอน)\n"
+        "    おやすみ / おやすみなさい → 'ราตรีสวัสดิ์' / 'ฝันดี' / 'นอนแล้วนะ'\n"
+        "    ありがとう / ありがと / ありがとうございます → 'ขอบคุณ'\n"
+        "    ごめん / ごめんなさい / すみません → 'ขอโทษ' (หรือ 'ขอตัวก่อน' ถ้า すみません ใช้เรียกร้องความสนใจ)\n"
+        "    さようなら → 'ลาก่อน' (formal); じゃあね / またね → 'แล้วเจอกัน' / 'ไว้เจอกัน'\n"
+        "    バイバイ → 'บ๊ายบาย' / 'ไปก่อนนะ' (casual เด็ก/เพื่อน)\n"
+        "    いただきます → 'จะกินแล้วนะ' / ตัดออก (ไม่มีสำนวนไทยตรง)\n"
+        "    ごちそうさま → 'อิ่มแล้ว ขอบคุณ' / 'อร่อยมาก'\n"
+        "    はじめまして → 'ยินดีที่ได้รู้จัก'\n"
+        "    お疲れさま → 'เหนื่อยหน่อยนะ' / 'ขอบคุณที่ทำงาน' (ตามบริบท)\n"
+        "    がんばって → 'สู้ๆ' / 'พยายามนะ'\n"
+        "    やあ (casual hey) → 'ว่าไง' / 'เฮ้'\n"
+        "- PARTICLES / FILLERS (え, あの, えーと, まあ, へえ) — แปลเป็นเสียงไทยที่เทียบเคียง\n"
+        "  ('เอ้อ', 'อืม', 'อ้อ', 'หา?') ห้ามทิ้งฮิรากานะดิบใน output.\n"
+        "If the input is already Thai, return it unchanged."
     ),
 }
 
@@ -841,10 +950,56 @@ def _build_characters_section(characters: list[dict] | None) -> str:
     if not characters:
         return ""
     lines = []
-    lines.append("\n\nCHARACTER PROFILES")
+    lines.append("\n\nCHARACTER PROFILES (HIGHEST PRIORITY)")
     lines.append("Each input line tagged [N|speaker=X] MUST be translated using speaker X's profile.")
     lines.append("Two different speakers MUST produce visibly different translation styles.")
-    lines.append("A line without a speaker tag → neutral voice.")
+    lines.append("A line without a speaker tag → neutral voice (use default style rules).")
+    lines.append("")
+    lines.append("PRECEDENCE: character voice OVERRIDES default greeting/expression patterns above.")
+    lines.append("If a character's persona indicates rough/casual/dialect speech, use their voice")
+    lines.append("(e.g., a rough character may say 'ขอบใจ' / 'บาย' / 'ว่าไง' even when default rules")
+    lines.append("suggest 'ขอบคุณ' / 'ลาก่อน' / 'สวัสดี' — follow the persona, not the default).")
+    lines.append("")
+    lines.append("VOICE INFERENCE — ถ้าไม่มี personality ระบุ ให้อนุมานจาก gender + age + name:")
+    lines.append("")
+    lines.append("⚠ CRITICAL: คนไทยจริงไม่ลงท้ายทุกประโยค — particle ใส่เฉพาะตอนเหมาะสมเท่านั้น")
+    lines.append("  ตัวอย่างประโยคที่ไม่ต้องมี particle (natural Thai):")
+    lines.append("    'ทำอะไรอยู่' / 'ไปไหนมา' / 'อิ่มแล้ว' / 'หิวจัง' / 'ไม่รู้' / 'ไปก่อน'")
+    lines.append("    คำสั่ง/อุทาน/internal thought ไม่ต้องลงท้าย")
+    lines.append("  ใส่ particle เฉพาะ:")
+    lines.append("    - จบประโยคแบบสุภาพ (ตอบ/ถาม คนที่เพิ่งพบ/ผู้ใหญ่/ลูกค้า) → ค่ะ/ครับ")
+    lines.append("    - ขอความเห็นใจ/ทำให้นุ่ม → นะ/นะคะ/นะครับ")
+    lines.append("    - ยืนยัน/เน้นความรู้สึก → จ้ะ/จ๊ะ/ล่ะ")
+    lines.append("  คงไว้ตามต้นฉบับ: ถ้า JP source ไม่มีท้าย (だ/ตัดเปล่า) → TH ก็ไม่ต้องเติม")
+    lines.append("                ถ้า JP มี ですね/ますね → TH ค่อยใส่ นะคะ/นะครับ")
+    lines.append("")
+    lines.append("GENDER → particle ลงท้ายประโยค (เมื่อเหมาะสมเท่านั้น ไม่ใช่ทุก line):")
+    lines.append("  female → 'ค่ะ' (polite) / 'นะคะ' / 'จ้ะ' (casual)")
+    lines.append("  male   → 'ครับ' (polite) / 'นะ' (casual) / ไม่มีท้าย")
+    lines.append("  other/unspecified → neutral ตาม context")
+    lines.append("")
+    lines.append("AGE RANGE → สรรพนามแทนตัวเอง + เรียกคนอื่น (อ้างอิงระบบไทย 5 ช่วง):")
+    lines.append("  age=child (0-12): self = 'หนู' / 'ผม' / ชื่อเล่น; เรียกคนอื่น = 'พี่' / 'ลุง/ป้า/น้า/อา'")
+    lines.append("  age=teen (13-22): self = 'เรา' / 'เค้า' / 'ผม' / ชื่อเล่น; 'หนู' เฉพาะคนสนิท/ผู้ใหญ่บ้าน")
+    lines.append("    เรียกคนอื่น = 'พี่' / 'เพื่อน' / 'แก' / 'ตัวเอง'")
+    lines.append("  age=adult (23-39): self = 'ผม' (M) / 'ดิฉัน' (formal F) / 'ฉัน' / 'เรา' / 'พี่' (กับคนเด็กกว่า)")
+    lines.append("    เรียกคนอื่น = 'คุณ' / 'พี่' / 'น้อง'")
+    lines.append("  age=middle (40-59): self = 'น้า' / 'อา' / 'ลุง' (M) / 'ป้า' (F) / 'พี่' (เป็นกันเอง)")
+    lines.append("    เรียกคนอื่น = 'ลูก' / 'หลาน' / 'น้อง' / 'คุณ'")
+    lines.append("  age=senior (60+): self = 'ตา' / 'ปู่' (M) / 'ยาย' / 'ย่า' (F) / 'ลุง' / 'ป้า'")
+    lines.append("    เรียกคนอื่น = 'ลูก' / 'หลาน' / 'หนู'")
+    lines.append("  age=unspecified: default safe = 'ฉัน' (F) / 'ผม' (M)")
+    lines.append("")
+    lines.append("WARNINGS — สรรพนามที่เลือกผิดบ่อย:")
+    lines.append("  'หนู' = เด็ก/วัยรุ่นเท่านั้น — ห้ามใช้กับ adult/middle/senior")
+    lines.append("  'ป้า/ยาย/ลุง/ตา' = middle/senior เท่านั้น — ห้ามใช้กับ child/teen/adult")
+    lines.append("  Persona override: ถ้า persona ระบุ 'พระสงฆ์' → 'อาตมา'; 'ราชา/ขุนนาง' → 'ข้า/เรา'; 'ยากุซ่า' → 'กู'")
+    lines.append("")
+    lines.append("NAME hint เสริม: 'พระ' = พระสงฆ์ + 'อาตมา'; 'ป้า/ยาย/ลุง/ปู่' prefix = senior;")
+    lines.append("  'น้อง' prefix = teen; ชื่อโบราณ/ขุนนาง = formal + 'ข้า/เรา'")
+    lines.append("")
+    lines.append("CONSISTENCY: ห้ามใช้ 'ค่ะ/ครับ' ปนกันในตัวละครเดียว เลือกตาม gender ตลอด.")
+    lines.append("Two characters with different gender MUST sound different.")
     lines.append("")
     for c in characters:
         cid = c.get("id", "")
@@ -852,14 +1007,20 @@ def _build_characters_section(characters: list[dict] | None) -> str:
             continue
         name = (c.get("name") or "").strip()
         gender = (c.get("gender") or "").strip()
+        age = (c.get("age") or "").strip()
         persona = (c.get("persona") or "").strip()
         lines.append(f"speaker={cid}:")
         if name:
             lines.append(f"   name: {name}")
         if gender:
             lines.append(f"   gender: {gender}")
+        if age:
+            lines.append(f"   age: {age}")
         if persona:
             lines.append(f"   personality: {persona}")
+        else:
+            hint = f"gender '{gender or 'unspecified'}', age '{age or 'unspecified'}', name '{name or '(no name)'}'"
+            lines.append(f"   personality: (not specified — infer from {hint})")
         lines.append("")
     return "\n".join(lines)
 
@@ -912,10 +1073,16 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
     rules_section = ""
     if custom_rules and custom_rules.strip():
         rules_section = (
-            "\n\nADDITIONAL TRANSLATION RULES (project-specific — follow these):\n"
+            "\n\n═══ PROJECT-SPECIFIC RULES (ABSOLUTE OVERRIDE — HIGHEST PRIORITY) ═══\n"
+            "These user-defined rules win over ALL defaults above (script rules, greeting\n"
+            "patterns, character voice inference). If anything conflicts, follow THESE rules.\n"
+            "This is the project's atmosphere/style — keep it intact.\n"
+            "─────────────────────────────────────────────────────────\n"
             + custom_rules.strip() + "\n"
+            "─────────────────────────────────────────────────────────\n"
         )
-    return base_prompt + rules_section + chars_section + schema_instruction + factual
+    # ลำดับ: base (script/grammar defaults) → chars (voice) → rules (project override) → schema
+    return base_prompt + chars_section + rules_section + schema_instruction + factual
 
 
 def _post_process_batch(texts: list[str], parsed: list[str | None],

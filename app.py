@@ -1,4 +1,5 @@
 """Flask routes — thin orchestration over pipelines / correct / translate"""
+import gc
 import json
 import tempfile
 from pathlib import Path
@@ -60,17 +61,50 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.jinja_env.auto_reload = True
 
 
-def _ram_guard(min_gb: float = MIN_FREE_RAM_GB) -> tuple[bool, float]:
-    """Return (ok, available_gb). docling/easyocr peak ~2-3 GB — ถ้า RAM น้อยกว่านี้
-    เสี่ยงโดน OS kill (Windows commit charge / Linux OOM killer) ขณะ run pipeline
-    ซึ่ง Python ไม่ทัน raise exception → Flask ตายเงียบ"""
+def _ram_guard(min_gb: float | None = None) -> tuple[bool, float]:
+    """Return (ok, available_gb).
+    - Cold (ยังไม่เคยโหลด converter): ต้องการ ~MIN_FREE_RAM_GB (3 GB) — model loading peak
+    - Warm (มี converter cache แล้ว): ต้องการ ~1 GB — เฉพาะ image OCR working set
+      เหตุผล: Python ไม่คืน RAM ของ model ให้ OS หลัง 1st call แม้ gc.collect()
+      → psutil.available ไม่ขยับ → batch ไฟล์ที่ 2+ ติด guard แม้ตัว OCR เองใช้ RAM น้อย
+    """
+    if min_gb is None:
+        from pipelines import _converter_cache
+        min_gb = 1.0 if _converter_cache else MIN_FREE_RAM_GB
     avail_gb = psutil.virtual_memory().available / (1024 ** 3)
     return (avail_gb >= min_gb, round(avail_gb, 2))
+
+
+def _free_memory():
+    """บังคับ gc + เคลียร์ tensor cache ของ PyTorch — เรียกหลัง OCR เพื่อกัน RAM ค้าง
+    ระหว่าง batch (EasyOCR/PyTorch ไม่ปล่อย MPS/CUDA buffers เอง)"""
+    gc.collect()
+    try:
+        import torch
+        # MPS (Apple Silicon) มี empty_cache แล้วตั้งแต่ PyTorch 2.0
+        if hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+            try:
+                if torch.backends.mps.is_available():
+                    torch.mps.empty_cache()
+            except Exception:
+                pass
+        if hasattr(torch, "cuda") and torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
 
 
 print("[docling] pre-warming converter (kind=all, lang=auto, engine=easyocr)...", flush=True)
 get_converter("all", "auto", "easyocr")
 print(f"[docling] ready — ocrmac available: {OCRMAC_AVAILABLE}", flush=True)
+
+
+@app.after_request
+def _release_ram_after_ocr(response):
+    """หลัง /convert จบ → บังคับคืน RAM กัน batch OCR ติด RAM guard ที่ไฟล์ถัดไป"""
+    if request.endpoint == "convert":
+        _free_memory()
+    return response
 
 
 @app.route("/")
@@ -388,13 +422,15 @@ def tm_suggest():
 
 @app.route("/convert", methods=["POST"])
 def convert():
+    from pipelines import _converter_cache as _cc
+    required = 1.0 if _cc else MIN_FREE_RAM_GB
     ok, avail = _ram_guard()
     if not ok:
         return jsonify({
             "error": f"Not enough free RAM to start OCR — {avail} GB available, "
-                     f"need ≥{MIN_FREE_RAM_GB} GB. Close other apps/tabs and retry.",
+                     f"need ≥{required} GB. Close other apps/tabs and retry.",
             "available_gb": avail,
-            "required_gb": MIN_FREE_RAM_GB,
+            "required_gb": required,
         }), 503
     if "file" not in request.files:
         return jsonify({"error": "no uploaded file found"}), 400
