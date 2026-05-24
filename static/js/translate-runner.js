@@ -77,6 +77,7 @@ async function translateBatchCall(texts, target, engine, customRules, attempt, s
             speakers: speakerArr,
             characters: getCharacters(),
             ids: ids || null,
+            content_type: runDom.contentTypeSel?.value || "dialogue",
         }),
     });
     const ct = res.headers.get("content-type") || "";

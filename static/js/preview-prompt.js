@@ -182,6 +182,7 @@ async function applyManualResponse() {
                 raw_response: raw,
                 id_start: _previewSource.id_start || 1,
                 ids: _previewSource.ids || null,
+                content_type: runDom.contentTypeSel?.value || "dialogue",
             }),
         });
         const ct = res.headers.get("content-type") || "";
@@ -307,6 +308,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
                 speakers: speakerArr,
                 characters: getCharacters(),
                 id_start, ids: idsArr,
+                content_type: runDom.contentTypeSel?.value || "dialogue",
             }),
         });
         const data = await res.json();
@@ -369,6 +371,7 @@ async function copyPromptOneClick() {
                 speakers: speakerArr,
                 characters: getCharacters(),
                 id_start: 1, ids: idsArr,
+                content_type: runDom.contentTypeSel?.value || "dialogue",
             }),
         });
         const data = await res.json();
@@ -425,6 +428,7 @@ async function pastePromptOneClick() {
                 characters: getCharacters(),
                 raw_response: raw,
                 id_start: 1, ids: idsArr,
+                content_type: runDom.contentTypeSel?.value || "dialogue",
             }),
         });
         const ct = res.headers.get("content-type") || "";

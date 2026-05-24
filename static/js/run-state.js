@@ -24,6 +24,7 @@ export const runDom = {
     retryFailedBtn:    document.getElementById("retryFailedBtn"),
     translateEngineSel:document.getElementById("translateEngine"),
     translateTargetSel:document.getElementById("translateTarget"),
+    contentTypeSel:    document.getElementById("contentType"),
     batchSizeInput:    document.getElementById("batchSize"),
     batchSizeLabel:    document.getElementById("batchSizeLabel"),
     customRulesEl:     document.getElementById("customRules"),

@@ -114,6 +114,16 @@
         <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
             <summary style="cursor:pointer; font-size:13px; color:#374151;"><span class="material-symbols-outlined">edit_note</span>Additional translation rules (optional)</summary>
             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
+                <strong>Type:</strong>
+                <select id="contentType" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;"
+                        title="Content type ─ ปรับ prompt style + TM domain filter ตามชนิดเอกสาร">
+                    <option value="dialogue">📖 Dialogue (manga/novel)</option>
+                    <option value="prose">📜 Prose (narration/literary)</option>
+                    <option value="tutorial">📘 Tutorial (how-to)</option>
+                    <option value="ui">🖥 UI labels</option>
+                    <option value="auto">⚙ Auto</option>
+                </select>
+                <span style="color:#d1d5db; padding:0 4px;">│</span>
                 <strong>TM:</strong>
                 <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
                     <option value="jp-th">jp-th</option>
@@ -279,6 +289,7 @@ const langSelect = document.getElementById("lang");
 const translateTargetSelectEl = document.getElementById("translateTarget");
 const translateEngineSelectEl = document.getElementById("translateEngine");
 const tmPairSelectEl = document.getElementById("tmPair");
+const contentTypeSelectEl = document.getElementById("contentType");
 
 function _setSelectIfOption(selectEl, value) {
     if (!selectEl || !value) return;
@@ -295,6 +306,7 @@ function _loadConvertPrefs() {
         _setSelectIfOption(translateTargetSelectEl, p.translate_target);
         _setSelectIfOption(translateEngineSelectEl, p.translate_engine);
         _setSelectIfOption(tmPairSelectEl, p.tm_pair);
+        _setSelectIfOption(contentTypeSelectEl, p.content_type);
         if (typeof p.fast === "boolean") fastCheckbox.checked = p.fast;
     } catch (_) {}
 }
@@ -306,13 +318,14 @@ function _saveConvertPrefs() {
             translate_target: translateTargetSelectEl?.value || null,
             translate_engine: translateEngineSelectEl?.value || null,
             tm_pair: tmPairSelectEl?.value || null,
+            content_type: contentTypeSelectEl?.value || null,
             fast: fastCheckbox.checked,
         }));
     } catch (_) {}
 }
 _loadConvertPrefs();
 [langSelect, ocrEngineSelect, fastCheckbox,
- translateTargetSelectEl, translateEngineSelectEl, tmPairSelectEl].forEach(el =>
+ translateTargetSelectEl, translateEngineSelectEl, tmPairSelectEl, contentTypeSelectEl].forEach(el =>
     el && el.addEventListener("change", _saveConvertPrefs)
 );
 

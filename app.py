@@ -227,6 +227,7 @@ def translate_batch_preview():
     target = payload.get("target", "th")
     engine = payload.get("engine", "qwen")
     custom_rules = payload.get("custom_rules")
+    content_type = (payload.get("content_type") or "").strip() or None
     speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
     characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
     id_start = int(payload.get("id_start", 1) or 1)
@@ -268,7 +269,8 @@ def translate_batch_preview():
 
     user_msg, _ = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, eff_chars,
-                                               id_start=id_start, ids=ids, texts=texts)
+                                               id_start=id_start, ids=ids, texts=texts,
+                                               content_type=content_type)
 
     speakers_used = sorted(set(s for s in sp_list if s and s != SPEAKER_SKIP))
     attempt = int(payload.get("attempt", 0) or 0)
@@ -362,6 +364,7 @@ def translate_batch_endpoint():
         target = payload.get("target", "th")
         engine = payload.get("engine", "qwen")
         custom_rules = payload.get("custom_rules")
+        content_type = (payload.get("content_type") or "").strip() or None
         attempt = int(payload.get("attempt", 0) or 0)
         id_start = int(payload.get("id_start", 1) or 1)
         ids_payload = payload.get("ids") if isinstance(payload.get("ids"), list) else None
@@ -381,6 +384,7 @@ def translate_batch_endpoint():
             custom_rules=custom_rules, attempt=attempt,
             speakers=speakers, characters=characters,
             id_start=id_start, ids=ids_arg,
+            content_type=content_type,
         )
         return jsonify({
             "translated": translations,
@@ -415,6 +419,7 @@ def tm_suggest():
     top_k_per_query = int(payload.get("top_k_per_query") or 0) or None
     final_k = int(payload.get("final_k") or 0) or None
     auto_build = bool(payload.get("auto_build", True))
+    domain_filter = payload.get("domain_filter") if isinstance(payload.get("domain_filter"), list) else None
     if not isinstance(texts, list) or not texts:
         return jsonify({"error": "texts must be a non-empty list"}), 400
     kwargs = {"pair": pair, "auto_build": auto_build}
@@ -422,6 +427,8 @@ def tm_suggest():
         kwargs["top_k_per_query"] = top_k_per_query
     if final_k:
         kwargs["final_k"] = final_k
+    if domain_filter:
+        kwargs["domain_filter"] = domain_filter
     try:
         return jsonify(tm.suggest([str(t) for t in texts], **kwargs))
     except Exception as exc:

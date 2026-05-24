@@ -29,6 +29,7 @@ from config import (
 _INDEX_FILENAME = "_index.faiss"
 _META_FILENAME = "_meta.jsonl"
 _MANIFEST_FILENAME = "_manifest.json"
+_VECTORS_FILENAME = "_vectors.npy"   # raw vectors → ใช้ incremental rebuild (เก็บ vectors เก่าไว้)
 
 
 def _pair_folder(pair: str) -> Path:
@@ -61,11 +62,30 @@ def _file_hash(path: Path) -> str:
     return h.hexdigest()
 
 
+def _infer_domain(filename: str) -> str:
+    """Map filename → domain tag. ใช้ตอน build index และตอน TM filter retrieval.
+    Keywords match (case-insensitive) — file ตั้งชื่อต่อสไตล์ self-describing → domain ออกเอง:
+      slang_*, manga_*, *_manga    → 'manga'
+      tech_*, ui_*, *_ui           → 'tech'
+      narration_*, prose_*         → 'prose'
+      opensubtitles*, *subtitle*   → 'dialogue'
+      อื่น ๆ (เช่น tatoeba)         → 'general'
+    Entry ที่ใส่ `domain` field ใน jsonl override ค่าจาก filename."""
+    n = filename.lower()
+    if "slang" in n or "manga" in n:           return "manga"
+    if "tech" in n or "_ui" in n or n.startswith("ui_") or n == "ui.jsonl": return "tech"
+    if "narration" in n or "prose" in n:       return "prose"
+    if "subtitle" in n:                        return "dialogue"
+    return "general"
+
+
 def _load_jsonl_rows(files: list[Path]) -> list[dict]:
-    """Read every .jsonl file → flat list of {tu_id, source_file, source, target}.
-    Skip rows missing `source` or with empty/whitespace source."""
+    """Read every .jsonl file → flat list of {tu_id, source_file, source, target, domain}.
+    Skip rows missing `source` or with empty/whitespace source.
+    domain = entry's "domain" field if present, else inferred from filename."""
     out: list[dict] = []
     for fp in files:
+        file_domain = _infer_domain(fp.name)
         with fp.open("r", encoding="utf-8") as f:
             for ln_no, line in enumerate(f, 1):
                 line = line.strip()
@@ -84,6 +104,7 @@ def _load_jsonl_rows(files: list[Path]) -> list[dict]:
                     "source_file": fp.name,
                     "source": src,
                     "target": (obj.get("target") or "").strip(),
+                    "domain": (obj.get("domain") or "").strip() or file_domain,
                 })
     return out
 
@@ -161,32 +182,17 @@ def needs_rebuild(pair: str, model: str = OLLAMA_MODEL_EMBED) -> tuple[bool, str
     return False, "up to date"
 
 
-def build_index(pair: str, model: str = OLLAMA_MODEL_EMBED) -> dict:
-    """Embed all rows → save Faiss IndexFlatIP + meta jsonl + manifest. Returns stats."""
-    folder = _pair_folder(pair)
-    if not folder.exists():
-        raise FileNotFoundError(f"TM folder not found: {folder}")
-    files = _list_source_files(pair)
-    if not files:
-        raise FileNotFoundError(f"no .jsonl files in {folder}")
-
-    rows = _load_jsonl_rows(files)
-    if not rows:
-        raise ValueError(f"no usable rows in {folder} (all sources empty?)")
-
-    sources = [r["source"] for r in rows]
-    print(f"[tm] building index pair={pair} model={model} rows={len(sources)}", flush=True)
-    vecs = _embed_many(sources, model)
+def _write_index_artifacts(folder: Path, pair: str, model: str,
+                            rows: list[dict], vecs: np.ndarray) -> dict:
+    """Write Faiss + meta + vectors + manifest. Shared by full / incremental build."""
     dim = int(vecs.shape[1])
-
     index = faiss.IndexFlatIP(dim)
     index.add(vecs)
     faiss.write_index(index, str(folder / _INDEX_FILENAME))
-
+    np.save(folder / _VECTORS_FILENAME, vecs)
     with (folder / _META_FILENAME).open("w", encoding="utf-8") as f:
         for i, row in enumerate(rows):
             f.write(json.dumps({"row": i, **row}, ensure_ascii=False) + "\n")
-
     manifest = {
         "pair": pair,
         "model": model,
@@ -196,7 +202,108 @@ def build_index(pair: str, model: str = OLLAMA_MODEL_EMBED) -> dict:
     }
     _manifest_path(pair).write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[tm] built - n_rows={len(rows)} dim={dim}", flush=True)
+    return manifest
+
+
+def build_index(pair: str, model: str = OLLAMA_MODEL_EMBED,
+                 force_full: bool = False) -> dict:
+    """Embed all rows → save Faiss IndexFlatIP + meta jsonl + manifest. Returns stats.
+
+    INCREMENTAL mode (default) — ถ้า _vectors.npy + meta + manifest มีอยู่ + model เดียวกัน:
+      สำหรับ file ที่ hash ไม่เปลี่ยน → keep vectors เก่า, ไม่ embed ใหม่
+      สำหรับ file ที่เปลี่ยน/เพิ่ม → embed เฉพาะ rows ในนั้น
+      สำหรับ file ที่หาย → drop rows ทิ้ง
+    force_full=True → ignore incremental, rebuild ทั้งหมด."""
+    folder = _pair_folder(pair)
+    if not folder.exists():
+        raise FileNotFoundError(f"TM folder not found: {folder}")
+    files = _list_source_files(pair)
+    if not files:
+        raise FileNotFoundError(f"no .jsonl files in {folder}")
+
+    # ── try incremental first ──
+    if not force_full:
+        try:
+            incremental = _try_incremental_build(folder, files, pair, model)
+            if incremental is not None:
+                return incremental
+        except Exception as exc:
+            print(f"[tm] incremental build failed ({exc}) — falling back to full", flush=True)
+
+    # ── full rebuild ──
+    rows = _load_jsonl_rows(files)
+    if not rows:
+        raise ValueError(f"no usable rows in {folder} (all sources empty?)")
+    sources = [r["source"] for r in rows]
+    print(f"[tm] FULL build pair={pair} model={model} rows={len(sources)}", flush=True)
+    vecs = _embed_many(sources, model)
+    manifest = _write_index_artifacts(folder, pair, model, rows, vecs)
+    print(f"[tm] built - n_rows={len(rows)} dim={int(vecs.shape[1])}", flush=True)
+    return manifest
+
+
+def _try_incremental_build(folder: Path, files: list[Path], pair: str,
+                            model: str) -> dict | None:
+    """Try to keep existing vectors for unchanged files, embed only new/changed files.
+    Returns manifest if successful, None if not possible (missing artifacts / model mismatch)."""
+    meta_path = folder / _META_FILENAME
+    manifest_path = folder / _MANIFEST_FILENAME
+    vec_path = folder / _VECTORS_FILENAME
+    if not (meta_path.exists() and manifest_path.exists() and vec_path.exists()):
+        return None   # no prior build artifacts — must full build
+
+    old_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if old_manifest.get("model") != model:
+        return None   # model changed → vectors incompatible, must re-embed all
+
+    old_meta = [json.loads(ln) for ln in meta_path.open(encoding="utf-8") if ln.strip()]
+    old_vecs = np.load(vec_path)
+    if len(old_meta) != old_vecs.shape[0]:
+        return None   # corrupted — full rebuild
+
+    old_hashes: dict[str, str] = old_manifest.get("file_hashes", {})
+    current_hashes = {fp.name: _file_hash(fp) for fp in files}
+
+    unchanged = {n for n in current_hashes if old_hashes.get(n) == current_hashes[n]}
+    changed_or_new = set(current_hashes) - unchanged
+    deleted = set(old_hashes) - set(current_hashes)
+
+    if not changed_or_new and not deleted:
+        print(f"[tm] no file changes for pair={pair} — skip rebuild", flush=True)
+        return old_manifest
+
+    print(f"[tm] INCREMENTAL pair={pair}: unchanged={len(unchanged)} "
+          f"changed/new={len(changed_or_new)} deleted={len(deleted)}", flush=True)
+
+    # keep rows from unchanged files
+    keep_indices = [i for i, m in enumerate(old_meta)
+                    if m.get("source_file") in unchanged]
+    kept_rows = [old_meta[i] for i in keep_indices]
+    # strip "row" field (will be re-assigned in writer)
+    kept_rows = [{k: v for k, v in r.items() if k != "row"} for r in kept_rows]
+    kept_vecs = old_vecs[keep_indices] if keep_indices else np.zeros((0, old_vecs.shape[1]),
+                                                                       dtype=old_vecs.dtype)
+
+    # load + embed rows from changed/new files only
+    changed_files = [fp for fp in files if fp.name in changed_or_new]
+    new_rows = _load_jsonl_rows(changed_files) if changed_files else []
+    new_sources = [r["source"] for r in new_rows]
+    if new_sources:
+        print(f"[tm] embedding {len(new_sources)} new/changed rows "
+              f"(from {len(changed_files)} files)", flush=True)
+        new_vecs = _embed_many(new_sources, model)
+    else:
+        new_vecs = np.zeros((0, old_vecs.shape[1]), dtype=old_vecs.dtype)
+
+    all_rows = kept_rows + new_rows
+    all_vecs = np.vstack([kept_vecs, new_vecs]) if new_sources else kept_vecs
+
+    if not all_rows:
+        raise ValueError(f"incremental result is empty — refuse to write")
+
+    manifest = _write_index_artifacts(folder, pair, model, all_rows, all_vecs)
+    print(f"[tm] incremental done - n_rows={len(all_rows)} kept={len(kept_rows)} "
+          f"added={len(new_rows)}", flush=True)
     return manifest
 
 
@@ -350,7 +457,8 @@ def suggest(texts: list[str], pair: str = "en-vn",
             final_k: int = TM_FINAL_K,
             bonus_alpha: float = TM_BONUS_ALPHA,
             auto_build: bool = True,
-            model: str = OLLAMA_MODEL_EMBED) -> dict:
+            model: str = OLLAMA_MODEL_EMBED,
+            domain_filter: list[str] | None = None) -> dict:
     """Embed each non-empty input text → faiss top-K per query → aggregate → top final_k rows.
     Returns {rules_text, hits, stats}. Auto-builds index if hashes changed (unless disabled)."""
     queries = [t for t in (texts or []) if t and t.strip()]
@@ -366,6 +474,16 @@ def suggest(texts: list[str], pair: str = "en-vn",
 
     index, meta, manifest = load_index(pair)
     src_tokens_cache = _get_source_tokens(pair, meta)
+
+    # domain filter — restrict pool ก่อน scoring (เร็วกว่า filter ทีหลัง + ตัดประเด็น false-positive cosine)
+    # None / empty → ไม่ filter (เอาทุก domain — backward compat)
+    allowed_rows: set[int] | None = None
+    if domain_filter:
+        allowed_set = set(domain_filter)
+        allowed_rows = {i for i, m in enumerate(meta) if (m.get("domain") or "general") in allowed_set}
+        if not allowed_rows:
+            return {"rules_text": "", "hits": [], "stats": {"reason": f"no rows match domain filter {domain_filter}",
+                                                              "n_index_rows": len(meta)}}
 
     q_vecs = _embed_many(queries, model)
     if q_vecs.shape[1] != manifest.get("dim"):
@@ -383,6 +501,8 @@ def suggest(texts: list[str], pair: str = "en-vn",
             row = int(ids[qi][j])
             if row < 0 or row in seen_in_q:
                 continue
+            if allowed_rows is not None and row not in allowed_rows:
+                continue
             seen_in_q.add(row)
             cos_per_row.setdefault(row, []).append(float(scores[qi][j]))
 
@@ -398,6 +518,8 @@ def suggest(texts: list[str], pair: str = "en-vn",
     lex_per_row: dict[int, tuple[float, int]] = {}
     for row, st in enumerate(src_tokens_cache):
         if not st:
+            continue
+        if allowed_rows is not None and row not in allowed_rows:
             continue
         # Fast reject: no source token appears anywhere in any query → skip
         if not (st & all_query_tokens):

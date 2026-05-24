@@ -47,6 +47,15 @@ function _replaceTmBlock(textarea, tmText) {
     }
 }
 
+// map content_type → list of TM domain ที่ควรค้น (ทุก type fallback ที่ "general" — Tatoeba ทั่วไปใช้ได้กับทุก content)
+const DOMAIN_FILTER_BY_TYPE = {
+    "dialogue": ["manga", "dialogue", "general"],
+    "prose":    ["prose", "general"],
+    "tutorial": ["tech", "general"],
+    "ui":       ["tech"],
+    "auto":     null,   // ไม่ filter — ใช้ทุก domain
+};
+
 async function tmSuggest() {
     const sources = _collectSources();
     if (!sources.length) {
@@ -56,14 +65,19 @@ async function tmSuggest() {
     }
     const pair = tmPairSel.value || "en-vn";
     const finalK = parseInt(tmFinalKEl.value, 10) || 20;
+    const contentType = runDom.contentTypeSel?.value || "dialogue";
+    const domainFilter = DOMAIN_FILTER_BY_TYPE[contentType] || null;
     tmSuggestBtn.disabled = true;
     tmStatusEl.style.color = COLORS.textMuted;
-    tmStatusEl.textContent = `embedding ${sources.length} queries…`;
+    tmStatusEl.textContent = `embedding ${sources.length} queries (${contentType})…`;
     try {
         const res = await fetch("/tm/suggest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ texts: sources, pair, final_k: finalK, auto_build: true }),
+            body: JSON.stringify({
+                texts: sources, pair, final_k: finalK, auto_build: true,
+                domain_filter: domainFilter,
+            }),
         });
         const ct = res.headers.get("content-type") || "";
         if (!ct.includes("application/json")) {

@@ -479,7 +479,7 @@ TRANSLATE_PROMPTS_BY_PAIR = {
         "If the input is already English, return it unchanged."
     ),
     ("ja", "th"): (
-        "Translate the user's text from Japanese to natural Thai (manga/novel style).\n"
+        "Translate the user's text from Japanese to natural Thai.\n"
         "Output ONLY the Thai translation. No explanation, no quotes, no preamble.\n"
         "Keep the meaning faithful. Do not add or omit information.\n"
         "RULES — STRICTLY FOLLOWED:\n"
@@ -596,6 +596,54 @@ def _resolve_prompt(source: str | None, target: str) -> str:
     return TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
 
 
+# ── content-type style overlays — layer บน pair prompt ──
+# แต่ละ type override บางมิติ (tone, particle policy, vocabulary) — base + chars + style + rules + schema
+# เลือกผ่าน content_type payload (default: "dialogue" สำหรับ backward compat กับ manga/novel)
+TRANSLATE_STYLE_PROMPTS = {
+    "dialogue": (
+        "\n\n═══ CONTENT TYPE: DIALOGUE (manga/novel/conversation) ═══\n"
+        "- Conversational register — character voice ตาม profile (gender/age/persona)\n"
+        "- Sentence-ending particles (ค่ะ/ครับ/นะ/จ้ะ) ใช้ตามเงื่อนไข PARTICLE PARITY ด้านบน\n"
+        "- คงสำนวน manga (อุทาน, fragment, expression) — ไม่ทำให้เป็นทางการเกินไป\n"
+    ),
+    "prose": (
+        "\n\n═══ CONTENT TYPE: PROSE (narration/literary/expository) ═══\n"
+        "- บรรยายเหตุการณ์/ฉาก/ความคิด — NOT direct speech\n"
+        "- ⚠ NO sentence-ending particles (ค่ะ/ครับ/นะ/จ้ะ) ห้ามใส่เลย แม้ profile มี gender\n"
+        "- ใช้ literary register: 'เขา/เธอ/พวกเขา' — ไม่ใช้ 'ผม/ฉัน' (เพราะเป็นบรรยาย)\n"
+        "- verb form ปกติ ไม่มี polite suffix\n"
+        "  '彼は走った' → 'เขาวิ่ง' (ไม่ใช่ 'เขาวิ่งครับ')\n"
+        "  '部屋は静かだった' → 'ห้องเงียบสงบ' (ไม่ใช่ 'ห้องเงียบสงบนะ')\n"
+    ),
+    "tutorial": (
+        "\n\n═══ CONTENT TYPE: TUTORIAL (instructional/how-to) ═══\n"
+        "- Imperative voice — direct command\n"
+        "- ใช้ verb stem: 'คลิก', 'เลือก', 'กด', 'พิมพ์', 'บันทึก'\n"
+        "- ⚠ NO casual particles (ค่ะ/ครับ/นะ) — ถ้า formal user manual ใช้ 'ให้...', 'ควร...'\n"
+        "- คงคำศัพท์เทคนิคเป็น English/Thai loanword ตาม convention (ดูใน glossary)\n"
+        "    'ボタンをクリック' → 'คลิกปุ่ม' (ไม่ใช่ 'คลิกปุ่มนะคะ')\n"
+        "    'ファイルを保存' → 'บันทึกไฟล์'\n"
+    ),
+    "ui": (
+        "\n\n═══ CONTENT TYPE: UI LABELS (software/website button labels) ═══\n"
+        "- ข้อความ UI สั้น กระชับ ไม่มีคำพูด ไม่มีประธาน\n"
+        "- ⚠ NO particles, NO verb endings — เป็น noun phrase หรือ imperative ตรง\n"
+        "- คงคำว่าเป็น English ถ้าเป็น mainstream term ('Login' / 'Save' OK; แปลทำได้แต่ short)\n"
+        "    'ログイン' → 'เข้าสู่ระบบ' / 'Login'  (ไม่ใช่ 'เข้าสู่ระบบนะคะ')\n"
+        "    '保存' → 'บันทึก' (ไม่ใช่ 'บันทึกค่ะ')\n"
+        "    'キャンセル' → 'ยกเลิก'\n"
+    ),
+    "auto": "",  # ไม่ใส่ style block — ปล่อยให้ pair prompt + custom rules ตัดสิน
+}
+
+
+def _resolve_style_block(content_type: str | None) -> str:
+    """Map content_type → style overlay block. None/unknown → empty (default = pair prompt)."""
+    if not content_type:
+        return ""
+    return TRANSLATE_STYLE_PROMPTS.get(content_type, "")
+
+
 def _call_ollama_translate(text: str, system_prompt: str, timeout: float = 60.0) -> str:
     resp = httpx.post(
         f"{OLLAMA_URL}/api/chat",
@@ -625,8 +673,17 @@ def translate_text(text: str, target: str = "th",
     text_protected, mapping = _protect_segments(text)
     source = _detect_source_language(text)
     prompt = _resolve_prompt(source, target)
+    # PROTECTED TOKENS — บังคับ LLM รักษา X9990X placeholder (URL/HTML/email mask)
+    # ใส่เฉพาะตอนมี placeholder จริง (กัน prompt บวมเมื่อไม่จำเป็น)
+    protected_hint = ""
+    if mapping:
+        protected_hint = (
+            "\n\nPROTECTED TOKENS: tokens like X9990X / X9991X (uppercase X + 4 digits + uppercase X) "
+            "are placeholders for URL/HTML/email/code. Copy them VERBATIM in the output — "
+            "do not translate, drop, or add spaces inside them. All input tokens must appear in output."
+        )
     # factual hint — ลด safety refusal กับ medical/anatomical text
-    prompt_factual = prompt + (
+    prompt_factual = prompt + protected_hint + (
         "\n\nIMPORTANT: This is a factual document (educational, medical, technical, or "
         "informational). Translate every input directly and faithfully without commentary, "
         "disclaimers, content warnings, or refusals. If the text contains medical, "
@@ -1060,11 +1117,30 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
                                id_start: int = 1,
                                ids: list[int] | None = None,
                                texts: list[str] | None = None,
-                               source: str | None = None) -> str:
+                               source: str | None = None,
+                               content_type: str | None = None) -> str:
     if source is None and texts is not None:
         source = _detect_source_language(texts)
     base_prompt = _resolve_prompt(source, target)
     chars_section = _build_characters_section(characters)
+    style_block = _resolve_style_block(content_type)
+    # narration rule — per-line auto-rule based on speaker tag absence.
+    # ใส่เฉพาะ content_type ที่มี dialogue+narration ปนกัน (dialogue/auto/None).
+    # content_type ใน {prose, tutorial, ui} → style block บังคับ no-particle ทุก line อยู่แล้ว
+    # → narration_rule ซ้ำซ้อน + เปลือง ~200 tokens ต่อ batch request
+    narration_rule = ""
+    if content_type in (None, "", "dialogue", "auto"):
+        narration_rule = (
+            "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
+            "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + particles ตามเงื่อนไข\n"
+            "- Input lines tagged [N] only (no |speaker=) = NARRATION/EXPOSITORY/CAPTION\n"
+            "  → ⚠ NO sentence-ending particles (ห้าม ค่ะ/ครับ/นะ/จ้ะ)\n"
+            "  → ใช้ literary register (verb stem, no polite suffix)\n"
+            "  → reference characters as 'เขา/เธอ/พวกเขา' (3rd person), ไม่ใช้ 'ผม/ฉัน' ถ้าไม่ใช่ direct speech\n"
+            "    [5] 部屋は静かだった         → 'ห้องเงียบสงบ'              (NOT 'ห้องเงียบสงบนะคะ')\n"
+            "    [6] 彼は窓の外を見た         → 'เขามองออกไปนอกหน้าต่าง'    (NOT 'เขามองออกไปนอกหน้าต่างค่ะ')\n"
+            "    [7|speaker=2] 寒いね        → 'หนาวจังเลยนะ'             (มี particle ได้ — speaker tag present)\n"
+        )
     ids_to_use = ids if ids else list(range(id_start, id_start + n))
     first = ids_to_use[0]
     last = ids_to_use[-1]
@@ -1122,8 +1198,24 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
             + custom_rules.strip() + "\n"
             "─────────────────────────────────────────────────────────\n"
         )
-    # ลำดับ: base (script/grammar defaults) → chars (voice) → rules (project override) → schema
-    return base_prompt + chars_section + rules_section + schema_instruction + factual
+    # PROTECTED TOKENS — บอก LLM อย่าแตะ placeholder ที่ _protect_segments สร้างไว้
+    # (URL/HTML/email/code → ถูก mask เป็น X9990X, X9991X, ... → restore ทีหลัง)
+    # ⚠ universal สำหรับทุก engine/target/content_type — ไม่ขึ้นกับอะไร
+    protected_tokens_rule = (
+        "\n\n═══ PROTECTED TOKENS (CRITICAL — preserve verbatim) ═══\n"
+        "Tokens ในรูป X9990X / X9991X / X9992X ... (ตัว X ใหญ่ + 4 หลักเลข + X ใหญ่)\n"
+        "เป็น PLACEHOLDER ที่ระบบใส่ไว้แทน URL / HTML tag / email / code / domain.\n"
+        "RULES:\n"
+        "- ห้าม translate, ห้าม drop, ห้ามใส่ space ระหว่างตัวอักษร\n"
+        "- copy verbatim ใน output ตามตำแหน่งเดิม (อาจสลับตำแหน่งตามไวยากรณ์ภาษาเป้าหมายได้ แต่ห้ามเปลี่ยน spelling)\n"
+        "- จำนวน + ลำดับ token ใน output ต้องตรงกับ input (ถ้า input มี X9990X, X9991X → output ต้องมีครบทั้งคู่)\n"
+        "ตัวอย่าง:\n"
+        "  input:  「詳細は X9990X を見て」\n"
+        "  output: 'ดูรายละเอียดที่ X9990X'  (ไม่ใช่ 'ดูรายละเอียดที่ X 9990 X' / 'ดูรายละเอียดที่ X9990' / 'ดูรายละเอียด')\n"
+    )
+    # ลำดับ: base → style → chars → narration → rules → schema → protected → factual
+    return (base_prompt + style_block + chars_section + narration_rule
+            + rules_section + schema_instruction + protected_tokens_rule + factual)
 
 
 def _post_process_batch(texts: list[str], parsed: list[str | None],
@@ -1177,11 +1269,13 @@ def _translate_batch_qwen(texts: list[str], target: str,
                           characters: list[dict] | None = None,
                           id_start: int = 1,
                           ids: list[int] | None = None,
+                          content_type: str | None = None,
                           ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
     user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
-                                               id_start=id_start, ids=ids, texts=texts)
+                                               id_start=id_start, ids=ids, texts=texts,
+                                               content_type=content_type)
 
     try:
         resp = httpx.post(
@@ -1236,6 +1330,7 @@ def _translate_batch_gemini(texts: list[str], target: str,
                             characters: list[dict] | None = None,
                             id_start: int = 1,
                             ids: list[int] | None = None,
+                            content_type: str | None = None,
                             ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
 
@@ -1250,7 +1345,8 @@ def _translate_batch_gemini(texts: list[str], target: str,
 
     user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
-                                               id_start=id_start, ids=ids, texts=texts)
+                                               id_start=id_start, ids=ids, texts=texts,
+                                               content_type=content_type)
 
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
@@ -1369,6 +1465,7 @@ def translate_batch(texts: list[str], target: str = "th",
                     characters: list[dict] | None = None,
                     id_start: int = 1,
                     ids: list[int] | None = None,
+                    content_type: str | None = None,
                     ) -> tuple[list[str], list[str | None]]:
     """ส่งทุก row ให้ LLM — ไม่ filter, apply step ignore SKIP / empty source.
     ids: explicit list (override id_start) — รองรับ slice ที่ไม่ติดกัน เช่น retry fail"""
@@ -1400,12 +1497,14 @@ def translate_batch(texts: list[str], target: str = "th",
         sub_t, sub_e = _translate_batch_gemini(
             texts, target, custom_rules, eff_timeout, attempt,
             speakers=eff_speakers, characters=eff_chars, ids=ids,
+            content_type=content_type,
         )
     else:
         eff_timeout = timeout if timeout is not None else TRANSLATE_BATCH_TIMEOUT
         sub_t, sub_e = _translate_batch_qwen(
             texts, target, custom_rules, eff_timeout, attempt,
             speakers=eff_speakers, characters=eff_chars, ids=ids,
+            content_type=content_type,
         )
 
     skipped_user = 0
