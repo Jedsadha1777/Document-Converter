@@ -116,6 +116,7 @@
             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
                 <strong>TM:</strong>
                 <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
+                    <option value="jp-th">jp-th</option>
                     <option value="en-vn">en-vn</option>
                 </select>
                 <label>final_k:
@@ -188,14 +189,71 @@ Examples:
     </div>
 </div>
 
+<!-- Preview prompt modal template — cloned once by preview-prompt.js on first open -->
+<template id="previewModalTpl">
+<div class="modal-backdrop">
+    <div class="modal-card preview" role="dialog">
+        <h2><span class="material-symbols-outlined">search</span>Preview prompt — payload that will be sent to the LLM</h2>
+        <div class="preview-meta" id="previewMeta"></div>
+        <div class="preview-bar warning">
+            <label>chunk size:<input type="number" id="previewChunkSize" min="1" style="width:80px;"></label>
+            <span class="dot">·</span>
+            <label>chunk
+                <input type="number" id="previewChunkIdx" min="1" style="width:70px;">
+                <span class="total">/ <span id="previewChunkTotal">?</span></span>
+            </label>
+            <button type="button" id="previewPrevBtn" class="ghost"><span class="material-symbols-outlined">chevron_left</span></button>
+            <button type="button" id="previewNextBtn" class="ghost"><span class="material-symbols-outlined">chevron_right</span></button>
+            <button type="button" id="previewRefreshBtn" class="ghost"><span class="material-symbols-outlined">refresh</span>Reload</button>
+            <span class="note" id="previewRangeNote"></span>
+            <span class="status" id="previewRefreshStatus"></span>
+        </div>
+        <div class="preview-bar error">
+            <strong>retry fail:</strong>
+            <span id="previewFailedNote">— No failed rows yet</span>
+            <button type="button" id="previewLoadFailedBtn" class="ghost" disabled><span class="material-symbols-outlined">place</span>Load all retry-fail rows</button>
+            <span id="previewFailedMode" class="mode"></span>
+        </div>
+        <div class="preview-copy-row">
+            <button type="button" id="previewCopyAllBtn" class="ghost" title="Copy system + user prompt as plain text (real newlines) — paste into Gemini/ChatGPT/Claude web UI"><span class="material-symbols-outlined">content_copy</span>Copy prompt (for paste)</button>
+        </div>
+        <h3 class="preview-h3"><span class="material-symbols-outlined">outbox</span>RAW REQUEST BODY sent to LLM API</h3>
+        <div class="preview-endpoint" id="previewEndpoint"></div>
+        <pre class="preview-pre body" id="previewBody"></pre>
+        <h3 class="preview-h3" style="display:none;">CHARACTERS array (raw JSON)</h3>
+        <pre class="preview-pre chars" id="previewChars" style="display:none;"></pre>
+        <h3 class="preview-h3" style="display:none;">SYSTEM PROMPT (readable)</h3>
+        <pre class="preview-pre system" id="previewSystem" style="display:none;"></pre>
+        <h3 class="preview-h3" style="display:none;">USER MESSAGE (readable)</h3>
+        <pre class="preview-pre user" id="previewUser" style="display:none;"></pre>
+        <h3 class="preview-h3"><span class="material-symbols-outlined">content_paste_go</span>Paste LLM response (manual apply)</h3>
+        <div class="preview-hint">Copy the request body above → paste into Gemini/ChatGPT/Claude web UI → copy the response back here → click "Apply to table". Markdown fences (```json ... ```) are supported.</div>
+        <textarea id="previewManualResponse" class="preview-manual" rows="6" placeholder='{"items":[{"id":1,"text":"..."}, {"id":2,"text":"..."}]}'></textarea>
+        <div class="preview-apply-row">
+            <button type="button" id="previewApplyManualBtn">Apply to table</button>
+            <span id="previewManualStatus" class="preview-status"></span>
+        </div>
+        <div class="modal-foot">
+            <span class="preview-foot-note">This is the actual payload the backend will send to the LLM API when you click translate.</span>
+            <button type="button" id="previewCloseBtn">Close</button>
+        </div>
+    </div>
+</div>
+</template>
+
 <script type="module">
-// ── module imports — modules อื่นๆ self-contained, ที่นี่แค่ wiring ──
+// ── module imports — modules อื่นๆ self-contained (wire ปุ่มเองตอน load), ที่นี่แค่ wiring ──
 import { state } from "/static/js/state.js";
 import { initCharactersUI } from "/static/js/characters.js";
 import { setStatus, clearStatus } from "/static/js/status.js";
 import { initCompare, buildCompareTable } from "/static/js/compare.js";
 import { initUpload } from "/static/js/upload.js";
 import { renderPreview, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
+// side-effect imports — wire toolbar buttons (run/stop/clear/retry/preview/copy/paste/tm)
+import "/static/js/correct-runner.js";
+import "/static/js/translate-runner.js";
+import "/static/js/preview-prompt.js";
+import "/static/js/tm.js";
 
 // selection refs — Set by ref, mutations sync กับ state
 const selectedRefs = state.selection.refs;

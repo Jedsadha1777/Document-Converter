@@ -194,8 +194,78 @@ def _bbox_dict(bbox):
     }
 
 
+def _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px):
+    """Sample (text_color, bg_color) hex strings จาก bbox ใน pil_img.
+    pixel coords TOPLEFT, integer ๆ. ใช้ PIL quantize (C-fast, ไม่ต้อง numpy):
+      1. Crop bbox region
+      2. Thumbnail ลง 64px max (ลด noise + speed สำหรับกล่องใหญ่)
+      3. quantize เป็น 4 colors → palette แยก {text, bg, anti-alias edges}
+      4. เลือก darkest = text, lightest = bg (extreme — ตัด edge/anti-alias ทิ้ง)
+    คืน (None, None) ถ้า bbox เล็กเกินไป/นอก image.
+
+    Note: ใช้ quantize=4 ไม่ใช่ 2 เพราะ 2 จะ average edge pixels เข้ากับ text →
+    ตัวอักษรดำจริง ๆ ถูกสุ่มเป็น #4f4f4f (เทา) แทน → contrast หลุด overlay อ่านลำบาก"""
+    if pil_img is None:
+        return None, None
+    img_w, img_h = pil_img.size
+    l = max(0, min(img_w, int(l_px)))
+    r = max(0, min(img_w, int(r_px)))
+    t = max(0, min(img_h, int(t_px)))
+    b = max(0, min(img_h, int(b_px)))
+    if l > r: l, r = r, l
+    if t > b: t, b = b, t
+    if (r - l) < 4 or (b - t) < 4:
+        return None, None
+    try:
+        crop = pil_img.crop((l, t, r, b)).convert("RGB")
+        if max(crop.size) > 64:
+            crop.thumbnail((64, 64), Image.Resampling.NEAREST)
+        # quantize=8 (ไม่ใช่ 4) — แยก anti-alias edge ออกจาก text core
+        # เคส 4 colors: edge pixels ถูก average เข้า text cluster → text ออกมาเทา (#4f4f4f)
+        # เคส 8 colors: edge แยก cluster ของตัวเอง → text core สี เข้มจริง อยู่อีก cluster
+        q = crop.quantize(colors=8, method=Image.Quantize.MEDIANCUT)
+        pal = q.getpalette() or []
+        # palette length ขึ้นอยู่กับจำนวนสีจริงในภาพ (อาจน้อยกว่า 8 colors × 3 = 24)
+        n_colors = len(pal) // 3
+        if n_colors < 2:
+            return None, None
+        colors = [(pal[i*3], pal[i*3+1], pal[i*3+2]) for i in range(n_colors)]
+        counts = q.getcolors() or []   # [(count, palette_idx), ...]
+        if not counts:
+            return None, None
+        # bg = cluster ที่ครอบคลุมพื้นที่เยอะที่สุด
+        counts.sort(key=lambda x: -x[0])
+        bg_idx = counts[0][1]
+        bg_rgb = colors[bg_idx]
+        # text = cluster ที่ทั้ง "contrast สูง" + "มี pixel จริง ๆ ไม่ใช่ noise"
+        # score = dist² × √count → balance ห่างจาก bg กับปริมาณ pixel
+        # ไม่ใช้ threshold cutoff เพราะ text core บางทีมีแค่ 0.05% ของ total (anti-alias eats rest)
+        def _dist2(c1, c2):
+            return (c1[0]-c2[0])**2 + (c1[1]-c2[1])**2 + (c1[2]-c2[2])**2
+        import math
+        candidates = [
+            (colors[idx], _dist2(colors[idx], bg_rgb), cnt)
+            for cnt, idx in counts
+            if idx != bg_idx and cnt >= 2  # ตัด single-pixel noise
+        ]
+        if not candidates:
+            return None, None
+        text_rgb = max(candidates, key=lambda c: c[1] * math.sqrt(c[2]))[0]
+        if _dist2(text_rgb, bg_rgb) < 900:   # ~ delta 30 → bbox ใกล้ uniform
+            return None, None
+        return (
+            "#{:02x}{:02x}{:02x}".format(*text_rgb),
+            "#{:02x}{:02x}{:02x}".format(*bg_rgb),
+        )
+    except Exception:
+        return None, None
+
+
 def build_preview(doc):
     pages = []
+    # เก็บ pil_img + page size ต่อ page เพื่อ sample สีตอน add_item
+    page_imgs = {}      # {page_no: pil_img}
+    page_sizes = {}     # {page_no: (page_w, page_h)} — coord ของ document, อาจ != image px
     for page_no, page in (doc.pages or {}).items():
         page_w = float(page.size.width) if page.size else None
         page_h = float(page.size.height) if page.size else None
@@ -209,6 +279,8 @@ def build_preview(doc):
                 image_data = f"data:image/png;base64,{b64}"
                 if page_w is None: page_w = pil_img.width
                 if page_h is None: page_h = pil_img.height
+                page_imgs[int(page_no)] = pil_img
+        page_sizes[int(page_no)] = (page_w, page_h)
         pages.append({
             "page_no": int(page_no),
             "width": page_w,
@@ -232,14 +304,39 @@ def build_preview(doc):
         for prov in (getattr(item, "prov", None) or []):
             if prov.bbox is None:
                 continue
-            items.append({
+            bb = _bbox_dict(prov.bbox)
+            entry = {
                 "self_ref": item.self_ref,
                 "category": category,
                 "label": label,
                 "text": text,
                 "page_no": prov.page_no,
-                "bbox": _bbox_dict(prov.bbox),
-            })
+                "bbox": bb,
+            }
+            # sample สีเฉพาะ texts — table/picture ไม่ต้อง (LLM ไม่ได้แปลตรง ๆ)
+            if category == "texts":
+                pil_img = page_imgs.get(int(prov.page_no))
+                page_size = page_sizes.get(int(prov.page_no))
+                if pil_img is not None and page_size is not None:
+                    page_w, page_h = page_size
+                    img_w, img_h = pil_img.size
+                    # scale document coord → pixel coord
+                    sx = img_w / page_w if page_w else 1.0
+                    sy = img_h / page_h if page_h else 1.0
+                    l_px = bb["l"] * sx
+                    r_px = bb["r"] * sx
+                    if bb["coord_origin"] == "BOTTOMLEFT":
+                        # PDF style: t > b in doc coords (y from bottom)
+                        t_px = (page_h - bb["t"]) * sy if page_h else bb["t"] * sy
+                        b_px = (page_h - bb["b"]) * sy if page_h else bb["b"] * sy
+                    else:
+                        t_px = bb["t"] * sy
+                        b_px = bb["b"] * sy
+                    tc, bgc = _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px)
+                    if tc and bgc:
+                        entry["text_color"] = tc
+                        entry["bg_color"] = bgc
+            items.append(entry)
 
     for t in (doc.texts or []):
         add_item("texts", t)
@@ -333,31 +430,34 @@ def run_manga_pipeline(path: Path, filename: str):
     for i, blk in enumerate(res.get("blocks", [])):
         x1, y1, x2, y2 = blk["box"]
         text = "\n".join(blk.get("lines", []) or [])
+        bbox_dict = {
+            "l": float(x1), "t": float(y1),
+            "r": float(x2), "b": float(y2),
+            "coord_origin": "TOPLEFT",
+        }
         texts.append({
             "self_ref": f"#/texts/{i}",
             "label": "text",
             "vertical": bool(blk.get("vertical")),
             "font_size": float(blk.get("font_size") or 0),
-            "bbox": {
-                "l": float(x1), "t": float(y1),
-                "r": float(x2), "b": float(y2),
-                "coord_origin": "TOPLEFT",
-            },
+            "bbox": bbox_dict,
             "text": text,
         })
-        items.append({
+        item = {
             "self_ref": f"#/texts/{i}",
             "category": "texts",
             "label": "text" + (" [vertical]" if blk.get("vertical") else ""),
             "text": text,
             "page_no": 1,
             "font_size": float(blk.get("font_size") or 0),
-            "bbox": {
-                "l": float(x1), "t": float(y1),
-                "r": float(x2), "b": float(y2),
-                "coord_origin": "TOPLEFT",
-            },
-        })
+            "bbox": bbox_dict,
+        }
+        # bbox อยู่ใน pixel coord อยู่แล้ว (TOPLEFT) — sample ตรง ๆ
+        tc, bgc = _sample_text_bg_colors(pil, x1, y1, x2, y2)
+        if tc and bgc:
+            item["text_color"] = tc
+            item["bg_color"] = bgc
+        items.append(item)
 
     doc_dict = {
         "schema_name": "MangaPageOcr",
@@ -495,14 +595,20 @@ def run_fast_pipeline(path: Path, filename: str, lang: str = "auto"):
             "text": mb["text"],
             "orig": mb["text"],
         })
-        items.append({
+        item = {
             "self_ref": ref,
             "category": "texts",
             "label": "text",
             "text": mb["text"],
             "page_no": 1,
             "bbox": bbox,
-        })
+        }
+        # bbox pixel coord (TOPLEFT) — sample ตรง ๆ
+        tc, bgc = _sample_text_bg_colors(pil, mb["l"], mb["t"], mb["r"], mb["b"])
+        if tc and bgc:
+            item["text_color"] = tc
+            item["bg_color"] = bgc
+        items.append(item)
 
     buf = io.BytesIO()
     pil.save(buf, format="PNG", optimize=True)

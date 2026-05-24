@@ -33,7 +33,7 @@ Thumbs.db
 *.tmp
 
 # Translation memory data
-data_tm/en-vn/
+data_tm/
 
 # tmp files
 /tmp/_*.txt

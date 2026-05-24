@@ -37,7 +37,7 @@ export const COLORS = {
     multiSelect:      "#7c3aed",  // violet — multi-select highlight
     marquee:          "#0066cc",  // marquee border
     marqueeFill:      "rgba(0, 102, 204, 0.1)",
-    overlayBg:        "rgba(255,255,255,0.95)",  // bbox text overlay bg
+    overlayBg:        "#ffffff",  // bbox text overlay bg (solid — fade เฉพาะกล่อง SKIP)
 
     // ── Preview prompt modal (code blocks) ──
     codeBg:       "#0f172a",  // request body bg

@@ -12,12 +12,18 @@ const CHARS_STORAGE_KEY = "doclingCharacters";
 // internal state (reassignable)
 let _characters = _loadFromStorage();
 
+// sort by numeric id asc — id แรก = default character (เลขน้อยสุด)
+// migrate data เก่าที่อาจสลับตำแหน่งจาก _nextCharId แบบ recycle ก่อน fix
+function _sortById(arr) {
+    return arr.slice().sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+}
+
 function _loadFromStorage() {
     try {
         const raw = localStorage.getItem(CHARS_STORAGE_KEY);
         if (raw) {
             const arr = JSON.parse(raw);
-            if (Array.isArray(arr) && arr.length) return arr;
+            if (Array.isArray(arr) && arr.length) return _sortById(arr);
         }
     } catch (_) {}
     // default — 1 character กลาง ๆ ไม่ระบุเพศ
@@ -33,11 +39,12 @@ function _saveToStorage() {
     try { localStorage.setItem(CHARS_STORAGE_KEY, JSON.stringify(_characters)); } catch (_) {}
 }
 
+// monotonic — max(ids)+1, ไม่ recycle id ที่ลบไป
+// reason: id recycle ทำให้ speakerByRef[ref]="1" เก่าชี้ persona ตัวใหม่ที่บังเอิญได้ id 1
+//         + ลำดับ UI ไม่เรียง (ลบ id 2 → เพิ่มใหม่ได้ id 2 → ไปอยู่ท้ายลิสต์)
 function _nextCharId() {
-    const used = new Set(_characters.map(c => c.id));
-    let n = 1;
-    while (used.has(String(n))) n++;
-    return String(n);
+    const ids = _characters.map(c => parseInt(c.id, 10)).filter(n => Number.isFinite(n));
+    return String((ids.length ? Math.max(...ids) : 0) + 1);
 }
 
 // ── public API ──
@@ -151,7 +158,7 @@ function _saveFromModal() {
         alert("At least 1 character is required");
         return;
     }
-    _characters = next;
+    _characters = _sortById(next);
     _saveToStorage();
     _closeModal();
     _onChangeCallback?.();

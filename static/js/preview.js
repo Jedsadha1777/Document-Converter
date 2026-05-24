@@ -466,18 +466,34 @@ export function renderPreview() {
                 const b = it._fontBbox || it.bbox || {};
                 const origW = Math.abs((b.r || 0) - (b.l || 0)) * sx;
                 const origH = Math.abs((b.b || 0) - (b.t || 0)) * sy;
-                const fallbackFontSize = Math.min(48, Math.max(10, Math.round(Math.min(origH, origW) * 0.7)));
+                // fallback = binary-search หาขนาดใหญ่สุดที่ "text ทั้งหมด fit ใน bbox"
+                // — heuristic เดิม (height/lines × 0.7) เดาผิดบ่อย เพราะ docling ส่ง text บางที
+                // join เป็นบรรทัดเดียว (ไม่มี \n) ทำให้คิดว่าเป็น 1 บรรทัดและคำนวณเป็น font ใหญ่
+                // binary search กับ Pretext layout (C-fast) → 5-7 iterations, ~1ms ต่อ item
+                const innerW = Math.max(origW - 8, 1);
+                const innerH = Math.max(origH - 8, 1);
+                let fallbackFontSize = 14;
+                if (origW > 8 && origH > 8 && (it.text || "").trim()) {
+                    let lo = 8, hi = 36;
+                    while (lo < hi) {
+                        const mid = Math.ceil((lo + hi) / 2);
+                        const probe = measureTextInBox(ctx, it.text, origW, { fixedFontSize: mid });
+                        if (probe && probe.requiredH <= innerH) lo = mid;
+                        else hi = mid - 1;
+                    }
+                    fallbackFontSize = lo;
+                }
                 const ocrFontSize = it.font_size ? it.font_size * sy : 0;
                 const effectiveFontSize = ov.fontSize || ocrFontSize || fallbackFontSize;
 
                 const overlayText = tr || corr || (it.text || "");
-                if (overlayMode && (overlayText || isSkip)) {
-                    // SKIP → white box คลุมต้นฉบับ ไม่วาด text (คำหายไป)
-                    if (isSkip) {
-                        overlayRenders.push({ x, y, w, h, layout: { lines: [] }, align: "left", isTranslated: false, isSkip: true, item: it });
-                        drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize });
-                        return;
-                    }
+                if (overlayMode && isSkip) {
+                    // SKIP ใน overlay mode → ไม่วาดอะไรเลย (ไม่มี bbox, ไม่มี fade)
+                    // เหลือแต่ภาพต้นฉบับด้านล่างให้เห็น — เก็บ drawn ไว้สำหรับ hit-test เผื่อ user คลิก
+                    drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize });
+                    return;
+                }
+                if (overlayMode && overlayText) {
                     const layout = measureTextInBox(ctx, overlayText, w, {
                         fixedFontSize: ov.fontSize,
                         ocrFontSize,
@@ -497,20 +513,22 @@ export function renderPreview() {
             });
 
             // Pass 1: overlay backgrounds + borders
+            // bg_color จาก OCR sampling (PIL quantize) ถ้ามี → fill ทับให้ตรงสีต้นฉบับ
+            // override per-bbox (ov.bgColor) → ผู้ใช้ปรับเองได้ใน edit mode
+            // (isSkip items ไม่เคยเข้ามาที่นี่ใน overlay mode — ถูก filter ออกก่อนหน้านี้)
             overlayRenders.forEach(r => {
-                // SKIP → จาง (alpha 0.35) ทั้ง bg + border เหมือนกับ normal mode
-                if (r.isSkip) ctx.save(), ctx.globalAlpha = 0.35;
-                ctx.fillStyle = COLORS.overlayBg;
+                const ov = state.bboxOverrides[r.item.self_ref] || {};
+                ctx.fillStyle = ov.bgColor || r.item.bg_color || COLORS.overlayBg;
                 ctx.fillRect(r.x, r.y, r.w, r.h);
-                ctx.strokeStyle = r.isSkip ? COLORS.border : (r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted);
+                ctx.strokeStyle = r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted;
                 ctx.lineWidth = 1;
-                if (!r.isTranslated || r.isSkip) ctx.setLineDash([4, 3]);
+                if (!r.isTranslated) ctx.setLineDash([4, 3]);
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 ctx.setLineDash([]);
-                if (r.isSkip) ctx.restore();
             });
 
             // Pass 2: overlay text (รองรับ vertical align — อ้างอิง Ketchup TableTool)
+            // text_color จาก OCR sampling → ตัวอักษรที่วาดทับให้สีตรงต้นฉบับ
             overlayRenders.forEach(r => {
                 if (!r.layout.lines.length) return;
                 ctx.save();
@@ -518,7 +536,8 @@ export function renderPreview() {
                 ctx.rect(r.x, r.y, r.w, r.h);
                 ctx.clip();
                 ctx.font = `${r.layout.fontSize}px ${TEXTBOX_FONT_FAMILY}`;
-                ctx.fillStyle = COLORS.text;
+                const ov = state.bboxOverrides[r.item.self_ref] || {};
+                ctx.fillStyle = ov.textColor || r.item.text_color || COLORS.text;
                 ctx.textBaseline = "alphabetic";
                 ctx.textAlign = "left";
                 // vertical align: top (default) / middle / bottom — clip ป้องกัน text ทะลุกล่อง

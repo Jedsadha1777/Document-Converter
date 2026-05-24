@@ -315,3 +315,77 @@ table.compare td.col-translated:focus {
 }
 .diff-del { background: #fee2e2; color: #b91c1c; text-decoration: line-through; }
 .diff-ins { background: #d1fae5; color: #047857; font-weight: 600; }
+
+/* Preview prompt modal — payload inspector + manual paste */
+.modal-card.preview { max-width: 900px; max-height: 90vh; }
+.preview-meta {
+    font-size: 12px;
+    color: #374151;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    background: #f9fafb;
+    border-radius: 6px;
+}
+.preview-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 8px 0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+.preview-bar.warning { background: #fef3c7; }
+.preview-bar.error { background: #fee2e2; }
+.preview-bar.error strong { color: #991b1b; }
+.preview-bar.error .mode { color: #991b1b; font-weight: 600; }
+.preview-bar input[type="number"] {
+    padding: 4px 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    margin-left: 4px;
+}
+.preview-bar button { font-size: 12px; padding: 4px 8px; }
+.preview-bar .dot { color: #374151; }
+.preview-bar .total { color: #6b7280; margin: 0 4px; }
+.preview-bar .note { color: #374151; }
+.preview-bar .status { color: #6b7280; }
+
+.preview-h3 { font-size: 13px; margin: 12px 0 4px; }
+.preview-endpoint {
+    font-size: 11px;
+    color: #374151;
+    margin-bottom: 4px;
+    font-family: ui-monospace, Menlo, monospace;
+}
+.preview-pre {
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    max-height: 400px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, Menlo, monospace;
+}
+.preview-pre.body   { background: #0f172a; color: #86efac; }
+.preview-pre.chars  { background: #fef3c7; color: #78350f; max-height: 200px; }
+.preview-pre.system { background: #0b1021; color: #e5e7eb; max-height: 300px; }
+.preview-pre.user   { background: #0b1021; color: #bfdbfe; max-height: 300px; }
+
+.preview-hint { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+.preview-manual {
+    width: 100%;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+.preview-status { font-size: 12px; color: #6b7280; }
+.preview-foot-note { font-size: 11px; color: #6b7280; }
+.preview-copy-row { display: flex; gap: 6px; margin: 8px 0; }
+.preview-apply-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }

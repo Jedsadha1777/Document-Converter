@@ -10,6 +10,11 @@ import faiss
 import httpx
 import numpy as np
 
+# Apple Silicon: faiss multi-thread + torch MPS (manga-ocr) → segfault หลัง manga-ocr OCR + faiss search
+# บังคับ single-thread → ตัด OpenMP race ขัด torch MPS thread; cost น้อย (faiss search 400k บน CPU 1 core
+# ก็ยัง <1s — vectorized SIMD ยังทำงานได้)
+faiss.omp_set_num_threads(1)
+
 from config import (
     OLLAMA_MODEL_EMBED,
     OLLAMA_URL,
@@ -294,7 +299,13 @@ def _normalize_for_dedup(s: str) -> str:
     return s[:50]
 
 
-_TOKEN_RE = re.compile(r"[A-Za-z]{3,}")
+_TOKEN_RE = re.compile(
+    r"[A-Za-z]{2,}"           # Latin ≥2 (รองรับ abbrev เช่น JK, OL)
+    r"|[一-鿿々〆]+"            # Kanji runs (รวม 々 iteration mark) — 1 char ขึ้นไป (kanji หายาก match แม่นยำ)
+    r"|[゠-ヿ]{2,}"             # Katakana runs ≥2 (กัน single ア/イ ที่ common เกิน)
+    r"|[぀-ゟ]{3,}"             # Hiragana runs ≥3 (กัน particles เช่น だ/は/に/が)
+    r"|[ก-๛]{2,}"              # Thai ≥2 (เผื่อ tm pair ที่ source เป็นไทย)
+)
 # Stopwords — common function words that match everywhere and create false overlap.
 # Kept small and conservative; don't include domain words like "use" or "set".
 _STOPWORDS = frozenset({
