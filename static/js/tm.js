@@ -1,6 +1,4 @@
 // Translation Memory (TM) — Faiss-backed glossary suggestions
-// suggest: embed every row → top-k retrieval → paste glossary block ลง customRules textarea
-// build: rebuild ทุก pair index (CPU heavy)
 
 import { state } from "./state.js";
 import { COLORS } from "./colors.js";
@@ -47,14 +45,7 @@ function _replaceTmBlock(textarea, tmText) {
     }
 }
 
-// map content_type → list of TM domain ที่ควรค้น (ทุก type fallback ที่ "general" — Tatoeba ทั่วไปใช้ได้กับทุก content)
-const DOMAIN_FILTER_BY_TYPE = {
-    "dialogue": ["manga", "dialogue", "general"],
-    "prose":    ["prose", "general"],
-    "tutorial": ["tech", "general"],
-    "ui":       ["tech"],
-    "auto":     null,   // ไม่ filter — ใช้ทุก domain
-};
+// content_type = folder name ใน data_tm/{pair}/{type}/ = domain โดยตรง → filter เป็น [type] ตรงๆ
 
 async function tmSuggest() {
     const sources = _collectSources();
@@ -63,10 +54,10 @@ async function tmSuggest() {
         tmStatusEl.style.color = COLORS.errorStrong;
         return;
     }
-    const pair = tmPairSel.value || "en-vn";
+    const pair = tmPairSel.value || "jp-th";
     const finalK = parseInt(tmFinalKEl.value, 10) || 20;
-    const contentType = runDom.contentTypeSel?.value || "dialogue";
-    const domainFilter = DOMAIN_FILTER_BY_TYPE[contentType] || null;
+    const contentType = runDom.contentTypeSel?.value || "";
+    const domainFilter = contentType ? [contentType] : null;
     tmSuggestBtn.disabled = true;
     tmStatusEl.style.color = COLORS.textMuted;
     tmStatusEl.textContent = `embedding ${sources.length} queries (${contentType})…`;

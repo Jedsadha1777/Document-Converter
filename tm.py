@@ -41,10 +41,13 @@ def _is_tm_file(p: Path) -> bool:
 
 
 def _list_source_files(pair: str) -> list[Path]:
+    """Find all .jsonl/.json TM source files under data_tm/{pair}/{domain}/*.
+    Domain = immediate parent folder name (set up by user). Files directly in the pair
+    folder (legacy layout) are still picked up — domain inferred from filename."""
     folder = _pair_folder(pair)
     if not folder.exists():
         return []
-    return sorted([p for p in folder.iterdir() if _is_tm_file(p)])
+    return sorted([p for p in folder.rglob("*") if _is_tm_file(p)])
 
 
 def _list_pairs() -> list[str]:
@@ -62,30 +65,32 @@ def _file_hash(path: Path) -> str:
     return h.hexdigest()
 
 
-def _infer_domain(filename: str) -> str:
-    """Map filename → domain tag. ใช้ตอน build index และตอน TM filter retrieval.
-    Keywords match (case-insensitive) — file ตั้งชื่อต่อสไตล์ self-describing → domain ออกเอง:
-      slang_*, manga_*, *_manga    → 'manga'
-      tech_*, ui_*, *_ui           → 'tech'
-      narration_*, prose_*         → 'prose'
-      opensubtitles*, *subtitle*   → 'dialogue'
-      อื่น ๆ (เช่น tatoeba)         → 'general'
-    Entry ที่ใส่ `domain` field ใน jsonl override ค่าจาก filename."""
-    n = filename.lower()
-    if "slang" in n or "manga" in n:           return "manga"
-    if "tech" in n or "_ui" in n or n.startswith("ui_") or n == "ui.jsonl": return "tech"
-    if "narration" in n or "prose" in n:       return "prose"
-    if "subtitle" in n:                        return "dialogue"
+def _infer_domain(path: Path, pair_root: Path) -> str:
+    """Domain = name of the first subfolder under the pair root (data_tm/{pair}/{domain}/...).
+    File ที่วางใน pair folder โดยตรง (legacy) → 'general'.
+    Domain ที่ใส่ในแต่ละ row ของ jsonl ('domain' field) override ค่านี้ได้"""
+    try:
+        rel = path.relative_to(pair_root)
+    except ValueError:
+        return "general"
+    parts = rel.parts
+    if len(parts) >= 2:
+        return parts[0]
     return "general"
 
 
-def _load_jsonl_rows(files: list[Path]) -> list[dict]:
+def _load_jsonl_rows(files: list[Path], pair_root: Path) -> list[dict]:
     """Read every .jsonl file → flat list of {tu_id, source_file, source, target, domain}.
     Skip rows missing `source` or with empty/whitespace source.
-    domain = entry's "domain" field if present, else inferred from filename."""
+    domain = entry's "domain" field if present, else inferred from the file's parent folder."""
     out: list[dict] = []
     for fp in files:
-        file_domain = _infer_domain(fp.name)
+        file_domain = _infer_domain(fp, pair_root)
+        # source_file = relative path (POSIX separator) — รองรับชื่อไฟล์ซ้ำต่าง subfolder
+        try:
+            rel_name = fp.relative_to(pair_root).as_posix()
+        except ValueError:
+            rel_name = fp.name
         with fp.open("r", encoding="utf-8") as f:
             for ln_no, line in enumerate(f, 1):
                 line = line.strip()
@@ -94,14 +99,14 @@ def _load_jsonl_rows(files: list[Path]) -> list[dict]:
                 try:
                     obj = json.loads(line)
                 except json.JSONDecodeError:
-                    print(f"[tm] skip bad jsonl: {fp.name}:{ln_no}", flush=True)
+                    print(f"[tm] skip bad jsonl: {rel_name}:{ln_no}", flush=True)
                     continue
                 src = (obj.get("source") or "").strip()
                 if not src:
                     continue
                 out.append({
                     "tu_id": obj.get("tu_id"),
-                    "source_file": fp.name,
+                    "source_file": rel_name,
                     "source": src,
                     "target": (obj.get("target") or "").strip(),
                     "domain": (obj.get("domain") or "").strip() or file_domain,
@@ -159,7 +164,17 @@ def _read_manifest(pair: str) -> dict | None:
 
 
 def _current_hashes(pair: str) -> dict[str, str]:
-    return {p.name: _file_hash(p) for p in _list_source_files(pair)}
+    """key = relative path under pair folder (POSIX) — รองรับชื่อไฟล์ซ้ำต่าง subfolder.
+    ตรงกับ `source_file` ที่ _load_jsonl_rows เก็บไว้"""
+    root = _pair_folder(pair)
+    out: dict[str, str] = {}
+    for p in _list_source_files(pair):
+        try:
+            key = p.relative_to(root).as_posix()
+        except ValueError:
+            key = p.name
+        out[key] = _file_hash(p)
+    return out
 
 
 def needs_rebuild(pair: str, model: str = OLLAMA_MODEL_EMBED) -> tuple[bool, str]:
@@ -231,7 +246,7 @@ def build_index(pair: str, model: str = OLLAMA_MODEL_EMBED,
             print(f"[tm] incremental build failed ({exc}) — falling back to full", flush=True)
 
     # ── full rebuild ──
-    rows = _load_jsonl_rows(files)
+    rows = _load_jsonl_rows(files, folder)
     if not rows:
         raise ValueError(f"no usable rows in {folder} (all sources empty?)")
     sources = [r["source"] for r in rows]
@@ -262,7 +277,14 @@ def _try_incremental_build(folder: Path, files: list[Path], pair: str,
         return None   # corrupted — full rebuild
 
     old_hashes: dict[str, str] = old_manifest.get("file_hashes", {})
-    current_hashes = {fp.name: _file_hash(fp) for fp in files}
+
+    def _rel_key(fp: Path) -> str:
+        try:
+            return fp.relative_to(folder).as_posix()
+        except ValueError:
+            return fp.name
+
+    current_hashes = {_rel_key(fp): _file_hash(fp) for fp in files}
 
     unchanged = {n for n in current_hashes if old_hashes.get(n) == current_hashes[n]}
     changed_or_new = set(current_hashes) - unchanged
@@ -285,8 +307,8 @@ def _try_incremental_build(folder: Path, files: list[Path], pair: str,
                                                                        dtype=old_vecs.dtype)
 
     # load + embed rows from changed/new files only
-    changed_files = [fp for fp in files if fp.name in changed_or_new]
-    new_rows = _load_jsonl_rows(changed_files) if changed_files else []
+    changed_files = [fp for fp in files if _rel_key(fp) in changed_or_new]
+    new_rows = _load_jsonl_rows(changed_files, folder) if changed_files else []
     new_sources = [r["source"] for r in new_rows]
     if new_sources:
         print(f"[tm] embedding {len(new_sources)} new/changed rows "
@@ -475,8 +497,7 @@ def suggest(texts: list[str], pair: str = "en-vn",
     index, meta, manifest = load_index(pair)
     src_tokens_cache = _get_source_tokens(pair, meta)
 
-    # domain filter — restrict pool ก่อน scoring (เร็วกว่า filter ทีหลัง + ตัดประเด็น false-positive cosine)
-    # None / empty → ไม่ filter (เอาทุก domain — backward compat)
+    # domain filter — restrict pool ก่อน scoring (เร็วกว่า + ลด false-positive cosine)
     allowed_rows: set[int] | None = None
     if domain_filter:
         allowed_set = set(domain_filter)
@@ -506,10 +527,8 @@ def suggest(texts: list[str], pair: str = "en-vn",
             seen_in_q.add(row)
             cos_per_row.setdefault(row, []).append(float(scores[qi][j]))
 
-    # Lexical pool — REQUIRED for inclusion. Scan ALL 18k rows; keep a row only if
-    # its source tokens overlap with some query's tokens. Without this, nomic-embed-text
-    # surfaces clusters of trailing-colon headings / one-word glossary entries that
-    # share no words with the OCR query.
+    # Lexical pool — keep row only if its source tokens overlap with some query's tokens.
+    # ตัด false-positive cosine จาก embedding clusters ที่ไม่แชร์คำกับ query เลย.
     q_tokens: list[set[str]] = [_tokens(q) for q in queries]
     all_query_tokens: set[str] = set()
     for qt in q_tokens:

@@ -7,7 +7,7 @@ export const runState = {
     abort: false,            // stop button → loops อ่านระหว่าง iteration
     lastFailedIndexes: [],   // row indexes ที่ fail หลัง run ล่าสุด
     lastBatchUsed: 0,        // batch size ที่เพิ่งใช้
-    lastTranslateTarget: "th",
+    lastTranslateTarget: "",
     lastCustomRules: "",     // rules ที่ใช้ตอน run ล่าสุด — retry ใช้ตัวเดียวกัน
     lastOperationType: "translate",  // "translate" | "correct"
     lastAttempt: 0,          // attempt counter — เพิ่มขึ้นทุก retry → backend ปรับ temp ให้ result ต่าง
@@ -23,13 +23,19 @@ export const runDom = {
     stopCorrectBtn:    document.getElementById("stopCorrectBtn"),
     retryFailedBtn:    document.getElementById("retryFailedBtn"),
     translateEngineSel:document.getElementById("translateEngine"),
-    translateTargetSel:document.getElementById("translateTarget"),
+    tmPairSel:         document.getElementById("tmPair"),
     contentTypeSel:    document.getElementById("contentType"),
     batchSizeInput:    document.getElementById("batchSize"),
     batchSizeLabel:    document.getElementById("batchSizeLabel"),
     customRulesEl:     document.getElementById("customRules"),
     engineHint:        document.getElementById("engineHint"),
 };
+
+// target language = ครึ่งหลังของ TM pair (jp-th → th, en-vn → vi, ฯลฯ)
+const PAIR_TARGET = { "jp-th": "th", "en-vn": "vi" };
+export function getTranslateTarget() {
+    return PAIR_TARGET[runDom.tmPairSel?.value] || "";
+}
 
 // disable/enable ปุ่ม toolbar ระหว่าง run
 export function disableDuringRun() {

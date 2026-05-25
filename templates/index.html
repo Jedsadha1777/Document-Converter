@@ -54,7 +54,6 @@
         </div>
     </form>
 
-    <!-- LLM action toolbar — ย้ายขึ้นมาจาก Compare tab เพื่อให้กดได้โดยไม่ต้องสลับแท็บ -->
     <div class="preview-controls" style="margin-top:8px;">
         <button type="button" id="runCorrectBtn"><span class="material-symbols-outlined">auto_awesome</span>Correct all with LLM</button>
         <button type="button" id="runTranslateBtn"><span class="material-symbols-outlined">translate</span>Translate all</button>
@@ -62,12 +61,6 @@
         <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)"><span class="material-symbols-outlined">search</span>Preview prompt</button>
         <button type="button" id="copyPromptBtn" class="ghost" title="Build the prompt for the whole table and copy to clipboard (1-click)"><span class="material-symbols-outlined">content_copy</span>Copy prompt</button>
         <button type="button" id="pastePromptBtn" class="ghost" title="Read LLM response from clipboard and apply to table (1-click — must Copy prompt first)"><span class="material-symbols-outlined">content_paste</span>Paste LLM response</button>
-        <select id="translateTarget" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
-            <option value="vi">→ Vietnamese</option>
-            <option value="th">→ Thai</option>
-            <option value="en">→ English</option>
-            <option value="ja">→ Japanese</option>
-        </select>
         <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
             <option value="qwen" selected>Qwen 1.5B</option>
             <option value="apple">Apple Translate</option>
@@ -114,20 +107,16 @@
         <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
             <summary style="cursor:pointer; font-size:13px; color:#374151;"><span class="material-symbols-outlined">edit_note</span>Additional translation rules (optional)</summary>
             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
-                <strong>Type:</strong>
-                <select id="contentType" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;"
-                        title="Content type ─ ปรับ prompt style + TM domain filter ตามชนิดเอกสาร">
-                    <option value="dialogue">📖 Dialogue (manga/novel)</option>
-                    <option value="prose">📜 Prose (narration/literary)</option>
-                    <option value="tutorial">📘 Tutorial (how-to)</option>
-                    <option value="ui">🖥 UI labels</option>
-                    <option value="auto">⚙ Auto</option>
-                </select>
-                <span style="color:#d1d5db; padding:0 4px;">│</span>
                 <strong>TM:</strong>
                 <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
                     <option value="jp-th">jp-th</option>
                     <option value="en-vn">en-vn</option>
+                </select>
+                <span style="color:#d1d5db; padding:0 4px;">│</span>
+                <strong>Type:</strong>
+                <select id="contentType" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;"
+                        title="Content type ─ ปรับ prompt style + TM domain filter ตามชนิดเอกสาร">
+                    <!-- options populated by JS based on TM pair selection -->
                 </select>
                 <label>final_k:
                     <input type="number" id="tmFinalK" min="1" max="200" value="20"
@@ -193,8 +182,27 @@ Examples:
                 <span class="legend-item" id="legendPictures"><span class="legend-swatch" style="border-color:#059669"></span>pictures</span>
             </span>
         </div>
-        <div id="previewArea">
-            <div class="empty">Upload a file to see the preview.</div>
+        <div id="visualWorkspace">
+            <aside id="thumbSidebar">
+                <div class="empty" id="thumbEmpty" style="padding:20px 8px; font-size:11px;">No pages yet</div>
+            </aside>
+            <main id="splitMain">
+                <!-- Zoom toolbar (lower-right) — fit/100%/zoom-/zoom+, indicator -->
+                <div id="zoomToolbar" aria-label="Zoom controls">
+                    <button type="button" id="zoomOutBtn" title="Zoom out (-)"><span class="material-symbols-outlined">remove</span></button>
+                    <span id="zoomLevel" title="Current zoom — click to reset (0)">100%</span>
+                    <button type="button" id="zoomInBtn" title="Zoom in (+)"><span class="material-symbols-outlined">add</span></button>
+                    <span class="zoom-sep"></span>
+                    <button type="button" id="zoomFitBtn" title="Fit to viewport (0)"><span class="material-symbols-outlined">fit_screen</span></button>
+                    <button type="button" id="zoom100Btn" title="Actual size (1)"><span class="material-symbols-outlined">crop_free</span></button>
+                </div>
+                <div id="beforePane" class="split-pane scroll-fallback">
+                    <div class="empty">Upload a file to see the original image.</div>
+                </div>
+                <div id="previewArea" class="split-pane scroll-fallback">
+                    <div class="empty">Upload a file to see the preview.</div>
+                </div>
+            </main>
         </div>
     </div>
 </div>
@@ -259,11 +267,66 @@ import { setStatus, clearStatus } from "/static/js/status.js";
 import { initCompare, buildCompareTable } from "/static/js/compare.js";
 import { initUpload } from "/static/js/upload.js";
 import { renderPreview, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
+import { renderBeforePane } from "/static/js/visual/before-pane.js";
+import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
+import { initPanZoom } from "/static/js/visual/pan-zoom.js";
+import * as viewport from "/static/js/visual/viewport.js";
 // side-effect imports — wire toolbar buttons (run/stop/clear/retry/preview/copy/paste/tm)
 import "/static/js/correct-runner.js";
 import "/static/js/translate-runner.js";
 import "/static/js/preview-prompt.js";
 import "/static/js/tm.js";
+
+// expose state + viewport บน window สำหรับ test + dev debug
+window.state = state;
+window.viewport = viewport;
+
+// initPanZoom บน splitMain (รับ wheel + drag events ของ both panes)
+initPanZoom(document.getElementById("splitMain"));
+
+// ── Zoom toolbar (fit / 100% / zoom +/-) + indicator ───────────────────
+const zoomLevelEl = document.getElementById("zoomLevel");
+function _fitCurrentPage() {
+    const pane = document.getElementById("previewArea");
+    if (!pane) return;
+    const r = pane.getBoundingClientRect();
+    const p = state.lastResult?.preview?.pages?.[0];
+    if (!p) return;
+    const w = p.tile_manifest?.width || p.width || 1;
+    const h = p.tile_manifest?.height || p.height || 1;
+    viewport.fitToViewport(w, h, r.width, r.height);
+}
+function _zoomAtCenter(factor) {
+    const sm = document.getElementById("splitMain");
+    const r = sm.getBoundingClientRect();
+    viewport.zoomAt(r.width / 2, r.height / 2, factor);
+}
+document.getElementById("zoomInBtn")?.addEventListener("click", () => _zoomAtCenter(1.25));
+document.getElementById("zoomOutBtn")?.addEventListener("click", () => _zoomAtCenter(0.8));
+document.getElementById("zoomFitBtn")?.addEventListener("click", _fitCurrentPage);
+document.getElementById("zoom100Btn")?.addEventListener("click", () => {
+    // 1:1 image-pixel : screen-pixel, center on viewport
+    const sm = document.getElementById("splitMain");
+    const r = sm.getBoundingClientRect();
+    const cur = viewport.getZoom() || 1;
+    viewport.zoomAt(r.width / 2, r.height / 2, 1 / cur);
+});
+zoomLevelEl?.addEventListener("click", _fitCurrentPage);
+viewport.onChange((s) => {
+    if (zoomLevelEl) zoomLevelEl.textContent = Math.round(s.zoom * 100) + "%";
+});
+
+// thumbnail click → switch page
+window._onThumbClickPage = function(pageNo) {
+    const pageSelect = document.getElementById("pageSelect");
+    if (!pageSelect) return;
+    pageSelect.value = String(pageNo);
+    viewport.clearTargets();
+    viewport.reset();
+    renderBeforePane();
+    pageSelect.dispatchEvent(new Event("change"));
+    setActiveThumb(pageNo);
+};
 
 // selection refs — Set by ref, mutations sync กับ state
 const selectedRefs = state.selection.refs;
@@ -286,10 +349,34 @@ syncFastVisibility();
 // ── จำค่า dropdown/checkbox ใน localStorage ──
 const CONVERT_PREFS_KEY = "doclingConvertPrefs";
 const langSelect = document.getElementById("lang");
-const translateTargetSelectEl = document.getElementById("translateTarget");
 const translateEngineSelectEl = document.getElementById("translateEngine");
 const tmPairSelectEl = document.getElementById("tmPair");
 const contentTypeSelectEl = document.getElementById("contentType");
+
+// Type options ผูกกับ TM pair (folder name ใน data_tm/{pair}/{type}/)
+const CONTENT_TYPES_BY_PAIR = {
+    "jp-th": [
+        { value: "manga_novel", label: "Manga / Novel" },
+        { value: "tutorial",    label: "Tutorial (web manual)" },
+    ],
+    "en-vn": [
+        { value: "product_catalog", label: "Product catalog" },
+    ],
+};
+
+function populateContentTypes(pair, preferredValue) {
+    const opts = CONTENT_TYPES_BY_PAIR[pair] || [];
+    contentTypeSelectEl.innerHTML = "";
+    for (const o of opts) {
+        const el = document.createElement("option");
+        el.value = o.value;
+        el.textContent = o.label;
+        contentTypeSelectEl.appendChild(el);
+    }
+    if (preferredValue && opts.some(o => o.value === preferredValue)) {
+        contentTypeSelectEl.value = preferredValue;
+    }
+}
 
 function _setSelectIfOption(selectEl, value) {
     if (!selectEl || !value) return;
@@ -299,23 +386,23 @@ function _setSelectIfOption(selectEl, value) {
 function _loadConvertPrefs() {
     try {
         const raw = localStorage.getItem(CONVERT_PREFS_KEY);
-        if (!raw) return;
-        const p = JSON.parse(raw);
+        const p = raw ? JSON.parse(raw) : {};
         _setSelectIfOption(langSelect, p.lang);
         _setSelectIfOption(ocrEngineSelect, p.ocr_engine);
-        _setSelectIfOption(translateTargetSelectEl, p.translate_target);
         _setSelectIfOption(translateEngineSelectEl, p.translate_engine);
         _setSelectIfOption(tmPairSelectEl, p.tm_pair);
-        _setSelectIfOption(contentTypeSelectEl, p.content_type);
+        // populate type AFTER tm pair restored (type list ขึ้นกับ pair)
+        populateContentTypes(tmPairSelectEl.value, p.content_type);
         if (typeof p.fast === "boolean") fastCheckbox.checked = p.fast;
-    } catch (_) {}
+    } catch (_) {
+        populateContentTypes(tmPairSelectEl.value);
+    }
 }
 function _saveConvertPrefs() {
     try {
         localStorage.setItem(CONVERT_PREFS_KEY, JSON.stringify({
             lang: langSelect.value,
             ocr_engine: ocrEngineSelect.value,
-            translate_target: translateTargetSelectEl?.value || null,
             translate_engine: translateEngineSelectEl?.value || null,
             tm_pair: tmPairSelectEl?.value || null,
             content_type: contentTypeSelectEl?.value || null,
@@ -325,11 +412,14 @@ function _saveConvertPrefs() {
 }
 _loadConvertPrefs();
 [langSelect, ocrEngineSelect, fastCheckbox,
- translateTargetSelectEl, translateEngineSelectEl, tmPairSelectEl, contentTypeSelectEl].forEach(el =>
+ translateEngineSelectEl, tmPairSelectEl, contentTypeSelectEl].forEach(el =>
     el && el.addEventListener("change", _saveConvertPrefs)
 );
+tmPairSelectEl.addEventListener("change", () => {
+    populateContentTypes(tmPairSelectEl.value);
+    _saveConvertPrefs();
+});
 
-// Type select ถูกเอาออก → backend รับ type=texts เสมอ → checkboxes ของ Tables/Pictures ซ่อน
 function applyTextsOnlyCheckboxes() {
     const map = {
         texts: ["lblTexts", "showTexts", "legendTexts", true],
@@ -344,16 +434,27 @@ function applyTextsOnlyCheckboxes() {
 }
 applyTextsOnlyCheckboxes();
 
+// Compare + Visual tabs = full screen (ทิ้ง max-width 1280); Output tab keep แคบ
+function _applyFullscreenForTab(name) {
+    document.body.classList.toggle("app-fullscreen", name === "visual" || name === "compare");
+}
 document.querySelectorAll(".tab").forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
         document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
         btn.classList.add("active");
         document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
-        if (btn.dataset.tab === "visual") renderPreview();
+        _applyFullscreenForTab(btn.dataset.tab);
+        if (btn.dataset.tab === "visual") {
+            renderThumbSidebar(window._onThumbClickPage);
+            renderBeforePane();
+            renderPreview();
+        }
         if (btn.dataset.tab === "compare") buildCompareTable();
     });
 });
+// apply on initial load — visual tab เป็น default active
+_applyFullscreenForTab(document.querySelector(".tab.active")?.dataset.tab);
 
 // preview filters (checkboxes + page select + overlay) → re-render
 [pageSelect,

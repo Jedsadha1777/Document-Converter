@@ -12,10 +12,11 @@ os.environ.setdefault("MKL_NUM_THREADS", "1")
 import gc
 import json
 import tempfile
+import uuid
 from pathlib import Path
 
 import psutil
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, abort, jsonify, render_template, request, send_file
 from werkzeug.utils import secure_filename
 
 from config import (
@@ -62,6 +63,7 @@ from translate import (
     translate_batch,
     translate_text,
 )
+import tiles
 import tm
 
 
@@ -205,8 +207,11 @@ def apple_translate_setup():
 def translate_endpoint():
     payload = request.get_json(silent=True) or {}
     text = payload.get("text", "")
-    target = payload.get("target", "th")
+    target = (payload.get("target") or "").strip()
     engine = payload.get("engine", "qwen")  # qwen | apple | nllb
+
+    if not target:
+        return jsonify({"error": "target language is required — select a target before translating"}), 400
 
     if engine == "apple":
         translated, err = apple_translate_text(text, target)
@@ -224,7 +229,7 @@ def translate_batch_preview():
     """ดู prompt + payload ที่จะส่งไป LLM โดยไม่เรียก LLM จริง"""
     payload = request.get_json(silent=True) or {}
     texts = payload.get("texts") or []
-    target = payload.get("target", "th")
+    target = (payload.get("target") or "").strip()
     engine = payload.get("engine", "qwen")
     custom_rules = payload.get("custom_rules")
     content_type = (payload.get("content_type") or "").strip() or None
@@ -235,6 +240,10 @@ def translate_batch_preview():
 
     if not isinstance(texts, list) or not texts:
         return jsonify({"error": "texts must be a non-empty list"}), 400
+    if not target:
+        return jsonify({"error": "target language is required — select a target before previewing"}), 400
+    if not content_type:
+        return jsonify({"error": "content_type is required — select a Type (TM domain) before previewing"}), 400
 
     n = len(texts)
     sp_list = list(speakers) if isinstance(speakers, list) else [None] * n
@@ -361,7 +370,7 @@ def translate_batch_endpoint():
     try:
         payload = request.get_json(silent=True) or {}
         texts = payload.get("texts") or []
-        target = payload.get("target", "th")
+        target = (payload.get("target") or "").strip()
         engine = payload.get("engine", "qwen")
         custom_rules = payload.get("custom_rules")
         content_type = (payload.get("content_type") or "").strip() or None
@@ -373,6 +382,10 @@ def translate_batch_endpoint():
 
         if not isinstance(texts, list) or not texts:
             return jsonify({"error": "texts must be a non-empty list"}), 400
+        if not target:
+            return jsonify({"error": "target language is required — select a target before translating"}), 400
+        if not content_type:
+            return jsonify({"error": "content_type is required — select a Type (TM domain) before translating"}), 400
         if engine not in ("qwen", "gemini"):
             return jsonify({"error": f"batch is not supported for engine={engine}"}), 400
         if engine == "gemini" and not GEMINI_AVAILABLE:
@@ -415,7 +428,7 @@ def tm_build():
 def tm_suggest():
     payload = request.get_json(silent=True) or {}
     texts = payload.get("texts") or []
-    pair = (payload.get("pair") or "en-vn").strip()
+    pair = (payload.get("pair") or "jp-th").strip()
     top_k_per_query = int(payload.get("top_k_per_query") or 0) or None
     final_k = int(payload.get("final_k") or 0) or None
     auto_build = bool(payload.get("auto_build", True))
@@ -484,6 +497,11 @@ def convert():
         selected_pages = None
         page_range = None
 
+    # doc_id = uuid per upload session → tile pyramid อยู่ใต้ cache/tiles/{doc_id}/
+    # cleanup เก่าก่อน (เผื่อ disk บวมจากใช้งานยาว)
+    doc_id = uuid.uuid4().hex[:16]
+    tiles.cleanup_old_docs()
+
     filename = secure_filename(uploaded.filename)
     with tempfile.TemporaryDirectory() as tmpdir:
         path = Path(tmpdir) / filename
@@ -497,16 +515,16 @@ def convert():
                 result = converter.convert(str(path))
             doc = result.document
             d = doc.export_to_dict()
-            pv = build_preview(doc)
+            pv = build_preview(doc, doc_id)
             if path.suffix.lower() in (".xlsx", ".xls"):
                 flatten_xlsx_cells_to_texts(d, pv)
             return d, pv
 
         try:
             if fast:
-                doc_dict, preview = run_fast_pipeline(path, filename, lang)
+                doc_dict, preview = run_fast_pipeline(path, filename, lang, doc_id)
             elif lang == "manga":
-                doc_dict, preview = run_manga_pipeline(path, filename)
+                doc_dict, preview = run_manga_pipeline(path, filename, doc_id)
             else:
                 # Retry ladder: 2.0 → 1.5 → 1.0 → 0.75 → 0.5 (เริ่ม 144 DPI, ย่อลงเมื่อ OOM)
                 # หมายเหตุ: ถ้า process ถูก Windows kill จาก native bad_alloc จะ catch ไม่ได้
@@ -545,10 +563,49 @@ def convert():
         "correction": correction_info,
         "ocr_engine": ocr_engine,
         "engine_fallback": engine_fallback,
+        "doc_id": doc_id,
     }
     if pages_warning:
         resp["pages_warning"] = pages_warning
     return jsonify(resp)
+
+
+# ── tile pyramid serving (read-only, no caching headers — local dev) ──
+# Layout: cache/tiles/{doc_id}/p{N}/{level}/{x}_{y}.png
+_DOC_ID_RX = __import__("re").compile(r"^[a-f0-9]{8,32}$")
+
+
+def _validate_doc_id(doc_id: str) -> str:
+    """กัน path traversal — doc_id ต้องเป็น hex ที่ uuid.hex สร้าง"""
+    if not _DOC_ID_RX.match(doc_id):
+        abort(404)
+    return doc_id
+
+
+@app.route("/tiles/<doc_id>/p<int:page>/manifest.json")
+def tile_manifest(doc_id, page):
+    p = tiles.get_manifest_path(_validate_doc_id(doc_id), page)
+    if p is None:
+        abort(404)
+    return send_file(p, mimetype="application/json")
+
+
+@app.route("/tiles/<doc_id>/p<int:page>/thumb.png")
+def tile_thumb(doc_id, page):
+    p = tiles.get_thumb_path(_validate_doc_id(doc_id), page)
+    if p is None:
+        abort(404)
+    return send_file(p, mimetype="image/png")
+
+
+@app.route("/levels/<doc_id>/p<int:page>/<int:level>.png")
+def level_image(doc_id, page, level):
+    """Serve 1 PNG per level (lazy downsampled). Client (WASM) decodes once + crops tiles locally
+    → no per-tile HTTP / no per-tile server PIL crop."""
+    p = tiles.get_level_path(_validate_doc_id(doc_id), page, level)
+    if p is None:
+        abort(404)
+    return send_file(p, mimetype="image/png")
 
 
 if __name__ == "__main__":

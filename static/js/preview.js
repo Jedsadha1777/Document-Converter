@@ -13,6 +13,9 @@ import { UpdateBboxCmd, SetSpeakerCmd, MergeBoxesCmd, CompositeCommand } from ".
 import { escapeHtml, diffChars, renderDiffSide } from "./diff.js";
 import { getCharacters, renderSpeakerOptions, SPEAKER_SKIP } from "./characters.js";
 import { COLORS } from "./colors.js";
+import * as viewport from "./visual/viewport.js";
+import { peekLevel, pickLevel } from "./visual/wasm-tiles.js";
+import { SpatialGrid } from "./visual/spatial-grid.js";
 
 // deep clone helper สำหรับ command snapshots
 const _clone = (v) => v === undefined || v === null ? v : JSON.parse(JSON.stringify(v));
@@ -97,8 +100,10 @@ function getEffectiveBox(item, sx, sy, pageW, pageH) {
     return { x, y, w, h };
 }
 
-function _hitHandle(box, px, py) {
-    const hs = HANDLE_SIZE;
+function _hitHandle(box, px, py, zoom = 1) {
+    // HANDLE_SIZE = 8 screen px → ใน world space ต้องหาร zoom
+    // (drawn box + click coord อยู่ใน world; handle hit area คงที่ 8 screen px)
+    const hs = HANDLE_SIZE / Math.max(0.01, zoom);
     const halves = [
         { name: "nw", cx: box.x,             cy: box.y },
         { name: "n",  cx: box.x + box.w / 2, cy: box.y },
@@ -379,6 +384,29 @@ export function mergeSelectedBoxes() {
     window.buildCompareTable?.(true);
 }
 
+// cleanup ของ wrap รอบที่แล้ว — เรียกก่อน mount ใหม่ ไม่งั้น ResizeObserver,
+// viewport.onChange unsubscribe, document mouseup listener สะสมทุก re-render
+function _cleanupPreviewArea() {
+    const oldWrap = window._previewWrap;
+    if (oldWrap) {
+        oldWrap._unsubscribeViewport?.();
+        oldWrap._resizeObserver?.disconnect?.();
+        oldWrap.onmousemove = null;
+        oldWrap.onmousedown = null;
+        oldWrap.onmouseup   = null;
+        oldWrap.onmouseleave = null;
+        oldWrap.onclick     = null;
+        oldWrap._unsubscribeViewport = null;
+        oldWrap._resizeObserver = null;
+        oldWrap._redraw = null;
+    }
+    if (window._previewDocMouseUp) {
+        document.removeEventListener("mouseup", window._previewDocMouseUp);
+        window._previewDocMouseUp = null;
+    }
+    window._previewWrap = null;
+}
+
 // ─────────────────────────────────────────────────────────
 // renderPreview — สร้าง canvas + วาด + wire mouse handlers
 // ─────────────────────────────────────────────────────────
@@ -394,7 +422,8 @@ export function renderPreview() {
     }
     const pageNo = parseInt(pageSelect.value || lastResult.preview.pages[0].page_no, 10);
     const page = lastResult.preview.pages.find(p => p.page_no === pageNo);
-    if (!page || !page.image) {
+    if (!page || (!page.image && !page.tile_manifest)) {
+        _cleanupPreviewArea();
         previewArea.innerHTML = '<div class="empty">No image for this page.</div>';
         return;
     }
@@ -404,29 +433,72 @@ export function renderPreview() {
     const showPictures = document.getElementById("showPictures");
     const showLabels = document.getElementById("showLabels");
 
+    // cleanup ของ wrap รอบที่แล้ว (กัน ResizeObserver + viewport listener + mouseup listener leak)
+    _cleanupPreviewArea();
     previewArea.innerHTML = "";
+    // Ketchup-style canvas — fill pane (CSS size), DPR-aware backing store.
+    // World transform applied per-frame via ctx.setTransform — no CSS transform.
     const wrap = document.createElement("div");
     wrap.className = "canvas-wrap";
-    const img = new Image();  // โหลดอย่างเดียว ไม่ append เข้า DOM — กัน native image drag
+    wrap.style.position = "absolute";
+    wrap.style.top = "0"; wrap.style.left = "0";
+    wrap.style.width = "100%"; wrap.style.height = "100%";
     const canvas = document.createElement("canvas");
+    canvas.style.position = "absolute";
+    canvas.style.top = "0"; canvas.style.left = "0";
+    canvas.style.display = "block";
     const tooltip = document.createElement("div");
     tooltip.className = "tooltip";
     wrap.appendChild(canvas); wrap.appendChild(tooltip);
     previewArea.appendChild(wrap);
 
-    img.onload = () => {
-        const containerW = previewArea.clientWidth || img.naturalWidth;
-        const dispW = Math.min(containerW, img.naturalWidth);
-        const dispH = Math.round(dispW * img.naturalHeight / img.naturalWidth);
-        canvas.width = dispW;
-        canvas.height = dispH;
-        canvas.style.width = dispW + "px";
-        canvas.style.height = dispH + "px";
+    // image dimensions — จาก tile_manifest (Phase 0) หรือ base64 fallback
+    const docId = page._doc_id || state.lastResult?.doc_id || null;
+    const tilePage = page._page_no_orig ?? page.page_no;   // multi-file: tile stored ที่ original page_no
+    const tm = page.tile_manifest;
+    const imgW = tm?.width || page.width || 1;
+    const imgH = tm?.height || page.height || 1;
+    const pageW = page.width || imgW;
+    const pageH = page.height || imgH;
+    const sx = imgW / pageW;
+    const sy = imgH / pageH;
+    const dispW = imgW;     // legacy alias (drawing logic uses dispW/dispH internally)
+    const dispH = imgH;
 
-        const pageW = page.width || img.naturalWidth;
-        const pageH = page.height || img.naturalHeight;
-        const sx = dispW / pageW;
-        const sy = dispH / pageH;
+    // fallback Image element สำหรับเคสไม่มี tile_manifest (เก่า data)
+    const fallbackImg = (!tm && page.image) ? new Image() : null;
+    if (fallbackImg) fallbackImg.src = page.image;
+
+    const dpr = window.devicePixelRatio || 1;
+    function _resizeCanvas() {
+        const r = previewArea.getBoundingClientRect();
+        canvas.width = Math.max(1, Math.floor(r.width * dpr));
+        canvas.height = Math.max(1, Math.floor(r.height * dpr));
+        canvas.style.width = r.width + "px";
+        canvas.style.height = r.height + "px";
+    }
+    _resizeCanvas();
+
+    // setup viewport-driven redraw (rAF coalesced)
+    let _redrawScheduled = false;
+    const requestRedraw = () => {
+        if (_redrawScheduled) return;
+        _redrawScheduled = true;
+        requestAnimationFrame(() => {
+            _redrawScheduled = false;
+            if (wrap._redraw) wrap._redraw();
+        });
+    };
+    const unsubscribeViewport = viewport.onChange(requestRedraw);
+    wrap._unsubscribeViewport = unsubscribeViewport;
+
+    // ResizeObserver — pane size changes → resize canvas + redraw
+    const ro = new ResizeObserver(() => { _resizeCanvas(); requestRedraw(); });
+    ro.observe(previewArea);
+    wrap._resizeObserver = ro;
+
+    // ── main render: run synchronously (no img.onload await) ──
+    {
 
         const ctx = canvas.getContext("2d");
         let drawn = [];
@@ -441,9 +513,36 @@ export function renderPreview() {
                 if (it.category === "pictures" && !showPictures.checked) return false;
                 return true;
             });
-            ctx.drawImage(img, 0, 0, dispW, dispH);
-            ctx.lineWidth = 2;
-            ctx.font = "11px ui-monospace, Menlo, monospace";
+
+            // === clear + apply viewport transform (Ketchup pattern) ===
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // world → device pixel: scale = zoom * dpr; pan = pan * dpr
+            viewport.applyToCanvasCtx(ctx, dpr);
+
+            // === draw image (WASM-decoded level bitmap, ไม่งั้น fallback base64) ===
+            // เลือก level ใกล้กับ zoom ปัจจุบัน → load PNG ครั้งเดียวต่อ level
+            // WASM (stb_image) decode PNG → RGBA → ImageBitmap → drawImage with viewport transform
+            if (tm && docId) {
+                const lvl = pickLevel(viewport.getZoom(), tm.max_level);
+                const handle = peekLevel(docId, tilePage, lvl, () => requestRedraw());
+                if (handle?.bitmap) {
+                    // bitmap = downsampled image at level L (size = imgW/2^L × imgH/2^L)
+                    // draw ที่ world coord (0,0,imgW,imgH) → ctx.setTransform จัดการ scale/pan
+                    ctx.drawImage(handle.bitmap, 0, 0, imgW, imgH);
+                }
+                // ถ้ายัง loading: skip — peekLevel จะ trigger requestRedraw ตอน decode เสร็จ
+            } else if (fallbackImg && fallbackImg.complete) {
+                ctx.drawImage(fallbackImg, 0, 0, imgW, imgH);
+            } else if (fallbackImg) {
+                fallbackImg.onload = requestRedraw;
+            }
+
+            // bbox stroke width — keep constant on screen (= 2 px) ผ่าน /zoom adjust
+            const z = viewport.getZoom() || 1;
+            ctx.lineWidth = 2 / z;
+            ctx.font = `${11 / z}px ui-monospace, Menlo, monospace`;
 
             const overlayMode = document.getElementById("showOverlay").checked;
             drawn = [];
@@ -625,17 +724,27 @@ export function renderPreview() {
                 ctx.restore();
             }
             wrap._drawn = drawn;
+            // SpatialGrid — rebuild ทุก doDraw (ใช้ในการ hit-test → O(small cell) แทน O(n) linear)
+            // cellSize 200 world-px เหมาะกับ bbox manga ปกติ 100-500 px
+            if (!wrap._grid) wrap._grid = new SpatialGrid(200);
+            wrap._grid.clear();
+            drawn.forEach((d, idx) => wrap._grid.insert(idx, d.x, d.y, d.w, d.h));
             window._previewWrap = wrap;
+            ctx.restore();   // matches ctx.save() ที่เริ่มต้น doDraw
         };
         wrap._redraw = doDraw;
+
+        // fit-to-viewport — pane CSS size, image natural size (จาก tile_manifest หรือ base64)
+        const _paneRect = previewArea.getBoundingClientRect();
+        viewport.fitToViewport(imgW, imgH, _paneRect.width, _paneRect.height);
+        // initial render (viewport.onChange listener ก็ trigger requestRedraw ตอน fitToViewport)
         doDraw();
 
         wrap.style.cursor = "default";
 
         wrap.onmousemove = (ev) => {
-            const rect = wrap.getBoundingClientRect();
-            const px = ev.clientX - rect.left;
-            const py = ev.clientY - rect.top;
+            // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
+            const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
 
             // === MARQUEE — live add/remove ตามลำดับโดน ===
             const mq = getMarquee();
@@ -706,7 +815,7 @@ export function renderPreview() {
             if (sel.ref) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
                 if (selDrawn) {
-                    const handle = _hitHandle(selDrawn, px, py);
+                    const handle = _hitHandle(selDrawn, px, py, viewport.getZoom());
                     if (handle) {
                         const map = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
                                       nw: "nwse-resize", se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize" };
@@ -714,19 +823,18 @@ export function renderPreview() {
                     }
                 }
             }
+            // SpatialGrid hit-test — O(small cell) แทน O(n) linear; queryAt return ids ใน insertion order
+            const _hitIds = wrap._grid ? wrap._grid.queryAt(px, py) : [];
+            const _topHit = _hitIds.length ? drawn[_hitIds[_hitIds.length - 1]] : null;
+
             if (cur === "default") {
-                const overItem = [...drawn].reverse().find(d =>
-                    px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
-                );
-                cur = overItem ? "move" : "default";
+                cur = _topHit ? "move" : "default";
             }
             wrap.style.cursor = cur;
 
             // === Hover tooltip ===
             const overlayModeNow = document.getElementById("showOverlay").checked;
-            const hit = [...drawn].reverse().find(d =>
-                px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
-            );
+            const hit = _topHit;
             if (!hit) {
                 tooltip.style.display = "none";
                 return;
@@ -778,14 +886,13 @@ export function renderPreview() {
         wrap.onmousedown = (ev) => {
             if (ev.button !== 0) return;
             state.justDragged = false;
-            const rect = wrap.getBoundingClientRect();
-            const px = ev.clientX - rect.left;
-            const py = ev.clientY - rect.top;
+            // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
+            const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
             // 1) handle ของกล่องที่ active อยู่ก่อน
             if (sel.ref && !ev.shiftKey) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
                 if (selDrawn) {
-                    const handle = _hitHandle(selDrawn, px, py);
+                    const handle = _hitHandle(selDrawn, px, py, viewport.getZoom());
                     if (handle) {
                         ev.preventDefault();
                         setDrag({
@@ -799,10 +906,9 @@ export function renderPreview() {
                     }
                 }
             }
-            // 2) คลิกในกล่อง
-            const hit = [...drawn].reverse().find(d =>
-                px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
-            );
+            // 2) คลิกในกล่อง (SpatialGrid hit-test)
+            const _ids = wrap._grid ? wrap._grid.queryAt(px, py) : [];
+            const hit = _ids.length ? drawn[_ids[_ids.length - 1]] : null;
             if (hit) {
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -866,19 +972,16 @@ export function renderPreview() {
                 state.justDragged = false;
                 return;
             }
-            const rect = wrap.getBoundingClientRect();
-            const px = ev.clientX - rect.left;
-            const py = ev.clientY - rect.top;
-            const hit = [...drawn].reverse().find(d =>
-                px >= d.x && px <= d.x + d.w && py >= d.y && py <= d.y + d.h
-            );
+            // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
+            const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
+            const _ids = wrap._grid ? wrap._grid.queryAt(px, py) : [];
+            const hit = _ids.length ? drawn[_ids[_ids.length - 1]] : null;
             if (hit && !ev.shiftKey) {
                 ev.stopPropagation();
                 showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
             }
         };
-    };
-    img.src = page.image;
+    }
 }
 
 // canvas-only redraw ผ่าน wrap closure — กัน flicker

@@ -128,13 +128,132 @@ textarea {
     border-radius: 2px;
 }
 
+/* ── full-bleed workspace (Compare + Visual tabs) ──────────────────────
+   เมื่ออยู่ tab=compare หรือ tab=visual → body.app-fullscreen ทิ้ง 1280 cap
+   Output tab (textarea) ไม่ต้องเต็มจอ — keep default 1280 center                  */
+body.app-fullscreen { padding: 0; height: 100vh; overflow: hidden; }
+body.app-fullscreen .container {
+    max-width: none;
+    margin: 0;
+    padding: 12px;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+body.app-fullscreen .tab-panel.active {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+body.app-fullscreen #compareArea {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+}
+.tab-panel#panel-visual.active {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* ── Visual tab workspace: sidebar (thumbnails) + split panes (before/after) ── */
+#visualWorkspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    gap: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+#thumbSidebar {
+    width: 180px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    padding: 8px;
+    background: #f9fafb;
+    border-right: 1px solid #e5e7eb;
+}
+#splitMain {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 8px;
+    min-height: 0;
+    min-width: 0;
+}
+.split-pane {
+    position: relative;
+    overflow: hidden;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    min-height: 0;
+    min-width: 0;
+}
+.split-pane.scroll-fallback { overflow: hidden; padding: 0; }
+.split-pane { cursor: grab; }
+.split-pane.panning { cursor: grabbing !important; }
+
+/* Floating zoom toolbar — lower-right ของ splitMain */
+#zoomToolbar {
+    position: absolute;
+    right: 16px;
+    bottom: 14px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 4px 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    font-size: 12px;
+    user-select: none;
+}
+#zoomToolbar button {
+    background: transparent;
+    border: none;
+    padding: 4px 6px;
+    color: #374151;
+    cursor: pointer;
+    border-radius: 4px;
+    line-height: 1;
+}
+#zoomToolbar button:hover { background: #f3f4f6; }
+#zoomToolbar #zoomLevel {
+    min-width: 52px;
+    text-align: center;
+    cursor: pointer;
+    color: #1f2937;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+#zoomToolbar #zoomLevel:hover { background: #f3f4f6; border-radius: 4px; }
+#zoomToolbar .zoom-sep {
+    width: 1px;
+    height: 18px;
+    background: #d1d5db;
+    margin: 0 4px;
+}
+#splitMain { position: relative; }   /* anchor zoomToolbar absolutely */
+
+/* Thumbnail sidebar */
+#thumbSidebar .thumb-row:hover { background: #eff6ff; }
+#thumbSidebar .thumb-row.active { border-color: #2563eb !important; }
+
 .canvas-wrap {
     position: relative;
     display: inline-block;
-    max-width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    overflow: hidden;
     background: #f9fafb;
 }
 .canvas-wrap canvas {

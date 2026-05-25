@@ -445,19 +445,21 @@ TRANSLATE_PROMPTS_BY_PAIR = {
         "  Allowed: Latin letters A-Z a-z, Vietnamese-specific letters Đ đ Ơ ơ Ư ư, "
         "  all Vietnamese tone marks on vowels, Arabic digits 0-9, and basic punctuation.\n"
         "  FORBIDDEN: any non-Latin script in the output.\n"
-        "- DIACRITICS: write proper Vietnamese with full tone and vowel marks "
-        "  ('tiếng Việt', NOT 'tieng Viet').\n"
-        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear "
-        "  EXACTLY THE SAME and in the SAME ORDER in the output.\n"
+        "- DIACRITICS — ABSOLUTE: write proper Vietnamese with FULL tone and vowel marks "
+        "  ('tiếng Việt', NOT 'tieng Viet'; 'Sản phẩm', NOT 'San pham'). "
+        "  Every word that requires a tone mark (sắc/huyền/hỏi/ngã/nặng) or a vowel mark "
+        "  (â/ê/ô/ơ/ư) MUST carry it.\n"
+        "- NUMBERS — ABSOLUTE: every digit (0-9) in the input MUST appear EXACTLY THE SAME "
+        "  and in the SAME ORDER in the output.\n"
         "  NEVER spell digits as Vietnamese words ('25' stays '25', NOT 'hai mươi lăm').\n"
-        "  NEVER change thousand or decimal separators (keep '1,000' as '1,000'; keep "
-        "  '3.14' as '3.14').\n"
+        "  NEVER change thousand or decimal separators (keep '1,000' as '1,000'; "
+        "  keep '3.14' as '3.14').\n"
         "  NEVER convert calendars, units, or currency. NEVER round or simplify.\n"
         "  Applies to: years, dates, times, prices, percentages, phone numbers, "
         "  measurements, list/version numbers — every numeric token.\n"
-        "- PROPER NOUNS / NAMES: keep foreign names in their Latin form (Smith → Smith). "
-        "  Never translate the meaning of a name. Established brand names (Microsoft, "
-        "  Google, iPhone) stay in Latin script.\n"
+        "- PROPER NOUNS / NAMES / BRANDS: keep foreign names and Latin-script brands as-is "
+        "  (Smith → Smith; Microsoft → Microsoft; iPhone → iPhone; ISO 9001 → ISO 9001). "
+        "  Never translate the meaning of a name.\n"
         "If the input is already Vietnamese, return it unchanged."
     ),
     ("th", "en"): (
@@ -596,27 +598,16 @@ def _resolve_prompt(source: str | None, target: str) -> str:
     return TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
 
 
-# ── content-type style overlays — layer บน pair prompt ──
-# แต่ละ type override บางมิติ (tone, particle policy, vocabulary) — base + chars + style + rules + schema
-# เลือกผ่าน content_type payload (default: "dialogue" สำหรับ backward compat กับ manga/novel)
+# content-type style overlays — layer บน pair prompt, เลือกผ่าน content_type payload
 TRANSLATE_STYLE_PROMPTS = {
-    "dialogue": (
-        "\n\n═══ CONTENT TYPE: DIALOGUE (manga/novel/conversation) ═══\n"
+    "manga_novel": (
+        "\n\n═══ CONTENT TYPE: MANGA / NOVEL (dialogue + narration mixed) ═══\n"
         "- Conversational register — character voice ตาม profile (gender/age/persona)\n"
         "- Sentence-ending particles (ค่ะ/ครับ/นะ/จ้ะ) ใช้ตามเงื่อนไข PARTICLE PARITY ด้านบน\n"
         "- คงสำนวน manga (อุทาน, fragment, expression) — ไม่ทำให้เป็นทางการเกินไป\n"
     ),
-    "prose": (
-        "\n\n═══ CONTENT TYPE: PROSE (narration/literary/expository) ═══\n"
-        "- บรรยายเหตุการณ์/ฉาก/ความคิด — NOT direct speech\n"
-        "- ⚠ NO sentence-ending particles (ค่ะ/ครับ/นะ/จ้ะ) ห้ามใส่เลย แม้ profile มี gender\n"
-        "- ใช้ literary register: 'เขา/เธอ/พวกเขา' — ไม่ใช้ 'ผม/ฉัน' (เพราะเป็นบรรยาย)\n"
-        "- verb form ปกติ ไม่มี polite suffix\n"
-        "  '彼は走った' → 'เขาวิ่ง' (ไม่ใช่ 'เขาวิ่งครับ')\n"
-        "  '部屋は静かだった' → 'ห้องเงียบสงบ' (ไม่ใช่ 'ห้องเงียบสงบนะ')\n"
-    ),
     "tutorial": (
-        "\n\n═══ CONTENT TYPE: TUTORIAL (instructional/how-to) ═══\n"
+        "\n\n═══ CONTENT TYPE: TUTORIAL (instructional/how-to / web manual) ═══\n"
         "- Imperative voice — direct command\n"
         "- ใช้ verb stem: 'คลิก', 'เลือก', 'กด', 'พิมพ์', 'บันทึก'\n"
         "- ⚠ NO casual particles (ค่ะ/ครับ/นะ) — ถ้า formal user manual ใช้ 'ให้...', 'ควร...'\n"
@@ -624,16 +615,39 @@ TRANSLATE_STYLE_PROMPTS = {
         "    'ボタンをクリック' → 'คลิกปุ่ม' (ไม่ใช่ 'คลิกปุ่มนะคะ')\n"
         "    'ファイルを保存' → 'บันทึกไฟล์'\n"
     ),
-    "ui": (
-        "\n\n═══ CONTENT TYPE: UI LABELS (software/website button labels) ═══\n"
-        "- ข้อความ UI สั้น กระชับ ไม่มีคำพูด ไม่มีประธาน\n"
-        "- ⚠ NO particles, NO verb endings — เป็น noun phrase หรือ imperative ตรง\n"
-        "- คงคำว่าเป็น English ถ้าเป็น mainstream term ('Login' / 'Save' OK; แปลทำได้แต่ short)\n"
-        "    'ログイン' → 'เข้าสู่ระบบ' / 'Login'  (ไม่ใช่ 'เข้าสู่ระบบนะคะ')\n"
-        "    '保存' → 'บันทึก' (ไม่ใช่ 'บันทึกค่ะ')\n"
-        "    'キャンセル' → 'ยกเลิก'\n"
+    "product_catalog": (
+        "\n\n═══ CONTENT TYPE: PRODUCT CATALOG (e-commerce / spec sheet / factory manual) ═══\n"
+        "Target: Vietnamese. Register: professional, formal, technical — like a product\n"
+        "catalog, factory manual, or datasheet. Never default to manga / chat / dialogue style.\n"
+        "- NO conversational sentence-final particles in declarative catalog/spec text.\n"
+        "  FORBIDDEN: ạ / nhé / nha / đấy / đó / nhỉ / hả / vậy / luôn.\n"
+        "- PRONOUNS — use neutral catalog forms:\n"
+        "    'we'        → 'Chúng tôi'\n"
+        "    'you'       → 'Quý khách' (sales/customer copy) / 'Quý vị' (broad audience) /\n"
+        "                  'người dùng' (technical manual) / 'người tiêu dùng' (legal/policy)\n"
+        "    'please'    → 'Vui lòng'\n"
+        "    'thank you' → 'Cảm ơn' / 'Xin cảm ơn'\n"
+        "- FORBIDDEN as 'you' in catalog body: anh / chị / em / cô / chú / bác / ông / bà /\n"
+        "  cháu / con / mày / cậu / tớ. They force a guess about the reader's gender, age,\n"
+        "  or relationship — guessing wrong is immediately impolite.\n"
+        "- FORBIDDEN: title prefix before a name (Mr./Mrs./Ms./Dear → Ông/Bà/Cô) — same\n"
+        "  reason; guessing the wrong gender is impolite. Address the reader with a neutral\n"
+        "  form, or drop the salutation entirely.\n"
+        "- Declarative product copy stays declarative (no chat particles):\n"
+        "    'Made of stainless steel' → 'Được làm bằng thép không gỉ'\n"
+        "    NOT 'Được làm bằng thép không gỉ ạ'.\n"
+        "- Buttons / UI labels → short imperative or noun phrase, no particles:\n"
+        "    'Add to cart' → 'Thêm vào giỏ hàng'.   'Buy now' → 'Mua ngay'.\n"
+        "- Numbers + units + brand names stay verbatim: 100 mm stays '100 mm';\n"
+        "  Microsoft stays 'Microsoft'; ISO 9001 stays 'ISO 9001'.\n"
+        "- Use the conventional Vietnamese industry term from the glossary TM\n"
+        "  (Material / Specifications / Warranty / MOQ etc.).\n"
+        "- Sales phrasing must stay formal:\n"
+        "    'Contact us for a quote' → 'Vui lòng liên hệ chúng tôi để được báo giá'\n"
+        "      (NOT 'Liên hệ nhé').\n"
+        "    'We offer free samples'  → 'Chúng tôi cung cấp mẫu miễn phí'\n"
+        "      (NOT 'Tụi tôi tặng mẫu').\n"
     ),
-    "auto": "",  # ไม่ใส่ style block — ปล่อยให้ pair prompt + custom rules ตัดสิน
 }
 
 
@@ -1124,12 +1138,10 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
     base_prompt = _resolve_prompt(source, target)
     chars_section = _build_characters_section(characters)
     style_block = _resolve_style_block(content_type)
-    # narration rule — per-line auto-rule based on speaker tag absence.
-    # ใส่เฉพาะ content_type ที่มี dialogue+narration ปนกัน (dialogue/auto/None).
-    # content_type ใน {prose, tutorial, ui} → style block บังคับ no-particle ทุก line อยู่แล้ว
-    # → narration_rule ซ้ำซ้อน + เปลือง ~200 tokens ต่อ batch request
+    # narration_rule = per-line auto-rule (speaker tag present → dialogue, absent → narration)
+    # ใส่เฉพาะ manga_novel ที่มี dialogue+narration ปนกัน
     narration_rule = ""
-    if content_type in (None, "", "dialogue", "auto"):
+    if content_type in (None, "", "manga_novel"):
         narration_rule = (
             "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
             "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + particles ตามเงื่อนไข\n"
@@ -1198,9 +1210,7 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
             + custom_rules.strip() + "\n"
             "─────────────────────────────────────────────────────────\n"
         )
-    # PROTECTED TOKENS — บอก LLM อย่าแตะ placeholder ที่ _protect_segments สร้างไว้
-    # (URL/HTML/email/code → ถูก mask เป็น X9990X, X9991X, ... → restore ทีหลัง)
-    # ⚠ universal สำหรับทุก engine/target/content_type — ไม่ขึ้นกับอะไร
+    # ป้องกัน LLM แตะ placeholder ที่ _protect_segments สร้าง (X9990X, X9991X, ...)
     protected_tokens_rule = (
         "\n\n═══ PROTECTED TOKENS (CRITICAL — preserve verbatim) ═══\n"
         "Tokens ในรูป X9990X / X9991X / X9992X ... (ตัว X ใหญ่ + 4 หลักเลข + X ใหญ่)\n"
@@ -1411,9 +1421,6 @@ def _extract_json_payload(raw: str) -> str:
                 idx = s.find(opener, idx + 1)
     return s
 
-
-# legacy alias เผื่อ caller เก่า
-_strip_markdown_fence = _extract_json_payload
 
 
 def apply_manual_batch(texts: list[str], target: str, raw_response: str,

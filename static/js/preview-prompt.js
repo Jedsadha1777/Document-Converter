@@ -6,7 +6,7 @@ import { getCharacters, SPEAKER_SKIP } from "./characters.js";
 import { renderPreview } from "./preview.js";
 import { COLORS } from "./colors.js";
 import { escapeHtml } from "./diff.js";
-import { runState, runDom } from "./run-state.js";
+import { runState, runDom, getTranslateTarget } from "./run-state.js";
 import { applyTranslationSuccess, applyTranslationError } from "./translate-runner.js";
 
 const { corrections, speakerByRef } = state;
@@ -250,7 +250,8 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
         alert("No failed rows yet");
         return;
     }
-    const target = runDom.translateTargetSel.value;
+    const target = getTranslateTarget();
+    if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
     const customRules = (runDom.customRulesEl.value || "").trim();
     const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
@@ -337,7 +338,8 @@ async function copyPromptOneClick() {
     const compareArea = document.getElementById("compareArea");
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     if (!rows.length) { alert("No rows in the table — upload a file first"); return; }
-    const target = runDom.translateTargetSel.value;
+    const target = getTranslateTarget();
+    if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
     const customRules = (runDom.customRulesEl.value || "").trim();
     const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
@@ -398,7 +400,8 @@ async function pastePromptOneClick() {
     if (!raw || !raw.trim()) { runDom.correctProgress.textContent = "Clipboard is empty"; return; }
 
     // build state จาก table ปัจจุบัน — กรอง SKIP + empty (ตรงกับที่ copyPrompt ส่งไป)
-    const target = runDom.translateTargetSel.value;
+    const target = getTranslateTarget();
+    if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
     const indices = [];
     const texts = [];

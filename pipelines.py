@@ -6,6 +6,8 @@ from pathlib import Path
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
+import tiles
+
 # ปลดล็อก docling-core image size limit (default 20MB)
 from docling_core.utils.settings import settings as _docling_core_settings
 _docling_core_settings.max_image_decoded_size = 500 * 1024 * 1024
@@ -261,7 +263,9 @@ def _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px):
         return None, None
 
 
-def build_preview(doc):
+def build_preview(doc, doc_id: str | None = None):
+    """doc_id (optional): ถ้าระบุ → generate tile pyramid ทุก page ใต้ cache/tiles/{doc_id}/
+    ถ้าไม่ระบุ → skip tile generation (backward compat)"""
     pages = []
     # เก็บ pil_img + page size ต่อ page เพื่อ sample สีตอน add_item
     page_imgs = {}      # {page_no: pil_img}
@@ -270,6 +274,7 @@ def build_preview(doc):
         page_w = float(page.size.width) if page.size else None
         page_h = float(page.size.height) if page.size else None
         image_data = None
+        tile_manifest = None
         if page.image is not None:
             pil_img = page.image.pil_image
             if pil_img is not None:
@@ -280,12 +285,15 @@ def build_preview(doc):
                 if page_w is None: page_w = pil_img.width
                 if page_h is None: page_h = pil_img.height
                 page_imgs[int(page_no)] = pil_img
+                if doc_id:
+                    tile_manifest = tiles.generate_page_pyramid(pil_img, doc_id, int(page_no))
         page_sizes[int(page_no)] = (page_w, page_h)
         pages.append({
             "page_no": int(page_no),
             "width": page_w,
             "height": page_h,
             "image": image_data,
+            "tile_manifest": tile_manifest,
         })
     pages.sort(key=lambda p: p["page_no"])
 
@@ -400,18 +408,32 @@ _manga_ocr = None
 
 
 def get_manga_ocr():
-    """lazy-load mokuro's MangaPageOcr (~400MB model download ครั้งแรก)"""
+    """lazy-load mokuro's MangaPageOcr (~400MB model download ครั้งแรก).
+    Raises informative error ถ้า HF cache เสีย (partial download) — ขอให้ user
+    rm -rf ~/.cache/huggingface/hub/models--kha-white--manga-ocr-base แล้วลองใหม่"""
     global _manga_ocr
     if _manga_ocr is None:
         print("[manga] loading MangaPageOcr (model may download on first run)...", flush=True)
-        from mokuro.manga_page_ocr import MangaPageOcr
-        _manga_ocr = MangaPageOcr(force_cpu=False)
+        try:
+            from mokuro.manga_page_ocr import MangaPageOcr
+            _manga_ocr = MangaPageOcr(force_cpu=False)
+        except Exception as exc:
+            msg = str(exc)
+            if "preprocessor_config.json" in msg or "image processor" in msg.lower():
+                raise RuntimeError(
+                    "manga-ocr model files ไม่ครบใน HuggingFace cache. "
+                    "ลบ cache แล้ว trigger upload ใหม่:\n"
+                    "  rm -rf ~/.cache/huggingface/hub/models--kha-white--manga-ocr-base\n"
+                    f"(original error: {exc})"
+                ) from exc
+            raise
         print("[manga] ready", flush=True)
     return _manga_ocr
 
 
-def run_manga_pipeline(path: Path, filename: str):
-    """แทนที่ docling ด้วย mokuro สำหรับมังงะ/ข้อความญี่ปุ่นแนวตั้ง"""
+def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None):
+    """แทนที่ docling ด้วย mokuro สำหรับมังงะ/ข้อความญี่ปุ่นแนวตั้ง.
+    doc_id (optional): ถ้าระบุ → generate tile pyramid"""
     mocr = get_manga_ocr()
     res = mocr(str(path))
 
@@ -424,6 +446,7 @@ def run_manga_pipeline(path: Path, filename: str):
     buf = io.BytesIO()
     pil.save(buf, format="PNG", optimize=True)
     image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+    tile_manifest = tiles.generate_page_pyramid(pil, doc_id, 1) if doc_id else None
 
     texts = []
     items = []
@@ -468,7 +491,7 @@ def run_manga_pipeline(path: Path, filename: str):
         "texts": texts,
     }
     preview = {
-        "pages": [{"page_no": 1, "width": img_w, "height": img_h, "image": image_data}],
+        "pages": [{"page_no": 1, "width": img_w, "height": img_h, "image": image_data, "tile_manifest": tile_manifest}],
         "items": items,
     }
     return doc_dict, preview
@@ -541,8 +564,9 @@ def _merge_nearby_boxes(boxes: list[dict]) -> list[dict]:
     return merged
 
 
-def run_fast_pipeline(path: Path, filename: str, lang: str = "auto"):
-    """ข้าม docling — ใช้ Apple Vision (ocrmac) ตรง ๆ เร็วกว่ามาก"""
+def run_fast_pipeline(path: Path, filename: str, lang: str = "auto", doc_id: str | None = None):
+    """ข้าม docling — ใช้ Apple Vision (ocrmac) ตรง ๆ เร็วกว่ามาก.
+    doc_id (optional): ถ้าระบุ → generate tile pyramid"""
     from ocrmac import ocrmac as _ocrmac
 
     pil = Image.open(path).convert("RGB")
@@ -613,6 +637,7 @@ def run_fast_pipeline(path: Path, filename: str, lang: str = "auto"):
     buf = io.BytesIO()
     pil.save(buf, format="PNG", optimize=True)
     image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+    tile_manifest = tiles.generate_page_pyramid(pil, doc_id, 1) if doc_id else None
 
     doc_dict = {
         "schema_name": "FastOCR",
@@ -624,7 +649,7 @@ def run_fast_pipeline(path: Path, filename: str, lang: str = "auto"):
         "texts": texts,
     }
     preview = {
-        "pages": [{"page_no": 1, "width": float(img_w), "height": float(img_h), "image": image_data}],
+        "pages": [{"page_no": 1, "width": float(img_w), "height": float(img_h), "image": image_data, "tile_manifest": tile_manifest}],
         "items": items,
     }
     return doc_dict, preview

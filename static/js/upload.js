@@ -7,6 +7,9 @@ import { history } from "./history.js";
 import { setStatus } from "./status.js";
 import { buildCompareTable, resetCompareUI } from "./compare.js";
 import { renderPreview, clearSelectionAndUI } from "./preview.js";
+import { renderBeforePane } from "./visual/before-pane.js";
+import { renderThumbSidebar } from "./visual/thumbnail.js";
+import * as viewport from "./visual/viewport.js";
 import { COLORS } from "./colors.js";
 
 const { corrections, translations, speakerByRef, bboxOverrides, manualEdits, manualTranslations } = state;
@@ -59,8 +62,12 @@ function _mergeFileResult(combined, data, pageOffset, textOffset, filename) {
         if (typeof it.page_no === "number") it.page_no += pageOffset;
     });
     (data.preview?.pages || []).forEach(p => {
-        if (typeof p.page_no === "number") p.page_no += pageOffset;
-        if (filename) p._filename = filename;  // ใช้แสดงใน pageSelect dropdown
+        if (typeof p.page_no === "number") {
+            p._page_no_orig = p.page_no;            // ต้องใช้ใน tile URL — backend store ที่ original number
+            p.page_no += pageOffset;                 // shifted สำหรับ UI/pageSelect (unique ทั้ง batch)
+        }
+        if (filename) p._filename = filename;
+        if (data.doc_id) p._doc_id = data.doc_id;
     });
     combined.preview.pages.push(...(data.preview?.pages || []));
     combined.preview.items.push(...(data.preview?.items || []));
@@ -77,6 +84,23 @@ function _populatePages(pages) {
         opt.textContent = p._filename || ("Page " + p.page_no);
         pageSelect.appendChild(opt);
     });
+    // upload ใหม่ → เริ่มหน้าแรก + reset zoom/pan + clear viewport targets
+    if (pages.length) pageSelect.value = String(pages[0].page_no);
+    viewport.clearTargets();
+    viewport.reset();
+}
+
+// thumbnail click handler — switch page + re-render 3 areas
+function _onClickPage(pageNo) {
+    const pageSelect = document.getElementById("pageSelect");
+    if (!pageSelect) return;
+    pageSelect.value = String(pageNo);
+    viewport.clearTargets();
+    viewport.reset();
+    renderBeforePane();
+    pageSelect.dispatchEvent(new Event("change"));   // triggers renderPreview via filter listener
+    // active state update
+    import("./visual/thumbnail.js").then(m => m.setActiveThumb(pageNo));
 }
 
 // ล้าง state document ทั้งหมด — เรียกตอนเริ่ม upload ใหม่
@@ -143,6 +167,13 @@ export function initUpload({ onAfterConvert } = {}) {
             if (files.length === 1) {
                 const data = await _convertOneFile(files[0]);
                 if (!data) { previewArea.innerHTML = '<div class="empty">An error occurred</div>'; return; }
+                // tile URL อ้างอิง page._page_no_orig — single-file ก็ตั้งเท่ากับ page_no
+                (data.preview?.pages || []).forEach(p => {
+                    if (typeof p.page_no === "number" && p._page_no_orig === undefined) {
+                        p._page_no_orig = p.page_no;
+                    }
+                    if (data.doc_id) p._doc_id = data.doc_id;
+                });
                 state.lastResult = data;
                 output.value = data.json_text;
                 _populatePages(data.preview.pages);
@@ -153,6 +184,8 @@ export function initUpload({ onAfterConvert } = {}) {
                 setStatus(notes.length ? `Converted ✓ (${notes.join("; ")})` : "Converted ✓",
                           notes.length ? "info" : "success");
                 buildCompareTable(true);
+                renderThumbSidebar(_onClickPage);
+                renderBeforePane();
                 if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
                 return;
             }
@@ -190,6 +223,8 @@ export function initUpload({ onAfterConvert } = {}) {
                 errors.length ? "info" : "success"
             );
             buildCompareTable(true);
+            renderThumbSidebar(_onClickPage);
+            renderBeforePane();
             if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
         } catch (err) {
             setStatus("An error occurred: " + err.message, "error");

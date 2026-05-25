@@ -6,7 +6,7 @@ import { getCharacters, SPEAKER_SKIP } from "./characters.js";
 import { renderPreview } from "./preview.js";
 import { buildCompareTable } from "./compare.js";
 import {
-    runState, runDom,
+    runState, runDom, getTranslateTarget,
     disableDuringRun, enableAfterRun,
     geminiThrottle, geminiTouch, parse429RetrySec,
     updateRetryButton,
@@ -188,7 +188,8 @@ runDom.runTranslateBtn.addEventListener("click", async () => {
     buildCompareTable();
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     if (!rows.length) return;
-    const target = runDom.translateTargetSel.value;
+    const target = getTranslateTarget();
+    if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
     const rawBatch = parseInt(runDom.batchSizeInput.value || "1", 10);
     const effectiveBatch = (rawBatch === 0) ? rows.length : Math.max(1, rawBatch);
@@ -258,7 +259,8 @@ runDom.retryFailedBtn.addEventListener("click", async () => {
     const compareArea = document.getElementById("compareArea");
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
     const engine = runDom.translateEngineSel.value;
-    const target = runDom.translateTargetSel.value;
+    const target = getTranslateTarget();
+    if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     runState.lastTranslateTarget = target;
     const nextBatch = engine === "gemini"
         ? runState.lastBatchUsed

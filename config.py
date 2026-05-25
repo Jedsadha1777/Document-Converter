@@ -29,6 +29,19 @@ GEMINI_AVAILABLE = bool(GEMINI_API_KEY)
 # NLLB-200 local engine — โหลด lazy ครั้งแรกที่เรียก (~2.4 GB ลง HF cache)
 NLLB_MODEL = os.getenv("NLLB_MODEL", "facebook/nllb-200-distilled-600M").strip()
 
+# Tile pyramid — image ใหญ่ (40000px+) แบ่งเป็น tile ละ TILE_SIZE × TILE_SIZE
+# overlap 1px กัน seam ที่ขอบ tile (DZI standard). PNG → คมที่ตัวอักษร manga
+# Level 0 = full resolution, level N = smallest (~tile size). Layout:
+#   cache/tiles/{doc_id}/p{N}/{level}/{x}_{y}.png
+#   cache/tiles/{doc_id}/p{N}/manifest.json
+#   cache/tiles/{doc_id}/p{N}/thumb.png
+TILE_DIR = os.getenv("TILE_DIR", "cache/tiles")
+TILE_SIZE = int(os.getenv("TILE_SIZE", "256"))
+TILE_OVERLAP = int(os.getenv("TILE_OVERLAP", "1"))
+TILE_FORMAT = "png"
+THUMB_WIDTH = int(os.getenv("THUMB_WIDTH", "180"))
+TILE_KEEP_DOCS = int(os.getenv("TILE_KEEP_DOCS", "50"))  # max doc dirs ใน cache
+
 # Pre-flight RAM guard — refuse heavy requests ถ้า available RAM ต่ำกว่านี้ (กันถูก OS kill)
 # docling + easyocr peak ~2-3 GB; 3 GB เผื่อ working memory ของ OCR pass + image decoding
 MIN_FREE_RAM_GB = float(os.getenv("MIN_FREE_RAM_GB", "3.0"))
