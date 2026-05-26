@@ -600,9 +600,11 @@ def tile_thumb(doc_id, page):
 
 @app.route("/levels/<doc_id>/p<int:page>/<int:level>.png")
 def level_image(doc_id, page, level):
-    """Serve 1 PNG per level (lazy downsampled). Client (WASM) decodes once + crops tiles locally
-    → no per-tile HTTP / no per-tile server PIL crop."""
-    p = tiles.get_level_path(_validate_doc_id(doc_id), page, level)
+    """Serve original PNG เท่านั้น (level 0). Client (WASM stb_image_resize2)
+    downsample เอง — server ไม่ cache derived levels บน disk (กัน junk)."""
+    if level != 0:
+        abort(404)
+    p = tiles.get_original_path(_validate_doc_id(doc_id), page)
     if p is None:
         abort(404)
     return send_file(p, mimetype="image/png")

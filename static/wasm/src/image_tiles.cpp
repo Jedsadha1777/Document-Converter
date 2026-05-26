@@ -13,6 +13,9 @@
 #define STBI_NO_STDIO
 #include "stb_image.h"
 
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize2.h"
+
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <cstdint>
@@ -122,6 +125,38 @@ val crop_rgba(uintptr_t src_ptr, int src_w, int src_h, int x, int y, int w, int 
     return out;
 }
 
+// Downsample RGBA buffer (src_w × src_h → dst_w × dst_h). sRGB-aware (PNG content).
+// Returns {ptr, byte_len, kind:"malloc"} or null. Allocator = std::malloc → free_malloc.
+val resize_rgba(uintptr_t src_ptr, int src_w, int src_h, int dst_w, int dst_h) {
+    if (src_ptr == 0 || src_w <= 0 || src_h <= 0 || dst_w <= 0 || dst_h <= 0) {
+        return val::null();
+    }
+    if (src_w > MAX_DIM || src_h > MAX_DIM || dst_w > MAX_DIM || dst_h > MAX_DIM) {
+        return val::null();
+    }
+    const size_t bytes = _checked_bytes(dst_w, dst_h);
+    if (bytes == 0) return val::null();
+
+    auto* dst = static_cast<uint8_t*>(std::malloc(bytes));
+    if (!dst) return val::null();
+
+    const auto* src = reinterpret_cast<const uint8_t*>(src_ptr);
+    // stride=0 → use width*4 (RGBA, contiguous)
+    unsigned char* res = stbir_resize_uint8_srgb(
+        src, src_w, src_h, 0,
+        dst, dst_w, dst_h, 0,
+        STBIR_RGBA);
+    if (!res) {
+        std::free(dst);
+        return val::null();
+    }
+    val out = val::object();
+    out.set("ptr", reinterpret_cast<uintptr_t>(dst));
+    out.set("byte_len", static_cast<double>(bytes));
+    out.set("kind", std::string("malloc"));
+    return out;
+}
+
 val view_bytes(uintptr_t ptr, size_t byte_len) {
     if (ptr == 0 || byte_len == 0 || byte_len > MAX_BYTES) return val::null();
     return val(typed_memory_view(byte_len, reinterpret_cast<uint8_t*>(ptr)));
@@ -138,6 +173,7 @@ void free_malloc(uintptr_t ptr) {
 EMSCRIPTEN_BINDINGS(image_tiles_module) {
     function("decode_png", &decode_png);
     function("crop_rgba", &crop_rgba);
+    function("resize_rgba", &resize_rgba);
     function("view_bytes", &view_bytes);
     function("free_stbi", &free_stbi);
     function("free_malloc", &free_malloc);
