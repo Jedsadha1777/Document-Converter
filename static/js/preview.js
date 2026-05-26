@@ -14,7 +14,7 @@ import { escapeHtml, diffChars, renderDiffSide } from "./diff.js";
 import { getCharacters, renderSpeakerOptions, SPEAKER_SKIP } from "./characters.js";
 import { COLORS } from "./colors.js";
 import * as viewport from "./visual/viewport.js";
-import { peekLevel, pickLevel } from "./visual/wasm-tiles.js";
+import { getImageSrc } from "./visual/image-source.js";
 import { SpatialGrid } from "./visual/spatial-grid.js";
 
 // deep clone helper สำหรับ command snapshots
@@ -427,7 +427,8 @@ export function renderPreview() {
     }
     const pageNo = parseInt(pageSelect.value || lastResult.preview.pages[0].page_no, 10);
     const page = lastResult.preview.pages.find(p => p.page_no === pageNo);
-    if (!page || (!page.image && !page.tile_manifest)) {
+    const imgSrc = page ? getImageSrc(page) : null;
+    if (!page || !imgSrc) {
         _cleanupPreviewArea();
         previewArea.innerHTML = '<div class="empty">No image for this page.</div>';
         return;
@@ -457,23 +458,17 @@ export function renderPreview() {
     wrap.appendChild(canvas); wrap.appendChild(tooltip);
     previewArea.appendChild(wrap);
 
-    // image dimensions — จาก tile_manifest (Phase 0) หรือ base64 fallback
-    const docId = page._doc_id || state.lastResult?.doc_id || null;
-    const tilePage = page._page_no_orig ?? page.page_no;   // multi-file: tile stored ที่ original page_no
-    const tm = page.tile_manifest;
-    const imgW = tm?.width || page.width || 1;
-    const imgH = tm?.height || page.height || 1;
+    const imgW = page.img_width || page.width || 1;
+    const imgH = page.img_height || page.height || 1;
     const pageW = page.width || imgW;
     const pageH = page.height || imgH;
     const sx = imgW / pageW;
     const sy = imgH / pageH;
-    const dispW = imgW;     // legacy alias (drawing logic uses dispW/dispH internally)
+    const dispW = imgW;
     const dispH = imgH;
 
-    // base64 image (จาก backend) — ใช้เป็น instant fallback ขณะรอ WASM decode tile level
-    // (โหลดได้ทันทีจาก response, ลด perceived latency หลัง click thumbnail)
-    const fallbackImg = page.image ? new Image() : null;
-    if (fallbackImg) fallbackImg.src = page.image;
+    const bgImg = new Image();
+    bgImg.src = imgSrc;
 
     const dpr = window.devicePixelRatio || 1;
     function _resizeCanvas() {
@@ -529,23 +524,10 @@ export function renderPreview() {
             // world → device pixel: scale = zoom * dpr; pan = pan * dpr
             viewport.applyToCanvasCtx(ctx, dpr);
 
-            // === draw image (WASM-decoded level bitmap, ไม่งั้น fallback base64) ===
-            // เลือก level ใกล้กับ zoom ปัจจุบัน → load PNG ครั้งเดียวต่อ level
-            // WASM (stb_image) decode PNG → RGBA → ImageBitmap → drawImage with viewport transform
-            // image source priority: WASM bitmap > base64 (instant fallback) > nothing
-            let drewImage = false;
-            if (tm && docId) {
-                const lvl = pickLevel(viewport.getZoom(), tm.max_level);
-                const handle = peekLevel(docId, tilePage, lvl, () => requestRedraw());
-                if (handle?.bitmap) {
-                    ctx.drawImage(handle.bitmap, 0, 0, imgW, imgH);
-                    drewImage = true;
-                }
-            }
-            if (!drewImage && fallbackImg && fallbackImg.complete && fallbackImg.naturalWidth) {
-                ctx.drawImage(fallbackImg, 0, 0, imgW, imgH);
-            } else if (!drewImage && fallbackImg) {
-                fallbackImg.onload = requestRedraw;
+            if (bgImg.complete && bgImg.naturalWidth) {
+                ctx.drawImage(bgImg, 0, 0, imgW, imgH);
+            } else {
+                bgImg.onload = requestRedraw;
             }
 
             // bbox stroke width — keep constant on screen (= 2 px) ผ่าน /zoom adjust
@@ -747,7 +729,7 @@ export function renderPreview() {
         };
         wrap._redraw = doDraw;
 
-        // fit-to-viewport — pane CSS size, image natural size (จาก tile_manifest หรือ base64)
+        // fit-to-viewport — pane CSS size, image natural size
         const _paneRect = previewArea.getBoundingClientRect();
         viewport.fitToViewport(imgW, imgH, _paneRect.width, _paneRect.height);
         // initial render (viewport.onChange listener ก็ trigger requestRedraw ตอน fitToViewport)

@@ -5,6 +5,10 @@ export const state = {
     // ── document data (มาจาก /convert) ──
     lastResult: null,
 
+    // ── image source map: "docId/pageNo" → blob URL (client-uploaded image) ──
+    // ใช้แทน base64 จาก server เมื่อ user upload image (ตัด round-trip)
+    clientImages: new Map(),
+
     // ── per-document overrides (mutable, undo/redo เก็บ snapshot ของพวกนี้) ──
     bboxOverrides: {},      // {self_ref: {x, y, w, h, fontSize, align}}
     speakerByRef: {},       // {self_ref: character_id | SPEAKER_SKIP}

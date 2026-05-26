@@ -6,8 +6,6 @@ from pathlib import Path
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
-import tiles
-
 # ปลดล็อก docling-core image size limit (default 20MB)
 from docling_core.utils.settings import settings as _docling_core_settings
 _docling_core_settings.max_image_decoded_size = 500 * 1024 * 1024
@@ -263,9 +261,10 @@ def _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px):
         return None, None
 
 
-def build_preview(doc, doc_id: str | None = None):
-    """doc_id (optional): ถ้าระบุ → generate tile pyramid ทุก page ใต้ cache/tiles/{doc_id}/
-    ถ้าไม่ระบุ → skip tile generation (backward compat)"""
+def build_preview(doc, doc_id: str | None = None, skip_image_data: bool = False):
+    """doc_id: opaque session key (ส่งกลับ client เพื่อจับคู่กับ client-side blob URL).
+    skip_image_data: ถ้า True → ไม่ encode base64 PNG ใน response (client มี source อยู่แล้ว
+    เช่น uploaded image). Color sampling ยังทำที่ server บน pil_img เต็มความละเอียด."""
     pages = []
     # เก็บ pil_img + page size ต่อ page เพื่อ sample สีตอน add_item
     page_imgs = {}      # {page_no: pil_img}
@@ -274,26 +273,27 @@ def build_preview(doc, doc_id: str | None = None):
         page_w = float(page.size.width) if page.size else None
         page_h = float(page.size.height) if page.size else None
         image_data = None
-        tile_manifest = None
+        img_w = img_h = None
         if page.image is not None:
             pil_img = page.image.pil_image
             if pil_img is not None:
-                buf = io.BytesIO()
-                pil_img.save(buf, format="PNG", optimize=True)
-                b64 = base64.b64encode(buf.getvalue()).decode()
-                image_data = f"data:image/png;base64,{b64}"
                 if page_w is None: page_w = pil_img.width
                 if page_h is None: page_h = pil_img.height
                 page_imgs[int(page_no)] = pil_img
-                if doc_id:
-                    tile_manifest = tiles.generate_page_pyramid(pil_img, doc_id, int(page_no))
+                img_w, img_h = pil_img.size
+                if not skip_image_data:
+                    buf = io.BytesIO()
+                    pil_img.save(buf, format="PNG", optimize=True)
+                    b64 = base64.b64encode(buf.getvalue()).decode()
+                    image_data = f"data:image/png;base64,{b64}"
         page_sizes[int(page_no)] = (page_w, page_h)
         pages.append({
             "page_no": int(page_no),
             "width": page_w,
             "height": page_h,
+            "img_width": img_w,
+            "img_height": img_h,
             "image": image_data,
-            "tile_manifest": tile_manifest,
         })
     pages.sort(key=lambda p: p["page_no"])
 
@@ -431,9 +431,10 @@ def get_manga_ocr():
     return _manga_ocr
 
 
-def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None):
+def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None,
+                       skip_image_data: bool = False):
     """แทนที่ docling ด้วย mokuro สำหรับมังงะ/ข้อความญี่ปุ่นแนวตั้ง.
-    doc_id (optional): ถ้าระบุ → generate tile pyramid"""
+    skip_image_data: ถ้า True → ไม่ฝัง base64 ใน response (client มี source อยู่แล้ว)"""
     mocr = get_manga_ocr()
     res = mocr(str(path))
 
@@ -443,10 +444,11 @@ def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None):
     pil = Image.open(path).convert("RGB")
     if pil.size != (img_w, img_h):
         pil = pil.resize((img_w, img_h))
-    buf = io.BytesIO()
-    pil.save(buf, format="PNG", optimize=True)
-    image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
-    tile_manifest = tiles.generate_page_pyramid(pil, doc_id, 1) if doc_id else None
+    image_data = None
+    if not skip_image_data:
+        buf = io.BytesIO()
+        pil.save(buf, format="PNG", optimize=True)
+        image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
     texts = []
     items = []
@@ -491,7 +493,8 @@ def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None):
         "texts": texts,
     }
     preview = {
-        "pages": [{"page_no": 1, "width": img_w, "height": img_h, "image": image_data, "tile_manifest": tile_manifest}],
+        "pages": [{"page_no": 1, "width": img_w, "height": img_h,
+                   "img_width": img_w, "img_height": img_h, "image": image_data}],
         "items": items,
     }
     return doc_dict, preview
@@ -564,9 +567,10 @@ def _merge_nearby_boxes(boxes: list[dict]) -> list[dict]:
     return merged
 
 
-def run_fast_pipeline(path: Path, filename: str, lang: str = "auto", doc_id: str | None = None):
+def run_fast_pipeline(path: Path, filename: str, lang: str = "auto", doc_id: str | None = None,
+                      skip_image_data: bool = False):
     """ข้าม docling — ใช้ Apple Vision (ocrmac) ตรง ๆ เร็วกว่ามาก.
-    doc_id (optional): ถ้าระบุ → generate tile pyramid"""
+    skip_image_data: ถ้า True → ไม่ฝัง base64 ใน response (client มี source อยู่แล้ว)"""
     from ocrmac import ocrmac as _ocrmac
 
     pil = Image.open(path).convert("RGB")
@@ -634,10 +638,11 @@ def run_fast_pipeline(path: Path, filename: str, lang: str = "auto", doc_id: str
             item["bg_color"] = bgc
         items.append(item)
 
-    buf = io.BytesIO()
-    pil.save(buf, format="PNG", optimize=True)
-    image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
-    tile_manifest = tiles.generate_page_pyramid(pil, doc_id, 1) if doc_id else None
+    image_data = None
+    if not skip_image_data:
+        buf = io.BytesIO()
+        pil.save(buf, format="PNG", optimize=True)
+        image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
     doc_dict = {
         "schema_name": "FastOCR",
@@ -649,7 +654,8 @@ def run_fast_pipeline(path: Path, filename: str, lang: str = "auto", doc_id: str
         "texts": texts,
     }
     preview = {
-        "pages": [{"page_no": 1, "width": float(img_w), "height": float(img_h), "image": image_data, "tile_manifest": tile_manifest}],
+        "pages": [{"page_no": 1, "width": float(img_w), "height": float(img_h),
+                   "img_width": img_w, "img_height": img_h, "image": image_data}],
         "items": items,
     }
     return doc_dict, preview

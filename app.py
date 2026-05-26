@@ -16,7 +16,7 @@ import uuid
 from pathlib import Path
 
 import psutil
-from flask import Flask, abort, jsonify, render_template, request, send_file
+from flask import Flask, jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
 from config import (
@@ -63,7 +63,6 @@ from translate import (
     translate_batch,
     translate_text,
 )
-import tiles
 import tm
 
 
@@ -473,6 +472,7 @@ def convert():
     lang = request.form.get("lang", "auto")
     fast = request.form.get("fast", "0") in ("1", "true", "on", "yes")
     correct = request.form.get("correct", "0") in ("1", "true", "on", "yes")
+    skip_image_data = request.form.get("skip_image_data", "0") in ("1", "true", "on", "yes")
     ocr_engine = request.form.get("ocr_engine", "easyocr")
     pages_spec = (request.form.get("pages") or "").strip()
     try:
@@ -497,10 +497,8 @@ def convert():
         selected_pages = None
         page_range = None
 
-    # doc_id = uuid per upload session → tile pyramid อยู่ใต้ cache/tiles/{doc_id}/
-    # cleanup เก่าก่อน (เผื่อ disk บวมจากใช้งานยาว)
+    # doc_id = uuid per upload session — ส่งกลับ client เพื่อใช้เป็น opaque session key
     doc_id = uuid.uuid4().hex[:16]
-    tiles.cleanup_old_docs()
 
     filename = secure_filename(uploaded.filename)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -515,16 +513,18 @@ def convert():
                 result = converter.convert(str(path))
             doc = result.document
             d = doc.export_to_dict()
-            pv = build_preview(doc, doc_id)
+            pv = build_preview(doc, doc_id, skip_image_data=skip_image_data)
             if path.suffix.lower() in (".xlsx", ".xls"):
                 flatten_xlsx_cells_to_texts(d, pv)
             return d, pv
 
         try:
             if fast:
-                doc_dict, preview = run_fast_pipeline(path, filename, lang, doc_id)
+                doc_dict, preview = run_fast_pipeline(path, filename, lang, doc_id,
+                                                     skip_image_data=skip_image_data)
             elif lang == "manga":
-                doc_dict, preview = run_manga_pipeline(path, filename, doc_id)
+                doc_dict, preview = run_manga_pipeline(path, filename, doc_id,
+                                                      skip_image_data=skip_image_data)
             else:
                 # Retry ladder: 2.0 → 1.5 → 1.0 → 0.75 → 0.5 (เริ่ม 144 DPI, ย่อลงเมื่อ OOM)
                 # หมายเหตุ: ถ้า process ถูก Windows kill จาก native bad_alloc จะ catch ไม่ได้
@@ -568,46 +568,6 @@ def convert():
     if pages_warning:
         resp["pages_warning"] = pages_warning
     return jsonify(resp)
-
-
-# ── tile pyramid serving (read-only, no caching headers — local dev) ──
-# Layout: cache/tiles/{doc_id}/p{N}/{level}/{x}_{y}.png
-_DOC_ID_RX = __import__("re").compile(r"^[a-f0-9]{8,32}$")
-
-
-def _validate_doc_id(doc_id: str) -> str:
-    """กัน path traversal — doc_id ต้องเป็น hex ที่ uuid.hex สร้าง"""
-    if not _DOC_ID_RX.match(doc_id):
-        abort(404)
-    return doc_id
-
-
-@app.route("/tiles/<doc_id>/p<int:page>/manifest.json")
-def tile_manifest(doc_id, page):
-    p = tiles.get_manifest_path(_validate_doc_id(doc_id), page)
-    if p is None:
-        abort(404)
-    return send_file(p, mimetype="application/json")
-
-
-@app.route("/tiles/<doc_id>/p<int:page>/thumb.png")
-def tile_thumb(doc_id, page):
-    p = tiles.get_thumb_path(_validate_doc_id(doc_id), page)
-    if p is None:
-        abort(404)
-    return send_file(p, mimetype="image/png")
-
-
-@app.route("/levels/<doc_id>/p<int:page>/<int:level>.png")
-def level_image(doc_id, page, level):
-    """Serve original PNG เท่านั้น (level 0). Client (WASM stb_image_resize2)
-    downsample เอง — server ไม่ cache derived levels บน disk (กัน junk)."""
-    if level != 0:
-        abort(404)
-    p = tiles.get_original_path(_validate_doc_id(doc_id), page)
-    if p is None:
-        abort(404)
-    return send_file(p, mimetype="image/png")
 
 
 if __name__ == "__main__":

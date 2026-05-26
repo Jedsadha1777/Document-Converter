@@ -292,8 +292,8 @@ function _fitCurrentPage() {
     const r = pane.getBoundingClientRect();
     const p = state.lastResult?.preview?.pages?.[0];
     if (!p) return;
-    const w = p.tile_manifest?.width || p.width || 1;
-    const h = p.tile_manifest?.height || p.height || 1;
+    const w = p.img_width || p.width || 1;
+    const h = p.img_height || p.height || 1;
     viewport.fitToViewport(w, h, r.width, r.height);
 }
 function _zoomAtCenter(factor) {

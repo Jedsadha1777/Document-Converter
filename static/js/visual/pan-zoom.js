@@ -85,13 +85,12 @@ export function initPanZoom(container, { shouldPan } = {}) {
 }
 
 function _refit(container) {
-    // re-fit ใช้ image natural size จาก state.lastResult (tile_manifest หรือ page.width/height)
     const pane = document.getElementById("previewArea");
     if (!pane) return;
     const r = pane.getBoundingClientRect();
     const p = window.state?.lastResult?.preview?.pages?.[0];
     if (!p) return;
-    const w = p.tile_manifest?.width || p.width || 1;
-    const h = p.tile_manifest?.height || p.height || 1;
+    const w = p.img_width || p.width || 1;
+    const h = p.img_height || p.height || 1;
     viewport.fitToViewport(w, h, r.width, r.height);
 }

@@ -9,6 +9,7 @@ import { buildCompareTable, resetCompareUI } from "./compare.js";
 import { renderPreview, clearSelectionAndUI } from "./preview.js";
 import { renderBeforePane } from "./visual/before-pane.js";
 import { renderThumbSidebar } from "./visual/thumbnail.js";
+import { setClientImage, clearClientImages } from "./visual/image-source.js";
 import * as viewport from "./visual/viewport.js";
 import { COLORS } from "./colors.js";
 
@@ -29,6 +30,8 @@ async function _convertOneFile(file) {
     fd.append("ocr_engine", document.getElementById("ocr_engine").value);
     fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
     fd.append("pages", document.getElementById("pages").value.trim());
+    // image upload: client มี blob อยู่แล้ว → บอก server ไม่ต้องส่ง base64 กลับ
+    if (_isImageFile(file)) fd.append("skip_image_data", "1");
 
     const res = await fetch("/convert", { method: "POST", body: fd });
     const ct = res.headers.get("content-type") || "";
@@ -112,6 +115,7 @@ function _resetDocumentState() {
     Object.keys(bboxOverrides).forEach(k => delete bboxOverrides[k]);
     manualEdits.clear();
     manualTranslations.clear();
+    clearClientImages();
     clearSelectionAndUI();
     history.clear();
 }
@@ -165,15 +169,23 @@ export function initUpload({ onAfterConvert } = {}) {
         try {
             // กรณี 1 ไฟล์ — ใช้ data จาก backend ตรงๆ (รักษา json_text เดิม)
             if (files.length === 1) {
-                const data = await _convertOneFile(files[0]);
+                const file = files[0];
+                const data = await _convertOneFile(file);
                 if (!data) { previewArea.innerHTML = '<div class="empty">An error occurred</div>'; return; }
-                // tile URL อ้างอิง page._page_no_orig — single-file ก็ตั้งเท่ากับ page_no
                 (data.preview?.pages || []).forEach(p => {
                     if (typeof p.page_no === "number" && p._page_no_orig === undefined) {
                         p._page_no_orig = p.page_no;
                     }
                     if (data.doc_id) p._doc_id = data.doc_id;
                 });
+                // image upload: client มีไฟล์อยู่แล้ว — สร้าง blob URL ใช้ตรงๆ ไม่ต้องโหลด base64 จาก server
+                if (_isImageFile(file) && data.doc_id) {
+                    const blobUrl = URL.createObjectURL(file);
+                    (data.preview?.pages || []).forEach(p => {
+                        const pno = p._page_no_orig ?? p.page_no;
+                        setClientImage(data.doc_id, pno, blobUrl);
+                    });
+                }
                 state.lastResult = data;
                 output.value = data.json_text;
                 _populatePages(data.preview.pages);
@@ -201,6 +213,14 @@ export function initUpload({ onAfterConvert } = {}) {
                 const data = await _convertOneFile(file);
                 if (!data) { errors.push(file.name); continue; }
                 _mergeFileResult(combined, data, pageOffset, textOffset, file.name);
+                // multi-image batch รับเฉพาะ image — แต่ละไฟล์ใช้ blob URL ของตัวเอง
+                if (_isImageFile(file) && data.doc_id) {
+                    const blobUrl = URL.createObjectURL(file);
+                    (data.preview?.pages || []).forEach(p => {
+                        const pno = p._page_no_orig ?? p.page_no;
+                        setClientImage(data.doc_id, pno, blobUrl);
+                    });
+                }
             }
             if (!combined.preview.pages.length) {
                 previewArea.innerHTML = '<div class="empty">All files failed</div>';
