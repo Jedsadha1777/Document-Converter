@@ -43,7 +43,8 @@ export function renderBeforePane() {
     const ctx = canvas.getContext("2d");
     const dpr = window.devicePixelRatio || 1;
 
-    const fallbackImg = (!tm && page.image) ? new Image() : null;
+    // base64 = instant fallback ขณะรอ WASM level decode
+    const fallbackImg = page.image ? new Image() : null;
     if (fallbackImg) fallbackImg.src = page.image;
 
     function _resize() {
@@ -52,6 +53,9 @@ export function renderBeforePane() {
         canvas.height = Math.max(1, Math.floor(r.height * dpr));
         canvas.style.width = r.width + "px";
         canvas.style.height = r.height + "px";
+        // viewport size = ของ previewArea (after pane) ใช้คลุม clamp;
+        // before pane มี width เท่ากันใน split grid → ก็ใช้ค่าเดียวกันได้
+        // (caller renderPreview จะเรียก setViewportSize หลัง mount; ตรงนี้ skip duplicate)
     }
     _resize();
 
@@ -68,15 +72,18 @@ export function renderBeforePane() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         viewport.applyToCanvasCtx(ctx, dpr);
 
+        let drew = false;
         if (tm && docId) {
             const lvl = pickLevel(viewport.getZoom(), tm.max_level);
             const handle = peekLevel(docId, tilePage, lvl, () => requestRedraw());
             if (handle?.bitmap) {
                 ctx.drawImage(handle.bitmap, 0, 0, imgW, imgH);
+                drew = true;
             }
-        } else if (fallbackImg && fallbackImg.complete) {
+        }
+        if (!drew && fallbackImg && fallbackImg.complete && fallbackImg.naturalWidth) {
             ctx.drawImage(fallbackImg, 0, 0, imgW, imgH);
-        } else if (fallbackImg) {
+        } else if (!drew && fallbackImg) {
             fallbackImg.onload = requestRedraw;
         }
         ctx.restore();

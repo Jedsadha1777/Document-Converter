@@ -120,8 +120,11 @@ function _hitHandle(box, px, py, zoom = 1) {
     return null;
 }
 
-function _drawHandles(ctx, box) {
-    const hs = HANDLE_SIZE;
+function _drawHandles(ctx, box, zoom = 1) {
+    // ctx มี setTransform(zoom*dpr,...) อยู่ → handle ต้องคง 8 screen px
+    // หาร zoom เพื่อชดเชย scale ก่อน draw ใน world coord
+    const z = Math.max(0.01, zoom);
+    const hs = HANDLE_SIZE / z;
     const pts = [
         [box.x,              box.y],
         [box.x + box.w / 2,  box.y],
@@ -134,7 +137,7 @@ function _drawHandles(ctx, box) {
     ];
     ctx.fillStyle = COLORS.textInverse;
     ctx.strokeStyle = COLORS.primary;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 / z;
     for (const [px, py] of pts) {
         ctx.fillRect(px - hs / 2, py - hs / 2, hs, hs);
         ctx.strokeRect(px - hs / 2, py - hs / 2, hs, hs);
@@ -405,6 +408,8 @@ function _cleanupPreviewArea() {
         window._previewDocMouseUp = null;
     }
     window._previewWrap = null;
+    // bounds เก่าใช้กับ page ปัจจุบันไม่ได้แล้ว — clear เพื่อ panBy/zoomAt no-op จนกว่า render รอบใหม่ติด bounds
+    viewport.clearBounds();
 }
 
 // ─────────────────────────────────────────────────────────
@@ -465,8 +470,9 @@ export function renderPreview() {
     const dispW = imgW;     // legacy alias (drawing logic uses dispW/dispH internally)
     const dispH = imgH;
 
-    // fallback Image element สำหรับเคสไม่มี tile_manifest (เก่า data)
-    const fallbackImg = (!tm && page.image) ? new Image() : null;
+    // base64 image (จาก backend) — ใช้เป็น instant fallback ขณะรอ WASM decode tile level
+    // (โหลดได้ทันทีจาก response, ลด perceived latency หลัง click thumbnail)
+    const fallbackImg = page.image ? new Image() : null;
     if (fallbackImg) fallbackImg.src = page.image;
 
     const dpr = window.devicePixelRatio || 1;
@@ -476,7 +482,9 @@ export function renderPreview() {
         canvas.height = Math.max(1, Math.floor(r.height * dpr));
         canvas.style.width = r.width + "px";
         canvas.style.height = r.height + "px";
+        viewport.setViewportSize(r.width, r.height);
     }
+    viewport.setContentSize(imgW, imgH);
     _resizeCanvas();
 
     // setup viewport-driven redraw (rAF coalesced)
@@ -524,18 +532,19 @@ export function renderPreview() {
             // === draw image (WASM-decoded level bitmap, ไม่งั้น fallback base64) ===
             // เลือก level ใกล้กับ zoom ปัจจุบัน → load PNG ครั้งเดียวต่อ level
             // WASM (stb_image) decode PNG → RGBA → ImageBitmap → drawImage with viewport transform
+            // image source priority: WASM bitmap > base64 (instant fallback) > nothing
+            let drewImage = false;
             if (tm && docId) {
                 const lvl = pickLevel(viewport.getZoom(), tm.max_level);
                 const handle = peekLevel(docId, tilePage, lvl, () => requestRedraw());
                 if (handle?.bitmap) {
-                    // bitmap = downsampled image at level L (size = imgW/2^L × imgH/2^L)
-                    // draw ที่ world coord (0,0,imgW,imgH) → ctx.setTransform จัดการ scale/pan
                     ctx.drawImage(handle.bitmap, 0, 0, imgW, imgH);
+                    drewImage = true;
                 }
-                // ถ้ายัง loading: skip — peekLevel จะ trigger requestRedraw ตอน decode เสร็จ
-            } else if (fallbackImg && fallbackImg.complete) {
+            }
+            if (!drewImage && fallbackImg && fallbackImg.complete && fallbackImg.naturalWidth) {
                 ctx.drawImage(fallbackImg, 0, 0, imgW, imgH);
-            } else if (fallbackImg) {
+            } else if (!drewImage && fallbackImg) {
                 fallbackImg.onload = requestRedraw;
             }
 
@@ -620,8 +629,8 @@ export function renderPreview() {
                 ctx.fillStyle = ov.bgColor || r.item.bg_color || COLORS.overlayBg;
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 ctx.strokeStyle = r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted;
-                ctx.lineWidth = 1;
-                if (!r.isTranslated) ctx.setLineDash([4, 3]);
+                ctx.lineWidth = 1 / z;
+                if (!r.isTranslated) ctx.setLineDash([4 / z, 3 / z]);
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 ctx.setLineDash([]);
             });
@@ -661,8 +670,8 @@ export function renderPreview() {
             });
 
             // Pass 3: normal-mode bbox + label
-            ctx.lineWidth = 2;
-            ctx.font = "11px ui-monospace, Menlo, monospace";
+            ctx.lineWidth = 2 / z;
+            ctx.font = `${11 / z}px ui-monospace, Menlo, monospace`;
             normalRenders.forEach(r => {
                 const { x, y, w, h, color, tr, wasCorrected, item: it } = r;
                 const sp = it.self_ref ? state.speakerByRef[it.self_ref] : null;
@@ -670,29 +679,33 @@ export function renderPreview() {
                 // SKIP → จาง (alpha 0.35) ทั้ง bbox + label เพื่อบอกว่ายกเว้น
                 if (isSkip) ctx.save(), ctx.globalAlpha = 0.35;
                 ctx.strokeStyle = color;
-                ctx.lineWidth = wasCorrected ? 3 : 2;
+                ctx.lineWidth = (wasCorrected ? 3 : 2) / z;
                 ctx.fillStyle = wasCorrected ? COLORS.warningBgAlpha : color + "22";
                 ctx.fillRect(x, y, w, h);
                 ctx.strokeRect(x, y, w, h);
-                ctx.lineWidth = 2;
                 if (showLabels.checked) {
                     let spTag = "";
                     if (isSkip) spTag = "🚫 ";
                     else if (sp) spTag = `👤${sp} `;
                     const tag = (tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag;
                     const lbl = tag + it.label;
+                    // ทุก dim ตั้งเป็น screen px → หาร z เพื่อ world coord (ctx scale จะคูณกลับ)
+                    const lh = 14 / z;        // label background height
+                    const lpad = 4 / z;       // text-from-left pad
+                    const lbase = 3 / z;      // text baseline above bbox top
+                    const lmaxw = 160 / z;    // background max width
                     ctx.fillStyle = tr ? COLORS.primaryStrong : (wasCorrected ? COLORS.warning : color);
-                    ctx.fillRect(x, Math.max(0, y - 14), Math.min(160, w), 14);
+                    ctx.fillRect(x, Math.max(0, y - lh), Math.min(lmaxw, w), lh);
                     ctx.fillStyle = COLORS.textInverse;
-                    ctx.fillText(lbl, x + 4, Math.max(11, y - 3));
+                    ctx.fillText(lbl, x + lpad, Math.max(11 / z, y - lbase));
                 }
                 if (isSkip) ctx.restore();
             });
 
             // === Selection highlights + handles ===
             if (sel.refs.size) {
-                ctx.lineWidth = 2;
-                ctx.setLineDash([6, 4]);
+                ctx.lineWidth = 2 / z;
+                ctx.setLineDash([6 / z, 4 / z]);
                 sel.refs.forEach(ref => {
                     const sd = drawn.find(d => d.item.self_ref === ref);
                     if (!sd) return;
@@ -703,7 +716,7 @@ export function renderPreview() {
             }
             if (sel.ref) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
-                if (selDrawn) _drawHandles(ctx, selDrawn);
+                if (selDrawn) _drawHandles(ctx, selDrawn, viewport.getZoom());
             }
 
             // === Marquee overlay ===
@@ -716,8 +729,8 @@ export function renderPreview() {
                 ctx.save();
                 ctx.strokeStyle = COLORS.marquee;
                 ctx.fillStyle = COLORS.marqueeFill;
-                ctx.lineWidth = 1;
-                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 1 / z;
+                ctx.setLineDash([5 / z, 5 / z]);
                 ctx.fillRect(mx, my, mw, mh);
                 ctx.strokeRect(mx, my, mw, mh);
                 ctx.setLineDash([]);
@@ -745,6 +758,10 @@ export function renderPreview() {
         wrap.onmousemove = (ev) => {
             // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
             const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
+            // tooltip ใช้ screen-local coords (wrap = absolute container, ไม่ใช่ world)
+            const _wrapRect = wrap.getBoundingClientRect();
+            const tipX = ev.clientX - _wrapRect.left;
+            const tipY = ev.clientY - _wrapRect.top;
 
             // === MARQUEE — live add/remove ตามลำดับโดน ===
             const mq = getMarquee();
@@ -875,8 +892,8 @@ export function renderPreview() {
                 }
             }
             tooltip.style.display = "block";
-            tooltip.style.left = (px + 12) + "px";
-            tooltip.style.top = (py + 12) + "px";
+            tooltip.style.left = (tipX + 12) + "px";
+            tooltip.style.top = (tipY + 12) + "px";
             tooltip.innerHTML = html;
         };
 
@@ -1053,18 +1070,26 @@ export function setupEditMode() {
         redrawOnly();
     }
 
+    // A+/A- — delta = ±2 screen px. Base = rendered fontSize (= ที่ user เห็น) เสมอ,
+    // ไม่ใช้ override เก่าซึ่งอาจ stale. step ใน screen-space → render ใน world (หาร zoom).
+    // Bounds: min absolute 3 world (ไม่ติด zoom กัน clamp clash min>max), max = 70% bbox h.
     function _adjustFont(delta) {
         const refs = [...sel.refs];
         if (!refs.length) return;
+        const z = viewport.getZoom() || 1;
+        const worldDelta = delta / z;
         _execMultiBbox(refs, (ref) => {
             const before = _clone(state.bboxOverrides[ref]);
             const cur = before || {};
             const selDrawn = (window._previewWrap?._drawn || []).find(d => d.item.self_ref === ref);
-            // ลำดับความสำคัญ: override ปัจจุบัน > font ที่แสดงจริงใน drawn[] > เดาจาก h
-            const curSize = cur.fontSize
-                || selDrawn?.fontSize
-                || (selDrawn ? Math.min(Math.max(Math.floor(selDrawn.h * 0.65), 7), 22) : 14);
-            const after = { ...cur, fontSize: Math.max(7, Math.min(64, Math.round(curSize) + delta)) };
+            // base = ขนาด font ที่ user เห็นจริง (selDrawn.fontSize = render result)
+            // — ใช้แทน override เก่า เพื่อให้ +/- เริ่มจาก "what's focused" ตลอด
+            const curSize = selDrawn?.fontSize
+                || cur.fontSize
+                || 14;
+            const bboxMax = selDrawn ? Math.max(8, selDrawn.h * 0.7) : 200;
+            const next = Math.max(3, Math.min(bboxMax, curSize + worldDelta));
+            const after = { ...cur, fontSize: Math.round(next * 100) / 100 };
             return new UpdateBboxCmd(ref, before, after, "Adjust font");
         }, "Adjust font");
     }

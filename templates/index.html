@@ -266,7 +266,7 @@ import { initCharactersUI } from "/static/js/characters.js";
 import { setStatus, clearStatus } from "/static/js/status.js";
 import { initCompare, buildCompareTable } from "/static/js/compare.js";
 import { initUpload } from "/static/js/upload.js";
-import { renderPreview, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
+import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
 import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
 import { initPanZoom } from "/static/js/visual/pan-zoom.js";
@@ -456,13 +456,14 @@ document.querySelectorAll(".tab").forEach(btn => {
 // apply on initial load — visual tab เป็น default active
 _applyFullscreenForTab(document.querySelector(".tab.active")?.dataset.tab);
 
-// preview filters (checkboxes + page select + overlay) → re-render
-[pageSelect,
- document.getElementById("showTexts"),
+// Page change → full re-render (mount canvas + fit zoom).
+// Filter checkboxes (texts/tables/pictures/labels/overlay) → redraw only — preserve zoom/pan.
+pageSelect.addEventListener("change", renderPreview);
+[document.getElementById("showTexts"),
  document.getElementById("showTables"),
  document.getElementById("showPictures"),
  document.getElementById("showLabels"),
- document.getElementById("showOverlay")].forEach(el => el.addEventListener("change", renderPreview));
+ document.getElementById("showOverlay")].forEach(el => el.addEventListener("change", redrawOnly));
 // เปลี่ยนหน้า → ล้าง multi-select เก่า (refs อาจไม่ตรงกับหน้าใหม่)
 pageSelect.addEventListener("change", () => { if (selectedRefs.size) clearSelectionAndUI(); });
 

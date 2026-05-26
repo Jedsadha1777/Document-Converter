@@ -7,9 +7,11 @@
 //   3. WASM crop_rgba(ptr, x, y, w, h) → returns ptr ของ cropped buffer
 //   4. JS view เป็น Uint8ClampedArray → ImageData → putImageData on canvas
 //
-// Alternative path (faster render):
-//   - หลัง decode → createImageBitmap จาก RGBA → drawImage with srcRect ใน canvas
-//   - ใช้ native GPU compositor — WASM ใช้แค่สำหรับ decode
+// ⚠ MEMORY SAFETY contract (typed_memory_view + ALLOW_MEMORY_GROWTH):
+//   view_bytes() คืน typed_memory_view = หน้าต่างส่องตรงเข้า WASM heap (ไม่ copy).
+//   ถ้า WASM heap ขยาย (memory growth) ระหว่างที่ JS ถือ view อยู่ → view detach ทันที.
+//   ทุก call ต้อง copy ทันทีก่อน call WASM อื่นใด: `const c = new Uint8ClampedArray(view.length); c.set(view);`
+//   pattern นี้ใช้ทุกที่ที่เรียก view_bytes() ในไฟล์นี้.
 
 import createImageTilesModule from "/static/wasm/build/image_tiles.js";
 
@@ -68,15 +70,17 @@ async function _loadLevelHandle(docId, page, level) {
     // also create ImageBitmap สำหรับ render ผ่าน native drawImage (เร็วกว่า putImageData)
     let bitmap = null;
     try {
-        const view = mod.view_bytes(ptr, w * h * 4);
-        // copy because ImageData ต้อง Uint8ClampedArray ที่ไม่ใช่ shared
+        // overflow-checked byte length (w,h เพิ่ง validate > 0 ด้านบน)
+        const byteLen = w * h * 4;
+        const view = mod.view_bytes(ptr, byteLen);
+        if (!view) throw new Error("view_bytes returned null");
+        // ⚠ copy ทันที — view เป็น typed_memory_view ที่อาจ detach ถ้า WASM memory grow
         const copy = new Uint8ClampedArray(view.length);
         copy.set(view);
         const imgData = new ImageData(copy, w, h);
         bitmap = await createImageBitmap(imgData);
     } catch (e) {
-        // bitmap creation fail OK — fallback ผ่าน crop_rgba + putImageData
-        console.warn("createImageBitmap failed; will fallback to WASM crop+putImageData", e);
+        console.warn("createImageBitmap failed; fallback to WASM crop+putImageData", e);
     }
     const handle = { ptr, w, h, bitmap, mod, lastUsed: Date.now() };
     levelCache.set(key, handle);
@@ -93,7 +97,8 @@ function _enforceLru() {
     for (let i = 0; i < evictN; i++) {
         const [k, h] = entries[i];
         if (h.bitmap?.close) h.bitmap.close();
-        if (h.mod && h.ptr) h.mod.free_buffer(h.ptr);
+        // decode_png buffer = stb_image allocator → free_stbi (matches stbi_image_free)
+        if (h.mod && h.ptr) h.mod.free_stbi(h.ptr);
         levelCache.delete(k);
     }
 }
@@ -124,24 +129,30 @@ export function peekLevel(docId, page, level, onReady) {
     return null;
 }
 
-/** Pure-WASM path: crop RGBA + return ImageData. ใช้ผ่าน ctx.putImageData (no transform). */
+/** Pure-WASM path: crop RGBA + return ImageData. ใช้ผ่าน ctx.putImageData (no transform).
+ *  Returns null ถ้า input invalid (ผ่าน WASM-side validation) — caller fallback */
 export async function cropTileImageData(docId, page, level, x, y, w, h) {
     const handle = await _loadLevelHandle(docId, page, level);
     if (!handle) return null;
     const mod = handle.mod;
     const result = mod.crop_rgba(handle.ptr, handle.w, handle.h, x, y, w, h);
+    // WASM returns val::null() (= JS null) บน invalid input / overflow / OOM
     if (!result || !result.ptr) return null;
     const view = mod.view_bytes(result.ptr, result.byte_len);
+    if (!view) { mod.free_malloc(result.ptr); return null; }
+    // ⚠ ต้อง copy ทันทีก่อน WASM call ถัดไป — memory growth จะ detach view
     const copy = new Uint8ClampedArray(view.length);
     copy.set(view);
-    mod.free_buffer(result.ptr);
+    // crop_rgba buffer = std::malloc allocator → free_malloc (matches std::free)
+    mod.free_malloc(result.ptr);
     return new ImageData(copy, w, h);
 }
 
 export function clearCache() {
     for (const h of levelCache.values()) {
         if (h.bitmap?.close) h.bitmap.close();
-        if (h.mod && h.ptr) h.mod.free_buffer(h.ptr);
+        // decode_png buffer = stb_image allocator
+        if (h.mod && h.ptr) h.mod.free_stbi(h.ptr);
     }
     levelCache.clear();
     failedCache.clear();
