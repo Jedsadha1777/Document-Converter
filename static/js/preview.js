@@ -1303,10 +1303,27 @@ export function setupEditMode() {
     undoBtn?.addEventListener("click", () => history.undo());
     redoBtn?.addEventListener("click", () => history.redo());
 
-    // ⌘Z / Ctrl+Z = undo, ⌘⇧Z / Ctrl+Y = redo — skip ถ้า focus อยู่ใน input/textarea/cell
+    // ⌘Z / Ctrl+Z = undo, ⌘⇧Z / Ctrl+Y = redo
+    // Delete / Backspace = mark selected bbox(es) as "Don't translate" (SPEAKER_SKIP)
+    // Skip ถ้า focus อยู่ใน input/textarea/cell — เพื่อไม่ชนกับ text editing
     document.addEventListener("keydown", (e) => {
         const tag = (e.target.tagName || "").toLowerCase();
         if (tag === "input" || tag === "textarea" || e.target.isContentEditable) return;
+
+        // Delete / Backspace → SPEAKER_SKIP (no mod key — เฉพาะตอน tab visual)
+        if ((e.key === "Delete" || e.key === "Backspace") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+            if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
+            const refs = [...sel.refs].filter(r => state.speakerByRef[r] !== SPEAKER_SKIP);
+            if (!refs.length) return;
+            e.preventDefault();
+            const cmds = refs.map(ref => new SetSpeakerCmd(ref, state.speakerByRef[ref], SPEAKER_SKIP));
+            const cmd = cmds.length === 1
+                ? cmds[0]
+                : new CompositeCommand(cmds, `Skip ${cmds.length} boxes`);
+            history.exec(cmd);
+            return;
+        }
+
         const mod = e.metaKey || e.ctrlKey;
         if (!mod) return;
         if (e.key === "z" && !e.shiftKey) {

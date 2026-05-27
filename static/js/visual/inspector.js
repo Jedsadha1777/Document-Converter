@@ -1,8 +1,11 @@
-// Right-side inspector — แสดง format toolbar + OCR text + translation textarea
+// Right-side inspector — แสดง format toolbar + OCR text + Speaker + translation textarea
 // ของ selected bbox. Pattern: render เมื่อ state.selection.ref เปลี่ยน
 // (caller เรียก update() หลัง mutate selection).
 
 import { state } from "../state.js";
+import { history } from "../history.js";
+import { SetSpeakerCmd } from "../commands.js";
+import { renderSpeakerOptions, getCharacters } from "../characters.js";
 
 let _suppress = false;   // กัน feedback loop ตอน user พิมพ์ใน textarea
 
@@ -23,6 +26,17 @@ export function initInspector() {
     $("rpValignTopBtn")?.addEventListener("click", () => _dispatchClick("valignTopBtn"));
     $("rpValignMiddleBtn")?.addEventListener("click", () => _dispatchClick("valignMiddleBtn"));
     $("rpValignBottomBtn")?.addEventListener("click", () => _dispatchClick("valignBottomBtn"));
+
+    // Speaker dropdown — exec SetSpeakerCmd ผ่าน history (= undo/redo + canvas/compare sync)
+    const spkEl = $("rpSpeakerSelect");
+    spkEl?.addEventListener("change", () => {
+        const ref = state.selection.ref;
+        if (!ref) return;
+        const before = state.speakerByRef[ref];
+        const after = spkEl.value;
+        if (before === after) return;
+        history.exec(new SetSpeakerCmd(ref, before, after));
+    });
 
     // Translation textarea — write back ลง state.translations + mark manual
     const trEl = $("rpTrText");
@@ -76,6 +90,16 @@ export function updateInspector() {
 
     // OCR text — แสดง corrected ถ้ามี, ไม่งั้น original (readonly — แก้ผ่าน compare table)
     $("rpOcrText").value = state.corrections[ref] ?? item.text ?? "";
+
+    // Speaker dropdown — rebuild option list ทุก update (characters เปลี่ยนได้)
+    // ถ้า ref ไม่มี speaker → default = chars[0] (เหมือน bbox popup เดิม)
+    // ไม่อย่างนั้น browser จะ pick option แรก = SPEAKER_SKIP โดยอัตโนมัติ → bug ที่ user รายงาน
+    const spkEl = $("rpSpeakerSelect");
+    if (spkEl) {
+        const chars = getCharacters();
+        const cur = state.speakerByRef[ref] || (chars[0]?.id) || "";
+        spkEl.innerHTML = renderSpeakerOptions()(cur);
+    }
 
     // Translation
     const trEl = $("rpTrText");

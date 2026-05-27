@@ -249,6 +249,19 @@ body.app-fullscreen #compareArea {
 }
 #rightPanel .rp-textarea:read-only { background: #f3f4f6; color: #4b5563; }
 #rightPanel .rp-textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
+
+#rightPanel .rp-select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    color: #111827;
+    background: #fff;
+}
+#rightPanel .rp-select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
 #splitMain {
     flex: 1;
     display: grid;
