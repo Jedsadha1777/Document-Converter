@@ -523,22 +523,29 @@ TRANSLATE_PROMPTS_BY_PAIR = {
         "    JK (= 女子高生)              → 'นักเรียนหญิงม.ปลาย'                   (NOT 'JK' / 'เจเค')\n"
         "  DECISION: ถ้าคำย่อมี Thai equivalent ชัดเจน → ใช้ Thai meaning\n"
         "    ถ้าเป็น proper noun (เช่น ชื่อแบรนด์ย่อ ในบทพูดเฉพาะกลุ่ม) → คงต้นฉบับหรือ sound\n"
-        "- ⚠ PARTICLE PARITY (HIGHEST PRIORITY — เหนือกฎ politeness/character อื่น):\n"
-        "  ห้ามใส่คำลงท้าย (ค่ะ/ครับ/นะ/นะคะ/นะครับ/จ้ะ/จ๊ะ/ล่ะ/น่ะ) ถ้าต้นฉบับไม่มี\n"
-        "  polite/sentence-final particle (です/ます/ね/よ/わ/さ/の) ใน clause นั้น\n"
+        "- ⚠ PARTICLE PARITY (POLITENESS scope only — does NOT override character voice):\n"
+        "  ห้ามใส่คำลงท้าย POLITENESS (ค่ะ/ครับ/นะคะ/นะครับ) ถ้าต้นฉบับไม่มี polite/sentence-final\n"
+        "  particle (です/ます/ね/よ/わ/さ/の) ใน clause นั้น\n"
         "  เกณฑ์ตัดสินเรียงตามนี้:\n"
-        "    source มี ですね/ますね/だね/わね → output ใส่ 'นะ' / 'นะคะ' / 'นะครับ' ได้\n"
+        "    source มี ですね/ますね/だね/わね → ใส่ 'นะ' / 'นะคะ' / 'นะครับ' ได้\n"
         "    source มี です/ます ล้วน (ไม่มี ね/よ) → ใส่ 'ครับ/ค่ะ' ได้ แต่ห้ามเติม 'นะ'\n"
-        "    source ลงท้ายแบบ plain (だ/る/た/ない/dictionary form/ตัดเปล่า) → output ห้ามมี particle\n"
-        "    source เป็น คำสั่ง/อุทาน/internal thought/fragment → output ห้ามมี particle\n"
+        "    source ลงท้ายแบบ plain (だ/る/た/ない/dictionary form/ตัดเปล่า) → ห้ามใส่ polite particle\n"
+        "    source เป็น คำสั่ง/อุทาน/internal thought/fragment → ห้ามใส่ polite particle\n"
+        "  ⚠ ข้อยกเว้น — IMPERATIVE/CASUAL ENDINGS (สิ/ดิ/หน่อย/น่า/ว่ะ/ซะ):\n"
+        "    ไม่อยู่ใน rule นี้ — เลือกตาม CHARACTER PROFILE (gender/persona)\n"
+        "    plain imperative source (เช่น 早く / 行け / 食べ) → output ใช้ ending ตาม character:\n"
+        "      female → 'เร็วๆ สิ' / 'เร็วๆ น่า' / 'รีบหน่อย' (soft variants)\n"
+        "      male   → 'เร็วๆ ดิ' / 'รีบซะ' / 'รีบหน่อย' (neutral/masculine)\n"
+        "      ห้ามใช้ rough 'ดิ๊ / ดิ้ / ว่ะ / โว้ย' กับ female character (แม้ source casual)\n"
         "  ตัวอย่าง strict:\n"
-        "    行く → 'ไป' (ไม่ใช่ 'ไปนะ' / 'ไปครับ')\n"
-        "    知らない → 'ไม่รู้' (ไม่ใช่ 'ไม่รู้นะ' / 'ไม่รู้ค่ะ')\n"
-        "    腹減った → 'หิวจัง' (ไม่ใช่ 'หิวจังเลยค่ะ')\n"
-        "    あ、危ない! → 'อ๊ะ อันตราย!' (ไม่ใช่ 'อันตรายนะคะ')\n"
+        "    行く → 'ไป' (ไม่ใช่ 'ไปครับ' — polite particle ไม่มีใน source)\n"
+        "    知らない → 'ไม่รู้' (ไม่ใช่ 'ไม่รู้ค่ะ' — plain source ไม่มี polite)\n"
+        "    早く (female speaker) → 'เร็วๆ สิ' / 'เร็วๆ น่า' (NOT 'เร็วดิ๊' / 'เร็วดิ้')\n"
+        "    早く (male speaker)   → 'เร็วๆ ดิ' / 'รีบซะ' (NOT 'เร็วๆ สิ' — too feminine)\n"
         "    行きます → 'ไปครับ' / 'ไปค่ะ' (ใส่ได้ — มี ます)\n"
         "    行きますね → 'ไปนะครับ' / 'ไปนะคะ' (ใส่ ね ได้ — มี ね ใน source)\n"
-        "  RULE: ถ้าต้นฉบับสั้น/ห้วน Thai ก็ต้องสั้น/ห้วน — ห้าม 'ทำให้สุภาพขึ้น' โดยการเติม particle\n"
+        "  RULE: ถ้าต้นฉบับสั้น/ห้วน Thai ก็ต้องสั้น/ห้วน — ห้าม 'ทำให้สุภาพขึ้น' โดยการเติม polite particle\n"
+        "        แต่ casual ending ที่เหมาะสมกับ character voice ใช้ได้\n"
         "- POLITENESS LEVEL DETECTION (signal หลัก — Japanese ระบุ register ผ่านท้ายประโยค/สรรพนาม):\n"
         "  ลำดับการตัดสิน voice ของแต่ละประโยค:\n"
         "  (1) อ่าน SENTENCE ENDING ในต้นฉบับก่อน — เป็น signal ที่ชัดที่สุด:\n"
@@ -1046,12 +1053,58 @@ def _parse_batch_json(raw: str, n: int, id_start: int = 1,
     return result
 
 
+_AGE_PRONOUN_MAP = {
+    "child":  "self pronoun: 'หนู' (F) / 'ผม' (M) / ชื่อเล่น; address others: 'พี่' / 'ลุง/ป้า'",
+    "teen":   "self pronoun: 'เรา' / 'หนู' (F) / 'ผม' (M) / ชื่อเล่น; address others: 'พี่' / 'เพื่อน'",
+    "adult":  "self pronoun: 'ผม' (M) / 'ฉัน' / 'ดิฉัน' (formal F); address others: 'คุณ' / 'พี่' / 'น้อง'",
+    "middle": "self pronoun: 'น้า/อา/ลุง' (M) / 'ป้า' (F); address others: 'ลูก' / 'หลาน' / 'น้อง'",
+    "senior": "self pronoun: 'ตา/ปู่' (M) / 'ยาย/ย่า' (F); address others: 'ลูก' / 'หลาน' / 'หนู'",
+}
+
+
+def _infer_persona_text(gender: str, age: str) -> str:
+    """auto-infer persona — explicit ตามเพศ+อายุ เพื่อ LLM ไม่ต้องเดา + คุม imperative particle
+    ที่ถูก gender (female ไม่ใช้ ดิ๊/ดิ้/ว่ะ/นะโว้ย ฯลฯ)"""
+    parts = []
+    g = (gender or "").lower()
+    a = (age or "").lower()
+
+    if g == "female":
+        parts.append("FEMININE voice")
+        parts.append(
+            "polite particles: 'ค่ะ' / 'นะคะ' / 'จ้ะ' (ใช้เฉพาะเมื่อ PARTICLE PARITY อนุญาต)"
+        )
+        parts.append(
+            "imperatives / casual exclamations → ใช้ feminine soft variants: "
+            "'สิ' / 'น่า' / 'หน่อยน่า' / 'นะ' / 'จ้ะ' — "
+            "ห้ามใช้ rough/masculine 'ดิ๊' / 'ดิ้' / 'ซะ' / 'ว่ะ' / 'นะโว้ย' / 'โว้ย' "
+            "(แม้ source จะเป็น plain imperative — เลือก ending ตาม gender)"
+        )
+    elif g == "male":
+        parts.append("MASCULINE voice")
+        parts.append("polite particles: 'ครับ' / 'นะ' (เลือกตาม PARTICLE PARITY)")
+        parts.append(
+            "imperatives → 'ซะ' / 'ดิ' / 'หน่อย' / no particle (avoid feminine 'ค่ะ/นะคะ/จ้ะ')"
+        )
+    else:
+        parts.append("neutral voice — เลือก particle ตาม context")
+
+    if a in _AGE_PRONOUN_MAP:
+        parts.append(_AGE_PRONOUN_MAP[a])
+
+    return "; ".join(parts)
+
+
 def _build_characters_section(characters: list[dict] | None) -> str:
     """character profiles section. ส่งข้อมูลตรง ๆ ไม่ตีความ ไม่ map"""
     if not characters:
         return ""
     lines = []
-    lines.append("\n\nCHARACTER PROFILES (HIGHEST PRIORITY)")
+    lines.append("\n\n═══ CHARACTER PROFILES (FINAL AUTHORITY for voice/register) ═══")
+    lines.append("This section overrides earlier rules (including PROJECT-SPECIFIC RULES) whenever")
+    lines.append("they conflict on REGISTER (gender particles, age-based pronouns, persona tone).")
+    lines.append("Glossary spellings from rules still apply verbatim — only voice is overridden here.")
+    lines.append("")
     lines.append("Each input line tagged [N|speaker=X] MUST be translated using speaker X's profile.")
     lines.append("Two different speakers MUST produce visibly different translation styles.")
     lines.append("A line without a speaker tag → neutral voice (use default style rules).")
@@ -1120,8 +1173,8 @@ def _build_characters_section(characters: list[dict] | None) -> str:
         if persona:
             lines.append(f"   personality: {persona}")
         else:
-            hint = f"gender '{gender or 'unspecified'}', age '{age or 'unspecified'}', name '{name or '(no name)'}'"
-            lines.append(f"   personality: (not specified — infer from {hint})")
+            # auto-inferred persona — concrete + deterministic, ไม่ปล่อยให้ LLM เดาเอง
+            lines.append(f"   personality (auto): {_infer_persona_text(gender, age)}")
         lines.append("")
     return "\n".join(lines)
 
@@ -1192,15 +1245,19 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
     if custom_rules and custom_rules.strip():
         rules_section = (
             "\n\n═══ PROJECT-SPECIFIC RULES (glossary + style guide) ═══\n"
-            "PRIORITY ORDER (read carefully before applying):\n"
-            "  1. CHARACTER VOICE / PERSONA — wins for REGISTER (gender, age, pronouns,\n"
-            "     tone, sentence-final particles). A young girl must sound like a young girl;\n"
-            "     an old man must sound like an old man — even if the rules below suggest a\n"
-            "     different register, the CHARACTER wins for voice.\n"
-            "  2. GLOSSARY ENTRIES ('X => Y' lines) — wins for SPELLING of proper nouns and\n"
-            "     technical terms. Copy verbatim. Character voice must NOT alter glossary spelling.\n"
-            "  3. STYLE GUIDE (non-glossary text in rules) — secondary. May override default\n"
-            "     translation patterns, but must NOT override character voice/persona.\n"
+            "SCOPE: these rules apply to TERM SPELLING and DOCUMENT STYLE only.\n"
+            "They do NOT change character voice/register. The CHARACTER PROFILES section\n"
+            "(shown AFTER this block) is the final authority for how each speaker sounds.\n"
+            "\n"
+            "WRONG behavior to avoid:\n"
+            "  - older sister character (age=adult, gender=female) saying 'เร็วดิ๊'\n"
+            "    (childish/casual particle 'ดิ๊') just because TM has a casual phrase example\n"
+            "  - elderly male character using teen slang because rules mention slang style\n"
+            "RIGHT behavior:\n"
+            "  - apply GLOSSARY 'X => Y' verbatim regardless of speaker\n"
+            "  - apply STYLE notes (tone, atmosphere) only when speaker is neutral/narration\n"
+            "  - when a [N|speaker=X] tag is present, the CHARACTER PROFILE for X wins for\n"
+            "    register/particles/pronouns even if a rule below suggests otherwise\n"
             "\n"
             "⚠ GLOSSARY ENTRIES (lines like 'X => Y' / 'X = Y' / 'X → Y'):\n"
             "  Y is the EXACT target spelling. Copy character-for-character whenever X appears.\n"
@@ -1229,9 +1286,10 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
         "  input:  「詳細は X9990X を見て」\n"
         "  output: 'ดูรายละเอียดที่ X9990X'  (ไม่ใช่ 'ดูรายละเอียดที่ X 9990 X' / 'ดูรายละเอียดที่ X9990' / 'ดูรายละเอียด')\n"
     )
-    # ลำดับ: base → style → chars → narration → rules → schema → protected → factual
-    return (base_prompt + style_block + chars_section + narration_rule
-            + rules_section + schema_instruction + protected_tokens_rule + factual)
+    # Order: base → style → narration → rules → CHARS (last = recency anchor) → schema → protected → factual
+    # — chars หลัง rules เพื่อ LLM เห็น character profile ทีหลังสุด ลด TM rules override character voice
+    return (base_prompt + style_block + narration_rule + rules_section
+            + chars_section + schema_instruction + protected_tokens_rule + factual)
 
 
 def _post_process_batch(texts: list[str], parsed: list[str | None],
