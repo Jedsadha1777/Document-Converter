@@ -17,6 +17,7 @@ import * as viewport from "./visual/viewport.js";
 import { getImageSrc } from "./visual/image-source.js";
 import { SpatialGrid } from "./visual/spatial-grid.js";
 import { getTool } from "./visual/tool-mode.js";
+import { updateInspector } from "./visual/inspector.js";
 
 // deep clone helper สำหรับ command snapshots
 const _clone = (v) => v === undefined || v === null ? v : JSON.parse(JSON.stringify(v));
@@ -53,6 +54,7 @@ function _clearSelectionAndButton() {
     clearSelection();
     _updateMergeButton();
     _syncAlignToolbar();
+    updateInspector();
 }
 // expose สำหรับ upload.js / index.html — ล้าง state + merge button UI ในก้าวเดียว
 export const clearSelectionAndUI = _clearSelectionAndButton;
@@ -75,6 +77,7 @@ function _toggleSelectAndButton(ref, additive) {
     toggleSelect(ref, additive);
     _updateMergeButton();
     _syncAlignToolbar();
+    updateInspector();
 }
 
 function getEffectiveBox(item, sx, sy, pageW, pageH) {
@@ -973,6 +976,7 @@ export function renderPreview() {
                 });
                 _updateMergeButton();
                 _syncAlignToolbar();
+                updateInspector();
                 tooltip.style.display = "none";
                 doDraw();
                 return;
@@ -1288,6 +1292,7 @@ export function setupEditMode() {
     history.onChange(() => {
         _syncUndoButtons();
         _syncAlignToolbar();
+        updateInspector();
         // guard กับ history.clear() ตอน upload (lastResult เป็น null)
         if (!state.lastResult) return;
         if (document.querySelector(".tab.active")?.dataset.tab === "visual") redrawOnly();

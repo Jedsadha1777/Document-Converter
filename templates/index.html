@@ -208,6 +208,37 @@ Examples:
                     <div class="empty">Upload a file to see the preview.</div>
                 </div>
             </main>
+            <aside id="rightPanel" aria-label="Text inspector">
+                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px; font-size:12px;">
+                    Click a textbox to edit.
+                </div>
+                <div id="rightPanelContent" style="display:none;">
+                    <div class="rp-section">
+                        <div class="rp-label">Format</div>
+                        <div class="rp-toolbar">
+                            <button type="button" id="rpFontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
+                            <button type="button" id="rpFontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
+                            <span class="rp-sep"></span>
+                            <button type="button" id="rpAlignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
+                            <button type="button" id="rpAlignCenterBtn" class="ghost" title="กึ่งกลาง"><span class="material-symbols-outlined">format_align_center</span></button>
+                            <button type="button" id="rpAlignRightBtn" class="ghost" title="ชิดขวา"><span class="material-symbols-outlined">format_align_right</span></button>
+                            <span class="rp-sep"></span>
+                            <button type="button" id="rpValignTopBtn" class="ghost" title="ชิดบน"><span class="material-symbols-outlined">vertical_align_top</span></button>
+                            <button type="button" id="rpValignMiddleBtn" class="ghost" title="กลาง"><span class="material-symbols-outlined">vertical_align_center</span></button>
+                            <button type="button" id="rpValignBottomBtn" class="ghost" title="ชิดล่าง"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
+                        </div>
+                    </div>
+                    <div class="rp-section">
+                        <div class="rp-label">OCR text</div>
+                        <textarea id="rpOcrText" class="rp-textarea" rows="2" readonly></textarea>
+                    </div>
+                    <div class="rp-section">
+                        <div class="rp-label">Translation <span id="rpTrSource" class="rp-hint"></span></div>
+                        <textarea id="rpTrText" class="rp-textarea" rows="2"
+                            placeholder="(empty — translate or type manually)"></textarea>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 </div>
@@ -276,6 +307,7 @@ import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
 import { initPanZoom } from "/static/js/visual/pan-zoom.js";
 import { initToolButtons, getTool } from "/static/js/visual/tool-mode.js";
+import { initInspector, updateInspector } from "/static/js/visual/inspector.js";
 import * as viewport from "/static/js/visual/viewport.js";
 // side-effect imports — wire toolbar buttons (run/stop/clear/retry/preview/copy/paste/tm)
 import "/static/js/correct-runner.js";
@@ -292,6 +324,7 @@ initPanZoom(document.getElementById("splitMain"), {
     shouldPan: (e) => e.button === 0 && getTool() === "pan",
 });
 initToolButtons();
+initInspector();
 
 // ── Zoom toolbar (fit / 100% / zoom +/-) + indicator ───────────────────
 const zoomLevelEl = document.getElementById("zoomLevel");

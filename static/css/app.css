@@ -181,6 +181,74 @@ body.app-fullscreen #compareArea {
     background: #f9fafb;
     border-right: 1px solid #e5e7eb;
 }
+
+/* Right inspector panel — format toolbar + OCR + translation textareas */
+#rightPanel {
+    width: 260px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    padding: 10px;
+    background: #f9fafb;
+    border-left: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #374151;
+}
+#rightPanel .rp-section { margin-bottom: 12px; }
+#rightPanel .rp-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+#rightPanel .rp-hint {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #9ca3af;
+    margin-left: 4px;
+}
+#rightPanel .rp-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 4px;
+}
+#rightPanel .rp-toolbar button {
+    padding: 4px 6px;
+    line-height: 1;
+}
+#rightPanel .rp-sep {
+    width: 1px;
+    height: 16px;
+    background: #d1d5db;
+    margin: 0 2px;
+}
+/* override global `textarea { min-height: 480px; padding: 14px; background: #0b1021; color: #e5e7eb }` */
+#rightPanel .rp-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    /* 3 บรรทัด: line-height 1.4 × 12px × 3 + padding 12px + border 2px ≈ 64px */
+    min-height: 64px;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #111827;
+    background: #fff;
+    resize: vertical;     /* user ลาก resize ความสูงได้ */
+}
+#rightPanel .rp-textarea:read-only { background: #f3f4f6; color: #4b5563; }
+#rightPanel .rp-textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
 #splitMain {
     flex: 1;
     display: grid;
