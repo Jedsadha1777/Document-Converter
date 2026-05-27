@@ -164,6 +164,11 @@ Examples:
                 <button type="button" id="undoBtn" class="ghost" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined">undo</span>Undo</button>
                 <button type="button" id="redoBtn" class="ghost" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined">redo</span>Redo</button>
                 <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
+                <button type="button" class="ghost tool-btn" data-tool="select"
+                        title="Select — click bbox / drag handles"><span class="material-symbols-outlined">arrow_selector_tool</span></button>
+                <button type="button" class="ghost tool-btn" data-tool="pan"
+                        title="Pan — drag to move viewport"><span class="material-symbols-outlined">pan_tool</span></button>
+                <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
                 <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
                 <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
                 <button type="button" id="alignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
@@ -270,6 +275,7 @@ import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI } from "/
 import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
 import { initPanZoom } from "/static/js/visual/pan-zoom.js";
+import { initToolButtons, getTool } from "/static/js/visual/tool-mode.js";
 import * as viewport from "/static/js/visual/viewport.js";
 // side-effect imports — wire toolbar buttons (run/stop/clear/retry/preview/copy/paste/tm)
 import "/static/js/correct-runner.js";
@@ -281,8 +287,11 @@ import "/static/js/tm.js";
 window.state = state;
 window.viewport = viewport;
 
-// initPanZoom บน splitMain (รับ wheel + drag events ของ both panes)
-initPanZoom(document.getElementById("splitMain"));
+// initPanZoom + tool buttons (select / pan)
+initPanZoom(document.getElementById("splitMain"), {
+    shouldPan: (e) => e.button === 0 && getTool() === "pan",
+});
+initToolButtons();
 
 // ── Zoom toolbar (fit / 100% / zoom +/-) + indicator ───────────────────
 const zoomLevelEl = document.getElementById("zoomLevel");

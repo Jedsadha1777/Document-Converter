@@ -261,9 +261,8 @@ def _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px):
         return None, None
 
 
-def build_preview(doc, doc_id: str | None = None, skip_image_data: bool = False):
-    """doc_id: opaque session key (ส่งกลับ client เพื่อจับคู่กับ client-side blob URL).
-    skip_image_data: ถ้า True → ไม่ encode base64 PNG ใน response (client มี source อยู่แล้ว
+def build_preview(doc, skip_image_data: bool = False):
+    """skip_image_data: ถ้า True → ไม่ encode base64 PNG ใน response (client มี source อยู่แล้ว
     เช่น uploaded image). Color sampling ยังทำที่ server บน pil_img เต็มความละเอียด."""
     pages = []
     # เก็บ pil_img + page size ต่อ page เพื่อ sample สีตอน add_item
@@ -431,8 +430,7 @@ def get_manga_ocr():
     return _manga_ocr
 
 
-def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None,
-                       skip_image_data: bool = False):
+def run_manga_pipeline(path: Path, filename: str, skip_image_data: bool = False):
     """แทนที่ docling ด้วย mokuro สำหรับมังงะ/ข้อความญี่ปุ่นแนวตั้ง.
     skip_image_data: ถ้า True → ไม่ฝัง base64 ใน response (client มี source อยู่แล้ว)"""
     mocr = get_manga_ocr()
@@ -441,7 +439,8 @@ def run_manga_pipeline(path: Path, filename: str, doc_id: str | None = None,
     img_w = int(res["img_width"])
     img_h = int(res["img_height"])
 
-    pil = Image.open(path).convert("RGB")
+    with Image.open(path) as _src:
+        pil = _src.convert("RGB")
     if pil.size != (img_w, img_h):
         pil = pil.resize((img_w, img_h))
     image_data = None
@@ -567,13 +566,14 @@ def _merge_nearby_boxes(boxes: list[dict]) -> list[dict]:
     return merged
 
 
-def run_fast_pipeline(path: Path, filename: str, lang: str = "auto", doc_id: str | None = None,
+def run_fast_pipeline(path: Path, filename: str, lang: str = "auto",
                       skip_image_data: bool = False):
     """ข้าม docling — ใช้ Apple Vision (ocrmac) ตรง ๆ เร็วกว่ามาก.
     skip_image_data: ถ้า True → ไม่ฝัง base64 ใน response (client มี source อยู่แล้ว)"""
     from ocrmac import ocrmac as _ocrmac
 
-    pil = Image.open(path).convert("RGB")
+    with Image.open(path) as _src:
+        pil = _src.convert("RGB")
     img_w, img_h = pil.size
 
     langs_map = {

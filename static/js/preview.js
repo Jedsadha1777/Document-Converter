@@ -16,6 +16,7 @@ import { COLORS } from "./colors.js";
 import * as viewport from "./visual/viewport.js";
 import { getImageSrc } from "./visual/image-source.js";
 import { SpatialGrid } from "./visual/spatial-grid.js";
+import { getTool } from "./visual/tool-mode.js";
 
 // deep clone helper สำหรับ command snapshots
 const _clone = (v) => v === undefined || v === null ? v : JSON.parse(JSON.stringify(v));
@@ -100,10 +101,59 @@ function getEffectiveBox(item, sx, sy, pageW, pageH) {
     return { x, y, w, h };
 }
 
-function _hitHandle(box, px, py, zoom = 1) {
-    // HANDLE_SIZE = 8 screen px → ใน world space ต้องหาร zoom
-    // (drawn box + click coord อยู่ใน world; handle hit area คงที่ 8 screen px)
+function _getRotation(ref) {
+    const ov = state.bboxOverrides[ref];
+    return (ov && typeof ov.rotation === "number") ? ov.rotation : 0;
+}
+
+// inverse-rotate world point → box-local frame (axis-aligned) รอบ center
+function _worldToBoxLocal(box, rotDeg, px, py) {
+    if (!rotDeg) return { x: px, y: py };
+    const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    const rad = -rotDeg * Math.PI / 180;
+    const cos = Math.cos(rad), sin = Math.sin(rad);
+    const dx = px - cx, dy = py - cy;
+    return { x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos };
+}
+
+// forward-rotate local point → world (รอบ center)
+function _boxLocalToWorld(box, rotDeg, lx, ly) {
+    if (!rotDeg) return { x: lx, y: ly };
+    const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    const rad = rotDeg * Math.PI / 180;
+    const cos = Math.cos(rad), sin = Math.sin(rad);
+    const dx = lx - cx, dy = ly - cy;
+    return { x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos };
+}
+
+// AABB ของ rotated box — ใช้ใน SpatialGrid + marquee
+function _aabbOfRotated(box, rotDeg) {
+    if (!rotDeg) return { x: box.x, y: box.y, w: box.w, h: box.h };
+    const corners = [
+        [box.x, box.y], [box.x + box.w, box.y],
+        [box.x + box.w, box.y + box.h], [box.x, box.y + box.h],
+    ];
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const [lx, ly] of corners) {
+        const w = _boxLocalToWorld(box, rotDeg, lx, ly);
+        if (w.x < minX) minX = w.x;
+        if (w.y < minY) minY = w.y;
+        if (w.x > maxX) maxX = w.x;
+        if (w.y > maxY) maxY = w.y;
+    }
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+
+function _hitRotatedBox(box, rotDeg, px, py) {
+    const lp = _worldToBoxLocal(box, rotDeg, px, py);
+    return lp.x >= box.x && lp.x <= box.x + box.w &&
+           lp.y >= box.y && lp.y <= box.y + box.h;
+}
+
+function _hitHandle(box, px, py, zoom = 1, rotDeg = 0) {
+    // hit-test ทำใน local frame — inverse-rotate point ก่อน
     const hs = HANDLE_SIZE / Math.max(0.01, zoom);
+    const lp = _worldToBoxLocal(box, rotDeg, px, py);
     const halves = [
         { name: "nw", cx: box.x,             cy: box.y },
         { name: "n",  cx: box.x + box.w / 2, cy: box.y },
@@ -115,14 +165,13 @@ function _hitHandle(box, px, py, zoom = 1) {
         { name: "w",  cx: box.x,             cy: box.y + box.h / 2 },
     ];
     for (const h of halves) {
-        if (Math.abs(px - h.cx) <= hs && Math.abs(py - h.cy) <= hs) return h.name;
+        if (Math.abs(lp.x - h.cx) <= hs && Math.abs(lp.y - h.cy) <= hs) return h.name;
     }
     return null;
 }
 
-function _drawHandles(ctx, box, zoom = 1) {
-    // ctx มี setTransform(zoom*dpr,...) อยู่ → handle ต้องคง 8 screen px
-    // หาร zoom เพื่อชดเชย scale ก่อน draw ใน world coord
+function _drawHandles(ctx, box, zoom = 1, rotDeg = 0) {
+    // ctx มี setTransform(zoom*dpr,...) อยู่ → handle ต้องคง HANDLE_SIZE screen px
     const z = Math.max(0.01, zoom);
     const hs = HANDLE_SIZE / z;
     const pts = [
@@ -135,6 +184,13 @@ function _drawHandles(ctx, box, zoom = 1) {
         [box.x,              box.y + box.h],
         [box.x,              box.y + box.h / 2],
     ];
+    ctx.save();
+    if (rotDeg) {
+        const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate(rotDeg * Math.PI / 180);
+        ctx.translate(-cx, -cy);
+    }
     ctx.fillStyle = COLORS.textInverse;
     ctx.strokeStyle = COLORS.primary;
     ctx.lineWidth = 2 / z;
@@ -142,6 +198,111 @@ function _drawHandles(ctx, box, zoom = 1) {
         ctx.fillRect(px - hs / 2, py - hs / 2, hs, hs);
         ctx.strokeRect(px - hs / 2, py - hs / 2, hs, hs);
     }
+    ctx.restore();
+}
+
+// rotation handle อยู่ใต้ box (local frame) — offset 28 screen px
+function _rotationHandleLocalPos(box, zoom) {
+    const offset = 28 / Math.max(0.01, zoom);
+    return { x: box.x + box.w / 2, y: box.y + box.h + offset };
+}
+
+function _rotationHandleWorldPos(box, rotDeg, zoom) {
+    const local = _rotationHandleLocalPos(box, zoom);
+    return _boxLocalToWorld(box, rotDeg, local.x, local.y);
+}
+
+function _hitRotationHandle(box, rotDeg, px, py, zoom) {
+    const z = Math.max(0.01, zoom);
+    const pos = _rotationHandleWorldPos(box, rotDeg, z);
+    const r = 11 / z;     // hit area larger กว่า visual radius
+    return Math.hypot(px - pos.x, py - pos.y) <= r;
+}
+
+// Material Symbols "rotate_right" SVG path (24x24 viewBox) — เข้ากันกับ
+// Material Symbols Outlined ที่ใช้ใน HTML toolbar icons (loaded via Google Fonts)
+const _ROTATE_ICON_SVG_D = "M15.55,5.55L11,1v3.07C7.06,4.56,4,7.92,4,12s3.05,7.44,7,7.93v-2.02c-2.84-0.48-5-2.94-5-5.91s2.16-5.43,5-5.91V10l4.55-4.45z M19.93,11c-0.17-1.39-0.72-2.73-1.62-3.89l-1.42,1.42c0.54,0.75,0.88,1.6,1.02,2.47H19.93z M13,17.9v2.02c1.39-0.17,2.74-0.71,3.9-1.61l-1.44-1.44C14.71,17.4,13.87,17.74,13,17.9z M16.89,15.48l1.42,1.41c0.9-1.16,1.45-2.5,1.62-3.89h-2.02C17.77,13.88,17.43,14.73,16.89,15.48z";
+let _rotateIconPath = null;
+function _getRotateIconPath() {
+    if (!_rotateIconPath) _rotateIconPath = new Path2D(_ROTATE_ICON_SVG_D);
+    return _rotateIconPath;
+}
+
+function _drawRotationHandle(ctx, box, rotDeg, zoom) {
+    const z = Math.max(0.01, zoom);
+    const local = _rotationHandleLocalPos(box, z);
+    const r = 7 / z;
+    const lw = 1.5 / z;
+    ctx.save();
+    if (rotDeg) {
+        const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate(rotDeg * Math.PI / 180);
+        ctx.translate(-cx, -cy);
+    }
+    // connector line จากขอบล่างของ box → handle
+    ctx.beginPath();
+    ctx.moveTo(local.x, box.y + box.h);
+    ctx.lineTo(local.x, local.y - r);
+    ctx.strokeStyle = COLORS.primary;
+    ctx.lineWidth = lw;
+    ctx.stroke();
+    // วงกลม handle (background ขาว)
+    ctx.beginPath();
+    ctx.arc(local.x, local.y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = COLORS.textInverse;
+    ctx.fill();
+    ctx.strokeStyle = COLORS.primary;
+    ctx.lineWidth = lw;
+    ctx.stroke();
+    // SVG icon — Material Symbols rotate_right path (24x24) scaled ลง 80% ของ handle
+    const iconSize = r * 1.55;
+    const scale = iconSize / 24;
+    ctx.save();
+    ctx.translate(local.x - iconSize / 2, local.y - iconSize / 2);
+    ctx.scale(scale, scale);
+    ctx.fillStyle = COLORS.primary;
+    ctx.fill(_getRotateIconPath());
+    ctx.restore();
+    ctx.restore();
+}
+
+// snap องศาตอนหมุน: 0° dead zone ±3° (= แม่นยำตอน reset orientation),
+// shift = snap ทุก 15° (ทำตอน user holding shift)
+const ROT_ZERO_SNAP_DEG = 3;
+const ROT_SHIFT_STEP_DEG = 15;
+function _snapRotation(deg, shiftHeld) {
+    // normalize → -180..180
+    let d = ((deg % 360) + 540) % 360 - 180;
+    if (shiftHeld) {
+        d = Math.round(d / ROT_SHIFT_STEP_DEG) * ROT_SHIFT_STEP_DEG;
+    } else if (Math.abs(d) <= ROT_ZERO_SNAP_DEG) {
+        d = 0;
+    }
+    return d;
+}
+
+// ── floating angle badge ── แสดงองศาตอนหมุน (Canva-style)
+let _rotateBadge = null;
+function _showRotateBadge(clientX, clientY, deg, snapped) {
+    if (!_rotateBadge) {
+        _rotateBadge = document.createElement("div");
+        _rotateBadge.style.cssText =
+            "position:fixed; z-index:9999; pointer-events:none; " +
+            "background:rgba(17,24,39,.92); color:#fff; " +
+            "padding:4px 8px; border-radius:6px; font:600 12px ui-monospace,Menlo,monospace; " +
+            "white-space:nowrap;";
+        document.body.appendChild(_rotateBadge);
+    }
+    const rounded = Math.round(deg);
+    _rotateBadge.textContent = `${rounded}°${snapped ? "  ⌖" : ""}`;
+    _rotateBadge.style.background = snapped ? "rgba(37,99,235,.95)" : "rgba(17,24,39,.92)";
+    _rotateBadge.style.left = (clientX + 16) + "px";
+    _rotateBadge.style.top = (clientY + 16) + "px";
+    _rotateBadge.style.display = "block";
+}
+function _hideRotateBadge() {
+    if (_rotateBadge) _rotateBadge.style.display = "none";
 }
 
 // ─────────────────────────────────────────────────────────
@@ -577,10 +738,11 @@ export function renderPreview() {
                 const effectiveFontSize = ov.fontSize || ocrFontSize || fallbackFontSize;
 
                 const overlayText = tr || corr || (it.text || "");
+                const rotation = (typeof ov.rotation === "number") ? ov.rotation : 0;
                 if (overlayMode && isSkip) {
                     // SKIP ใน overlay mode → ไม่วาดอะไรเลย (ไม่มี bbox, ไม่มี fade)
                     // เหลือแต่ภาพต้นฉบับด้านล่างให้เห็น — เก็บ drawn ไว้สำหรับ hit-test เผื่อ user คลิก
-                    drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize });
+                    drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize, rotation });
                     return;
                 }
                 if (overlayMode && overlayText) {
@@ -590,24 +752,28 @@ export function renderPreview() {
                         fallbackFontSize,
                     });
                     if (!layout) {
-                        normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it });
-                        drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize });
+                        normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it, rotation });
+                        drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize, rotation });
                         return;
                     }
-                    overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", valign: ov.valign || "top", isTranslated: !!tr, item: it });
-                    drawn.push({ x, y, w, h, item: it, fontSize: layout.fontSize });
+                    overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", valign: ov.valign || "top", isTranslated: !!tr, item: it, rotation });
+                    drawn.push({ x, y, w, h, item: it, fontSize: layout.fontSize, rotation });
                     return;
                 }
-                normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it });
-                drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize });
+                normalRenders.push({ x, y, w, h, color, corr, tr, wasCorrected, item: it, rotation });
+                drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize, rotation });
             });
 
-            // Pass 1: overlay backgrounds + borders
-            // bg_color จาก OCR sampling (PIL quantize) ถ้ามี → fill ทับให้ตรงสีต้นฉบับ
-            // override per-bbox (ov.bgColor) → ผู้ใช้ปรับเองได้ใน edit mode
-            // (isSkip items ไม่เคยเข้ามาที่นี่ใน overlay mode — ถูก filter ออกก่อนหน้านี้)
+            // Pass 1: overlay backgrounds + borders (rotation transform per-box)
             overlayRenders.forEach(r => {
                 const ov = state.bboxOverrides[r.item.self_ref] || {};
+                ctx.save();
+                if (r.rotation) {
+                    const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+                    ctx.translate(cx, cy);
+                    ctx.rotate(r.rotation * Math.PI / 180);
+                    ctx.translate(-cx, -cy);
+                }
                 ctx.fillStyle = ov.bgColor || r.item.bg_color || COLORS.overlayBg;
                 ctx.fillRect(r.x, r.y, r.w, r.h);
                 ctx.strokeStyle = r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted;
@@ -615,13 +781,19 @@ export function renderPreview() {
                 if (!r.isTranslated) ctx.setLineDash([4 / z, 3 / z]);
                 ctx.strokeRect(r.x, r.y, r.w, r.h);
                 ctx.setLineDash([]);
+                ctx.restore();
             });
 
             // Pass 2: overlay text (รองรับ vertical align — อ้างอิง Ketchup TableTool)
-            // text_color จาก OCR sampling → ตัวอักษรที่วาดทับให้สีตรงต้นฉบับ
             overlayRenders.forEach(r => {
                 if (!r.layout.lines.length) return;
                 ctx.save();
+                if (r.rotation) {
+                    const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+                    ctx.translate(cx, cy);
+                    ctx.rotate(r.rotation * Math.PI / 180);
+                    ctx.translate(-cx, -cy);
+                }
                 ctx.beginPath();
                 ctx.rect(r.x, r.y, r.w, r.h);
                 ctx.clip();
@@ -630,7 +802,6 @@ export function renderPreview() {
                 ctx.fillStyle = ov.textColor || r.item.text_color || COLORS.text;
                 ctx.textBaseline = "alphabetic";
                 ctx.textAlign = "left";
-                // vertical align: top (default) / middle / bottom — clip ป้องกัน text ทะลุกล่อง
                 const totalTextH = r.layout.lines.length * r.layout.lineHeight;
                 let topY;
                 if (r.valign === "middle") {
@@ -651,15 +822,21 @@ export function renderPreview() {
                 ctx.restore();
             });
 
-            // Pass 3: normal-mode bbox + label
+            // Pass 3: normal-mode bbox + label (rotation transform per-box)
             ctx.lineWidth = 2 / z;
             ctx.font = `${11 / z}px ui-monospace, Menlo, monospace`;
             normalRenders.forEach(r => {
                 const { x, y, w, h, color, tr, wasCorrected, item: it } = r;
                 const sp = it.self_ref ? state.speakerByRef[it.self_ref] : null;
                 const isSkip = sp === SPEAKER_SKIP;
-                // SKIP → จาง (alpha 0.35) ทั้ง bbox + label เพื่อบอกว่ายกเว้น
-                if (isSkip) ctx.save(), ctx.globalAlpha = 0.35;
+                ctx.save();
+                if (r.rotation) {
+                    const cx = x + w / 2, cy = y + h / 2;
+                    ctx.translate(cx, cy);
+                    ctx.rotate(r.rotation * Math.PI / 180);
+                    ctx.translate(-cx, -cy);
+                }
+                if (isSkip) ctx.globalAlpha = 0.35;
                 ctx.strokeStyle = color;
                 ctx.lineWidth = (wasCorrected ? 3 : 2) / z;
                 ctx.fillStyle = wasCorrected ? COLORS.warningBgAlpha : color + "22";
@@ -671,34 +848,45 @@ export function renderPreview() {
                     else if (sp) spTag = `👤${sp} `;
                     const tag = (tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag;
                     const lbl = tag + it.label;
-                    // ทุก dim ตั้งเป็น screen px → หาร z เพื่อ world coord (ctx scale จะคูณกลับ)
-                    const lh = 14 / z;        // label background height
-                    const lpad = 4 / z;       // text-from-left pad
-                    const lbase = 3 / z;      // text baseline above bbox top
-                    const lmaxw = 160 / z;    // background max width
+                    const lh = 14 / z;
+                    const lpad = 4 / z;
+                    const lbase = 3 / z;
+                    const lmaxw = 160 / z;
                     ctx.fillStyle = tr ? COLORS.primaryStrong : (wasCorrected ? COLORS.warning : color);
                     ctx.fillRect(x, Math.max(0, y - lh), Math.min(lmaxw, w), lh);
                     ctx.fillStyle = COLORS.textInverse;
                     ctx.fillText(lbl, x + lpad, Math.max(11 / z, y - lbase));
                 }
-                if (isSkip) ctx.restore();
+                ctx.restore();
             });
 
-            // === Selection highlights + handles ===
+            // === Selection highlights + handles (rotation-aware) ===
             if (sel.refs.size) {
-                ctx.lineWidth = 2 / z;
-                ctx.setLineDash([6 / z, 4 / z]);
                 sel.refs.forEach(ref => {
                     const sd = drawn.find(d => d.item.self_ref === ref);
                     if (!sd) return;
+                    ctx.save();
+                    if (sd.rotation) {
+                        const cx = sd.x + sd.w / 2, cy = sd.y + sd.h / 2;
+                        ctx.translate(cx, cy);
+                        ctx.rotate(sd.rotation * Math.PI / 180);
+                        ctx.translate(-cx, -cy);
+                    }
+                    ctx.lineWidth = 2 / z;
+                    ctx.setLineDash([6 / z, 4 / z]);
                     ctx.strokeStyle = ref === sel.ref ? COLORS.primary : COLORS.multiSelect;
                     ctx.strokeRect(sd.x, sd.y, sd.w, sd.h);
+                    ctx.setLineDash([]);
+                    ctx.restore();
                 });
-                ctx.setLineDash([]);
             }
             if (sel.ref) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
-                if (selDrawn) _drawHandles(ctx, selDrawn, viewport.getZoom());
+                if (selDrawn) {
+                    const zNow = viewport.getZoom();
+                    _drawHandles(ctx, selDrawn, zNow, selDrawn.rotation || 0);
+                    _drawRotationHandle(ctx, selDrawn, selDrawn.rotation || 0, zNow);
+                }
             }
 
             // === Marquee overlay ===
@@ -719,11 +907,14 @@ export function renderPreview() {
                 ctx.restore();
             }
             wrap._drawn = drawn;
-            // SpatialGrid — rebuild ทุก doDraw (ใช้ในการ hit-test → O(small cell) แทน O(n) linear)
-            // cellSize 200 world-px เหมาะกับ bbox manga ปกติ 100-500 px
+            // SpatialGrid — rebuild ทุก doDraw. Insert AABB ของ rotated box (กว้างกว่า local box)
+            // ทำให้ queryAt คืน candidates ครบ — ค่อย confirm ผ่าน _hitRotatedBox ที่ตอน hit-test
             if (!wrap._grid) wrap._grid = new SpatialGrid(200);
             wrap._grid.clear();
-            drawn.forEach((d, idx) => wrap._grid.insert(idx, d.x, d.y, d.w, d.h));
+            drawn.forEach((d, idx) => {
+                const aabb = _aabbOfRotated({ x: d.x, y: d.y, w: d.w, h: d.h }, d.rotation || 0);
+                wrap._grid.insert(idx, aabb.x, aabb.y, aabb.w, aabb.h);
+            });
             window._previewWrap = wrap;
             ctx.restore();   // matches ctx.save() ที่เริ่มต้น doDraw
         };
@@ -738,6 +929,12 @@ export function renderPreview() {
         wrap.style.cursor = "default";
 
         wrap.onmousemove = (ev) => {
+            // pan tool active → ไม่ต้อง hit-test/hover; pan-zoom จัดการ drag เอง
+            if (getTool() === "pan") {
+                wrap.style.cursor = "grab";
+                tooltip.style.display = "none";
+                return;
+            }
             // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
             const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
             // tooltip ใช้ screen-local coords (wrap = absolute container, ไม่ใช่ world)
@@ -762,7 +959,9 @@ export function renderPreview() {
                 drawn.forEach(d => {
                     if (!d.item.self_ref) return;
                     const ref = d.item.self_ref;
-                    const inside = d.x < x2 && d.x + d.w > x1 && d.y < y2 && d.y + d.h > y1;
+                    // rotated → ใช้ AABB ของ rotated box เทียบ overlap (loose match)
+                    const aabb = _aabbOfRotated({ x: d.x, y: d.y, w: d.w, h: d.h }, d.rotation || 0);
+                    const inside = aabb.x < x2 && aabb.x + aabb.w > x1 && aabb.y < y2 && aabb.y + aabb.h > y1;
                     const wasInitial = mq.initialSelection.has(ref);
                     if (inside && !sel.refs.has(ref)) {
                         sel.refs.add(ref);
@@ -784,23 +983,49 @@ export function renderPreview() {
             if (dr) {
                 const dx = px - dr.startX;
                 const dy = py - dr.startY;
-                if (!dr.moved && Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+                if (!dr.moved && Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD
+                    && dr.mode !== "rotate") return;
                 dr.moved = true;
                 state.justDragged = true;
                 tooltip.style.display = "none";
                 const sb = dr.startBox;
                 const ov = state.bboxOverrides[dr.ref] = state.bboxOverrides[dr.ref] || {};
+
+                if (dr.mode === "rotate") {
+                    // หมุนรอบ box center: angle = atan2(p - center)
+                    const cx = sb.x + sb.w / 2, cy = sb.y + sb.h / 2;
+                    const startAngle = Math.atan2(dr.startY - cy, dr.startX - cx);
+                    const curAngle = Math.atan2(py - cy, px - cx);
+                    const rawDeg = dr.startRotation + (curAngle - startAngle) * 180 / Math.PI;
+                    const snapped = _snapRotation(rawDeg, ev.shiftKey);
+                    ov.rotation = snapped;
+                    const isAtZero = snapped === 0 || (ev.shiftKey && (snapped % ROT_SHIFT_STEP_DEG === 0));
+                    _showRotateBadge(ev.clientX, ev.clientY, snapped, isAtZero);
+                    doDraw();
+                    return;
+                }
+
                 if (dr.mode === "move") {
+                    // translate ใน world space — rotation ไม่กระทบ
                     ov.x = sb.x + dx;
                     ov.y = sb.y + dy;
                     ov.w = sb.w;
                     ov.h = sb.h;
                 } else {
+                    // resize: inverse-rotate world delta → box local frame
+                    let ldx = dx, ldy = dy;
+                    const rot = dr.rotation || 0;
+                    if (rot) {
+                        const rad = -rot * Math.PI / 180;
+                        const cos = Math.cos(rad), sin = Math.sin(rad);
+                        ldx = dx * cos - dy * sin;
+                        ldy = dx * sin + dy * cos;
+                    }
                     let nx = sb.x, ny = sb.y, nw = sb.w, nh = sb.h;
-                    if (dr.mode.includes("w")) { nx = sb.x + dx; nw = sb.w - dx; }
-                    if (dr.mode.includes("e")) { nw = sb.w + dx; }
-                    if (dr.mode.includes("n")) { ny = sb.y + dy; nh = sb.h - dy; }
-                    if (dr.mode.includes("s")) { nh = sb.h + dy; }
+                    if (dr.mode.includes("w")) { nx = sb.x + ldx; nw = sb.w - ldx; }
+                    if (dr.mode.includes("e")) { nw = sb.w + ldx; }
+                    if (dr.mode.includes("n")) { ny = sb.y + ldy; nh = sb.h - ldy; }
+                    if (dr.mode.includes("s")) { nh = sb.h + ldy; }
                     if (nw < MIN_BOX) { nx = sb.x + sb.w - MIN_BOX; nw = MIN_BOX; }
                     if (nh < MIN_BOX) { ny = sb.y + sb.h - MIN_BOX; nh = MIN_BOX; }
                     ov.x = nx; ov.y = ny; ov.w = nw; ov.h = nh;
@@ -814,17 +1039,30 @@ export function renderPreview() {
             if (sel.ref) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
                 if (selDrawn) {
-                    const handle = _hitHandle(selDrawn, px, py, viewport.getZoom());
-                    if (handle) {
-                        const map = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
-                                      nw: "nwse-resize", se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize" };
-                        cur = map[handle] || "default";
+                    const zNow = viewport.getZoom();
+                    const rot = selDrawn.rotation || 0;
+                    if (_hitRotationHandle(selDrawn, rot, px, py, zNow)) {
+                        cur = "grab";
+                    } else {
+                        const handle = _hitHandle(selDrawn, px, py, zNow, rot);
+                        if (handle) {
+                            const map = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
+                                          nw: "nwse-resize", se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize" };
+                            cur = map[handle] || "default";
+                        }
                     }
                 }
             }
-            // SpatialGrid hit-test — O(small cell) แทน O(n) linear; queryAt return ids ใน insertion order
+            // SpatialGrid → AABB candidates; refine ผ่าน _hitRotatedBox สำหรับ rotated items
             const _hitIds = wrap._grid ? wrap._grid.queryAt(px, py) : [];
-            const _topHit = _hitIds.length ? drawn[_hitIds[_hitIds.length - 1]] : null;
+            let _topHit = null;
+            for (let i = _hitIds.length - 1; i >= 0; i--) {
+                const d = drawn[_hitIds[i]];
+                if (_hitRotatedBox({ x: d.x, y: d.y, w: d.w, h: d.h }, d.rotation || 0, px, py)) {
+                    _topHit = d;
+                    break;
+                }
+            }
 
             if (cur === "default") {
                 cur = _topHit ? "move" : "default";
@@ -884,20 +1122,38 @@ export function renderPreview() {
         // === mousedown: เริ่ม drag/marquee ===
         wrap.onmousedown = (ev) => {
             if (ev.button !== 0) return;
+            // pan tool: ปล่อยให้ pan-zoom.js handler ทำงาน (shouldPan = true)
+            if (getTool() === "pan") return;
             state.justDragged = false;
             // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
             const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
-            // 1) handle ของกล่องที่ active อยู่ก่อน
+            // 1) handle ของกล่องที่ active อยู่ก่อน — rotation handle มาก่อน, แล้ว resize handles
             if (sel.ref && !ev.shiftKey) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
                 if (selDrawn) {
-                    const handle = _hitHandle(selDrawn, px, py, viewport.getZoom());
+                    const zNow = viewport.getZoom();
+                    const rot = selDrawn.rotation || 0;
+                    if (_hitRotationHandle(selDrawn, rot, px, py, zNow)) {
+                        ev.preventDefault();
+                        setDrag({
+                            ref: sel.ref, mode: "rotate",
+                            startX: px, startY: py,
+                            startBox: { x: selDrawn.x, y: selDrawn.y, w: selDrawn.w, h: selDrawn.h },
+                            rotation: rot,
+                            startRotation: rot,
+                            beforeOv: _clone(state.bboxOverrides[sel.ref]),
+                        });
+                        wrap.classList.add("dragging");
+                        return;
+                    }
+                    const handle = _hitHandle(selDrawn, px, py, zNow, rot);
                     if (handle) {
                         ev.preventDefault();
                         setDrag({
                             ref: sel.ref, mode: handle,
                             startX: px, startY: py,
                             startBox: { x: selDrawn.x, y: selDrawn.y, w: selDrawn.w, h: selDrawn.h },
+                            rotation: rot,
                             beforeOv: _clone(state.bboxOverrides[sel.ref]),
                         });
                         wrap.classList.add("dragging");
@@ -905,9 +1161,16 @@ export function renderPreview() {
                     }
                 }
             }
-            // 2) คลิกในกล่อง (SpatialGrid hit-test)
+            // 2) คลิกในกล่อง (rotation-aware hit-test)
             const _ids = wrap._grid ? wrap._grid.queryAt(px, py) : [];
-            const hit = _ids.length ? drawn[_ids[_ids.length - 1]] : null;
+            let hit = null;
+            for (let i = _ids.length - 1; i >= 0; i--) {
+                const d = drawn[_ids[i]];
+                if (_hitRotatedBox({ x: d.x, y: d.y, w: d.w, h: d.h }, d.rotation || 0, px, py)) {
+                    hit = d;
+                    break;
+                }
+            }
             if (hit) {
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -917,6 +1180,7 @@ export function renderPreview() {
                         ref: sel.ref, mode: "move",
                         startX: px, startY: py,
                         startBox: { x: hit.x, y: hit.y, w: hit.w, h: hit.h },
+                        rotation: hit.rotation || 0,
                         beforeOv: _clone(state.bboxOverrides[sel.ref]),
                     });
                     wrap.classList.add("dragging");
@@ -948,9 +1212,11 @@ export function renderPreview() {
                 // ถ้า drag จริง → push UpdateBboxCmd ลง history (do() reapply เป็น no-op, undo() คืนค่า)
                 if (dr.moved) {
                     const afterOv = _clone(state.bboxOverrides[dr.ref]);
-                    const desc = dr.mode === "move" ? "Move bbox" : "Resize bbox";
+                    const desc = dr.mode === "rotate" ? "Rotate bbox"
+                        : (dr.mode === "move" ? "Move bbox" : "Resize bbox");
                     history.exec(new UpdateBboxCmd(dr.ref, dr.beforeOv, afterOv, desc));
                 }
+                if (dr.mode === "rotate") _hideRotateBadge();
                 setDrag(null);
                 wrap.classList.remove("dragging");
                 doDraw();
@@ -967,6 +1233,7 @@ export function renderPreview() {
         document.addEventListener("mouseup", window._previewDocMouseUp);
 
         wrap.onclick = (ev) => {
+            if (getTool() === "pan") return;
             if (state.justDragged) {
                 state.justDragged = false;
                 return;
@@ -974,7 +1241,14 @@ export function renderPreview() {
             // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
             const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
             const _ids = wrap._grid ? wrap._grid.queryAt(px, py) : [];
-            const hit = _ids.length ? drawn[_ids[_ids.length - 1]] : null;
+            let hit = null;
+            for (let i = _ids.length - 1; i >= 0; i--) {
+                const d = drawn[_ids[i]];
+                if (_hitRotatedBox({ x: d.x, y: d.y, w: d.w, h: d.h }, d.rotation || 0, px, py)) {
+                    hit = d;
+                    break;
+                }
+            }
             if (hit && !ev.shiftKey) {
                 ev.stopPropagation();
                 showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);

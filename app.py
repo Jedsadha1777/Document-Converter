@@ -513,17 +513,17 @@ def convert():
                 result = converter.convert(str(path))
             doc = result.document
             d = doc.export_to_dict()
-            pv = build_preview(doc, doc_id, skip_image_data=skip_image_data)
+            pv = build_preview(doc, skip_image_data=skip_image_data)
             if path.suffix.lower() in (".xlsx", ".xls"):
                 flatten_xlsx_cells_to_texts(d, pv)
             return d, pv
 
         try:
             if fast:
-                doc_dict, preview = run_fast_pipeline(path, filename, lang, doc_id,
+                doc_dict, preview = run_fast_pipeline(path, filename, lang,
                                                      skip_image_data=skip_image_data)
             elif lang == "manga":
-                doc_dict, preview = run_manga_pipeline(path, filename, doc_id,
+                doc_dict, preview = run_manga_pipeline(path, filename,
                                                       skip_image_data=skip_image_data)
             else:
                 # Retry ladder: 2.0 → 1.5 → 1.0 → 0.75 → 0.5 (เริ่ม 144 DPI, ย่อลงเมื่อ OOM)

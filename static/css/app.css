@@ -200,8 +200,12 @@ body.app-fullscreen #compareArea {
     min-width: 0;
 }
 .split-pane.scroll-fallback { overflow: hidden; padding: 0; }
-.split-pane { cursor: grab; }
-.split-pane.panning { cursor: grabbing !important; }
+.split-pane { cursor: default; }
+.split-pane.pan-mode { cursor: grab; }
+.split-pane.pan-mode .canvas-wrap { cursor: grab !important; }
+.split-pane.panning,
+.split-pane.pan-mode.panning { cursor: grabbing !important; }
+.split-pane.pan-mode.panning .canvas-wrap { cursor: grabbing !important; }
 
 /* Floating zoom toolbar — lower-right ของ splitMain */
 #zoomToolbar {
@@ -230,6 +234,14 @@ body.app-fullscreen #compareArea {
     line-height: 1;
 }
 #zoomToolbar button:hover { background: #f3f4f6; }
+
+/* Tool buttons (select/pan) — active state ใช้สีน้ำเงินอ่อน */
+.tool-btn.active {
+    background: #dbeafe !important;
+    color: #2563eb !important;
+    border-color: #93c5fd !important;
+}
+.tool-btn.active:hover { background: #bfdbfe !important; }
 #zoomToolbar #zoomLevel {
     min-width: 52px;
     text-align: center;
