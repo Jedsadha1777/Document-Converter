@@ -81,7 +81,8 @@ button:disabled { background: #9ca3af; border-color: #9ca3af; cursor: not-allowe
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-textarea {
+/* JSON output textarea (ซ่อนใน panel-json) — เก็บ raw json_text เพื่อ Copy/Download */
+#output {
     width: 100%;
     min-height: 480px;
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
