@@ -29,6 +29,9 @@ export function renderThumbSidebar(onClickPage) {
     if (!sidebar) return;
 
     const pages = state.lastResult?.preview?.pages || [];
+    // drop observer refs ของ <img> รอบก่อน — ไม่งั้น thumbnail หน้าที่ยังไม่ scroll ไปเห็น
+    // (ไม่เคยถูก unobserve) ค้างใน observer หลัง innerHTML="" → element GC ไม่ได้ (leak สะสมต่อ upload)
+    if (_io) _io.disconnect();
     sidebar.innerHTML = "";
 
     if (!pages.length) {
