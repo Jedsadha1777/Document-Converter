@@ -498,9 +498,10 @@ def suggest(texts: list[str], pair: str = "en-vn",
     src_tokens_cache = _get_source_tokens(pair, meta)
 
     # domain filter — restrict pool ก่อน scoring (เร็วกว่า + ลด false-positive cosine)
+    # "glossary" = universal vocab base, รวมเสมอเมื่อมี filter (ไม่งั้น vocab จะไม่ match กับ domain ที่เลือก)
     allowed_rows: set[int] | None = None
     if domain_filter:
-        allowed_set = set(domain_filter)
+        allowed_set = set(domain_filter) | {"glossary"}
         allowed_rows = {i for i, m in enumerate(meta) if (m.get("domain") or "general") in allowed_set}
         if not allowed_rows:
             return {"rules_text": "", "hits": [], "stats": {"reason": f"no rows match domain filter {domain_filter}",

@@ -612,12 +612,23 @@ def _resolve_prompt(source: str | None, target: str) -> str:
 
 
 # content-type style overlays — layer บน pair prompt, เลือกผ่าน content_type payload
+# manga_novel: target-aware (Thai version mentions ค่ะ/ครับ; non-Thai version stays language-neutral)
+# ดู _resolve_style_block สำหรับ dispatch ที่แท้จริง
 TRANSLATE_STYLE_PROMPTS = {
-    "manga_novel": (
+    "manga_novel_th": (
         "\n\n═══ CONTENT TYPE: MANGA / NOVEL (dialogue + narration mixed) ═══\n"
         "- Conversational register — character voice ตาม profile (gender/age/persona)\n"
         "- Sentence-ending particles (ค่ะ/ครับ/นะ/จ้ะ) ใช้ตามเงื่อนไข PARTICLE PARITY ด้านบน\n"
         "- คงสำนวน manga (อุทาน, fragment, expression) — ไม่ทำให้เป็นทางการเกินไป\n"
+    ),
+    "manga_novel_generic": (
+        "\n\n═══ CONTENT TYPE: MANGA / NOVEL (dialogue + narration mixed) ═══\n"
+        "- Conversational register — character voice follows the speaker's profile (gender/age/persona)\n"
+        "- Use sentence-final particles/register that are natural to the TARGET language only.\n"
+        "  ⚠ Do NOT import Thai particles (ค่ะ/ครับ/นะ/จ้ะ) or Japanese honorifics (san/chan/kun)\n"
+        "  into the output — every register cue must belong to the target language.\n"
+        "- Preserve manga prosody: exclamations, sentence fragments, expressive phrasing —\n"
+        "  do NOT formalize the text into prose.\n"
     ),
     "tutorial": (
         "\n\n═══ CONTENT TYPE: TUTORIAL (instructional/how-to / web manual) ═══\n"
@@ -664,10 +675,15 @@ TRANSLATE_STYLE_PROMPTS = {
 }
 
 
-def _resolve_style_block(content_type: str | None) -> str:
-    """Map content_type → style overlay block. None/unknown → empty (default = pair prompt)."""
+def _resolve_style_block(content_type: str | None, target: str = "th") -> str:
+    """Map content_type → style overlay block. None/unknown → empty.
+    manga_novel = target-aware: th → Thai-particle version, อื่น → language-neutral version
+    (กัน Thai particles leak เข้า en/vi output ตอน user เลือก manga_novel กับ target อื่น)"""
     if not content_type:
         return ""
+    if content_type == "manga_novel":
+        key = "manga_novel_th" if target == "th" else "manga_novel_generic"
+        return TRANSLATE_STYLE_PROMPTS.get(key, "")
     return TRANSLATE_STYLE_PROMPTS.get(content_type, "")
 
 
@@ -1266,22 +1282,37 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
     # target ส่งให้ characters section เพื่อ gate Thai-specific particle/pronoun rules
     # (ห้าม leak เข้า en/vi output)
     chars_section = _build_characters_section(characters, target)
-    style_block = _resolve_style_block(content_type)
+    style_block = _resolve_style_block(content_type, target)
     # narration_rule = per-line auto-rule (speaker tag present → dialogue, absent → narration)
-    # ใส่เฉพาะ manga_novel ที่มี dialogue+narration ปนกัน
+    # ใส่เฉพาะ manga_novel ที่มี dialogue+narration ปนกัน. target-dispatch กัน Thai examples
+    # leak เข้า output ภาษาอื่น (en/vi) ตอน user เลือก manga_novel นอก target=th
     narration_rule = ""
     if content_type in (None, "", "manga_novel"):
-        narration_rule = (
-            "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
-            "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + particles ตามเงื่อนไข\n"
-            "- Input lines tagged [N] only (no |speaker=) = NARRATION/EXPOSITORY/CAPTION\n"
-            "  → ⚠ NO sentence-ending particles (ห้าม ค่ะ/ครับ/นะ/จ้ะ)\n"
-            "  → ใช้ literary register (verb stem, no polite suffix)\n"
-            "  → reference characters as 'เขา/เธอ/พวกเขา' (3rd person), ไม่ใช้ 'ผม/ฉัน' ถ้าไม่ใช่ direct speech\n"
-            "    [5] 部屋は静かだった         → 'ห้องเงียบสงบ'              (NOT 'ห้องเงียบสงบนะคะ')\n"
-            "    [6] 彼は窓の外を見た         → 'เขามองออกไปนอกหน้าต่าง'    (NOT 'เขามองออกไปนอกหน้าต่างค่ะ')\n"
-            "    [7|speaker=2] 寒いね        → 'หนาวจังเลยนะ'             (มี particle ได้ — speaker tag present)\n"
-        )
+        if target == "th":
+            narration_rule = (
+                "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
+                "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + particles ตามเงื่อนไข\n"
+                "- Input lines tagged [N] only (no |speaker=) = NARRATION/EXPOSITORY/CAPTION\n"
+                "  → ⚠ NO sentence-ending particles (ห้าม ค่ะ/ครับ/นะ/จ้ะ)\n"
+                "  → ใช้ literary register (verb stem, no polite suffix)\n"
+                "  → reference characters as 'เขา/เธอ/พวกเขา' (3rd person), ไม่ใช้ 'ผม/ฉัน' ถ้าไม่ใช่ direct speech\n"
+                "    [5] 部屋は静かだった         → 'ห้องเงียบสงบ'              (NOT 'ห้องเงียบสงบนะคะ')\n"
+                "    [6] 彼は窓の外を見た         → 'เขามองออกไปนอกหน้าต่าง'    (NOT 'เขามองออกไปนอกหน้าต่างค่ะ')\n"
+                "    [7|speaker=2] 寒いね        → 'หนาวจังเลยนะ'             (มี particle ได้ — speaker tag present)\n"
+            )
+        else:
+            narration_rule = (
+                "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
+                "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + register\n"
+                "  natural to the target language.\n"
+                "- Input lines tagged [N] only (no |speaker=) = NARRATION / EXPOSITORY / CAPTION\n"
+                "  → Use literary/narrative register of the target language (no dialogue particles or\n"
+                "    chat fillers — just plain narrative prose).\n"
+                "  → Reference characters in 3rd person (he / she / they — equivalent in target language),\n"
+                "    not 1st person ('I'), unless the line is direct speech.\n"
+                "  ⚠ Do NOT import Thai sentence-final particles (ค่ะ/ครับ/นะคะ/จ้ะ) or Japanese\n"
+                "  honorifics (san/chan/kun) into the output — register cues must be target-language only.\n"
+            )
     ids_to_use = ids if ids else list(range(id_start, id_start + n))
     first = ids_to_use[0]
     last = ids_to_use[-1]
