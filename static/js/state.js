@@ -25,6 +25,7 @@ export const state = {
     drag: null,              // {ref, mode, startX, startY, startBox, beforeOv, moved}
     marquee: null,           // {startX, startY, endX, endY, additive, initialSelection}
     justDragged: false,      // ตั้ง true หลัง drag จริง — กัน click trigger speaker popup
+    previewMode: false,      // เต็มจอ + ซ่อน chrome — preview.js ใช้กดข้าม border stroke ตอน render
 };
 
 // ── selection mutators ──

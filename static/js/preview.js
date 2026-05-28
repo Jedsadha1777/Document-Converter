@@ -779,11 +779,13 @@ export function renderPreview() {
                 }
                 ctx.fillStyle = ov.bgColor || r.item.bg_color || COLORS.overlayBg;
                 ctx.fillRect(r.x, r.y, r.w, r.h);
-                ctx.strokeStyle = r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted;
-                ctx.lineWidth = 1 / z;
-                if (!r.isTranslated) ctx.setLineDash([4 / z, 3 / z]);
-                ctx.strokeRect(r.x, r.y, r.w, r.h);
-                ctx.setLineDash([]);
+                if (!state.previewMode) {
+                    ctx.strokeStyle = r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted;
+                    ctx.lineWidth = 1 / z;
+                    if (!r.isTranslated) ctx.setLineDash([4 / z, 3 / z]);
+                    ctx.strokeRect(r.x, r.y, r.w, r.h);
+                    ctx.setLineDash([]);
+                }
                 ctx.restore();
             });
 
@@ -826,9 +828,10 @@ export function renderPreview() {
             });
 
             // Pass 3: normal-mode bbox + label (rotation transform per-box)
+            // preview mode = หน้าที่วางคำแปลแล้ว — ซ่อน debug bbox/label ของ region ที่ไม่ได้แปล
             ctx.lineWidth = 2 / z;
             ctx.font = `${11 / z}px ui-monospace, Menlo, monospace`;
-            normalRenders.forEach(r => {
+            if (!state.previewMode) normalRenders.forEach(r => {
                 const { x, y, w, h, color, tr, wasCorrected, item: it } = r;
                 const sp = it.self_ref ? state.speakerByRef[it.self_ref] : null;
                 const isSkip = sp === SPEAKER_SKIP;
@@ -864,7 +867,7 @@ export function renderPreview() {
             });
 
             // === Selection highlights + handles (rotation-aware) ===
-            if (sel.refs.size) {
+            if (!state.previewMode && sel.refs.size) {
                 sel.refs.forEach(ref => {
                     const sd = drawn.find(d => d.item.self_ref === ref);
                     if (!sd) return;
@@ -883,7 +886,7 @@ export function renderPreview() {
                     ctx.restore();
                 });
             }
-            if (sel.ref) {
+            if (!state.previewMode && sel.ref) {
                 const selDrawn = drawn.find(d => d.item.self_ref === sel.ref);
                 if (selDrawn) {
                     const zNow = viewport.getZoom();
@@ -894,7 +897,7 @@ export function renderPreview() {
 
             // === Marquee overlay ===
             const mq = state.marquee;
-            if (mq) {
+            if (mq && !state.previewMode) {
                 const mx = Math.min(mq.startX, mq.endX);
                 const my = Math.min(mq.startY, mq.endY);
                 const mw = Math.abs(mq.endX - mq.startX);

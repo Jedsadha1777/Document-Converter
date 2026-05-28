@@ -200,6 +200,8 @@ Examples:
                     <span class="zoom-sep"></span>
                     <button type="button" id="zoomFitBtn" title="Fit to viewport (0)"><span class="material-symbols-outlined">fit_screen</span></button>
                     <button type="button" id="zoom100Btn" title="Actual size (1)"><span class="material-symbols-outlined">crop_free</span></button>
+                    <span class="zoom-sep"></span>
+                    <button type="button" id="previewModeBtn" title="Preview (fullscreen, no chrome — ESC to exit)"><span class="material-symbols-outlined">fullscreen</span></button>
                 </div>
                 <div id="beforePane" class="split-pane scroll-fallback">
                     <div class="empty">Upload a file to see the original image.</div>
@@ -361,6 +363,83 @@ zoomLevelEl?.addEventListener("click", _fitCurrentPage);
 viewport.onChange((s) => {
     if (zoomLevelEl) zoomLevelEl.textContent = Math.round(s.zoom * 100) + "%";
 });
+
+// ── Preview mode (fullscreen, ไม่มี chrome / border / thumbnail / menu) ───────
+// scroll = page nav, arrow keys = page nav, ESC / ปุ่ม preview อีกครั้ง = exit
+const previewModeBtn = document.getElementById("previewModeBtn");
+const showOverlayEl = document.getElementById("showOverlay");
+let _prevShowOverlay = null;
+
+function _changePageDelta(delta) {
+    const sel = document.getElementById("pageSelect");
+    if (!sel || !sel.options.length) return;
+    const opts = Array.from(sel.options);
+    const idx = opts.findIndex(o => o.value === sel.value);
+    const newIdx = Math.max(0, Math.min(opts.length - 1, idx + delta));
+    if (newIdx === idx) return;
+    sel.value = opts[newIdx].value;
+    sel.dispatchEvent(new Event("change"));
+}
+function _setPreviewBtnIcon(active) {
+    const icon = previewModeBtn?.querySelector(".material-symbols-outlined");
+    if (icon) icon.textContent = active ? "fullscreen_exit" : "fullscreen";
+}
+function _enterPreviewMode() {
+    if (state.previewMode) return;
+    state.previewMode = true;
+    _prevShowOverlay = showOverlayEl?.checked ?? null;
+    if (showOverlayEl && !showOverlayEl.checked) {
+        showOverlayEl.checked = true;
+        showOverlayEl.dispatchEvent(new Event("change"));
+    } else {
+        redrawOnly();   // border จะหาย — ต้องวาดใหม่
+    }
+    document.body.classList.add("preview-mode");
+    _setPreviewBtnIcon(true);
+    requestAnimationFrame(_fitCurrentPage);
+}
+function _exitPreviewMode() {
+    if (!state.previewMode) return;
+    state.previewMode = false;
+    document.body.classList.remove("preview-mode");
+    _setPreviewBtnIcon(false);
+    if (showOverlayEl && _prevShowOverlay !== null && showOverlayEl.checked !== _prevShowOverlay) {
+        showOverlayEl.checked = _prevShowOverlay;
+        showOverlayEl.dispatchEvent(new Event("change"));
+    } else {
+        redrawOnly();   // border กลับมา
+    }
+    _prevShowOverlay = null;
+    requestAnimationFrame(_fitCurrentPage);
+}
+previewModeBtn?.addEventListener("click", () => {
+    state.previewMode ? _exitPreviewMode() : _enterPreviewMode();
+});
+// keyboard — ESC = exit, arrow = page nav (เฉพาะ preview mode, กัน input/textarea focus)
+document.addEventListener("keydown", (e) => {
+    if (!state.previewMode) return;
+    const tag = (document.activeElement?.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select") return;
+    if (e.key === "Escape") { _exitPreviewMode(); e.preventDefault(); return; }
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
+        _changePageDelta(-1); e.preventDefault();
+    } else if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") {
+        _changePageDelta(1); e.preventDefault();
+    }
+});
+// wheel — plain wheel = page nav ใน preview mode (capture phase → กัน pan-zoom.js)
+// ctrl/cmd+wheel ยังเป็น zoom (ปล่อย pan-zoom รับเองตาม bubble)
+let _wheelLockAt = 0;
+document.addEventListener("wheel", (e) => {
+    if (!state.previewMode) return;
+    if (e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const now = performance.now();
+    if (now - _wheelLockAt < 180) return;   // debounce — wheel ส่ง event ถี่
+    _wheelLockAt = now;
+    _changePageDelta(e.deltaY > 0 ? 1 : -1);
+}, { capture: true, passive: false });
 
 // thumbnail click → switch page
 window._onThumbClickPage = function(pageNo) {
