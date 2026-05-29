@@ -440,7 +440,7 @@ def _build_correct_batch_system_prompt(combined_text: str, n: int,
         f"]}}\n"
         f"RULES:\n"
         f'- "items" array must contain EXACTLY {n} elements.\n'
-        f'- IDs 1..{n} in ascending order, no skips, no duplicates.\n"'
+        f'- IDs 1..{n} in ascending order, no skips, no duplicates.\n'
         f"- For each item, apply the correction rules to the text after [N].\n"
         f"- If no correction is needed, output the text unchanged.\n"
         f"- NEVER translate. NEVER paraphrase. Only fix character-level OCR errors.\n"
