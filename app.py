@@ -348,6 +348,7 @@ def translate_batch_apply_manual():
         target = payload.get("target", "th")
         raw_response = payload.get("raw_response", "")
         speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
+        emotions = payload.get("emotions") if isinstance(payload.get("emotions"), list) else None
         characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
         id_start = int(payload.get("id_start", 1) or 1)
         ids_payload = payload.get("ids") if isinstance(payload.get("ids"), list) else None
@@ -388,6 +389,7 @@ def translate_batch_endpoint():
         id_start = int(payload.get("id_start", 1) or 1)
         ids_payload = payload.get("ids") if isinstance(payload.get("ids"), list) else None
         speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
+        emotions = payload.get("emotions") if isinstance(payload.get("emotions"), list) else None
         characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
 
         if not isinstance(texts, list) or not texts:

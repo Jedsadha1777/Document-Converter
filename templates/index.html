@@ -147,6 +147,11 @@ Examples:
 
     <!-- Compare tab -->
     <div class="tab-panel" id="panel-compare">
+        <div class="compare-tools" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:8px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
+            <button type="button" id="detectMetaCopyBtn" class="ghost" title="Build a per-row speaker+emotion detection prompt (CHARACTERS + EMOTIONS list + numbered lines) and copy to clipboard — paste into Gemini/ChatGPT/Claude">📋 Copy detect prompt</button>
+            <button type="button" id="detectMetaPasteBtn" class="ghost" title="Read LLM response (JSON array with {id, speaker, emotion1, emotion2}) from clipboard and patch each row's Speaker/Emotion dropdowns">📥 Patch detected</button>
+            <span id="detectMetaStatus" style="font-size:12px; color:#6b7280;"></span>
+        </div>
         <div id="compareArea">
             <div class="empty">Upload a file first, then click a button to have the LLM correct it.</div>
         </div>
@@ -331,6 +336,7 @@ import { setStatus, clearStatus } from "/static/js/status.js";
 import { initCompare, buildCompareTable } from "/static/js/compare.js";
 import { initUpload } from "/static/js/upload.js";
 import { initPasteText } from "/static/js/paste-text.js";
+import { initDetectRowMeta } from "/static/js/detect-row-meta.js";
 import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
 import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
@@ -660,6 +666,7 @@ initUpload({
     onAfterConvert: applyTextsOnlyCheckboxes,
 });
 initPasteText();
+initDetectRowMeta();
 </script>
 </body>
 </html>
