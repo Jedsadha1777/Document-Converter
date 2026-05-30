@@ -11,6 +11,17 @@ from pathlib import Path
 
 import httpx
 
+from prompts.jp_th import (
+    base as _jp_th_base,
+    manga_novel as _jp_th_manga_novel,
+    tutorial as _jp_th_tutorial,
+)
+from prompts.en_vn import (
+    base as _en_vn_base,
+    product_catalog as _en_vn_product_catalog,
+)
+from prompts.en_th import base as _en_th_base
+
 from config import (
     APPLE_MIN_INPUT_CHARS,
     APPLE_SHORTCUT_EN,
@@ -23,6 +34,7 @@ from config import (
     NLLB_MODEL,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
+    SPEAKER_AUTO,
     SPEAKER_SKIP,
     TRANSLATE_BATCH_NUM_CTX,
     TRANSLATE_BATCH_TIMEOUT,
@@ -415,53 +427,8 @@ TRANSLATE_PROMPTS = {
 # transliteration, kanji-name handling, Chinese-leak guards) that bloat the JSON.
 # Fallback for unknown / mixed / Japanese source is TRANSLATE_PROMPTS above.
 TRANSLATE_PROMPTS_BY_PAIR = {
-    ("en", "th"): (
-        "Translate the user's text from English to natural Thai.\n"
-        "Output ONLY the Thai translation. No explanation, no quotes, no preamble.\n"
-        "Keep the meaning faithful. Do not add or omit information.\n"
-        "RULES — STRICTLY FOLLOWED:\n"
-        "- The output MUST be in Thai script ONLY.\n"
-        "  Allowed: Thai (ก-๛), Latin letters (A-Z, a-z) for brand names, "
-        "  Arabic digits (0-9), and basic punctuation.\n"
-        "  FORBIDDEN: any non-Thai script in the output.\n"
-        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear "
-        "  EXACTLY THE SAME and in the SAME ORDER in the output.\n"
-        "  NEVER convert to Thai numerals (no ๐๑๒๓๔๕๖๗๘๙).\n"
-        "  NEVER convert calendars, units, or currency.\n"
-        "  NEVER round, simplify, or spell digits as words ('25' stays '25', NOT 'ยี่สิบห้า').\n"
-        "  Applies to: years, dates, times, prices, percentages, phone numbers, "
-        "  measurements, list/version numbers — every numeric token.\n"
-        "- PROPER NOUNS / NAMES: transliterate by sound into Thai (Smith → สมิธ). "
-        "  Established Latin-script brand names (Microsoft, Google, iPhone) may "
-        "  stay in Latin script when that is the conventional form.\n"
-        "If the input is already Thai, return it unchanged."
-    ),
-    ("en", "vi"): (
-        "Translate the user's text from English to natural Vietnamese.\n"
-        "Output ONLY the Vietnamese translation. No explanation, no quotes, no preamble.\n"
-        "Keep the meaning faithful. Do not add or omit information.\n"
-        "RULES — STRICTLY FOLLOWED:\n"
-        "- The output MUST be in Vietnamese script (Latin alphabet with diacritics) ONLY.\n"
-        "  Allowed: Latin letters A-Z a-z, Vietnamese-specific letters Đ đ Ơ ơ Ư ư, "
-        "  all Vietnamese tone marks on vowels, Arabic digits 0-9, and basic punctuation.\n"
-        "  FORBIDDEN: any non-Latin script in the output.\n"
-        "- DIACRITICS — ABSOLUTE: write proper Vietnamese with FULL tone and vowel marks "
-        "  ('tiếng Việt', NOT 'tieng Viet'; 'Sản phẩm', NOT 'San pham'). "
-        "  Every word that requires a tone mark (sắc/huyền/hỏi/ngã/nặng) or a vowel mark "
-        "  (â/ê/ô/ơ/ư) MUST carry it.\n"
-        "- NUMBERS — ABSOLUTE: every digit (0-9) in the input MUST appear EXACTLY THE SAME "
-        "  and in the SAME ORDER in the output.\n"
-        "  NEVER spell digits as Vietnamese words ('25' stays '25', NOT 'hai mươi lăm').\n"
-        "  NEVER change thousand or decimal separators (keep '1,000' as '1,000'; "
-        "  keep '3.14' as '3.14').\n"
-        "  NEVER convert calendars, units, or currency. NEVER round or simplify.\n"
-        "  Applies to: years, dates, times, prices, percentages, phone numbers, "
-        "  measurements, list/version numbers — every numeric token.\n"
-        "- PROPER NOUNS / NAMES / BRANDS: keep foreign names and Latin-script brands as-is "
-        "  (Smith → Smith; Microsoft → Microsoft; iPhone → iPhone; ISO 9001 → ISO 9001). "
-        "  Never translate the meaning of a name.\n"
-        "If the input is already Vietnamese, return it unchanged."
-    ),
+    ("en", "th"): _en_th_base.PROMPT,
+    ("en", "vi"): _en_vn_base.PROMPT,
     ("th", "en"): (
         "Translate the user's text from Thai to natural English.\n"
         "Output ONLY the English translation. No explanation, no quotes, no preamble.\n"
@@ -480,125 +447,7 @@ TRANSLATE_PROMPTS_BY_PAIR = {
         "  Never translate the meaning of a name.\n"
         "If the input is already English, return it unchanged."
     ),
-    ("ja", "th"): (
-        "Translate the user's text from Japanese to natural Thai.\n"
-        "Output ONLY the Thai translation. No explanation, no quotes, no preamble.\n"
-        "Keep the meaning faithful. Do not add or omit information.\n"
-        "RULES — STRICTLY FOLLOWED:\n"
-        "- Output MUST be Thai script ONLY.\n"
-        "  Allowed: Thai (ก-๛), Latin letters (A-Z, a-z) for brand names, "
-        "  Arabic digits (0-9), basic punctuation.\n"
-        "  FORBIDDEN in output: hiragana (あいう), katakana (アイウ), kanji (漢字), "
-        "  Chinese characters. If found, rewrite in Thai before responding.\n"
-        "- NUMBERS — ABSOLUTE RULE: every digit (0-9) in the input MUST appear EXACTLY "
-        "  THE SAME and in the SAME ORDER in the output.\n"
-        "  NEVER convert to Thai numerals (no ๐๑๒๓๔๕๖๗๘๙).\n"
-        "  NEVER convert calendars (令和7年 stays as-is or use Western form if input has it).\n"
-        "  NEVER convert digits to words ('25' stays '25', NOT 'ยี่สิบห้า').\n"
-        "- KATAKANA — แยกตามประเภท ก่อนเลือก:\n"
-        "  (A) NAMES (คน/สถานที่/แบรนด์ไม่มีรูปไทย) → transliterate by SOUND.\n"
-        "    ミノル → 'มิโนรุ', シロタ → 'ชิโรตะ', ヤマダ タロウ → 'ยามาดะ ทาโร่'\n"
-        "  (B) COMMON LOANWORDS มีคำไทยใช้แพร่หลาย → ใช้คำไทย.\n"
-        "    カメラ → 'กล้อง', スカート → 'กระโปรง', コーヒー → 'กาแฟ',\n"
-        "    テーブル → 'โต๊ะ', ベッド → 'เตียง', ホテル → 'โรงแรม'\n"
-        "  (C) LOANWORDS ไม่มีคำไทยมาตรฐาน → SOUND.\n"
-        "    ブレザー → 'เบลเซอร์', タータンチェック → 'ทาร์ทันเช็ค'\n"
-        "  (D) ESTABLISHED THAI BRAND → ใช้รูปที่คนไทยใช้.\n"
-        "    ヤクルト → 'ยาคูลท์'\n"
-        "  DECISION: นึกคำไทยมาตรฐานออก → ใช้คำไทย; ไม่งั้น → sound.\n"
-        "- KANJI NAMES → transliterate the reading INTO THAI script. "
-        "  NEVER keep kanji in output. NEVER translate the meaning of a name.\n"
-        "    山田太郎 (Yamada Tarō) → 'ยามาดะ ทาโร่' (NOT 'ภูเขาข้าวลูกชายโต')\n"
-        "- ABBREVIATED COMPOUND NOUNS (kanji + katakana ผสม, slang ย่อ) →\n"
-        "  EXPAND กลับเป็นรูปเต็ม แล้วแปล MEANING (ไม่ใช่ sound)\n"
-        "  เพราะคำย่อพวกนี้คือ common noun ไม่ใช่ชื่อ — ผู้อ่านไทยควรเข้าใจความหมาย\n"
-        "    電マ (= 電動マッサージ機)      → 'เครื่องนวดไฟฟ้า' / 'เครื่องสั่นไฟฟ้า'  (NOT 'เด็นมะ')\n"
-        "    ガラケー (= ガラパゴス携帯)    → 'มือถือฟีเจอร์โฟน' / 'มือถือธรรมดา'    (NOT 'การาเค')\n"
-        "    パワハラ (= パワーハラスメント) → 'การกดขี่ด้วยอำนาจ'                    (NOT 'ปาวาฮาระ')\n"
-        "    セクハラ (= セクシャルハラスメント) → 'การล่วงละเมิดทางเพศ'             (NOT 'เซกุฮาระ')\n"
-        "    リスケ (= リスケジュール)      → 'เลื่อนนัด'                            (NOT 'ริซุเกะ')\n"
-        "    リモコン (= リモートコントロール) → 'รีโมท'                              (NOT 'ริโมะคน')\n"
-        "    エアコン (= エアーコンディショナー) → 'แอร์'                            (NOT 'เอะอะคน')\n"
-        "    パソコン (= パーソナルコンピュータ) → 'คอมพิวเตอร์' / 'คอม'             (NOT 'ปะโซคน')\n"
-        "    JK (= 女子高生)              → 'นักเรียนหญิงม.ปลาย'                   (NOT 'JK' / 'เจเค')\n"
-        "  DECISION: ถ้าคำย่อมี Thai equivalent ชัดเจน → ใช้ Thai meaning\n"
-        "    ถ้าเป็น proper noun (เช่น ชื่อแบรนด์ย่อ ในบทพูดเฉพาะกลุ่ม) → คงต้นฉบับหรือ sound\n"
-        "- ⚠ PARTICLE PARITY (POLITENESS scope only — does NOT override character voice):\n"
-        "  ห้ามใส่คำลงท้าย POLITENESS (ค่ะ/ครับ/นะคะ/นะครับ) ถ้าต้นฉบับไม่มี polite/sentence-final\n"
-        "  particle (です/ます/ね/よ/わ/さ/の) ใน clause นั้น\n"
-        "  เกณฑ์ตัดสินเรียงตามนี้:\n"
-        "    source มี ですね/ますね/だね/わね → ใส่ 'นะ' / 'นะคะ' / 'นะครับ' ได้\n"
-        "    source มี です/ます ล้วน (ไม่มี ね/よ) → ใส่ 'ครับ/ค่ะ' ได้ แต่ห้ามเติม 'นะ'\n"
-        "    source ลงท้ายแบบ plain (だ/る/た/ない/dictionary form/ตัดเปล่า) → ห้ามใส่ polite particle\n"
-        "    source เป็น คำสั่ง/อุทาน/internal thought/fragment → ห้ามใส่ polite particle\n"
-        "  ⚠ ข้อยกเว้น — IMPERATIVE/CASUAL ENDINGS (ไม่อยู่ใต้ PARTICLE PARITY — เลือกตาม CHARACTER):\n"
-        "    plain imperative source (เช่น 早く / 行け / 食べ) → output ending แยก 3 กลุ่ม:\n"
-        "    (A) Neutral 'สิ / ดิ / ซะ / หน่อย / น่า' — ใช้ได้ทุก age/gender:\n"
-        "        female → 'เร็วๆ สิ' / 'เร็วๆ น่า' / 'รีบหน่อย'\n"
-        "        male   → 'เร็วๆ ดิ' / 'รีบซะ' / 'รีบหน่อย'\n"
-        "    (B) Childish/whiny 'ดิ๊ / ดิ้ / อิ๊' — TM ไทย (OpenSubtitles) ใช้มั่ว ต้องระวัง:\n"
-        "        → ห้ามใช้กับ adult/middle/senior ทุก gender (จะดูเหมือนเด็กแอ๊บ — ไม่ใช่ adult)\n"
-        "        → child/teen ใช้ได้เฉพาะเมื่อ persona เด็ก/แอ๊บแบ๊ว\n"
-        "    (C) Rough masculine 'ว่ะ / โว้ย / นะโว้ย':\n"
-        "        → ห้ามใช้กับ female ทุก age\n"
-        "        → male + persona casual/rough เท่านั้น\n"
-        "  ตัวอย่าง strict:\n"
-        "    行く → 'ไป' (ไม่ใช่ 'ไปครับ' — polite particle ไม่มีใน source)\n"
-        "    知らない → 'ไม่รู้' (ไม่ใช่ 'ไม่รู้ค่ะ' — plain source ไม่มี polite)\n"
-        "    早く (adult female) → 'เร็วๆ สิ' / 'เร็วๆ น่า' (NOT 'เร็วดิ๊' — childish ห้ามใช้กับ adult)\n"
-        "    早く (adult male)   → 'เร็วๆ ดิ' / 'รีบซะ' (NOT 'เร็วๆ สิ' — too feminine)\n"
-        "    早くしろ (rough male persona) → 'เร็วๆ ว่ะ' / 'รีบโว้ย' (rough OK เฉพาะ persona ที่ระบุ)\n"
-        "    行きます → 'ไปครับ' / 'ไปค่ะ' (ใส่ได้ — มี ます)\n"
-        "    行きますね → 'ไปนะครับ' / 'ไปนะคะ' (ใส่ ね ได้ — มี ね ใน source)\n"
-        "  RULE: ถ้าต้นฉบับสั้น/ห้วน Thai ก็ต้องสั้น/ห้วน — ห้าม 'ทำให้สุภาพขึ้น' โดยการเติม polite particle\n"
-        "        แต่ neutral imperative ที่เหมาะกับ character voice ใช้ได้\n"
-        "- POLITENESS LEVEL DETECTION (signal หลัก — Japanese ระบุ register ผ่านท้ายประโยค/สรรพนาม):\n"
-        "  ลำดับการตัดสิน voice ของแต่ละประโยค:\n"
-        "  (1) อ่าน SENTENCE ENDING ในต้นฉบับก่อน — เป็น signal ที่ชัดที่สุด:\n"
-        "      でございます / いたします / 申し上げます → 形式 (very formal) → 'ครับ/ค่ะ' + คำสุภาพ ทางการ\n"
-        "      です / ます / ですか / ますね → polite → 'ครับ/ค่ะ' / 'นะคะ/นะครับ'\n"
-        "      だ / だよ / だね / だな → casual neutral → ลงท้าย 'นะ' / ไม่มีท้าย\n"
-        "      ぞ / ぜ / だぜ / だぞ → rough masculine → 'ว่ะ' / ห้วน / ไม่มีท้าย (drop 'ครับ')\n"
-        "      わ / わよ / かしら / だわ → feminine elegant → 'ค่ะ' + ละมุน / 'นะคะ' / 'น่ะ'\n"
-        "      じゃねえ / じゃん / だろ / だろうが → very casual/rough → 'ว่ะ' / 'อะ' / ไม่มีท้าย\n"
-        "      ですわ / ですの (お嬢様 speech) → high-class feminine → 'เพคะ' / 'นะเพคะ'\n"
-        "      でござる / なり (samurai/archaic) → archaic → 'ขอรับ' / 'หรอก'\n"
-        "  (2) อ่าน PRONOUN ในต้นฉบับ — บ่งบอกระดับและ gender:\n"
-        "      わたくし > わたし / 私 → formal → 'ดิฉัน / ผม / ฉัน' (formal)\n"
-        "      あたし → casual feminine → 'ฉัน' (default; 'หนู' เฉพาะถ้า age=child/teen)\n"
-        "      僕 → polite masculine → 'ผม'\n"
-        "      俺 → casual/rough masculine → 'กู' (รุนแรง) / 'ฉัน' (กลาง)\n"
-        "      おまえ / てめえ / きさま → rough 'you' → 'แก' / 'มึง'\n"
-        "      あなた → polite 'you' → 'คุณ'\n"
-        "  (3) อ่าน HONORIFIC PREFIXES (お~ / ご~) — บ่งบอกความ respectful\n"
-        "      お母さん vs 母さん → 'คุณแม่' vs 'แม่'\n"
-        "      ご飯 vs 飯 → 'อาหาร' vs 'ข้าว'\n"
-        "  (4) CHARACTER PROFILE — เสริม/ทับซ้อนถ้าระบุชัด (ดูข้างล่าง)\n"
-        "  (5) FINAL CHECK: อ่านประโยคที่แปลแล้วทั้งประโยค — เป็นไทยที่อ่านเข้าใจ ไม่ฝืน ไม่แปลก?\n"
-        "      ถ้าแปลก/robotic/mix register → แก้ใหม่ก่อนตอบ\n"
-        "- GREETINGS / FIXED EXPRESSIONS (DEFAULT — character voice overrides this entire section)\n"
-        "  ถ้ามี CHARACTER PROFILE ระบุ persona/voice → ตามตัวละครเสมอ (รวมถึง 'ขอบใจ' / 'บาย' / 'ไฮ')\n"
-        "  ถ้าไม่มี persona หรือเป็น neutral → ใช้ default ด้านล่าง\n"
-        "  IMPORTANT: คนไทย**ไม่**พูด 'สวัสดีตอนเช้า/บ่าย/เย็น/ค่ำ' (แปลตรงตัว ไม่ใช้จริง)\n"
-        "  ทุกช่วงเวลาใช้ 'สวัสดี' คำเดียว; 'อรุณสวัสดิ์' / 'ราตรีสวัสดิ์' = formal เท่านั้น\n"
-        "    おはよう / おはよ → 'อรุณสวัสดิ์' (formal) / 'ตื่นแล้วเหรอ' (casual) / 'สวัสดี'\n"
-        "    こんにちは → 'สวัสดี'\n"
-        "    こんばんは → 'สวัสดี' (หรือ 'ราตรีสวัสดิ์' ถ้ากำลังจะนอน)\n"
-        "    おやすみ / おやすみなさい → 'ราตรีสวัสดิ์' / 'ฝันดี' / 'นอนแล้วนะ'\n"
-        "    ありがとう / ありがと / ありがとうございます → 'ขอบคุณ'\n"
-        "    ごめん / ごめんなさい / すみません → 'ขอโทษ' (หรือ 'ขอตัวก่อน' ถ้า すみません ใช้เรียกร้องความสนใจ)\n"
-        "    さようなら → 'ลาก่อน' (formal); じゃあね / またね → 'แล้วเจอกัน' / 'ไว้เจอกัน'\n"
-        "    バイバイ → 'บ๊ายบาย' / 'ไปก่อนนะ' (casual เด็ก/เพื่อน)\n"
-        "    いただきます → 'จะกินแล้วนะ' / ตัดออก (ไม่มีสำนวนไทยตรง)\n"
-        "    ごちそうさま → 'อิ่มแล้ว ขอบคุณ' / 'อร่อยมาก'\n"
-        "    はじめまして → 'ยินดีที่ได้รู้จัก'\n"
-        "    お疲れさま → 'เหนื่อยหน่อยนะ' / 'ขอบคุณที่ทำงาน' (ตามบริบท)\n"
-        "    がんばって → 'สู้ๆ' / 'พยายามนะ'\n"
-        "    やあ (casual hey) → 'ว่าไง' / 'เฮ้'\n"
-        "- PARTICLES / FILLERS (え, あの, えーと, まあ, へえ) — แปลเป็นเสียงไทยที่เทียบเคียง\n"
-        "  ('เอ้อ', 'อืม', 'อ้อ', 'หา?') ห้ามทิ้งฮิรากานะดิบใน output.\n"
-        "If the input is already Thai, return it unchanged."
-    ),
+    ("ja", "th"): _jp_th_base.PROMPT,
 }
 
 
@@ -615,12 +464,7 @@ def _resolve_prompt(source: str | None, target: str) -> str:
 # manga_novel: target-aware (Thai version mentions ค่ะ/ครับ; non-Thai version stays language-neutral)
 # ดู _resolve_style_block สำหรับ dispatch ที่แท้จริง
 TRANSLATE_STYLE_PROMPTS = {
-    "manga_novel_th": (
-        "\n\n═══ CONTENT TYPE: MANGA / NOVEL (dialogue + narration mixed) ═══\n"
-        "- Conversational register — character voice ตาม profile (gender/age/persona)\n"
-        "- Sentence-ending particles (ค่ะ/ครับ/นะ/จ้ะ) ใช้ตามเงื่อนไข PARTICLE PARITY ด้านบน\n"
-        "- คงสำนวน manga (อุทาน, fragment, expression) — ไม่ทำให้เป็นทางการเกินไป\n"
-    ),
+    "manga_novel_th": _jp_th_manga_novel.PROMPT,
     "manga_novel_generic": (
         "\n\n═══ CONTENT TYPE: MANGA / NOVEL (dialogue + narration mixed) ═══\n"
         "- Conversational register — character voice follows the speaker's profile (gender/age/persona)\n"
@@ -630,48 +474,8 @@ TRANSLATE_STYLE_PROMPTS = {
         "- Preserve manga prosody: exclamations, sentence fragments, expressive phrasing —\n"
         "  do NOT formalize the text into prose.\n"
     ),
-    "tutorial": (
-        "\n\n═══ CONTENT TYPE: TUTORIAL (instructional/how-to / web manual) ═══\n"
-        "- Imperative voice — direct command\n"
-        "- ใช้ verb stem: 'คลิก', 'เลือก', 'กด', 'พิมพ์', 'บันทึก'\n"
-        "- ⚠ NO casual particles (ค่ะ/ครับ/นะ) — ถ้า formal user manual ใช้ 'ให้...', 'ควร...'\n"
-        "- คงคำศัพท์เทคนิคเป็น English/Thai loanword ตาม convention (ดูใน glossary)\n"
-        "    'ボタンをクリック' → 'คลิกปุ่ม' (ไม่ใช่ 'คลิกปุ่มนะคะ')\n"
-        "    'ファイルを保存' → 'บันทึกไฟล์'\n"
-    ),
-    "product_catalog": (
-        "\n\n═══ CONTENT TYPE: PRODUCT CATALOG (e-commerce / spec sheet / factory manual) ═══\n"
-        "Target: Vietnamese. Register: professional, formal, technical — like a product\n"
-        "catalog, factory manual, or datasheet. Never default to manga / chat / dialogue style.\n"
-        "- NO conversational sentence-final particles in declarative catalog/spec text.\n"
-        "  FORBIDDEN: ạ / nhé / nha / đấy / đó / nhỉ / hả / vậy / luôn.\n"
-        "- PRONOUNS — use neutral catalog forms:\n"
-        "    'we'        → 'Chúng tôi'\n"
-        "    'you'       → 'Quý khách' (sales/customer copy) / 'Quý vị' (broad audience) /\n"
-        "                  'người dùng' (technical manual) / 'người tiêu dùng' (legal/policy)\n"
-        "    'please'    → 'Vui lòng'\n"
-        "    'thank you' → 'Cảm ơn' / 'Xin cảm ơn'\n"
-        "- FORBIDDEN as 'you' in catalog body: anh / chị / em / cô / chú / bác / ông / bà /\n"
-        "  cháu / con / mày / cậu / tớ. They force a guess about the reader's gender, age,\n"
-        "  or relationship — guessing wrong is immediately impolite.\n"
-        "- FORBIDDEN: title prefix before a name (Mr./Mrs./Ms./Dear → Ông/Bà/Cô) — same\n"
-        "  reason; guessing the wrong gender is impolite. Address the reader with a neutral\n"
-        "  form, or drop the salutation entirely.\n"
-        "- Declarative product copy stays declarative (no chat particles):\n"
-        "    'Made of stainless steel' → 'Được làm bằng thép không gỉ'\n"
-        "    NOT 'Được làm bằng thép không gỉ ạ'.\n"
-        "- Buttons / UI labels → short imperative or noun phrase, no particles:\n"
-        "    'Add to cart' → 'Thêm vào giỏ hàng'.   'Buy now' → 'Mua ngay'.\n"
-        "- Numbers + units + brand names stay verbatim: 100 mm stays '100 mm';\n"
-        "  Microsoft stays 'Microsoft'; ISO 9001 stays 'ISO 9001'.\n"
-        "- Use the conventional Vietnamese industry term from the glossary TM\n"
-        "  (Material / Specifications / Warranty / MOQ etc.).\n"
-        "- Sales phrasing must stay formal:\n"
-        "    'Contact us for a quote' → 'Vui lòng liên hệ chúng tôi để được báo giá'\n"
-        "      (NOT 'Liên hệ nhé').\n"
-        "    'We offer free samples'  → 'Chúng tôi cung cấp mẫu miễn phí'\n"
-        "      (NOT 'Tụi tôi tặng mẫu').\n"
-    ),
+    "tutorial": _jp_th_tutorial.PROMPT,
+    "product_catalog": _en_vn_product_catalog.PROMPT,
 }
 
 
@@ -833,7 +637,10 @@ def _build_batch_user_msg(texts: list[str],
             protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
         gid = ids[i] if ids else (id_start + i)
         prefix = f"[{gid}]"
-        if sp and sp != SPEAKER_SKIP:
+        if sp == SPEAKER_AUTO:
+            # ? marker → LLM เลือก character จาก profiles เอง (ไม่ใช่ narration)
+            prefix = f"[{gid}|speaker=?]"
+        elif sp and sp != SPEAKER_SKIP:
             prefix = f"[{gid}|speaker={sp}]"
         lines.append(f"{prefix} {protected}")
         per_item.append({"original": t, "protected": protected, "mapping": mapping})
@@ -1169,6 +976,8 @@ def _build_characters_section(characters: list[dict] | None, target: str = "th")
     lines.append("Glossary spellings from rules still apply verbatim — only voice is overridden here.")
     lines.append("")
     lines.append("Each input line tagged [N|speaker=X] MUST be translated using speaker X's profile.")
+    lines.append("Lines tagged [N|speaker=?] = speaker not specified → pick the most fitting profile from the list below")
+    lines.append("based on the line content (gender/age cues, vocabulary register, personality match) + neighboring lines.")
     lines.append("Two different speakers MUST produce visibly different translation styles.")
     lines.append("A line without a speaker tag → neutral voice (use default style rules).")
     lines.append("")
@@ -1211,18 +1020,20 @@ def _build_characters_section(characters: list[dict] | None, target: str = "th")
         lines.append("")
         lines.append("AGE RANGE → สรรพนามแทนตัวเอง + เรียกคนอื่น (อ้างอิงระบบไทย 5 ช่วง):")
         lines.append("  age=child (0-12): self = 'หนู' / 'ผม' / ชื่อเล่น; เรียกคนอื่น = 'พี่' / 'ลุง/ป้า/น้า/อา'")
-        lines.append("  age=teen (13-22): self = 'เรา' / 'เค้า' / 'ผม' / ชื่อเล่น; 'หนู' เฉพาะคนสนิท/ผู้ใหญ่บ้าน")
-        lines.append("    เรียกคนอื่น = 'พี่' / 'เพื่อน' / 'แก' / 'ตัวเอง'")
-        lines.append("  age=adult (23-39): self = 'ผม' (M) / 'ดิฉัน' (formal F) / 'ฉัน' / 'เรา' / 'พี่' (กับคนเด็กกว่า)")
-        lines.append("    เรียกคนอื่น = 'คุณ' / 'พี่' / 'น้อง'")
-        lines.append("  age=middle (40-59): self = 'น้า' / 'อา' / 'ลุง' (M) / 'ป้า' (F) / 'พี่' (เป็นกันเอง)")
+        lines.append("  age=teen (13-22): self = 'เรา' / 'เค้า' / 'ผม' / 'กู' (สนิทมาก) / 'ข้า' (เพื่อนสนิท/ภาษาถิ่น) / ชื่อเล่น; 'หนู' เฉพาะคนสนิท/ผู้ใหญ่บ้าน")
+        lines.append("    เรียกคนอื่น = 'พี่' / 'เพื่อน' / 'แก' / 'ตัวเอง' / 'เธอ' / 'นาย' / 'เค้า' (น่ารัก/แฟน/สนิท) / 'มึง' (สนิทมาก) / 'เอ็ง' (เพื่อนสนิท/ภาษาถิ่น)")
+        lines.append("  age=adult (23-39): self = 'ผม' (M) / 'ดิฉัน' (formal F) / 'ฉัน' / 'เรา' / 'พี่' (กับคนเด็กกว่า) / 'กู' (สนิทมาก) / 'ข้า' (เพื่อนสนิท/ภาษาถิ่น) / 'หนู' (F + บริบทนอบน้อม คุยกับเจ้านาย/ลูกค้า/ผู้ใหญ่)")
+        lines.append("    เรียกคนอื่น = 'คุณ' / 'พี่' / 'น้อง' / 'เธอ' / 'เค้า' (น่ารัก/แฟน/สนิท) / 'มึง' (สนิทมาก) / 'เอ็ง' (เพื่อนสนิท/ภาษาถิ่น)")
+        lines.append("  age=middle (40-59): self = 'น้า' / 'อา' / 'ลุง' (M) / 'ป้า' (F) / 'พี่' (เป็นกันเอง) / 'ข้า' (เวลาคุยกับเด็ก/ภาษาถิ่น) / 'หนู' (F + บริบทนอบน้อม คุยกับผู้ใหญ่อายุมากกว่ามาก)")
         lines.append("    เรียกคนอื่น = 'ลูก' / 'หลาน' / 'น้อง' / 'คุณ'")
-        lines.append("  age=senior (60+): self = 'ตา' / 'ปู่' (M) / 'ยาย' / 'ย่า' (F) / 'ลุง' / 'ป้า'")
+        lines.append("  age=senior (60+): self = 'ตา' / 'ปู่' (M) / 'ยาย' / 'ย่า' (F) / 'ลุง' / 'ป้า' / 'ข้า' (เวลาคุยกับเด็ก/หลาน/ภาษาถิ่น)")
         lines.append("    เรียกคนอื่น = 'ลูก' / 'หลาน' / 'หนู'")
         lines.append("  age=unspecified: default safe = 'ฉัน' (F) / 'ผม' (M)")
         lines.append("")
         lines.append("WARNINGS — สรรพนามที่เลือกผิดบ่อย:")
-        lines.append("  'หนู' = เด็ก/วัยรุ่นเท่านั้น — ห้ามใช้กับ adult/middle/senior")
+        lines.append("  'หนู' = default ของ เด็ก/วัยรุ่น; adult/middle (female) ใช้ได้ในบริบทนอบน้อม (กับเจ้านาย/ลูกค้า/ผู้ใหญ่อายุมากกว่ามาก) — ไม่ใช่ default ของ adult ทั่วไป")
+        lines.append("  'กู/มึง' = สนิทมาก (เพื่อนสนิท ห้องนอน เพื่อนเก่า) ใช้ได้ทั้ง teen/adult — ห้ามใช้กับคนแปลกหน้า/บริบทเป็นทางการ/ผู้อาวุโส")
+        lines.append("  'เธอ/นาย' = casual กันเอง (เพื่อนหรือแฟน) — 'เธอ' มักคู่กับ 'เค้า' (self), 'นาย' มักคู่กับ 'เรา' (self)")
         lines.append("  'ป้า/ยาย/ลุง/ตา' = middle/senior เท่านั้น — ห้ามใช้กับ child/teen/adult")
         lines.append("  Persona override: ถ้า persona ระบุ 'พระสงฆ์' → 'อาตมา'; 'ราชา/ขุนนาง' → 'ข้า/เรา'; 'ยากุซ่า' → 'กู'")
         lines.append("")
@@ -1292,6 +1103,10 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
             narration_rule = (
                 "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
                 "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + particles ตามเงื่อนไข\n"
+                "- Input lines tagged [N|speaker=?] = SPOKEN dialogue, speaker NOT specified → CHOOSE the most fitting character\n"
+                "  from CHARACTER PROFILES below by matching gender/age cues, vocabulary register, and personality description\n"
+                "  against the line content + context from neighboring lines; translate using that character's voice + particles\n"
+                "  ตามเงื่อนไข PARTICLE PARITY. Default to the first character if truly ambiguous.\n"
                 "- Input lines tagged [N] only (no |speaker=) = NARRATION/EXPOSITORY/CAPTION\n"
                 "  → ⚠ NO sentence-ending particles (ห้าม ค่ะ/ครับ/นะ/จ้ะ)\n"
                 "  → ใช้ literary register (verb stem, no polite suffix)\n"
@@ -1299,12 +1114,17 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
                 "    [5] 部屋は静かだった         → 'ห้องเงียบสงบ'              (NOT 'ห้องเงียบสงบนะคะ')\n"
                 "    [6] 彼は窓の外を見た         → 'เขามองออกไปนอกหน้าต่าง'    (NOT 'เขามองออกไปนอกหน้าต่างค่ะ')\n"
                 "    [7|speaker=2] 寒いね        → 'หนาวจังเลยนะ'             (มี particle ได้ — speaker tag present)\n"
+                "    [8|speaker=?] お腹空いた     → เลือก character จาก profile → ใช้ voice นั้น (เช่น polite girl → 'หิวจังเลย')\n"
             )
         else:
             narration_rule = (
                 "\n\n═══ NARRATION DETECTION (per-line auto-rule) ═══\n"
                 "- Input lines tagged [N|speaker=X] = SPOKEN by character X → use character voice + register\n"
                 "  natural to the target language.\n"
+                "- Input lines tagged [N|speaker=?] = SPOKEN dialogue, speaker NOT specified → CHOOSE the most fitting character\n"
+                "  from CHARACTER PROFILES below by matching gender/age cues, vocabulary register, and personality description\n"
+                "  against the line content + context; translate using that character's voice in the target language.\n"
+                "  Default to the first character if truly ambiguous.\n"
                 "- Input lines tagged [N] only (no |speaker=) = NARRATION / EXPOSITORY / CAPTION\n"
                 "  → Use literary/narrative register of the target language (no dialogue particles or\n"
                 "    chat fillers — just plain narrative prose).\n"
@@ -1673,7 +1493,11 @@ def translate_batch(texts: list[str], target: str = "th",
     eff_speakers = sp_list if (has_real_speaker or has_skip) else None
     if has_real_speaker and characters:
         used_ids = {s for s in sp_list if s and s != SPEAKER_SKIP}
-        eff_chars = [c for c in characters if c.get("id") in used_ids]
+        # __auto__ = LLM ต้องเห็น character profiles ทั้งหมดเพื่อเลือก → include all
+        if SPEAKER_AUTO in used_ids:
+            eff_chars = list(characters)
+        else:
+            eff_chars = [c for c in characters if c.get("id") in used_ids]
     else:
         eff_chars = None
     has_speaker = has_real_speaker

@@ -32,6 +32,7 @@ from config import (
     OCR_ENGINES,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
+    SPEAKER_AUTO,
     SPEAKER_SKIP,
     TRANSLATE_BATCH_NUM_CTX,
     TRANSLATE_BATCH_SIZE_DEFAULT,
@@ -271,7 +272,11 @@ def translate_batch_preview():
     eff_speakers = sp_list if (has_real_speaker or has_skip) else None
     if has_real_speaker and characters:
         used_ids = {s for s in sp_list if s and s != SPEAKER_SKIP}
-        eff_chars = [c for c in characters if c.get("id") in used_ids]
+        # __auto__ = LLM ต้องเห็น character profiles ทั้งหมดเพื่อเลือก → include all
+        if SPEAKER_AUTO in used_ids:
+            eff_chars = list(characters)
+        else:
+            eff_chars = [c for c in characters if c.get("id") in used_ids]
     else:
         eff_chars = None
 
@@ -432,9 +437,12 @@ def tm_suggest():
     final_k = int(payload.get("final_k") or 0) or None
     auto_build = bool(payload.get("auto_build", True))
     domain_filter = payload.get("domain_filter") if isinstance(payload.get("domain_filter"), list) else None
+    # CAT-style threshold: ตัด noise ที่ score ต่ำกว่า — default 0.85 (strict, near-exact match)
+    min_score_raw = payload.get("min_score")
+    min_score = float(min_score_raw) if min_score_raw is not None else 0.85
     if not isinstance(texts, list) or not texts:
         return jsonify({"error": "texts must be a non-empty list"}), 400
-    kwargs = {"pair": pair, "auto_build": auto_build}
+    kwargs = {"pair": pair, "auto_build": auto_build, "min_score": min_score}
     if top_k_per_query:
         kwargs["top_k_per_query"] = top_k_per_query
     if final_k:

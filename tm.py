@@ -480,7 +480,8 @@ def suggest(texts: list[str], pair: str = "en-vn",
             bonus_alpha: float = TM_BONUS_ALPHA,
             auto_build: bool = True,
             model: str = OLLAMA_MODEL_EMBED,
-            domain_filter: list[str] | None = None) -> dict:
+            domain_filter: list[str] | None = None,
+            min_score: float = 0.85) -> dict:
     """Embed each non-empty input text → faiss top-K per query → aggregate → top final_k rows.
     Returns {rules_text, hits, stats}. Auto-builds index if hashes changed (unless disabled)."""
     queries = [t for t in (texts or []) if t and t.strip()]
@@ -588,7 +589,13 @@ def suggest(texts: list[str], pair: str = "en-vn",
     seen_sources: set[str] = set()
     hits: list[dict] = []
     n_skipped_junk = 0
+    n_skipped_below_threshold = 0
     for row, final, n_hits, max_s, lex_ratio, abs_overlap, src_len in re_ranked:
+        # CAT-style threshold: ตัด noise ที่ score ต่ำเกินไป — ถ้า min_score=0 → pass ทุกตัว (default)
+        # re_ranked เรียง desc แล้ว → เจอตัวต่ำกว่า threshold = ที่เหลือก็ต่ำกว่า → break ออก
+        if final < min_score:
+            n_skipped_below_threshold = len(re_ranked) - len(hits) - n_skipped_junk
+            break
         m = meta[row]
         if not m.get("target"):
             continue
@@ -643,7 +650,9 @@ def suggest(texts: list[str], pair: str = "en-vn",
             "final_k": final_k,
             "n_returned": len(hits),
             "bonus_alpha": bonus_alpha,
+            "min_score": min_score,
             "n_skipped_junk": n_skipped_junk,
+            "n_skipped_below_threshold": n_skipped_below_threshold,
         },
     }
 

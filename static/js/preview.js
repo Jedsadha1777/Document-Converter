@@ -11,7 +11,7 @@ import { state, toggleSelect, clearSelection } from "./state.js";
 import { history } from "./history.js";
 import { UpdateBboxCmd, SetSpeakerCmd, MergeBoxesCmd, CompositeCommand } from "./commands.js";
 import { escapeHtml, diffChars, renderDiffSide } from "./diff.js";
-import { getCharacters, renderSpeakerOptions, SPEAKER_SKIP } from "./characters.js";
+import { getCharacters, renderSpeakerOptions, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
 import { COLORS } from "./colors.js";
 import * as viewport from "./visual/viewport.js";
 import { getImageSrc } from "./visual/image-source.js";
@@ -336,8 +336,7 @@ function showBboxSpeakerPopup(hit, clientX, clientY) {
     const pop = _ensureBboxPopup();
     const ref = hit.item.self_ref;
     if (!ref) return;
-    const chars = getCharacters();
-    const cur = state.speakerByRef[ref] || (chars[0] && chars[0].id) || "";
+    const cur = state.speakerByRef[ref] || SPEAKER_AUTO;
     const selEl = pop.querySelector("select");
     selEl.dataset.ref = ref;
     selEl.innerHTML = renderSpeakerOptions()(cur);
@@ -935,6 +934,12 @@ export function renderPreview() {
         wrap.style.cursor = "default";
 
         wrap.onmousemove = (ev) => {
+            // preview mode = หน้าที่วางคำแปลแล้ว — ห้าม hover/tooltip/hit-test/drag tracking
+            if (state.previewMode) {
+                tooltip.style.display = "none";
+                wrap.style.cursor = "default";
+                return;
+            }
             // pan tool active → ไม่ต้อง hit-test/hover; pan-zoom จัดการ drag เอง
             if (getTool() === "pan") {
                 wrap.style.cursor = "grab";
@@ -1129,6 +1134,8 @@ export function renderPreview() {
         // === mousedown: เริ่ม drag/marquee ===
         wrap.onmousedown = (ev) => {
             if (ev.button !== 0) return;
+            // preview mode = view-only — ห้ามเริ่ม drag/selection/marquee
+            if (state.previewMode) return;
             // pan tool: ปล่อยให้ pan-zoom.js handler ทำงาน (shouldPan = true)
             if (getTool() === "pan") return;
             state.justDragged = false;
@@ -1241,6 +1248,7 @@ export function renderPreview() {
 
         wrap.onclick = (ev) => {
             if (getTool() === "pan") return;
+            if (state.previewMode) return;   // view-only: ห้าม popup
             if (state.justDragged) {
                 state.justDragged = false;
                 return;

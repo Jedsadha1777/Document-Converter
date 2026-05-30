@@ -5,7 +5,7 @@ import { state } from "./state.js";
 import { history } from "./history.js";
 import { SetSpeakerCmd } from "./commands.js";
 import { escapeHtml, diffChars, renderDiffSide } from "./diff.js";
-import { getCharacters, renderSpeakerOptions } from "./characters.js";
+import { getCharacters, renderSpeakerOptions, SPEAKER_AUTO } from "./characters.js";
 import { setStatus } from "./status.js";
 import { renderPreview } from "./preview.js";
 import {
@@ -59,7 +59,7 @@ export function buildCompareTable(force = false) {
         const trCell = (tr !== undefined)
             ? `<td class="${trBaseCls}" ${trEditAttrs}>${escapeHtml(tr)}</td>`
             : `<td class="col-translated col-text pending" ${trEditAttrs}>—</td>`;
-        const curSpeaker = speakerByRef[ref] || (getCharacters()[0] && getCharacters()[0].id) || "";
+        const curSpeaker = speakerByRef[ref] || SPEAKER_AUTO;
         const speakerCell = `<td class="col-speaker">
             <select class="speaker-select" data-ref="${escapeHtml(ref)}">${speakerOptions(curSpeaker)}</select>
         </td>`;

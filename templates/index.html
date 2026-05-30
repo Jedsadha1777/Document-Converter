@@ -10,8 +10,10 @@
 </head>
 <body>
 <div class="container">
-    <h1>Document Converter</h1>
-    <p class="lead">Pick a file (PDF, DOCX, PPTX, XLSX, CSV, HTML, image), choose a data type, click convert — view JSON or an overlay of text boxes on the source image.</p>
+    <div class="header-row">
+        <h1>Document Converter</h1>
+        <p class="lead">Pick a file (PDF, DOCX, PPTX, XLSX, CSV, HTML, image), choose a data type, click convert — view JSON or an overlay of text boxes on the source image.</p>
+    </div>
 
     <form id="convertForm">
         <div class="controls">
@@ -19,6 +21,7 @@
             <input type="file" id="file" name="file" multiple required
                    title="เลือกได้หลายไฟล์พร้อมกัน — จะ OCR ทีละไฟล์แล้วรวม pages/texts">
             <span id="fileCount" style="font-size:12px; color:#6b7280;"></span>
+            <button type="button" id="pasteTextBtn" class="ghost" title="Paste plain text instead of uploading — each line becomes a row in the Compare table"><span class="material-symbols-outlined">edit_note</span>Paste text</button>
 
             <label for="lang">OCR language:</label>
             <select id="lang" name="lang">
@@ -87,6 +90,46 @@
         <span id="engineHint" style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b via Ollama</span>
     </div>
 
+    <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
+        <summary style="cursor:pointer; font-size:13px; color:#374151;"><span class="material-symbols-outlined">edit_note</span>Additional translation rules (optional)</summary>
+        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
+            <strong>TM:</strong>
+            <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
+                <option value="jp-th">jp-th</option>
+                <option value="en-th">en-th</option>
+                <option value="en-vn">en-vn</option>
+            </select>
+            <span style="color:#d1d5db; padding:0 4px;">│</span>
+            <strong>Type:</strong>
+            <select id="contentType" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;"
+                    title="Content type ─ ปรับ prompt style + TM domain filter ตามชนิดเอกสาร">
+                <!-- options populated by JS based on TM pair selection -->
+            </select>
+            <label>final_k:
+                <input type="number" id="tmFinalK" min="1" max="200" value="20"
+                       style="width:60px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;">
+            </label>
+            <label title="ตัด match ที่ score ต่ำกว่าค่านี้ — 0 = ไม่ filter, 0.85 = strict near-exact (default)">min_score:
+                <input type="number" id="tmMinScore" min="0" max="2" step="0.05" value="0.85"
+                       style="width:60px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;">
+            </label>
+            <button type="button" id="tmSuggestBtn" class="ghost" style="font-size:12px;"
+                    title="Embed every OCR source row, retrieve top matches from the TM, paste glossary into the rules below">🔎 Suggest from TM</button>
+            <button type="button" id="tmBuildBtn" class="ghost" style="font-size:12px;"
+                    title="Force rebuild of the TM Faiss index (slow — ~10 min for 18k rows on CPU)">⚙️ Build TM index</button>
+            <span id="tmStatus" style="color:#6b7280;"></span>
+        </div>
+        <textarea id="customRules" rows="4"
+            style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
+                   font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
+            placeholder="Document-specific rules — sent to the LLM with the system prompt for every batch.
+Examples:
+- Translate &quot;AI&quot; consistently as one term
+- Keep brand names (Microsoft, Google) in English
+- Use a formal tone
+- Glossary: API → API, framework → framework"></textarea>
+    </details>
+
     <div id="status" class="status"></div>
 
     <div class="tabs">
@@ -104,40 +147,6 @@
 
     <!-- Compare tab -->
     <div class="tab-panel" id="panel-compare">
-        <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
-            <summary style="cursor:pointer; font-size:13px; color:#374151;"><span class="material-symbols-outlined">edit_note</span>Additional translation rules (optional)</summary>
-            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
-                <strong>TM:</strong>
-                <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
-                    <option value="jp-th">jp-th</option>
-                    <option value="en-vn">en-vn</option>
-                </select>
-                <span style="color:#d1d5db; padding:0 4px;">│</span>
-                <strong>Type:</strong>
-                <select id="contentType" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;"
-                        title="Content type ─ ปรับ prompt style + TM domain filter ตามชนิดเอกสาร">
-                    <!-- options populated by JS based on TM pair selection -->
-                </select>
-                <label>final_k:
-                    <input type="number" id="tmFinalK" min="1" max="200" value="20"
-                           style="width:60px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;">
-                </label>
-                <button type="button" id="tmSuggestBtn" class="ghost" style="font-size:12px;"
-                        title="Embed every OCR source row, retrieve top matches from the TM, paste glossary into the rules below">🔎 Suggest from TM</button>
-                <button type="button" id="tmBuildBtn" class="ghost" style="font-size:12px;"
-                        title="Force rebuild of the TM Faiss index (slow — ~10 min for 18k rows on CPU)">⚙️ Build TM index</button>
-                <span id="tmStatus" style="color:#6b7280;"></span>
-            </div>
-            <textarea id="customRules" rows="4"
-                style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
-                       font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
-                placeholder="Document-specific rules — sent to the LLM with the system prompt for every batch.
-Examples:
-- Translate &quot;AI&quot; consistently as one term
-- Keep brand names (Microsoft, Google) in English
-- Use a formal tone
-- Glossary: API → API, framework → framework"></textarea>
-        </details>
         <div id="compareArea">
             <div class="empty">Upload a file first, then click a button to have the LLM correct it.</div>
         </div>
@@ -198,7 +207,6 @@ Examples:
                     <span id="zoomLevel" title="Current zoom — click to reset (0)">100%</span>
                     <button type="button" id="zoomInBtn" title="Zoom in (+)"><span class="material-symbols-outlined">add</span></button>
                     <span class="zoom-sep"></span>
-                    <button type="button" id="zoomFitBtn" title="Fit to viewport (0)"><span class="material-symbols-outlined">fit_screen</span></button>
                     <button type="button" id="zoom100Btn" title="Actual size (1)"><span class="material-symbols-outlined">crop_free</span></button>
                     <span class="zoom-sep"></span>
                     <button type="button" id="previewModeBtn" title="Preview (fullscreen, no chrome — ESC to exit)"><span class="material-symbols-outlined">fullscreen</span></button>
@@ -308,6 +316,7 @@ import { initCharactersUI } from "/static/js/characters.js";
 import { setStatus, clearStatus } from "/static/js/status.js";
 import { initCompare, buildCompareTable } from "/static/js/compare.js";
 import { initUpload } from "/static/js/upload.js";
+import { initPasteText } from "/static/js/paste-text.js";
 import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
 import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
@@ -351,7 +360,6 @@ function _zoomAtCenter(factor) {
 }
 document.getElementById("zoomInBtn")?.addEventListener("click", () => _zoomAtCenter(1.25));
 document.getElementById("zoomOutBtn")?.addEventListener("click", () => _zoomAtCenter(0.8));
-document.getElementById("zoomFitBtn")?.addEventListener("click", _fitCurrentPage);
 document.getElementById("zoom100Btn")?.addEventListener("click", () => {
     // 1:1 image-pixel : screen-pixel, center on viewport
     const sm = document.getElementById("splitMain");
@@ -481,6 +489,10 @@ const contentTypeSelectEl = document.getElementById("contentType");
 // Type options ผูกกับ TM pair (folder name ใน data_tm/{pair}/{type}/)
 const CONTENT_TYPES_BY_PAIR = {
     "jp-th": [
+        { value: "manga_novel", label: "Manga / Novel" },
+        { value: "tutorial",    label: "Tutorial (web manual)" },
+    ],
+    "en-th": [
         { value: "manga_novel", label: "Manga / Novel" },
         { value: "tutorial",    label: "Tutorial (web manual)" },
     ],
@@ -633,6 +645,7 @@ initCharactersUI({
 initUpload({
     onAfterConvert: applyTextsOnlyCheckboxes,
 });
+initPasteText();
 </script>
 </body>
 </html>

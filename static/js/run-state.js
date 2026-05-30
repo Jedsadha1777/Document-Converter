@@ -32,7 +32,7 @@ export const runDom = {
 };
 
 // target language = ครึ่งหลังของ TM pair (jp-th → th, en-vn → vi, ฯลฯ)
-const PAIR_TARGET = { "jp-th": "th", "en-vn": "vi" };
+const PAIR_TARGET = { "jp-th": "th", "en-th": "th", "en-vn": "vi" };
 export function getTranslateTarget() {
     return PAIR_TARGET[runDom.tmPairSel?.value] || "";
 }

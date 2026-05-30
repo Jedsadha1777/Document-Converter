@@ -2,7 +2,7 @@
 // Clone modal HTML จาก <template id="previewModalTpl"> ใน index.html (ไม่มี template ใน JS)
 
 import { state } from "./state.js";
-import { getCharacters, SPEAKER_SKIP } from "./characters.js";
+import { getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
 import { renderPreview } from "./preview.js";
 import { COLORS } from "./colors.js";
 import { escapeHtml } from "./diff.js";
@@ -254,7 +254,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
     if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
     const customRules = (runDom.customRulesEl.value || "").trim();
-    const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
+    const defaultId = SPEAKER_AUTO;
 
     let indices, id_start, size, idx, totalChunks, offset, totalShown;
     if (mode === "failed") {
@@ -342,7 +342,7 @@ async function copyPromptOneClick() {
     if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
     const customRules = (runDom.customRulesEl.value || "").trim();
-    const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
+    const defaultId = SPEAKER_AUTO;
 
     // filter SKIP + empty ออก — ส่ง LLM เฉพาะที่ต้องแปลจริง (sparse ids ตาม row index จริง)
     const indices = [];
@@ -402,7 +402,7 @@ async function pastePromptOneClick() {
     // build state จาก table ปัจจุบัน — กรอง SKIP + empty (ตรงกับที่ copyPrompt ส่งไป)
     const target = getTranslateTarget();
     if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
-    const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
+    const defaultId = SPEAKER_AUTO;
     const indices = [];
     const texts = [];
     const speakerArr = [];

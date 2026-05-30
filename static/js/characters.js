@@ -4,8 +4,9 @@
 import { escapeHtml } from "./diff.js";
 import { COLORS } from "./colors.js";
 
-// sentinel — ตรงกับฝั่ง backend
+// sentinels — ตรงกับฝั่ง backend (config.py)
 export const SPEAKER_SKIP = "__skip__";
+export const SPEAKER_AUTO = "__auto__";
 
 const CHARS_STORAGE_KEY = "doclingCharacters";
 
@@ -54,14 +55,16 @@ export function getCharacters() { return _characters; }
 // คืน function builder ที่ render <option> ให้ <select> โดยรับค่า selected
 export function renderSpeakerOptions() {
     return (selectedId) => {
+        const autoSel = selectedId === SPEAKER_AUTO ? " selected" : "";
         const skipSel = selectedId === SPEAKER_SKIP ? " selected" : "";
+        const autoOpt = `<option value="${SPEAKER_AUTO}"${autoSel}>🤖 Auto (LLM picks)</option>`;
         const skipOpt = `<option value="${SPEAKER_SKIP}"${skipSel}>🚫 Don't translate</option>`;
         const charOpts = _characters.map(c => {
             const sel = c.id === selectedId ? " selected" : "";
             const meta = [c.name, c.gender].filter(Boolean).join(", ");
             return `<option value="${escapeHtml(c.id)}"${sel}>${escapeHtml(c.id + (meta ? " — " + meta : ""))}</option>`;
         }).join("");
-        return skipOpt + charOpts;
+        return autoOpt + skipOpt + charOpts;
     };
 }
 
@@ -105,6 +108,144 @@ function _renderCharsList() {
     _characters.forEach((c, i) => _addCharRow(c, i === 0));
 }
 
+// ── Character auto-detection via copy/paste workflow ──
+
+function _collectOcrCorpus() {
+    // OCR + corrected ที่อยู่ในตาราง Compare — ใช้ corrected ถ้ามี ไม่งั้น orig
+    const compareArea = document.getElementById("compareArea");
+    if (!compareArea) return [];
+    const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
+    const out = [];
+    rows.forEach(r => {
+        const orig = (r.dataset.orig || "").trim();
+        // ถ้ามี corrected ก็เอา ไม่งั้น orig — corrected cell ใช้ data-attribute หรือ textarea
+        const corr = (r.querySelector(".corr-text-cell")?.textContent ||
+                      r.querySelector("textarea.corr-text")?.value || "").trim();
+        const t = corr || orig;
+        if (t) out.push(t);
+    });
+    return out;
+}
+
+// target language ของ persona text — ตาม tmPair dropdown
+// gender/age = ค่าคงที่ enum (English) — ห้าม translate (UI select รับ value English)
+const _PERSONA_LANG_BY_PAIR = {
+    "jp-th": "Thai (ภาษาไทย)",
+    "en-th": "Thai (ภาษาไทย)",
+    "en-vn": "Vietnamese (Tiếng Việt)",
+};
+
+function _buildDetectionPrompt() {
+    const texts = _collectOcrCorpus();
+    if (!texts.length) return null;
+    const corpus = texts.map((t, i) => `[${i + 1}] ${t}`).join("\n");
+    const limitRaw = parseInt(document.getElementById("charsDetectLimit")?.value, 10);
+    const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 0;
+    const tmPair = document.getElementById("tmPair")?.value || "";
+    const personaLang = _PERSONA_LANG_BY_PAIR[tmPair] || "the target translation language";
+    // hard cap — บังคับให้ LLM ไม่เดาเกินจำนวนที่ user ตั้ง
+    const limitLine = limit
+        ? `LIMIT: return AT MOST ${limit} characters — pick the most important / most frequently appearing speakers. If more exist, prefer named recurring characters over one-off side characters.\n\n`
+        : "";
+    return (
+        "Identify the main characters from this dialogue/narration. " +
+        "Surface-level inference is fine — the user will refine afterward.\n\n" +
+        `TARGET LANGUAGE for the 'persona' field: ${personaLang}.\n` +
+        "Write the persona description IN THE TARGET LANGUAGE — it will be re-injected " +
+        "into the translation prompt later, so it must read naturally to a translator working in that language.\n" +
+        "gender / age = keep the enum values in English (they are fixed UI options, not translated).\n\n" +
+        limitLine +
+        "For each character, return:\n" +
+        '  name (as in text or descriptive label — keep original script if a name),\n' +
+        '  gender ("female" / "male" / "other" / "" if unclear) — English enum, do NOT translate,\n' +
+        '  age ("child" / "teen" / "adult" / "middle" / "senior" / "" if unclear) — English enum, do NOT translate,\n' +
+        `  persona (1-2 sentence description IN ${personaLang} — speech pattern / role / personality).\n\n` +
+        "Output ONLY a JSON array — no markdown fences, no explanation:\n" +
+        '[{"name":"...","gender":"...","age":"...","persona":"..."}, ...]\n\n' +
+        "TEXT:\n" + corpus
+    );
+}
+
+async function _copyDetectionPrompt(btn) {
+    const prompt = _buildDetectionPrompt();
+    if (!prompt) {
+        alert("No OCR text in Compare table — upload a file + OCR first");
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(prompt);
+        const orig = btn.textContent;
+        btn.textContent = "✓ Copied — paste into Gemini";
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+    } catch (e) {
+        alert("Clipboard copy failed: " + e.message);
+    }
+}
+
+async function _pasteDetectionResponse() {
+    let raw;
+    try {
+        raw = await navigator.clipboard.readText();
+    } catch (e) {
+        alert("Cannot read clipboard: " + e.message);
+        return;
+    }
+    if (!raw || !raw.trim()) {
+        alert("Clipboard empty");
+        return;
+    }
+    // strip markdown fences / explanatory prose — keep first [ ... ] block
+    let cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+    const m = cleaned.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if (m) cleaned = m[0];
+    let data;
+    try {
+        data = JSON.parse(cleaned);
+    } catch (e) {
+        alert("Failed to parse JSON: " + e.message + "\n\nExpected: [{name,gender,age,persona}, ...]");
+        return;
+    }
+    if (!Array.isArray(data) || !data.length) {
+        alert("Expected non-empty JSON array");
+        return;
+    }
+    // REPLACE all — ทับทั้งหมด ไม่ merge (ตามที่ user สั่ง)
+    // assign sequential ids ใหม่จาก 1 เพื่อ reset speakerByRef ที่อ้าง id เก่า
+    let skipped = 0;
+    const next = [];
+    let nextId = 1;
+    data.forEach(d => {
+        const name = String(d.name || "").trim();
+        if (!name) { skipped++; return; }
+        next.push({
+            id: String(nextId++),
+            name,
+            gender: String(d.gender || "").trim(),
+            age: String(d.age || "").trim(),
+            persona: String(d.persona || "").trim(),
+        });
+    });
+    if (!next.length) {
+        alert("No valid characters in response (all entries missing name)");
+        return;
+    }
+    _characters = next;
+    _renderCharsList();
+    alert(`✓ Replaced with ${next.length} character(s)${skipped ? ", " + skipped + " skipped (no name)" : ""}\n\nReview rows then click Save to persist.`);
+}
+
+function _resetAllCharacters() {
+    if (!confirm("Reset all characters to default (1 General)?\nExisting personas will be lost when you click Save.")) return;
+    _characters = [{
+        id: "1",
+        name: "General",
+        gender: "",
+        age: "",
+        persona: "พูดเป็นกลาง สุภาพปานกลาง ไม่ระบุเพศ ไม่ใช้ค่ะ/ครับ",
+    }];
+    _renderCharsList();
+}
+
 function _openModal() {
     if (!_modal) {
         _modal = document.createElement("div");
@@ -119,7 +260,18 @@ function _openModal() {
                 </div>
                 <div id="charsList"></div>
                 <div class="modal-foot">
-                    <button type="button" id="charAddBtn" class="ghost">+ Add character</button>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                        <button type="button" id="charAddBtn" class="ghost">+ Add character</button>
+                        <label style="font-size:12px; color:#374151; display:inline-flex; align-items:center; gap:4px;"
+                               title="Hard cap — LLM จะ return ไม่เกินจำนวนนี้ — 0 = ไม่จำกัด">
+                            limit:
+                            <input type="number" id="charsDetectLimit" min="0" max="100" value="10"
+                                   style="width:50px; padding:3px 5px; border:1px solid #d1d5db; border-radius:4px;">
+                        </label>
+                        <button type="button" id="charsDetectCopyBtn" class="ghost" title="Build a character-detection prompt with all OCR text and copy to clipboard — paste into Gemini/ChatGPT/Claude web">📋 Copy detect prompt</button>
+                        <button type="button" id="charsDetectPasteBtn" class="ghost" title="Read LLM response (JSON array) from clipboard and REPLACE the entire character list">📥 Paste detected</button>
+                        <button type="button" id="charsResetBtn" class="ghost" title="Clear all characters and reset to default (1 General). Must click Save to persist." style="color:#b91c1c;">🗑️ Reset all</button>
+                    </div>
                     <div style="display:flex; gap:6px;">
                         <button type="button" id="charCancelBtn" class="ghost">Cancel</button>
                         <button type="button" id="charSaveBtn">Save</button>
@@ -132,6 +284,9 @@ function _openModal() {
             if (e.target === _modal) _closeModal();
         });
         document.getElementById("charAddBtn").addEventListener("click", () => _addCharRow());
+        document.getElementById("charsDetectCopyBtn").addEventListener("click", (e) => _copyDetectionPrompt(e.currentTarget));
+        document.getElementById("charsDetectPasteBtn").addEventListener("click", _pasteDetectionResponse);
+        document.getElementById("charsResetBtn").addEventListener("click", _resetAllCharacters);
         document.getElementById("charCancelBtn").addEventListener("click", _closeModal);
         document.getElementById("charSaveBtn").addEventListener("click", _saveFromModal);
     }

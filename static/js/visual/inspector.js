@@ -5,7 +5,7 @@
 import { state } from "../state.js";
 import { history } from "../history.js";
 import { SetSpeakerCmd } from "../commands.js";
-import { renderSpeakerOptions, getCharacters } from "../characters.js";
+import { renderSpeakerOptions, getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "../characters.js";
 
 let _suppress = false;   // กัน feedback loop ตอน user พิมพ์ใน textarea
 
@@ -37,6 +37,11 @@ export function initInspector() {
         if (before === after) return;
         history.exec(new SetSpeakerCmd(ref, before, after));
     });
+    // hover tooltip — แสดง name/sex/age/personality ของ character ที่เลือก
+    spkEl?.addEventListener("mouseenter", () => _showSpkTooltip(spkEl));
+    spkEl?.addEventListener("mouseleave", _hideSpkTooltip);
+    spkEl?.addEventListener("mousedown", _hideSpkTooltip);
+    spkEl?.addEventListener("change", _hideSpkTooltip);
 
     // Translation textarea — write back ลง state.translations + mark manual
     const trEl = $("rpTrText");
@@ -68,6 +73,86 @@ function _updateTrSourceHint(ref) {
     el.textContent = state.manualTranslations.has(ref) ? "(manual)" : "(LLM)";
 }
 
+// ── speaker hover tooltip — light box แสดง name / sex / age / personality ──
+
+let _spkTooltip = null;
+const _escTip = (s) => String(s ?? "").replace(/[<>&]/g, ch => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[ch]));
+
+function _ensureSpkTooltip() {
+    if (_spkTooltip) return _spkTooltip;
+    _spkTooltip = document.createElement("div");
+    _spkTooltip.id = "rpSpeakerTooltip";
+    _spkTooltip.style.cssText = [
+        "position:fixed",
+        "background:#fff",
+        "border:1px solid #d1d5db",
+        "border-radius:6px",
+        "padding:10px 12px",
+        "font-size:12px",
+        "line-height:1.5",
+        "color:#1f2937",
+        "box-shadow:0 4px 12px rgba(0,0,0,0.12)",
+        "max-width:280px",
+        "z-index:9999",
+        "display:none",
+        "pointer-events:none",
+    ].join(";");
+    document.body.appendChild(_spkTooltip);
+    return _spkTooltip;
+}
+
+function _showSpkTooltip(selEl) {
+    if (!selEl) return;
+    const charId = selEl.value;
+    if (!charId || charId === SPEAKER_SKIP) {
+        _hideSpkTooltip();
+        return;
+    }
+    const c = getCharacters().find(c => c.id === charId);
+    if (!c) {
+        _hideSpkTooltip();
+        return;
+    }
+    const tip = _ensureSpkTooltip();
+    tip.innerHTML = `
+        <div style="font-weight:600; margin-bottom:6px; color:#111827;">
+            <span style="color:#6b7280; font-weight:400; margin-right:4px;">#${_escTip(c.id)}</span>${_escTip(c.name || "(unnamed)")}
+        </div>
+        <div style="color:#6b7280; margin-bottom:6px;">
+            <span style="display:inline-block; min-width:40px;">sex:</span> ${_escTip(c.gender || "—")}<br>
+            <span style="display:inline-block; min-width:40px;">age:</span> ${_escTip(c.age || "—")}
+        </div>
+        <div style="color:#374151; white-space:pre-wrap; border-top:1px solid #f3f4f6; padding-top:6px;">${_escTip(c.persona || "(no personality set)")}</div>
+    `;
+    // position: ทางซ้ายของ select (right panel อยู่ด้านขวาจอ → tooltip ออกซ้าย)
+    const r = selEl.getBoundingClientRect();
+    tip.style.display = "block";
+    // measure แล้วจัด — left ของ tooltip = select.left - tip.width - 8
+    const tr = tip.getBoundingClientRect();
+    let left = r.left - tr.width - 8;
+    if (left < 8) {
+        // ไม่พอที่ทางซ้าย → ลองวางด้านล่างของ select
+        left = Math.max(8, r.left);
+        tip.style.left = left + "px";
+        tip.style.top = (r.bottom + 6) + "px";
+    } else {
+        tip.style.left = left + "px";
+        // align ด้านบนกับ select
+        tip.style.top = r.top + "px";
+    }
+    // overflow ล่าง → ดึงขึ้น
+    requestAnimationFrame(() => {
+        const tr2 = tip.getBoundingClientRect();
+        if (tr2.bottom > window.innerHeight - 8) {
+            tip.style.top = Math.max(8, window.innerHeight - tr2.height - 8) + "px";
+        }
+    });
+}
+
+function _hideSpkTooltip() {
+    if (_spkTooltip) _spkTooltip.style.display = "none";
+}
+
 export function updateInspector() {
     if (_suppress) return;
     const empty = $("rightPanelEmpty");
@@ -96,8 +181,7 @@ export function updateInspector() {
     // ไม่อย่างนั้น browser จะ pick option แรก = SPEAKER_SKIP โดยอัตโนมัติ → bug ที่ user รายงาน
     const spkEl = $("rpSpeakerSelect");
     if (spkEl) {
-        const chars = getCharacters();
-        const cur = state.speakerByRef[ref] || (chars[0]?.id) || "";
+        const cur = state.speakerByRef[ref] || SPEAKER_AUTO;
         spkEl.innerHTML = renderSpeakerOptions()(cur);
     }
 

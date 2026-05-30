@@ -56,6 +56,9 @@ async function tmSuggest() {
     }
     const pair = tmPairSel.value || "jp-th";
     const finalK = parseInt(tmFinalKEl.value, 10) || 20;
+    // explicit 0 ผู้ใช้ก็ส่ง 0 (ไม่ fallback เป็น default) — ใช้ Number.isFinite ไม่ใช่ `|| 0`
+    const _ms = parseFloat(document.getElementById("tmMinScore")?.value);
+    const minScore = Number.isFinite(_ms) ? _ms : 0.85;
     const contentType = runDom.contentTypeSel?.value || "";
     const domainFilter = contentType ? [contentType] : null;
     tmSuggestBtn.disabled = true;
@@ -66,7 +69,7 @@ async function tmSuggest() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                texts: sources, pair, final_k: finalK, auto_build: true,
+                texts: sources, pair, final_k: finalK, min_score: minScore, auto_build: true,
                 domain_filter: domainFilter,
             }),
         });
@@ -85,7 +88,10 @@ async function tmSuggest() {
         }
         _replaceTmBlock(runDom.customRulesEl, data.rules_text);
         tmStatusEl.style.color = COLORS.successStrong;
-        tmStatusEl.textContent = `${stats.n_returned} rules from ${stats.n_queries} queries (index=${stats.n_index_rows})`;
+        const skipMsg = stats.n_skipped_below_threshold
+            ? ` (–${stats.n_skipped_below_threshold} < ${(stats.min_score ?? 0).toFixed(2)})`
+            : "";
+        tmStatusEl.textContent = `${stats.n_returned} rules from ${stats.n_queries} queries${skipMsg} (index=${stats.n_index_rows})`;
         const dbg = data.per_query_debug || [];
         if (dbg.length) {
             const sample = dbg.slice(0, 5).map((d, i) => {

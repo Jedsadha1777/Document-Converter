@@ -2,7 +2,7 @@
 // applyTranslationSuccess/Error exported เพื่อให้ preview-prompt reuse ตอน apply manual response
 
 import { state } from "./state.js";
-import { getCharacters, SPEAKER_SKIP } from "./characters.js";
+import { getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
 import { renderPreview } from "./preview.js";
 import { buildCompareTable } from "./compare.js";
 import {
@@ -64,7 +64,7 @@ async function translateOne(text, target, engine) {
 }
 
 async function translateBatchCall(texts, target, engine, customRules, attempt, speakers, ids) {
-    const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
+    const defaultId = SPEAKER_AUTO;
     const speakerArr = speakers || texts.map(() => defaultId);
     const res = await fetch("/translate-batch", {
         method: "POST",
@@ -122,7 +122,7 @@ async function processTranslateBatch(rows, indexes, batchSz, target, engine, cus
         const sliceIdxs = indexes.slice(start, start + batchSz);
         const sliceRows = sliceIdxs.map(i => rows[i]);
         const sources = sliceRows.map(rowSource);
-        const defaultId = (getCharacters()[0] && getCharacters()[0].id) || "";
+        const defaultId = SPEAKER_AUTO;
         const sliceSpeakers = sliceRows.map(r => speakerByRef[r.dataset.ref] || defaultId);
         sliceRows.forEach(markTranslatePending);
         await geminiThrottle(engine);
