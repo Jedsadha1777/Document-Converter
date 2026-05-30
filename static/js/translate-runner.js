@@ -198,9 +198,30 @@ runDom.runTranslateBtn.addEventListener("click", async () => {
     if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
     const rawBatch = parseInt(runDom.batchSizeInput.value || "1", 10);
-    const effectiveBatch = (rawBatch === 0) ? rows.length : Math.max(1, rawBatch);
-    const useBatch = (engine === "qwen" || engine === "gemini") && effectiveBatch > 1;
-    const batchLabel = (rawBatch === 0) ? `entire file (${rows.length})` : String(effectiveBatch);
+    // batch=0 (ทั้งไฟล์) cap ที่ TRANSLATE_BATCH_AUTO_CAP กัน token overflow → many "missing" rows
+    const AUTO_CAP = 30;
+    let effectiveBatch;
+    let autoCapped = false;
+    if (rawBatch === 0) {
+        if (rows.length > AUTO_CAP) {
+            effectiveBatch = AUTO_CAP;
+            autoCapped = true;
+        } else {
+            effectiveBatch = rows.length;
+        }
+    } else {
+        effectiveBatch = Math.max(1, rawBatch);
+    }
+    // batch=1 ยังต้องผ่าน /translate-batch — translateOne ส่งแค่ {text, target, engine}
+    // ทิ้ง custom_rules/speakers/characters/emotions ทั้งหมด → context หาย
+    const useBatch = (engine === "qwen" || engine === "gemini");
+    const batchLabel = (rawBatch === 0)
+        ? (autoCapped ? `entire file capped at ${AUTO_CAP}/row of ${rows.length}` : `entire file (${rows.length})`)
+        : String(effectiveBatch);
+    if (autoCapped) {
+        console.warn(`[translate] batch=0 + ${rows.length} rows → auto-capped at ${AUTO_CAP}/batch to avoid token overflow. ` +
+                     `If you want one-shot, set batch explicitly to ${rows.length}.`);
+    }
 
     runState.abort = false;
     disableDuringRun();

@@ -1343,7 +1343,9 @@ def _translate_batch_qwen(texts: list[str], target: str,
         raw_out = (resp.json().get("message", {}).get("content") or "").strip()
         parsed = _parse_batch_json(raw_out, n, id_start=id_start, ids=ids)
     except Exception as e:
-        return list(texts), [str(e)] * n
+        # ห้าม return list(texts) — frontend จะมอง tr+er เป็น success(warning) ไม่ retry
+        # → ต้นฉบับญี่ปุ่นหลุดเข้า translations[ref] ปลอมเป็นคำแปล
+        return [""] * n, [str(e)] * n
 
     return _post_process_batch(texts, parsed, per_item, target)
 
@@ -1380,13 +1382,13 @@ def _translate_batch_gemini(texts: list[str], target: str,
     n = len(texts)
 
     if not GEMINI_API_KEY:
-        return list(texts), ["GEMINI_API_KEY is not set in .env"] * n
+        return [""] * n, ["GEMINI_API_KEY is not set in .env"] * n
 
     try:
         from google import genai
         from google.genai import types as gtypes
     except ImportError as e:
-        return list(texts), [f"google-genai is not installed: {e}"] * n
+        return [""] * n, [f"google-genai is not installed: {e}"] * n
 
     user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids, emotions=emotions)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
@@ -1408,7 +1410,8 @@ def _translate_batch_gemini(texts: list[str], target: str,
         raw_out = (response.text or "").strip()
         parsed = _parse_batch_json(raw_out, n, id_start=id_start, ids=ids)
     except Exception as e:
-        return list(texts), [f"gemini: {e}"] * n
+        # empty (ไม่ใช่ original) → frontend retry ได้ ไม่หลุดเป็น success(warning)
+        return [""] * n, [f"gemini: {e}"] * n
 
     return _post_process_batch(texts, parsed, per_item, target)
 
