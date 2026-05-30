@@ -6,6 +6,7 @@ import { state } from "../state.js";
 import { history } from "../history.js";
 import { SetSpeakerCmd } from "../commands.js";
 import { renderSpeakerOptions, getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "../characters.js";
+import { getImageSrc } from "./image-source.js";
 
 let _suppress = false;   // กัน feedback loop ตอน user พิมพ์ใน textarea
 
@@ -26,6 +27,9 @@ export function initInspector() {
     $("rpValignTopBtn")?.addEventListener("click", () => _dispatchClick("valignTopBtn"));
     $("rpValignMiddleBtn")?.addEventListener("click", () => _dispatchClick("valignMiddleBtn"));
     $("rpValignBottomBtn")?.addEventListener("click", () => _dispatchClick("valignBottomBtn"));
+
+    // Re-OCR button — crop bbox region (รวม de-rotate) + ส่ง /ocr-bbox → update OCR text
+    $("rpReOcrBtn")?.addEventListener("click", _reOcrSelected);
 
     // Speaker dropdown — exec SetSpeakerCmd ผ่าน history (= undo/redo + canvas/compare sync)
     const spkEl = $("rpSpeakerSelect");
@@ -63,6 +67,107 @@ export function initInspector() {
         _suppress = false;
         _updateTrSourceHint(ref);
     });
+}
+
+// ── Re-OCR: crop bbox จาก source image (รวม de-rotate ฝั่ง client) → POST /ocr-bbox ──
+
+function _resolveBboxImgCoords(item) {
+    // คืน {x, y, w, h, rotation} ใน image-pixel space (b.l/t/r/b = image pixels at scale 1)
+    const b = item.bbox || {};
+    const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
+    let x = b.l, y, w = b.r - b.l, h;
+    if (isBL) {
+        // need page height for BL conversion — เอาจาก page record
+        const page = (state.lastResult?.preview?.pages || []).find(p => p.page_no === item.page_no);
+        const pageH = page?.img_height || page?.height || 0;
+        y = pageH - b.t;
+        h = b.t - b.b;
+    } else {
+        y = b.t;
+        h = b.b - b.t;
+    }
+    const ov = state.bboxOverrides[item.self_ref] || {};
+    if (typeof ov.x === "number") x = ov.x;
+    if (typeof ov.y === "number") y = ov.y;
+    if (typeof ov.w === "number") w = ov.w;
+    if (typeof ov.h === "number") h = ov.h;
+    const rotation = (typeof ov.rotation === "number") ? ov.rotation : 0;
+    return { x, y, w, h, rotation };
+}
+
+async function _cropBboxToPngBlob(item) {
+    const { x, y, w, h, rotation } = _resolveBboxImgCoords(item);
+    if (w <= 0 || h <= 0) throw new Error("bbox มีขนาด ≤ 0 ไม่ valid");
+    const page = (state.lastResult?.preview?.pages || []).find(p => p.page_no === item.page_no);
+    if (!page) throw new Error(`page ${item.page_no} หาไม่เจอ`);
+    const src = getImageSrc(page);
+    if (!src) throw new Error("source image ไม่พบ (page ไม่มี imageData/blob)");
+
+    const img = await new Promise((res, rej) => {
+        const im = new Image();
+        im.crossOrigin = "anonymous";
+        im.onload = () => res(im);
+        im.onerror = () => rej(new Error("โหลด source image ไม่สำเร็จ"));
+        im.src = src;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(w);
+    canvas.height = Math.round(h);
+    const ctx = canvas.getContext("2d");
+    // de-rotate content: ย้าย bbox center → origin, rotate -θ, ย้าย origin → canvas center
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(-rotation * Math.PI / 180);
+    ctx.translate(-(x + w / 2), -(y + h / 2));
+    ctx.drawImage(img, 0, 0);
+    return await new Promise(res => canvas.toBlob(res, "image/png"));
+}
+
+async function _reOcrSelected() {
+    const ref = state.selection.ref;
+    const statusEl = $("rpReOcrStatus");
+    const btn = $("rpReOcrBtn");
+    if (!ref || !state.lastResult) {
+        if (statusEl) statusEl.textContent = "เลือก textbox ก่อน";
+        return;
+    }
+    const item = (state.lastResult.preview?.items || []).find(it => it.self_ref === ref);
+    if (!item) {
+        if (statusEl) statusEl.textContent = "หา item ใน lastResult ไม่เจอ";
+        return;
+    }
+    const lang = document.getElementById("lang")?.value || "auto";
+    const engine = document.getElementById("ocr_engine")?.value || "easyocr";
+
+    if (btn) btn.disabled = true;
+    if (statusEl) statusEl.textContent = "cropping…";
+    try {
+        const blob = await _cropBboxToPngBlob(item);
+        if (statusEl) statusEl.textContent = "OCR…";
+        const form = new FormData();
+        form.append("image", blob, "bbox.png");
+        form.append("lang", lang);
+        form.append("engine", engine);
+        const res = await fetch("/ocr-bbox", { method: "POST", body: form });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        const text = (data.text || "").trim();
+        // update state.corrections + UI textarea + compare table
+        if (text) {
+            state.corrections[ref] = text;
+        } else {
+            delete state.corrections[ref];
+        }
+        const ocrEl = $("rpOcrText");
+        if (ocrEl) ocrEl.value = text || (item.text || "");
+        window.buildCompareTable?.(true);
+        window._previewWrap?._redraw?.();
+        if (statusEl) statusEl.textContent = `✓ ${data.engine_used || "ok"} — ${text.length} chars`;
+    } catch (e) {
+        if (statusEl) statusEl.textContent = "error: " + e.message;
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 function _updateTrSourceHint(ref) {

@@ -239,8 +239,15 @@ Examples:
                         </div>
                     </div>
                     <div class="rp-section">
-                        <div class="rp-label">OCR text</div>
+                        <div class="rp-label" style="display:flex; align-items:center; justify-content:space-between;">
+                            <span>OCR text</span>
+                            <button type="button" id="rpReOcrBtn" class="ghost" style="font-size:11px; padding:2px 6px;"
+                                    title="Re-OCR เฉพาะกล่องนี้ — crop รูป (รวม rotation) แล้วส่งผ่าน OCR engine ที่เลือกตอน upload">
+                                <span class="material-symbols-outlined" style="font-size:14px;">refresh</span>Re-OCR
+                            </button>
+                        </div>
                         <textarea id="rpOcrText" class="rp-textarea" rows="2" readonly></textarea>
+                        <span id="rpReOcrStatus" style="font-size:11px; color:#6b7280;"></span>
                     </div>
                     <div class="rp-section">
                         <div class="rp-label">Speaker</div>

@@ -404,6 +404,19 @@ def flatten_xlsx_cells_to_texts(doc_dict: dict, preview: dict) -> int:
 
 # ── manga mode (mokuro: comic-text-detector + manga-ocr) ──
 _manga_ocr = None
+_manga_ocr_model_only = None
+
+
+def get_manga_ocr_model_only():
+    """lazy-load standalone manga_ocr.MangaOcr — ใช้กับ pre-cropped bbox (ข้าม bubble detection)
+    Share HF cache กับ MangaPageOcr ใน get_manga_ocr() → ไม่ต้อง download ซ้ำ"""
+    global _manga_ocr_model_only
+    if _manga_ocr_model_only is None:
+        print("[manga] loading standalone MangaOcr (for re-OCR of single bbox)...", flush=True)
+        from manga_ocr import MangaOcr
+        _manga_ocr_model_only = MangaOcr(force_cpu=False)
+        print("[manga] standalone ready", flush=True)
+    return _manga_ocr_model_only
 
 
 def get_manga_ocr():

@@ -49,6 +49,7 @@ from pipelines import (
     filter_pages,
     flatten_xlsx_cells_to_texts,
     get_converter,
+    get_manga_ocr_model_only,
     parse_page_spec,
     run_fast_pipeline,
     run_manga_pipeline,
@@ -455,6 +456,55 @@ def tm_suggest():
         import traceback
         traceback.print_exc()
         return jsonify({"error": f"tm.suggest: {exc}"}), 500
+
+
+@app.route("/ocr-bbox", methods=["POST"])
+def ocr_bbox():
+    """Re-OCR เฉพาะ bbox ที่ user เลือก — รับ PNG cropped (+ de-rotated ฝั่ง client)
+    route ตาม lang/engine ที่ user เลือกตอน upload:
+      lang=manga → standalone manga_ocr (skip bubble detection, ใช้กับ vertical Japanese)
+      อื่น ๆ → engine: ocrmac (Apple Vision) / easyocr"""
+    if "image" not in request.files:
+        return jsonify({"error": "image file required"}), 400
+    lang = (request.form.get("lang") or "auto").strip()
+    engine = (request.form.get("engine") or "easyocr").strip()
+    try:
+        from PIL import Image
+        img = Image.open(request.files["image"].stream).convert("RGB")
+    except Exception as exc:
+        return jsonify({"error": f"cannot read image: {exc}"}), 400
+
+    try:
+        if lang == "manga":
+            text = get_manga_ocr_model_only()(img)
+            return jsonify({"text": (text or "").strip(), "engine_used": "manga_ocr"})
+
+        if engine == "ocrmac" and OCRMAC_AVAILABLE:
+            import tempfile, os
+            from ocrmac import ocrmac as _ocrmac
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                img.save(tmp.name, format="PNG")
+                tmp_path = tmp.name
+            try:
+                annotations = _ocrmac.OCR(tmp_path).recognize()
+                text = " ".join(a[0] for a in (annotations or []) if a and a[0])
+            finally:
+                try: os.unlink(tmp_path)
+                except OSError: pass
+            return jsonify({"text": text.strip(), "engine_used": "ocrmac"})
+
+        # default: EasyOCR
+        import easyocr
+        import numpy as np
+        lang_map = {"en": ["en"], "th_en": ["th", "en"], "ja_en": ["ja", "en"], "auto": ["th", "en"]}
+        langs = lang_map.get(lang, ["th", "en"])
+        reader = easyocr.Reader(langs, gpu=False, verbose=False)
+        lines = reader.readtext(np.array(img), detail=0, paragraph=False)
+        return jsonify({"text": " ".join(lines).strip(), "engine_used": f"easyocr({'+'.join(langs)})"})
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"ocr-bbox: {exc}"}), 500
 
 
 @app.route("/convert", methods=["POST"])
