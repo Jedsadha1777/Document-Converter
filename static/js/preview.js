@@ -55,6 +55,7 @@ function _clearSelectionAndButton() {
     _updateMergeButton();
     _syncAlignToolbar();
     updateInspector();
+    window._beforePaneRedraw?.();   // sync red highlight on left pane
 }
 // expose สำหรับ upload.js / index.html — ล้าง state + merge button UI ในก้าวเดียว
 export const clearSelectionAndUI = _clearSelectionAndButton;
@@ -78,6 +79,7 @@ function _toggleSelectAndButton(ref, additive) {
     _updateMergeButton();
     _syncAlignToolbar();
     updateInspector();
+    window._beforePaneRedraw?.();   // sync red highlight on left pane
 }
 
 function getEffectiveBox(item, sx, sy, pageW, pageH) {
@@ -797,16 +799,18 @@ export function renderPreview() {
                     let spTag = "";
                     if (isSkip) spTag = "🚫 ";
                     else if (sp) spTag = `👤${sp} `;
-                    const tag = (tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag;
-                    const lbl = tag + it.label;
-                    const lh = 14 / z;
-                    const lpad = 4 / z;
-                    const lbase = 3 / z;
-                    const lmaxw = 160 / z;
-                    ctx.fillStyle = tr ? COLORS.primaryStrong : (wasCorrected ? COLORS.warning : color);
-                    ctx.fillRect(x, Math.max(0, y - lh), Math.min(lmaxw, w), lh);
-                    ctx.fillStyle = COLORS.textInverse;
-                    ctx.fillText(lbl, x + lpad, Math.max(11 / z, y - lbase));
+                    // เก็บแค่ status icons (🌐/✨/🚫/👤) — ตัด it.label ออก ("text" ไม่มีประโยชน์)
+                    const lbl = ((tr ? "🌐 " : (wasCorrected ? "✨ " : "")) + spTag).trim();
+                    if (lbl) {
+                        const lh = 14 / z;
+                        const lpad = 4 / z;
+                        const lbase = 3 / z;
+                        const lmaxw = 160 / z;
+                        ctx.fillStyle = tr ? COLORS.primaryStrong : (wasCorrected ? COLORS.warning : color);
+                        ctx.fillRect(x, Math.max(0, y - lh), Math.min(lmaxw, w), lh);
+                        ctx.fillStyle = COLORS.textInverse;
+                        ctx.fillText(lbl, x + lpad, Math.max(11 / z, y - lbase));
+                    }
                 }
                 ctx.restore();
             });
@@ -868,6 +872,9 @@ export function renderPreview() {
             });
             window._previewWrap = wrap;
             ctx.restore();   // matches ctx.save() ที่เริ่มต้น doDraw
+            // sync left pane ทุกครั้งที่ right pane redraw — ครอบ drag/rotate/resize/selection
+            // requestRedraw ฝั่ง before-pane เป็น rAF-debounced → safe เรียกถี่ไม่กระทบ performance
+            window._beforePaneRedraw?.();
         };
         wrap._redraw = doDraw;
 
@@ -1027,52 +1034,9 @@ export function renderPreview() {
             }
             wrap.style.cursor = cur;
 
-            // === Hover tooltip ===
-            const overlayModeNow = document.getElementById("showOverlay").checked;
-            const hit = _topHit;
-            if (!hit) {
-                tooltip.style.display = "none";
-                return;
-            }
-            const ref = hit.item.self_ref;
-            const corr = ref ? state.corrections[ref] : undefined;
-            const tr = ref ? state.translations[ref] : undefined;
-            const esc = escapeHtml;  // alias สั้น
-            let html = "";
-
-            if (overlayModeNow) {
-                if (!tr) {
-                    tooltip.style.display = "none";
-                    return;
-                }
-                const origText = (corr !== undefined ? corr : hit.item.text) || "";
-                html =
-                    `<div style="color:${COLORS.primaryLight};">${esc(tr)}</div>` +
-                    `<div style="border-top:1px solid ${COLORS.divider}; margin:6px 0;"></div>` +
-                    `<div style="opacity:.85;">${esc(origText)}</div>`;
-            } else {
-                if (corr !== undefined && corr.trim() !== (hit.item.text || "").trim()) {
-                    const ops = diffChars(hit.item.text || "", corr);
-                    html =
-                        `<div style="opacity:.7; font-size:11px; margin-bottom:4px;">[${esc(hit.item.label)}] OCR:</div>` +
-                        `<div>${renderDiffSide(ops, "orig")}</div>` +
-                        `<div style="opacity:.7; font-size:11px; margin:6px 0 4px;">✨ corrected:</div>` +
-                        `<div>${renderDiffSide(ops, "corr")}</div>`;
-                } else if (corr !== undefined) {
-                    html = `<div style="opacity:.7; font-size:11px; margin-bottom:4px;">[${esc(hit.item.label)}] ✓ no change</div>` + esc(corr);
-                } else {
-                    html = `<div style="opacity:.7; font-size:11px; margin-bottom:4px;">[${esc(hit.item.label)}]</div>` + esc(hit.item.text || "");
-                }
-                if (tr) {
-                    html +=
-                        `<div style="opacity:.7; font-size:11px; margin:8px 0 4px;">🌐 translation:</div>` +
-                        `<div style="color:${COLORS.primaryLight};">${esc(tr)}</div>`;
-                }
-            }
-            tooltip.style.display = "block";
-            tooltip.style.left = (tipX + 12) + "px";
-            tooltip.style.top = (tipY + 12) + "px";
-            tooltip.innerHTML = html;
+            // Hover tooltip ถูกปิดถาวร — OCR/corrected/translation แสดงใน right panel inspector
+            // (ก่อนหน้านี้เป็น duplicate ที่ 3: left pane bbox + right panel + hover)
+            tooltip.style.display = "none";
         };
 
         wrap.onmouseleave = () => tooltip.style.display = "none";

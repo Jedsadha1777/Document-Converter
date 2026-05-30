@@ -483,7 +483,7 @@ def run_manga_pipeline(path: Path, filename: str, skip_image_data: bool = False)
         item = {
             "self_ref": f"#/texts/{i}",
             "category": "texts",
-            "label": "text" + (" [vertical]" if blk.get("vertical") else ""),
+            "label": "text",
             "text": text,
             "page_no": 1,
             "font_size": float(blk.get("font_size") or 0),
