@@ -3,13 +3,14 @@
 
 import { state } from "./state.js";
 import { getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
+import { EMOTION_AUTO, combineEmotion } from "./emotions.js";
 import { renderPreview } from "./preview.js";
 import { COLORS } from "./colors.js";
 import { escapeHtml } from "./diff.js";
 import { runState, runDom, getTranslateTarget } from "./run-state.js";
 import { applyTranslationSuccess, applyTranslationError } from "./translate-runner.js";
 
-const { corrections, speakerByRef } = state;
+const { corrections, speakerByRef, emotionByRef, emotion2ByRef } = state;
 
 const previewPromptBtn = document.getElementById("previewPromptBtn");
 const copyPromptBtn = document.getElementById("copyPromptBtn");
@@ -282,6 +283,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
     const filteredIndices = [];
     const texts = [];
     const speakerArr = [];
+    const emotionArr = [];
     const idsArr = [];
     for (const i of indices) {
         const r = rows[i];
@@ -293,6 +295,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
         filteredIndices.push(i);
         texts.push(t);
         speakerArr.push(speakerByRef[ref] || defaultId);
+        emotionArr.push(combineEmotion(emotionByRef[ref], emotion2ByRef[ref]));
         idsArr.push(i + 1);   // global row id (1-based)
     }
     indices = filteredIndices;  // overwrite — _previewSource เก็บ indices หลัง filter
@@ -307,6 +310,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
                 texts, target, engine,
                 custom_rules: customRules,
                 speakers: speakerArr,
+                emotions: emotionArr,
                 characters: getCharacters(),
                 id_start, ids: idsArr,
                 content_type: runDom.contentTypeSel?.value || "dialogue",
@@ -320,7 +324,7 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
         }
         _openModal(
             data,
-            { texts, target, speakers: speakerArr, characters: getCharacters(),
+            { texts, target, speakers: speakerArr, emotions: emotionArr, characters: getCharacters(),
               indices, ids: idsArr, id_start, mode: mode || "chunk", chunkSize: size, chunkIdx: idx },
             totalShown
         );
@@ -348,6 +352,7 @@ async function copyPromptOneClick() {
     const indices = [];
     const texts = [];
     const speakerArr = [];
+    const emotionArr = [];
     const idsArr = [];
     rows.forEach((r, i) => {
         const ref = r.dataset.ref;
@@ -358,6 +363,7 @@ async function copyPromptOneClick() {
         indices.push(i);
         texts.push(t);
         speakerArr.push(speakerByRef[ref] || defaultId);
+        emotionArr.push(combineEmotion(emotionByRef[ref], emotion2ByRef[ref]));
         idsArr.push(i + 1);
     });
     if (!texts.length) { alert("Nothing to translate — all rows are SKIP or empty"); return; }
@@ -371,6 +377,7 @@ async function copyPromptOneClick() {
                 texts, target, engine,
                 custom_rules: customRules,
                 speakers: speakerArr,
+                emotions: emotionArr,
                 characters: getCharacters(),
                 id_start: 1, ids: idsArr,
                 content_type: runDom.contentTypeSel?.value || "dialogue",
@@ -406,6 +413,7 @@ async function pastePromptOneClick() {
     const indices = [];
     const texts = [];
     const speakerArr = [];
+    const emotionArr = [];
     const idsArr = [];
     allRows.forEach((r, i) => {
         const ref = r.dataset.ref;
@@ -416,6 +424,7 @@ async function pastePromptOneClick() {
         indices.push(i);
         texts.push(t);
         speakerArr.push(speakerByRef[ref] || defaultId);
+        emotionArr.push(combineEmotion(emotionByRef[ref], emotion2ByRef[ref]));
         idsArr.push(i + 1);
     });
     if (!texts.length) { runDom.correctProgress.textContent = "Nothing to apply — all rows are SKIP or empty"; return; }
@@ -428,6 +437,7 @@ async function pastePromptOneClick() {
             body: JSON.stringify({
                 texts, target,
                 speakers: speakerArr,
+                emotions: emotionArr,
                 characters: getCharacters(),
                 raw_response: raw,
                 id_start: 1, ids: idsArr,

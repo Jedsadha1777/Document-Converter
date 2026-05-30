@@ -4,9 +4,17 @@
 
 import { state } from "../state.js";
 import { history } from "../history.js";
-import { SetSpeakerCmd } from "../commands.js";
+import { SetSpeakerCmd, SetEmotionCmd } from "../commands.js";
 import { renderSpeakerOptions, getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "../characters.js";
+import { renderEmotionOptions, EMOTION_AUTO } from "../emotions.js";
 import { getImageSrc } from "./image-source.js";
+
+// target language สำหรับ emotion dropdown (อ้างอิง tmPair) — mirror compare.js helper
+const _PAIR_TO_TARGET = { "jp-th": "th", "en-th": "th", "en-vn": "vi" };
+function _currentEmotionTarget() {
+    const pair = document.getElementById("tmPair")?.value || "";
+    return _PAIR_TO_TARGET[pair] || "_default";
+}
 
 let _suppress = false;   // กัน feedback loop ตอน user พิมพ์ใน textarea
 
@@ -46,6 +54,19 @@ export function initInspector() {
     spkEl?.addEventListener("mouseleave", _hideSpkTooltip);
     spkEl?.addEventListener("mousedown", _hideSpkTooltip);
     spkEl?.addEventListener("change", _hideSpkTooltip);
+
+    // Emotion dropdowns (primary + secondary) — undo/redo ผ่าน history
+    const _wireEmotion = (selId, slot, mapKey) => {
+        const el = $(selId);
+        el?.addEventListener("change", () => {
+            const ref = state.selection.ref;
+            if (!ref) return;
+            const before = state[mapKey][ref];
+            history.exec(new SetEmotionCmd(ref, before, el.value, slot));
+        });
+    };
+    _wireEmotion("rpEmotionSelect1", 1, "emotionByRef");
+    _wireEmotion("rpEmotionSelect2", 2, "emotion2ByRef");
 
     // Translation textarea — write back ลง state.translations + mark manual
     const trEl = $("rpTrText");
@@ -288,6 +309,21 @@ export function updateInspector() {
     if (spkEl) {
         const cur = state.speakerByRef[ref] || SPEAKER_AUTO;
         spkEl.innerHTML = renderSpeakerOptions()(cur);
+    }
+
+    // Emotion dropdowns (primary + secondary)
+    const e1El = $("rpEmotionSelect1");
+    const e2El = $("rpEmotionSelect2");
+    if (e1El || e2El) {
+        const tgt = _currentEmotionTarget();
+        if (e1El) {
+            const cur1 = state.emotionByRef[ref] || EMOTION_AUTO;
+            e1El.innerHTML = renderEmotionOptions(tgt, false)(cur1);
+        }
+        if (e2El) {
+            const cur2 = state.emotion2ByRef[ref] ?? "";
+            e2El.innerHTML = renderEmotionOptions(tgt, true)(cur2);
+        }
     }
 
     // Translation

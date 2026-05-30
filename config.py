@@ -36,6 +36,7 @@ MIN_FREE_RAM_GB = float(os.getenv("MIN_FREE_RAM_GB", "3.0"))
 # sentinel — ผู้ใช้เลือก dropdown "ไม่แปล"
 SPEAKER_SKIP = "__skip__"
 SPEAKER_AUTO = "__auto__"   # row tagged ให้ LLM เดา speaker จาก CHARACTER PROFILES (default ของ row ใหม่)
+EMOTION_AUTO = "__auto__"   # row tagged ให้ LLM เดา emotion จาก source + context (default)
 
 # EasyOCR ใช้ 2-letter, ocrmac ใช้ BCP-47
 LANG_PRESETS = {

@@ -34,6 +34,7 @@ from config import (
     NLLB_MODEL,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
+    EMOTION_AUTO,
     SPEAKER_AUTO,
     SPEAKER_SKIP,
     TRANSLATE_BATCH_NUM_CTX,
@@ -617,9 +618,11 @@ def _build_batch_user_msg(texts: list[str],
                           speakers: list[str | None] | None = None,
                           id_start: int = 1,
                           ids: list[int] | None = None,
+                          emotions: list[str | None] | None = None,
                           ) -> tuple[str, list[dict]]:
     """[N]-prefixed lines (text format ประหยัด token กว่า JSON).
     speakers (optional): tag {speaker=X} หลัง [N] เพื่อ persona voice.
+    emotions (optional): tag {emotion=Y} หรือ {emotion=?} (auto) หลัง speaker
     id_start: chunk-aware numbering สำหรับเคส ids ติดกัน
     ids (optional): explicit per-text id list — รองรับ sparse / row id ตามจริง.
     text ที่ไม่มีตัวอักษร/ตัวเลข (dots-only) ส่งเป็น empty `[N] ` กัน LLM แปล junk"""
@@ -627,6 +630,7 @@ def _build_batch_user_msg(texts: list[str],
     per_item = []
     for i, t in enumerate(texts):
         sp = (speakers[i] if speakers and i < len(speakers) else None)
+        emo = (emotions[i] if emotions and i < len(emotions) else None)
         # SKIP / dots-only / empty → ส่ง content ว่าง (ประหยัด token, LLM ไม่แปล junk)
         if sp == SPEAKER_SKIP or not _is_translatable(t):
             protected = ""
@@ -636,12 +640,20 @@ def _build_batch_user_msg(texts: list[str],
             protected, mapping = _protect_segments(clean)
             protected = re.sub(r"\s*\n+\s*", " ", protected).strip()
         gid = ids[i] if ids else (id_start + i)
-        prefix = f"[{gid}]"
+        # build prefix components
+        parts = [str(gid)]
         if sp == SPEAKER_AUTO:
             # ? marker → LLM เลือก character จาก profiles เอง (ไม่ใช่ narration)
-            prefix = f"[{gid}|speaker=?]"
+            parts.append("speaker=?")
         elif sp and sp != SPEAKER_SKIP:
-            prefix = f"[{gid}|speaker={sp}]"
+            parts.append(f"speaker={sp}")
+        # emotion: append เฉพาะเมื่อ row ไม่ skip — auto = ? marker, ค่า explicit = ใส่ string ตรงๆ
+        if sp != SPEAKER_SKIP and emo:
+            if emo == EMOTION_AUTO:
+                parts.append("emotion=?")
+            else:
+                parts.append(f"emotion={emo}")
+        prefix = f"[{'|'.join(parts)}]"
         lines.append(f"{prefix} {protected}")
         per_item.append({"original": t, "protected": protected, "mapping": mapping})
     return "\n".join(lines), per_item
@@ -1115,6 +1127,23 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
                 "    [6] 彼は窓の外を見た         → 'เขามองออกไปนอกหน้าต่าง'    (NOT 'เขามองออกไปนอกหน้าต่างค่ะ')\n"
                 "    [7|speaker=2] 寒いね        → 'หนาวจังเลยนะ'             (มี particle ได้ — speaker tag present)\n"
                 "    [8|speaker=?] お腹空いた     → เลือก character จาก profile → ใช้ voice นั้น (เช่น polite girl → 'หิวจังเลย')\n"
+                "- Input lines tagged [N|...|emotion=Y] = อารมณ์ของ speaker ในประโยคนั้น = Y (Thai word)\n"
+                "  Y อาจเป็น single emotion ('ดีใจ') หรือ combined 'A+B' (เช่น 'ดีใจ+เขิน' = ดีใจแต่เขิน)\n"
+                "  → ปรับ word choice + tone ตาม emotion category:\n"
+                "    Positive (ดีใจ/ตื่นเต้น/ขำ/ภูมิใจ/รัก/หวัง/มั่นใจ/ปลื้ม)\n"
+                "      → upbeat phrasing, exclamation, particle 'จัง'/'ล่ะ'/'แล้ว', extended vowels 'ดีใจมากก'\n"
+                "    Neutral/Calm (เฉยๆ/สบาย/จริงจัง)\n"
+                "      → plain register, no emotional marker, no playful particle\n"
+                "    Sad/Regret (เศร้า/ผิดหวัง/เหนื่อย/เบื่อ/สงสาร)\n"
+                "      → soft tone, particle 'หรอก'/'นะ', sighs, trail-off '...' OK\n"
+                "    Anger/Disgust (โกรธ/หงุดหงิด/รังเกียจ/เกลียด/ดูถูก)\n"
+                "      → terse, no polite particle, rough male persona อาจ 'ว่ะ/โว้ย'; spit-tone\n"
+                "    Fear/Surprise (กลัว/ตกใจ/กังวล/ผวา)\n"
+                "      → trembling/short phrasing, 'หา?!'/'อ๊ะ!', stammer 'ฉัน-ฉันไม่...', exclamation\n"
+                "    Uncertainty/Social (อิจฉา/ประชด/ลังเล/สงสัย/งง/เขิน/อาย)\n"
+                "      → hedged, hesitant markers 'อืม...', particle 'แหละ'/'ล่ะมั้ง' (ประชด), stuttering (เขิน)\n"
+                "  emotion overrides character 'calm baseline' เมื่อขัดกัน — แต่ยังต้องเคารพ PARTICLE PARITY\n"
+                "- Input lines tagged [N|...|emotion=?] = ไม่ระบุ → infer จาก source + context + persona ก่อนแปล\n"
             )
         else:
             narration_rule = (
@@ -1132,6 +1161,11 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
                 "    not 1st person ('I'), unless the line is direct speech.\n"
                 "  ⚠ Do NOT import Thai sentence-final particles (ค่ะ/ครับ/นะคะ/จ้ะ) or Japanese\n"
                 "  honorifics (san/chan/kun) into the output — register cues must be target-language only.\n"
+                "- Input lines tagged [N|...|emotion=Y] = the speaker's emotion = Y (target-language word)\n"
+                "  Y may be a single emotion ('happy') or combined 'A+B' (e.g., 'happy+shy' = layered).\n"
+                "  → adjust word choice / tone to match the emotion (e.g., happy → energetic phrasing;\n"
+                "    angry → terse; sarcastic → cynical; sad → soft) in a way natural to the target language.\n"
+                "- Input lines tagged [N|...|emotion=?] = unspecified → infer from source + context + persona.\n"
             )
     ids_to_use = ids if ids else list(range(id_start, id_start + n))
     first = ids_to_use[0]
@@ -1279,9 +1313,10 @@ def _translate_batch_qwen(texts: list[str], target: str,
                           id_start: int = 1,
                           ids: list[int] | None = None,
                           content_type: str | None = None,
+                          emotions: list[str | None] | None = None,
                           ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
-    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids, emotions=emotions)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
                                                id_start=id_start, ids=ids, texts=texts,
                                                content_type=content_type)
@@ -1340,6 +1375,7 @@ def _translate_batch_gemini(texts: list[str], target: str,
                             id_start: int = 1,
                             ids: list[int] | None = None,
                             content_type: str | None = None,
+                            emotions: list[str | None] | None = None,
                             ) -> tuple[list[str], list[str | None]]:
     n = len(texts)
 
@@ -1352,7 +1388,7 @@ def _translate_batch_gemini(texts: list[str], target: str,
     except ImportError as e:
         return list(texts), [f"google-genai is not installed: {e}"] * n
 
-    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids)
+    user_msg, per_item = _build_batch_user_msg(texts, speakers, id_start=id_start, ids=ids, emotions=emotions)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, characters,
                                                id_start=id_start, ids=ids, texts=texts,
                                                content_type=content_type)
@@ -1427,6 +1463,7 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
                        characters: list[dict] | None = None,
                        id_start: int = 1,
                        ids: list[int] | None = None,
+                       emotions: list[str | None] | None = None,
                        ) -> tuple[list[str], list[str | None]]:
     """Parse manual response — apply ignore SKIP / empty source.
     ids: explicit list (override id_start) — รองรับ slice ไม่ติดกัน"""
@@ -1445,7 +1482,10 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
     has_real_speaker = any(s for s in sp_list if s and s != SPEAKER_SKIP)
     has_skip = any(s == SPEAKER_SKIP for s in sp_list)
     eff_speakers = sp_list if (has_real_speaker or has_skip) else None
-    _, per_item = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
+    emo_list: list[str | None] = list(emotions) if emotions else [None] * n
+    if len(emo_list) < n:
+        emo_list += [None] * (n - len(emo_list))
+    _, per_item = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids, emotions=emo_list)
 
     parsed = _parse_batch_json(raw_response, n, id_start=id_start, ids=ids)
     sub_t, sub_e = _post_process_batch(list(texts), parsed, per_item, target)
@@ -1472,6 +1512,7 @@ def translate_batch(texts: list[str], target: str = "th",
                     id_start: int = 1,
                     ids: list[int] | None = None,
                     content_type: str | None = None,
+                    emotions: list[str | None] | None = None,
                     ) -> tuple[list[str], list[str | None]]:
     """ส่งทุก row ให้ LLM — ไม่ filter, apply step ignore SKIP / empty source.
     ids: explicit list (override id_start) — รองรับ slice ที่ไม่ติดกัน เช่น retry fail"""
@@ -1502,19 +1543,23 @@ def translate_batch(texts: list[str], target: str = "th",
         eff_chars = None
     has_speaker = has_real_speaker
 
+    emo_list: list[str | None] = list(emotions) if emotions else [None] * n
+    if len(emo_list) < n:
+        emo_list += [None] * (n - len(emo_list))
+
     if engine == "gemini":
         eff_timeout = timeout if timeout is not None else GEMINI_TIMEOUT
         sub_t, sub_e = _translate_batch_gemini(
             texts, target, custom_rules, eff_timeout, attempt,
             speakers=eff_speakers, characters=eff_chars, ids=ids,
-            content_type=content_type,
+            content_type=content_type, emotions=emo_list,
         )
     else:
         eff_timeout = timeout if timeout is not None else TRANSLATE_BATCH_TIMEOUT
         sub_t, sub_e = _translate_batch_qwen(
             texts, target, custom_rules, eff_timeout, attempt,
             speakers=eff_speakers, characters=eff_chars, ids=ids,
-            content_type=content_type,
+            content_type=content_type, emotions=emo_list,
         )
 
     skipped_user = 0

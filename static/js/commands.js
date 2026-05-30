@@ -54,6 +54,25 @@ export class SetSpeakerCmd extends Command {
     }
 }
 
+// SetEmotionCmd — เปลี่ยน emotionByRef[ref] (primary) หรือ emotion2ByRef[ref] (secondary)
+export class SetEmotionCmd extends Command {
+    constructor(ref, before, after, slot = 1) {
+        super();
+        this.ref = ref;
+        this.before = before;
+        this.after = after;
+        this.slot = slot;   // 1 = primary, 2 = secondary
+        this.description = `Set emotion ${slot}`;
+    }
+    do()   { this._apply(this.after); }
+    undo() { this._apply(this.before); }
+    _apply(val) {
+        const map = this.slot === 2 ? state.emotion2ByRef : state.emotionByRef;
+        if (val === undefined) delete map[this.ref];
+        else map[this.ref] = val;
+    }
+}
+
 // CompositeCommand — รวม cmds หลายตัวเป็น history entry เดียว (multi-bbox edit ฯลฯ)
 export class CompositeCommand extends Command {
     constructor(cmds, description) {

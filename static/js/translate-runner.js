@@ -3,6 +3,7 @@
 
 import { state } from "./state.js";
 import { getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
+import { EMOTION_AUTO, combineEmotion } from "./emotions.js";
 import { renderPreview } from "./preview.js";
 import { buildCompareTable } from "./compare.js";
 import {
@@ -63,9 +64,10 @@ async function translateOne(text, target, engine) {
     return res.json();
 }
 
-async function translateBatchCall(texts, target, engine, customRules, attempt, speakers, ids) {
+async function translateBatchCall(texts, target, engine, customRules, attempt, speakers, ids, emotions) {
     const defaultId = SPEAKER_AUTO;
     const speakerArr = speakers || texts.map(() => defaultId);
+    const emotionArr = emotions || texts.map(() => EMOTION_AUTO);
     const res = await fetch("/translate-batch", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -75,6 +77,7 @@ async function translateBatchCall(texts, target, engine, customRules, attempt, s
             custom_rules: customRules || "",
             attempt: attempt || 0,
             speakers: speakerArr,
+            emotions: emotionArr,
             characters: getCharacters(),
             ids: ids || null,
             content_type: runDom.contentTypeSel?.value || "dialogue",
@@ -124,6 +127,9 @@ async function processTranslateBatch(rows, indexes, batchSz, target, engine, cus
         const sources = sliceRows.map(rowSource);
         const defaultId = SPEAKER_AUTO;
         const sliceSpeakers = sliceRows.map(r => speakerByRef[r.dataset.ref] || defaultId);
+        const sliceEmotions = sliceRows.map(r => combineEmotion(
+            state.emotionByRef[r.dataset.ref], state.emotion2ByRef[r.dataset.ref]
+        ));
         sliceRows.forEach(markTranslatePending);
         await geminiThrottle(engine);
         if (runState.abort) {
@@ -132,7 +138,7 @@ async function processTranslateBatch(rows, indexes, batchSz, target, engine, cus
         }
         try {
             const sliceIds = sliceIdxs.map(idx => idx + 1);
-            const data = await translateBatchCall(sources, target, engine, customRules, attempt, sliceSpeakers, sliceIds);
+            const data = await translateBatchCall(sources, target, engine, customRules, attempt, sliceSpeakers, sliceIds, sliceEmotions);
             geminiTouch(engine);
             const errSample = data.error || (data.errors || []).find(e => e);
             const wait429 = parse429RetrySec(errSample);

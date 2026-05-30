@@ -12,6 +12,8 @@ export const state = {
     // ── per-document overrides (mutable, undo/redo เก็บ snapshot ของพวกนี้) ──
     bboxOverrides: {},      // {self_ref: {x, y, w, h, fontSize, align}}
     speakerByRef: {},       // {self_ref: character_id | SPEAKER_SKIP}
+    emotionByRef: {},       // {self_ref: emotion_text | EMOTION_AUTO} — primary emotion (string ตาม target language)
+    emotion2ByRef: {},      // {self_ref: emotion_text | EMOTION_AUTO} — secondary emotion (layered)
     corrections: {},        // {self_ref: corrected_text}
     translations: {},       // {self_ref: translated_text}
     manualEdits: new Set(),         // refs ที่ผู้ใช้พิมพ์เองใน Compare cell (ไม่ใช่ LLM)

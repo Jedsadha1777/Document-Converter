@@ -13,7 +13,7 @@ import { setClientImage, clearClientImages } from "./visual/image-source.js";
 import * as viewport from "./visual/viewport.js";
 import { COLORS } from "./colors.js";
 
-const { corrections, translations, speakerByRef, bboxOverrides, manualEdits, manualTranslations } = state;
+const { corrections, translations, speakerByRef, emotionByRef, emotion2ByRef, bboxOverrides, manualEdits, manualTranslations } = state;
 
 const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tiff", ".bmp", ".avif"];
 function _isImageFile(file) {
@@ -112,6 +112,8 @@ function _resetDocumentState() {
     Object.keys(corrections).forEach(k => delete corrections[k]);
     Object.keys(translations).forEach(k => delete translations[k]);
     Object.keys(speakerByRef).forEach(k => delete speakerByRef[k]);
+    Object.keys(emotionByRef).forEach(k => delete emotionByRef[k]);
+    Object.keys(emotion2ByRef).forEach(k => delete emotion2ByRef[k]);
     Object.keys(bboxOverrides).forEach(k => delete bboxOverrides[k]);
     manualEdits.clear();
     manualTranslations.clear();

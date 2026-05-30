@@ -3,9 +3,10 @@
 
 import { state } from "./state.js";
 import { history } from "./history.js";
-import { SetSpeakerCmd } from "./commands.js";
+import { SetSpeakerCmd, SetEmotionCmd } from "./commands.js";
 import { escapeHtml, diffChars, renderDiffSide } from "./diff.js";
 import { getCharacters, renderSpeakerOptions, SPEAKER_AUTO } from "./characters.js";
+import { renderEmotionOptions, EMOTION_AUTO } from "./emotions.js";
 import { setStatus } from "./status.js";
 import { renderPreview } from "./preview.js";
 import {
@@ -13,7 +14,14 @@ import {
     applyRunConfig, updateRetryButton,
 } from "./run-state.js";
 
-const { corrections, translations, speakerByRef, manualEdits, manualTranslations } = state;
+const { corrections, translations, speakerByRef, emotionByRef, emotion2ByRef, manualEdits, manualTranslations } = state;
+
+// target ของ tmPair → emotion list ที่ใช้ใน dropdown (jp-th/en-th → th, en-vn → vi)
+const _PAIR_TO_TARGET = { "jp-th": "th", "en-th": "th", "en-vn": "vi" };
+function _currentEmotionTarget() {
+    const pair = document.getElementById("tmPair")?.value || "";
+    return _PAIR_TO_TARGET[pair] || "_default";
+}
 
 const compareArea = document.getElementById("compareArea");
 
@@ -31,6 +39,9 @@ export function buildCompareTable(force = false) {
     }
 
     const speakerOptions = renderSpeakerOptions();
+    const emotionTarget = _currentEmotionTarget();
+    const emotion1Options = renderEmotionOptions(emotionTarget, false);  // primary — มี Auto, ไม่มี (none)
+    const emotion2Options = renderEmotionOptions(emotionTarget, true);   // secondary — มี Auto + (none)
     const rows = texts.map((t, i) => {
         const orig = t.text || '';
         const ref = t.self_ref || '';
@@ -63,10 +74,17 @@ export function buildCompareTable(force = false) {
         const speakerCell = `<td class="col-speaker">
             <select class="speaker-select" data-ref="${escapeHtml(ref)}">${speakerOptions(curSpeaker)}</select>
         </td>`;
+        const curE1 = emotionByRef[ref] || EMOTION_AUTO;
+        const curE2 = emotion2ByRef[ref] ?? "";
+        const emotionCell = `<td class="col-emotion">
+            <select class="emotion-select" data-ref="${escapeHtml(ref)}" data-slot="1" title="Primary emotion">${emotion1Options(curE1)}</select>
+            <select class="emotion-select" data-ref="${escapeHtml(ref)}" data-slot="2" title="Secondary emotion (combined with primary as 'A+B' when sent to LLM)">${emotion2Options(curE2)}</select>
+        </td>`;
         return `
             <tr data-idx="${i}" data-ref="${escapeHtml(ref)}" data-orig="${escapeHtml(orig)}" class="${rowCls}">
                 <td class="col-no">${i + 1}</td>
                 ${speakerCell}
+                ${emotionCell}
                 <td class="col-text col-original">${origCellInner}</td>
                 ${corrCell}
                 ${trCell}
@@ -79,6 +97,7 @@ export function buildCompareTable(force = false) {
             <thead><tr>
                 <th class="col-no">#</th>
                 <th class="col-speaker">Speaker</th>
+                <th class="col-emotion">Emotion</th>
                 <th>OCR (original)</th>
                 <th>Corrected by LLM</th>
                 <th>Translation</th>
@@ -176,6 +195,18 @@ compareArea.addEventListener("change", (e) => {
     if (document.querySelector(".tab.active").dataset.tab === "visual") {
         (window._previewWrap?._redraw || renderPreview)();
     }
+});
+
+// ── emotion dropdowns (primary + secondary slot) — undo/redo-able ──
+compareArea.addEventListener("change", (e) => {
+    const selEl = e.target.closest("select.emotion-select");
+    if (!selEl) return;
+    const ref = selEl.dataset.ref;
+    if (!ref) return;
+    const slot = parseInt(selEl.dataset.slot, 10) === 2 ? 2 : 1;
+    const map = slot === 2 ? emotion2ByRef : emotionByRef;
+    const before = map[ref];
+    history.exec(new SetEmotionCmd(ref, before, selEl.value, slot));
 });
 
 // ── CSV export ──

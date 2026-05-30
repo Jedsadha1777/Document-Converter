@@ -32,6 +32,7 @@ from config import (
     OCR_ENGINES,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
+    EMOTION_AUTO,
     SPEAKER_AUTO,
     SPEAKER_SKIP,
     TRANSLATE_BATCH_NUM_CTX,
@@ -235,6 +236,7 @@ def translate_batch_preview():
     custom_rules = payload.get("custom_rules")
     content_type = (payload.get("content_type") or "").strip() or None
     speakers = payload.get("speakers") if isinstance(payload.get("speakers"), list) else None
+    emotions = payload.get("emotions") if isinstance(payload.get("emotions"), list) else None
     characters = payload.get("characters") if isinstance(payload.get("characters"), list) else None
     id_start = int(payload.get("id_start", 1) or 1)
     payload_ids = payload.get("ids") if isinstance(payload.get("ids"), list) else None
@@ -281,7 +283,10 @@ def translate_batch_preview():
     else:
         eff_chars = None
 
-    user_msg, _ = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids)
+    emo_list = list(emotions) if isinstance(emotions, list) else [None] * n
+    if len(emo_list) < n:
+        emo_list += [None] * (n - len(emo_list))
+    user_msg, _ = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids, emotions=emo_list)
     system_prompt = _build_batch_system_prompt(target, n, custom_rules, eff_chars,
                                                id_start=id_start, ids=ids, texts=texts,
                                                content_type=content_type)
@@ -356,7 +361,7 @@ def translate_batch_apply_manual():
         translations, errors = apply_manual_batch(
             texts, target, raw_response,
             speakers=speakers, characters=characters,
-            id_start=id_start, ids=ids_arg,
+            id_start=id_start, ids=ids_arg, emotions=emotions,
         )
         return jsonify({
             "translated": translations,
@@ -402,7 +407,7 @@ def translate_batch_endpoint():
             custom_rules=custom_rules, attempt=attempt,
             speakers=speakers, characters=characters,
             id_start=id_start, ids=ids_arg,
-            content_type=content_type,
+            content_type=content_type, emotions=emotions,
         )
         return jsonify({
             "translated": translations,

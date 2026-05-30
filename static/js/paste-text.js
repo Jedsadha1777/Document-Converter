@@ -74,6 +74,8 @@ function _apply() {
     // reference ตอน import → ถ้า reassign state.X = {} compare จะยังเห็น object ตัวเก่า
     Object.keys(state.bboxOverrides).forEach(k => delete state.bboxOverrides[k]);
     Object.keys(state.speakerByRef).forEach(k => delete state.speakerByRef[k]);
+    Object.keys(state.emotionByRef).forEach(k => delete state.emotionByRef[k]);
+    Object.keys(state.emotion2ByRef).forEach(k => delete state.emotion2ByRef[k]);
     Object.keys(state.corrections).forEach(k => delete state.corrections[k]);
     Object.keys(state.translations).forEach(k => delete state.translations[k]);
     state.manualEdits.clear();

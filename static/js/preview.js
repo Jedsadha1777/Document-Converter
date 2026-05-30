@@ -312,60 +312,6 @@ function _hideRotateBadge() {
 // Speaker popup
 // ─────────────────────────────────────────────────────────
 
-let _bboxPopup = null;
-
-function _ensureBboxPopup() {
-    if (_bboxPopup) return _bboxPopup;
-    _bboxPopup = document.createElement("div");
-    _bboxPopup.className = "bbox-popup";
-    _bboxPopup.innerHTML = `
-        <div class="label">Speaker:</div>
-        <select class="speaker-select" data-bbox-popup="1"></select>
-    `;
-    document.body.appendChild(_bboxPopup);
-    document.addEventListener("click", (e) => {
-        if (_bboxPopup && _bboxPopup.style.display === "block"
-            && !_bboxPopup.contains(e.target)) {
-            _bboxPopup.style.display = "none";
-        }
-    });
-    return _bboxPopup;
-}
-
-function showBboxSpeakerPopup(hit, clientX, clientY) {
-    const pop = _ensureBboxPopup();
-    const ref = hit.item.self_ref;
-    if (!ref) return;
-    const cur = state.speakerByRef[ref] || SPEAKER_AUTO;
-    const selEl = pop.querySelector("select");
-    selEl.dataset.ref = ref;
-    selEl.innerHTML = renderSpeakerOptions()(cur);
-
-    selEl.onchange = () => {
-        const before = state.speakerByRef[ref];
-        history.exec(new SetSpeakerCmd(ref, before, selEl.value));
-        redrawOnly();
-        const compareArea = document.getElementById("compareArea");
-        const compareSel = compareArea?.querySelector(
-            `tr[data-ref="${CSS.escape(ref)}"] select.speaker-select`
-        );
-        if (compareSel && compareSel.value !== selEl.value) {
-            compareSel.value = selEl.value;
-        }
-        pop.style.display = "none";
-    };
-
-    const popW = 200, popH = 80;
-    let x = clientX + 8;
-    let y = clientY + 8;
-    if (x + popW > window.innerWidth) x = window.innerWidth - popW - 8;
-    if (y + popH > window.innerHeight) y = clientY - popH - 8;
-    pop.style.left = x + "px";
-    pop.style.top = y + "px";
-    pop.style.display = "block";
-    selEl.focus();
-}
-
 // ─────────────────────────────────────────────────────────
 // Merge boxes
 // ─────────────────────────────────────────────────────────
@@ -1246,29 +1192,8 @@ export function renderPreview() {
         };
         document.addEventListener("mouseup", window._previewDocMouseUp);
 
-        wrap.onclick = (ev) => {
-            if (getTool() === "pan") return;
-            if (state.previewMode) return;   // view-only: ห้าม popup
-            if (state.justDragged) {
-                state.justDragged = false;
-                return;
-            }
-            // canvas-no-transform model: world = (client - canvasRect - pan) / zoom
-            const { x: px, y: py } = viewport.clientToWorld(canvas, ev.clientX, ev.clientY);
-            const _ids = wrap._grid ? wrap._grid.queryAt(px, py) : [];
-            let hit = null;
-            for (let i = _ids.length - 1; i >= 0; i--) {
-                const d = drawn[_ids[i]];
-                if (_hitRotatedBox({ x: d.x, y: d.y, w: d.w, h: d.h }, d.rotation || 0, px, py)) {
-                    hit = d;
-                    break;
-                }
-            }
-            if (hit && !ev.shiftKey) {
-                ev.stopPropagation();
-                showBboxSpeakerPopup(hit, ev.clientX, ev.clientY);
-            }
-        };
+        // wrap.onclick = ลบออกแล้ว — speaker/emotion popup ย้ายไปทำใน right panel (inspector.js)
+        // selection / drag / marquee ยังทำที่ wrap.onmousedown — ไม่ต้องใช้ onclick
     }
 }
 

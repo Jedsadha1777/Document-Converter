@@ -254,6 +254,13 @@ Examples:
                         <select id="rpSpeakerSelect" class="rp-select"></select>
                     </div>
                     <div class="rp-section">
+                        <div class="rp-label">Emotion <span class="rp-hint">(primary + secondary, combined as A+B)</span></div>
+                        <div style="display:flex; gap:4px;">
+                            <select id="rpEmotionSelect1" class="rp-select" style="flex:1;" title="Primary emotion"></select>
+                            <select id="rpEmotionSelect2" class="rp-select" style="flex:1;" title="Secondary emotion (combined as 'A+B' when sent to LLM)"></select>
+                        </div>
+                    </div>
+                    <div class="rp-section">
                         <div class="rp-label">Translation <span id="rpTrSource" class="rp-hint"></span></div>
                         <textarea id="rpTrText" class="rp-textarea" rows="2"
                             placeholder="(empty — translate or type manually)"></textarea>
