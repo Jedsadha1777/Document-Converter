@@ -4,6 +4,7 @@
 import { state } from "./state.js";
 import { getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
 import { EMOTION_AUTO, combineEmotion } from "./emotions.js";
+import { buildSubTmRules } from "./sub-tm.js";
 import { renderPreview } from "./preview.js";
 import { buildCompareTable } from "./compare.js";
 import {
@@ -226,7 +227,9 @@ runDom.runTranslateBtn.addEventListener("click", async () => {
     runState.abort = false;
     disableDuringRun();
 
-    const customRules = (runDom.customRulesEl.value || "").trim();
+    const userRules = (runDom.customRulesEl.value || "").trim();
+    const subTm = buildSubTmRules();
+    const customRules = [userRules, subTm].filter(Boolean).join("\n\n");
     runState.lastFailedIndexes = [];
     runState.lastBatchUsed = effectiveBatch;
     runState.lastTranslateTarget = target;

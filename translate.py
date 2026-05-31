@@ -183,6 +183,13 @@ def _digits_changed(orig: str, out: str) -> bool:
     return _digit_runs(orig or "") != _digit_runs(out or "")
 
 
+_LINE_PREFIX_RE = re.compile(r"^\s*\[?\s*line\s+\d+\s*\]?\s*[:：]\s*", re.IGNORECASE)
+
+
+def _strip_line_prefix(s: str) -> str:
+    return _LINE_PREFIX_RE.sub("", s) if s else s
+
+
 _REFUSAL_PATTERNS_TH = (
     "ไม่ควรแปล", "ไม่เหมาะสม", "ขอรบกวนเปลี่ยน", "กรุณาเปลี่ยน",
     "ไม่สามารถแปล", "ขออภัย", "ละเมิด", "ไม่อาจแปล",
@@ -1281,6 +1288,7 @@ def _post_process_batch(texts: list[str], parsed: list[str | None],
 
         try:
             t = _join_lines(raw)
+            t = _strip_line_prefix(t)
             t = _normalize_numerals(t)
             t = _restore_segments(t, mapping)
 

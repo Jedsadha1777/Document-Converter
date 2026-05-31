@@ -119,6 +119,11 @@
                     title="Force rebuild of the TM Faiss index (slow — ~10 min for 18k rows on CPU)">⚙️ Build TM index</button>
             <span id="tmStatus" style="color:#6b7280;"></span>
         </div>
+        <div style="display:flex; gap:6px; align-items:center; margin-top:6px; font-size:12px; color:#374151;">
+            <button type="button" id="subTmBtn" class="ghost" style="font-size:12px;"
+                    title="Work-specific glossary by category — appended to custom rules at translate time">📚 Sub-TM</button>
+            <span style="color:#9ca3af;">appended to custom rules at translate time</span>
+        </div>
         <textarea id="customRules" rows="4"
             style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
                    font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
@@ -337,6 +342,7 @@ import { initCompare, buildCompareTable } from "/static/js/compare.js";
 import { initUpload } from "/static/js/upload.js";
 import { initPasteText } from "/static/js/paste-text.js";
 import { initDetectRowMeta } from "/static/js/detect-row-meta.js";
+import { initSubTm } from "/static/js/sub-tm.js";
 import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
 import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
@@ -667,6 +673,7 @@ initUpload({
 });
 initPasteText();
 initDetectRowMeta();
+initSubTm();
 </script>
 </body>
 </html>

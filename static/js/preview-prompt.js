@@ -4,6 +4,7 @@
 import { state } from "./state.js";
 import { getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
 import { EMOTION_AUTO, combineEmotion } from "./emotions.js";
+import { buildSubTmRules } from "./sub-tm.js";
 import { renderPreview } from "./preview.js";
 import { COLORS } from "./colors.js";
 import { escapeHtml } from "./diff.js";
@@ -254,7 +255,10 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
     const target = getTranslateTarget();
     if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
-    const customRules = (runDom.customRulesEl.value || "").trim();
+    // Sub-TM block อยู่ใน textarea (visible) → strip markers ก่อนส่ง backend
+    const userRules = (runDom.customRulesEl.value || "").trim();
+    const subTm = buildSubTmRules();
+    const customRules = [userRules, subTm].filter(Boolean).join("\n\n");
     const defaultId = SPEAKER_AUTO;
 
     let indices, id_start, size, idx, totalChunks, offset, totalShown;
@@ -345,7 +349,10 @@ async function copyPromptOneClick() {
     const target = getTranslateTarget();
     if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
     const engine = runDom.translateEngineSel.value;
-    const customRules = (runDom.customRulesEl.value || "").trim();
+    // Sub-TM block อยู่ใน textarea (visible) → strip markers ก่อนส่ง backend
+    const userRules = (runDom.customRulesEl.value || "").trim();
+    const subTm = buildSubTmRules();
+    const customRules = [userRules, subTm].filter(Boolean).join("\n\n");
     const defaultId = SPEAKER_AUTO;
 
     // filter SKIP + empty ออก — ส่ง LLM เฉพาะที่ต้องแปลจริง (sparse ids ตาม row index จริง)
