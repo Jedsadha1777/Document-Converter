@@ -10,14 +10,12 @@ RULES — STRICTLY FOLLOWED:
   NEVER convert calendars (令和7年 stays as-is or use Western form if input has it).
   NEVER convert digits to words ('25' stays '25', NOT 'ยี่สิบห้า').
 - KATAKANA — แยกตามประเภท ก่อนเลือก:
-  (A) NAMES (คน/สถานที่/แบรนด์ไม่มีรูปไทย) → transliterate by SOUND.
-    ミノル → 'มิโนรุ', シロタ → 'ชิโรตะ', ヤマダ タロウ → 'ยามาดะ ทาโร่'
-  (B) COMMON LOANWORDS มีคำไทยใช้แพร่หลาย → ใช้คำไทย.
+  (A) COMMON LOANWORDS มีคำไทยใช้แพร่หลาย → ใช้คำไทย.
     カメラ → 'กล้อง', スカート → 'กระโปรง', コーヒー → 'กาแฟ',
     テーブル → 'โต๊ะ', ベッド → 'เตียง', ホテル → 'โรงแรม'
-  (C) LOANWORDS ไม่มีคำไทยมาตรฐาน → SOUND.
+  (B) LOANWORDS ไม่มีคำไทยมาตรฐาน → SOUND.
     ブレザー → 'เบลเซอร์', タータンチェック → 'ทาร์ทันเช็ค'
-  (D) ESTABLISHED THAI BRAND → ใช้รูปที่คนไทยใช้.
+  (C) ESTABLISHED THAI BRAND → ใช้รูปที่คนไทยใช้.
     ヤクルト → 'ยาคูลท์'
   DECISION: นึกคำไทยมาตรฐานออก → ใช้คำไทย; ไม่งั้น → sound.
 - KANJI NAMES → transliterate the reading INTO THAI script.   NEVER keep kanji in output. NEVER translate the meaning of a name.
