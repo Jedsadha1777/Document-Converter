@@ -1,6 +1,3 @@
-// Thumbnail sidebar — lazy <img> per page; src = client blob URL หรือ base64 inline.
-// IntersectionObserver กัน decode พร้อมกัน 2000 หน้า.
-
 import { state } from "../state.js";
 import { getImageSrc } from "./image-source.js";
 
@@ -22,15 +19,13 @@ function _ensureObserver() {
     return _io;
 }
 
-/** call ตอน upload เสร็จ หรือสลับ tab → visual */
 export function renderThumbSidebar(onClickPage) {
     if (typeof onClickPage === "function") _onClickPage = onClickPage;
     const sidebar = document.getElementById("thumbSidebar");
     if (!sidebar) return;
 
     const pages = state.lastResult?.preview?.pages || [];
-    // drop observer refs ของ <img> รอบก่อน — ไม่งั้น thumbnail หน้าที่ยังไม่ scroll ไปเห็น
-    // (ไม่เคยถูก unobserve) ค้างใน observer หลัง innerHTML="" → element GC ไม่ได้ (leak สะสมต่อ upload)
+    // observer ต้อง disconnect ก่อน innerHTML="" — ไม่งั้น img ที่ยังไม่ scroll เห็นค้างใน observer (leak)
     if (_io) _io.disconnect();
     sidebar.innerHTML = "";
 
@@ -62,7 +57,7 @@ export function renderThumbSidebar(onClickPage) {
         const img = document.createElement("img");
         img.alt = `page ${p.page_no}`;
         img.style.cssText = "display:block; width:100%; height:auto; margin-bottom:2px; background:#f3f4f6;";
-        // reserve aspect ratio ก่อนโหลด (กัน layout jump)
+        // reserve aspect ratio ก่อนโหลด — กัน layout jump
         const iw = p.img_width || p.width;
         const ih = p.img_height || p.height;
         if (iw && ih) {

@@ -1,15 +1,9 @@
-// Viewport — shared zoom/pan state ระหว่าง 2 panes (before + after).
-// Apply ผ่าน CSS transform บน .zoom-wrap div ที่ register ไว้.
-// Math pattern อิงจาก Ketchup CanvasEngine: pan ใน screen pixels,
-// zoom around cursor (newPan = mouse - (mouse - oldPan) * (newZoom / oldZoom)).
-
 const state = { zoom: 1, panX: 0, panY: 0 };
 const targets = new Set();
 const listeners = new Set();
 
-// Strict pan bounds + adaptive zoom range อิง fit zoom ของ image ปัจจุบัน:
-//   minZoom = fit zoom → zoom out ต่ำกว่า fit ไม่ได้ (image ครอบ viewport เสมอ — เหมือน Preview.app)
-//   maxZoom = clamp(fit × 8, 1, 4) → ดู detail ระดับ pixel ได้แต่ไม่เกิน 400% native
+// minZoom = fit (zoom out กว่า fit ไม่ได้ → image ครอบ viewport เสมอ)
+// maxZoom = fit × 8 capped ที่ 4 (400% native — กัน 1px image zoom ทะลุจอ)
 const bounds = {
     contentW: 0, contentH: 0, viewportW: 0, viewportH: 0,
     minZoom: 0.01, maxZoom: 4,
@@ -29,14 +23,10 @@ function _computeZoomRange() {
     bounds.maxZoom = Math.min(ABS_MAX_ZOOM, Math.max(1, fit * 8));
 }
 
-/** ระบุขนาด content (image natural pixel) + viewport (pane CSS pixel) — caller จาก preview.js
- *  setContentSize ก่อน setViewportSize → fit + clamp ใช้ค่า bounds ปัจจุบัน */
 export function setContentSize(w, h) {
     bounds.contentW = w > 0 ? w : 0;
     bounds.contentH = h > 0 ? h : 0;
 }
-/** Clear bounds (= no content state). ใช้ตอน tab switch / page change ที่ pane ว่าง — กัน clamp
- *  อิง stale bounds + กัน panBy/zoomAt mutate (ทั้งคู่ early-return เมื่อ no bounds) */
 export function clearBounds() {
     bounds.contentW = 0; bounds.contentH = 0;
     bounds.viewportW = 0; bounds.viewportH = 0;
@@ -71,7 +61,6 @@ export function reset() {
     _notify();
 }
 
-// Strict: image ≤ viewport → force center; image > viewport → image edges flush at viewport edges.
 function _clamp() {
     const { contentW, contentH, viewportW, viewportH } = bounds;
     if (contentW <= 0 || contentH <= 0 || viewportW <= 0 || viewportH <= 0) {
@@ -95,7 +84,6 @@ function _clamp() {
     return changed;
 }
 
-/** fit content (naturalW × naturalH) into a viewport box, centered */
 export function fitToViewport(naturalW, naturalH, viewportW, viewportH) {
     if (naturalW <= 0 || naturalH <= 0 || viewportW <= 0 || viewportH <= 0) {
         return reset();
@@ -105,14 +93,13 @@ export function fitToViewport(naturalW, naturalH, viewportW, viewportH) {
     bounds.viewportW = viewportW;
     bounds.viewportH = viewportH;
     _computeZoomRange();
-    state.zoom = bounds.minZoom;            // fit = min zoom by definition
+    state.zoom = bounds.minZoom;
     state.panX = (viewportW - naturalW * state.zoom) / 2;
     state.panY = (viewportH - naturalH * state.zoom) / 2;
     _clamp();
     _notify();
 }
 
-/** zoom around a cursor point (screen-coord relative to container) */
 export function zoomAt(cursorX, cursorY, factor) {
     if (bounds.contentW <= 0 || bounds.viewportW <= 0) return;
     const newZoom = Math.max(bounds.minZoom, Math.min(bounds.maxZoom, state.zoom * factor));
@@ -124,7 +111,6 @@ export function zoomAt(cursorX, cursorY, factor) {
     _notify();
 }
 
-/** delta-pan in screen pixels. No-op ถ้ายังไม่มี content/viewport bounds (กัน pan ++ ก่อน upload). */
 export function panBy(dx, dy) {
     if (bounds.contentW <= 0 || bounds.viewportW <= 0) return;
     state.panX += dx;
@@ -142,11 +128,6 @@ function _notify() {
     listeners.forEach(fn => fn(state));
 }
 
-/**
- * convert client (screen) coords → world (image pixel @ level 0) coords.
- * canvas อยู่ที่ pane CSS size (ไม่มี CSS transform); world transform ทำผ่าน ctx.setTransform.
- * Formula: world = (clientPaneLocal - pan) / zoom
- */
 export function clientToWorld(canvasEl, clientX, clientY) {
     const rect = canvasEl.getBoundingClientRect();
     return {
@@ -155,13 +136,9 @@ export function clientToWorld(canvasEl, clientX, clientY) {
     };
 }
 
-/** Apply current viewport transform บน canvas 2D context.
- *  dpr = device pixel ratio — canvas backing store = cssSize × dpr → ต้องคูณ */
 export function applyToCanvasCtx(ctx, dpr) {
     const z = state.zoom * dpr;
     ctx.setTransform(z, 0, 0, z, state.panX * dpr, state.panY * dpr);
 }
 
-// legacy alias — ของเดิม clientToCanvas เรียกใช้ใน mouse handlers
-// (Phase 2-5 ตอน CSS transform; Phase 6 canvas-no-transform → clientToWorld แทน)
 export const clientToCanvas = clientToWorld;

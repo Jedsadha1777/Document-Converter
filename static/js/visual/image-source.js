@@ -1,4 +1,3 @@
-// Resolve image src for a page — client blob URL (image upload) > server base64 (PDF/DOC render)
 import { state } from "../state.js";
 
 function _pageKey(page) {

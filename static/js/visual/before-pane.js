@@ -1,7 +1,3 @@
-// Before pane — original image + plain bbox outlines + red highlight ของ selected bbox
-// (no overlay text, no diff highlights — แค่ช่วย user เห็นว่ากำลังโฟกัสกล่องไหน)
-// Canvas + ctx.setTransform pattern (Ketchup-style) → sync กับ after pane ผ่าน Viewport.
-
 import { state } from "../state.js";
 import { COLORS } from "../colors.js";
 import { SPEAKER_SKIP } from "../characters.js";
@@ -12,8 +8,6 @@ let _unsubscribePrev = null;
 let _resizeObserverPrev = null;
 
 function _resolveBbox(item, sx, sy, pageW, pageH) {
-    // bbox อยู่ใน page-units (PDF logical) — คูณ sx, sy เพื่อ map ไป image-pixel space
-    // (PDF: pageW=612, imgW=1632 → sx≈2.67) — image-source pipelines (mokuro) จะ sx=sy=1
     const b = item.bbox || {};
     const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
     let x = b.l * sx;
@@ -26,7 +20,7 @@ function _resolveBbox(item, sx, sy, pageW, pageH) {
         y = b.t * sy;
         h = (b.b - b.t) * sy;
     }
-    // override ใน image-pixel space อยู่แล้ว (จาก drag handler ที่ใช้ world coords) — ไม่ต้องคูณซ้ำ
+    // override เก็บใน image-pixel space (drag handler ใช้ world coords แล้ว) — ห้ามคูณ sx/sy ซ้ำ
     const ov = state.bboxOverrides[item.self_ref];
     if (ov) {
         if (typeof ov.x === "number") x = ov.x;
@@ -60,7 +54,6 @@ export function renderBeforePane() {
     const page = pages.find(p => p.page_no === pageNo) || pages[0];
     const imgW = page.img_width || page.width || 1;
     const imgH = page.img_height || page.height || 1;
-    // page-unit → image-pixel scale (mirror right pane logic ใน preview.js:572-577)
     const pageW = page.width || imgW;
     const pageH = page.height || imgH;
     const sx = imgW / pageW;
@@ -100,9 +93,7 @@ export function renderBeforePane() {
         const z = viewport.getZoom() || 1;
         items.forEach(it => {
             if (!it.self_ref) return;
-            // กล่องที่ user กด Delete key (มัน mark SPEAKER_SKIP) → ซ่อนใน before pane
             if (state.speakerByRef[it.self_ref] === SPEAKER_SKIP) return;
-            // หรือ user clear OCR text หมด (corrections === "") → ซ่อนด้วย
             if (state.corrections[it.self_ref] === "") return;
             const { x, y, w, h, rotation } = _resolveBbox(it, sx, sy, pageW, pageH);
             const isSel = it.self_ref === selRef;
@@ -113,7 +104,7 @@ export function renderBeforePane() {
                 ctx.rotate(rotation * Math.PI / 180);
                 ctx.translate(-cx, -cy);
             }
-            ctx.strokeStyle = isSel ? "#dc2626" : COLORS.categoryTexts;   // selected = red, else = blue (match right pane)
+            ctx.strokeStyle = isSel ? "#dc2626" : COLORS.categoryTexts;
             ctx.lineWidth = (isSel ? 4 : 2) / z;
             ctx.strokeRect(x, y, w, h);
             ctx.restore();
@@ -138,7 +129,6 @@ export function renderBeforePane() {
     _resizeObserverPrev = new ResizeObserver(() => { _resize(); requestRedraw(); });
     _resizeObserverPrev.observe(pane);
 
-    // expose สำหรับให้ preview.js trigger ตอน selection เปลี่ยน
     window._beforePaneRedraw = requestRedraw;
 
     render();

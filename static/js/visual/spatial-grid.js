@@ -1,14 +1,10 @@
-// Uniform spatial grid — JS port ของ Ketchup core/wasm/spatial_grid.cpp.
-// แต่ละ object ใส่ลงทุก cell ที่ AABB ของมันคลุม. Query (point/rect) → return ids ใน cells ที่ overlap.
-// สำหรับ 100 boxes/page linear scan ก็เร็วพอ — grid pays off ที่ 1000+ objects per visible.
-
-const DEFAULT_CELL_SIZE = 200;       // pixel — ตาม Ketchup default
+const DEFAULT_CELL_SIZE = 200;
 
 export class SpatialGrid {
     constructor(cellSize = DEFAULT_CELL_SIZE) {
         this.cellSize = cellSize;
-        this.cells = new Map();       // "cx,cy" → Set<id>
-        this.objects = new Map();     // id → {x, y, w, h}
+        this.cells = new Map();
+        this.objects = new Map();
     }
 
     _floorDiv(a, b) { return Math.floor(a / b); }
@@ -55,7 +51,6 @@ export class SpatialGrid {
 
     clear() { this.cells.clear(); this.objects.clear(); }
 
-    /** Query objects with AABB containing (px, py). Returns array of ids — caller filter precisely. */
     queryAt(px, py) {
         const cs = this.cellSize;
         const key = this._floorDiv(px, cs) + "," + this._floorDiv(py, cs);
@@ -71,7 +66,6 @@ export class SpatialGrid {
         return out;
     }
 
-    /** Query objects with AABB overlapping rect (x, y, w, h). Returns Set of ids (unique). */
     queryRect(x, y, w, h) {
         const { sx, sy, ex, ey } = this._cellsFor(x, y, w, h);
         const seen = new Set();
@@ -85,7 +79,6 @@ export class SpatialGrid {
                     seen.add(id);
                     const o = this.objects.get(id);
                     if (!o) continue;
-                    // AABB overlap test
                     if (o.x + o.w >= x && o.x <= x + w &&
                         o.y + o.h >= y && o.y <= y + h) {
                         out.add(id);

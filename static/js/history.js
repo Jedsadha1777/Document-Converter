@@ -1,10 +1,7 @@
-// Command pattern + History stack — ดัดแปลงจาก Ketchup/core/{Command,History}.js
-// ลด complexity ของ Ketchup ออก (ไม่มี SpatialGrid/propertyEvents, ไม่มี jumpTo/initialize)
-
 export class Command {
     do() {}
     undo() {}
-    merge(next) { return false; }   // override สำหรับ collapse consecutive ops (เช่น drag)
+    merge(next) { return false; }   // override เพื่อ collapse consecutive ops (เช่น drag)
 }
 
 const MAX_ENTRIES = 100;

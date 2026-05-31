@@ -168,13 +168,6 @@ Examples:
             <label for="pageSelect">Page:</label>
             <select id="pageSelect"></select>
 
-            <label id="lblTexts"><input type="checkbox" id="showTexts" checked> texts</label>
-            <label id="lblTables"><input type="checkbox" id="showTables" checked> tables</label>
-            <label id="lblPictures"><input type="checkbox" id="showPictures" checked> pictures</label>
-            <label><input type="checkbox" id="showLabels" checked> labels</label>
-            <label style="margin-left:8px; padding:4px 8px; background:#fef3c7; border-radius:6px;">
-                <input type="checkbox" id="showOverlay"> <span class="material-symbols-outlined">edit_note</span>Overlay translation on image
-            </label>
             <button type="button" id="editModeBtn" class="ghost" style="margin-left:6px; display:none;"
                     title="โหมดแก้กล่อง overlay — ลาก/resize ได้, ปรับ font/align">✏️ Edit</button>
             <button type="button" id="mergeSelectedBtn" class="ghost" style="display:none; margin-left:6px;"
@@ -202,8 +195,6 @@ Examples:
 
             <span class="legend">
                 <span class="legend-item" id="legendTexts"><span class="legend-swatch" style="border-color:#2563eb"></span>texts</span>
-                <span class="legend-item" id="legendTables"><span class="legend-swatch" style="border-color:#dc2626"></span>tables</span>
-                <span class="legend-item" id="legendPictures"><span class="legend-swatch" style="border-color:#059669"></span>pictures</span>
             </span>
         </div>
         <div id="visualWorkspace">
@@ -401,8 +392,6 @@ viewport.onChange((s) => {
 // ── Preview mode (fullscreen, ไม่มี chrome / border / thumbnail / menu) ───────
 // scroll = page nav, arrow keys = page nav, ESC / ปุ่ม preview อีกครั้ง = exit
 const previewModeBtn = document.getElementById("previewModeBtn");
-const showOverlayEl = document.getElementById("showOverlay");
-let _prevShowOverlay = null;
 
 function _changePageDelta(delta) {
     const sel = document.getElementById("pageSelect");
@@ -421,13 +410,7 @@ function _setPreviewBtnIcon(active) {
 function _enterPreviewMode() {
     if (state.previewMode) return;
     state.previewMode = true;
-    _prevShowOverlay = showOverlayEl?.checked ?? null;
-    if (showOverlayEl && !showOverlayEl.checked) {
-        showOverlayEl.checked = true;
-        showOverlayEl.dispatchEvent(new Event("change"));
-    } else {
-        redrawOnly();   // border จะหาย — ต้องวาดใหม่
-    }
+    redrawOnly();
     document.body.classList.add("preview-mode");
     _setPreviewBtnIcon(true);
     requestAnimationFrame(_fitCurrentPage);
@@ -437,13 +420,7 @@ function _exitPreviewMode() {
     state.previewMode = false;
     document.body.classList.remove("preview-mode");
     _setPreviewBtnIcon(false);
-    if (showOverlayEl && _prevShowOverlay !== null && showOverlayEl.checked !== _prevShowOverlay) {
-        showOverlayEl.checked = _prevShowOverlay;
-        showOverlayEl.dispatchEvent(new Event("change"));
-    } else {
-        redrawOnly();   // border กลับมา
-    }
-    _prevShowOverlay = null;
+    redrawOnly();
     requestAnimationFrame(_fitCurrentPage);
 }
 previewModeBtn?.addEventListener("click", () => {
@@ -583,20 +560,6 @@ tmPairSelectEl.addEventListener("change", () => {
     _saveConvertPrefs();
 });
 
-function applyTextsOnlyCheckboxes() {
-    const map = {
-        texts: ["lblTexts", "showTexts", "legendTexts", true],
-        tables: ["lblTables", "showTables", "legendTables", false],
-        pictures: ["lblPictures", "showPictures", "legendPictures", false],
-    };
-    Object.values(map).forEach(([wrap, input, legend, visible]) => {
-        document.getElementById(wrap).style.display = visible ? "" : "none";
-        document.getElementById(legend).style.display = visible ? "" : "none";
-        document.getElementById(input).checked = visible;
-    });
-}
-applyTextsOnlyCheckboxes();
-
 // Compare + Visual tabs = full screen (ทิ้ง max-width 1280); Output tab keep แคบ
 function _applyFullscreenForTab(name) {
     document.body.classList.toggle("app-fullscreen", name === "visual" || name === "compare");
@@ -619,15 +582,7 @@ document.querySelectorAll(".tab").forEach(btn => {
 // apply on initial load — visual tab เป็น default active
 _applyFullscreenForTab(document.querySelector(".tab.active")?.dataset.tab);
 
-// Page change → full re-render (mount canvas + fit zoom).
-// Filter checkboxes (texts/tables/pictures/labels/overlay) → redraw only — preserve zoom/pan.
 pageSelect.addEventListener("change", renderPreview);
-[document.getElementById("showTexts"),
- document.getElementById("showTables"),
- document.getElementById("showPictures"),
- document.getElementById("showLabels"),
- document.getElementById("showOverlay")].forEach(el => el.addEventListener("change", redrawOnly));
-// เปลี่ยนหน้า → ล้าง multi-select เก่า (refs อาจไม่ตรงกับหน้าใหม่)
 pageSelect.addEventListener("change", () => { if (selectedRefs.size) clearSelectionAndUI(); });
 
 // Copy/Download/Clear JSON output
@@ -668,9 +623,7 @@ initCharactersUI({
         }
     },
 });
-initUpload({
-    onAfterConvert: applyTextsOnlyCheckboxes,
-});
+initUpload({});
 initPasteText();
 initDetectRowMeta();
 initSubTm();

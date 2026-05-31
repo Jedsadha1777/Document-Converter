@@ -1,7 +1,3 @@
-// Right-side inspector — แสดง format toolbar + OCR text + Speaker + translation textarea
-// ของ selected bbox. Pattern: render เมื่อ state.selection.ref เปลี่ยน
-// (caller เรียก update() หลัง mutate selection).
-
 import { state } from "../state.js";
 import { history } from "../history.js";
 import { SetSpeakerCmd, SetEmotionCmd } from "../commands.js";
@@ -9,7 +5,6 @@ import { renderSpeakerOptions, getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from 
 import { renderEmotionOptions, EMOTION_AUTO } from "../emotions.js";
 import { getImageSrc } from "./image-source.js";
 
-// target language สำหรับ emotion dropdown (อ้างอิง tmPair) — mirror compare.js helper
 const _PAIR_TO_TARGET = { "jp-th": "th", "en-th": "th", "en-vn": "vi" };
 function _currentEmotionTarget() {
     const pair = document.getElementById("tmPair")?.value || "";
@@ -17,7 +12,7 @@ function _currentEmotionTarget() {
 }
 
 let _suppress = false;   // กัน feedback loop ตอน user พิมพ์ใน textarea
-let _lastInspectorRef = null;   // ref ที่ inspector render รอบล่าสุด — ใช้ detect "ref เปลี่ยน" แล้ว force update textarea แม้ focus ค้างที่ textarea เดิม
+let _lastInspectorRef = null;   // detect ref change → force update textarea ถึง focus จะค้าง
 
 const $ = (id) => document.getElementById(id);
 
@@ -26,8 +21,6 @@ function _dispatchClick(id) {
 }
 
 export function initInspector() {
-    // Format buttons → re-dispatch click ไปยังปุ่ม editToolbar ที่มี logic อยู่แล้ว
-    // (DRY — ใช้ logic ตัวเดียวกับ toolbar บน ภายในตัว top, รวม history command, sync, redraw)
     $("rpFontDecBtn")?.addEventListener("click", () => _dispatchClick("fontDecBtn"));
     $("rpFontIncBtn")?.addEventListener("click", () => _dispatchClick("fontIncBtn"));
     $("rpAlignLeftBtn")?.addEventListener("click", () => _dispatchClick("alignLeftBtn"));
@@ -37,10 +30,8 @@ export function initInspector() {
     $("rpValignMiddleBtn")?.addEventListener("click", () => _dispatchClick("valignMiddleBtn"));
     $("rpValignBottomBtn")?.addEventListener("click", () => _dispatchClick("valignBottomBtn"));
 
-    // Re-OCR button — crop bbox region (รวม de-rotate) + ส่ง /ocr-bbox → update OCR text
     $("rpReOcrBtn")?.addEventListener("click", _reOcrSelected);
 
-    // Speaker dropdown — exec SetSpeakerCmd ผ่าน history (= undo/redo + canvas/compare sync)
     const spkEl = $("rpSpeakerSelect");
     spkEl?.addEventListener("change", () => {
         const ref = state.selection.ref;
@@ -50,13 +41,11 @@ export function initInspector() {
         if (before === after) return;
         history.exec(new SetSpeakerCmd(ref, before, after));
     });
-    // hover tooltip — แสดง name/sex/age/personality ของ character ที่เลือก
     spkEl?.addEventListener("mouseenter", () => _showSpkTooltip(spkEl));
     spkEl?.addEventListener("mouseleave", _hideSpkTooltip);
     spkEl?.addEventListener("mousedown", _hideSpkTooltip);
     spkEl?.addEventListener("change", _hideSpkTooltip);
 
-    // Emotion dropdowns (primary + secondary) — undo/redo ผ่าน history
     const _wireEmotion = (selId, slot, mapKey) => {
         const el = $(selId);
         el?.addEventListener("change", () => {
@@ -69,8 +58,6 @@ export function initInspector() {
     _wireEmotion("rpEmotionSelect1", 1, "emotionByRef");
     _wireEmotion("rpEmotionSelect2", 2, "emotion2ByRef");
 
-    // OCR text textarea — แก้ได้ → save เป็น state.corrections[ref] + mark manual
-    // (mirror translation textarea pattern, แต่ source = item.text ของ row นั้น)
     const ocrEl = $("rpOcrText");
     ocrEl?.addEventListener("input", () => {
         const ref = state.selection.ref;
@@ -79,25 +66,22 @@ export function initInspector() {
         const origText = (item?.text || "").trim();
         const v = ocrEl.value;
         if (!v.trim()) {
-            // ว่างทั้งหมด = user delete intentionally → mark "" (กล่องถูกซ่อนใน left pane)
+            // empty = user deleted intentionally → "" hides bbox; equal-to-original = drop correction (กลับไปใช้ OCR)
             state.corrections[ref] = "";
             state.manualEdits.add(ref);
         } else if (v.trim() === origText) {
-            // เหมือนต้นฉบับ → ลบ correction (กลับไปใช้ OCR เดิม ไม่ใช่ "deleted")
             delete state.corrections[ref];
             state.manualEdits.delete(ref);
         } else {
             state.corrections[ref] = v;
             state.manualEdits.add(ref);
         }
-        // redraw canvas + sync compare table
         _suppress = true;
         window._previewWrap?._redraw?.();
         window.buildCompareTable?.(true);
         _suppress = false;
     });
 
-    // Translation textarea — write back ลง state.translations + mark manual
     const trEl = $("rpTrText");
     trEl?.addEventListener("input", () => {
         const ref = state.selection.ref;
@@ -110,7 +94,6 @@ export function initInspector() {
             state.translations[ref] = v;
             state.manualTranslations.add(ref);
         }
-        // redraw canvas + sync compare table
         _suppress = true;
         window._previewWrap?._redraw?.();
         window.buildCompareTable?.(true);
@@ -119,15 +102,11 @@ export function initInspector() {
     });
 }
 
-// ── Re-OCR: crop bbox จาก source image (รวม de-rotate ฝั่ง client) → POST /ocr-bbox ──
-
 function _resolveBboxImgCoords(item) {
-    // คืน {x, y, w, h, rotation} ใน image-pixel space (b.l/t/r/b = image pixels at scale 1)
     const b = item.bbox || {};
     const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
     let x = b.l, y, w = b.r - b.l, h;
     if (isBL) {
-        // need page height for BL conversion — เอาจาก page record
         const page = (state.lastResult?.preview?.pages || []).find(p => p.page_no === item.page_no);
         const pageH = page?.img_height || page?.height || 0;
         y = pageH - b.t;
@@ -165,7 +144,7 @@ async function _cropBboxToPngBlob(item) {
     canvas.width = Math.round(w);
     canvas.height = Math.round(h);
     const ctx = canvas.getContext("2d");
-    // de-rotate content: ย้าย bbox center → origin, rotate -θ, ย้าย origin → canvas center
+    // de-rotate: bbox center → origin, rotate -θ, origin → canvas center
     ctx.translate(w / 2, h / 2);
     ctx.rotate(-rotation * Math.PI / 180);
     ctx.translate(-(x + w / 2), -(y + h / 2));
@@ -202,7 +181,6 @@ async function _reOcrSelected() {
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
         const text = (data.text || "").trim();
-        // update state.corrections + UI textarea + compare table
         if (text) {
             state.corrections[ref] = text;
         } else {
@@ -227,8 +205,6 @@ function _updateTrSourceHint(ref) {
     if (!tr) { el.textContent = ""; return; }
     el.textContent = state.manualTranslations.has(ref) ? "(manual)" : "(LLM)";
 }
-
-// ── speaker hover tooltip — light box แสดง name / sex / age / personality ──
 
 let _spkTooltip = null;
 const _escTip = (s) => String(s ?? "").replace(/[<>&]/g, ch => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[ch]));
@@ -279,23 +255,19 @@ function _showSpkTooltip(selEl) {
         </div>
         <div style="color:#374151; white-space:pre-wrap; border-top:1px solid #f3f4f6; padding-top:6px;">${_escTip(c.persona || "(no personality set)")}</div>
     `;
-    // position: ทางซ้ายของ select (right panel อยู่ด้านขวาจอ → tooltip ออกซ้าย)
     const r = selEl.getBoundingClientRect();
     tip.style.display = "block";
-    // measure แล้วจัด — left ของ tooltip = select.left - tip.width - 8
     const tr = tip.getBoundingClientRect();
     let left = r.left - tr.width - 8;
     if (left < 8) {
-        // ไม่พอที่ทางซ้าย → ลองวางด้านล่างของ select
+        // ไม่พอที่ทางซ้าย → fallback ไปวางใต้ select
         left = Math.max(8, r.left);
         tip.style.left = left + "px";
         tip.style.top = (r.bottom + 6) + "px";
     } else {
         tip.style.left = left + "px";
-        // align ด้านบนกับ select
         tip.style.top = r.top + "px";
     }
-    // overflow ล่าง → ดึงขึ้น
     requestAnimationFrame(() => {
         const tr2 = tip.getBoundingClientRect();
         if (tr2.bottom > window.innerHeight - 8) {
@@ -328,24 +300,19 @@ export function updateInspector() {
     empty.style.display = "none";
     content.style.display = "";
 
-    // OCR text — แสดง corrected ถ้ามี, ไม่งั้น original. แก้ใน textarea ได้ → save เป็น corrections
-    // อย่า overwrite ตอน user กำลังพิมพ์อยู่ แต่ถ้า ref เปลี่ยน (คลิก bbox อื่น) ต้อง force update
+    // ห้าม overwrite ขณะ user พิมพ์ — ยกเว้น ref เปลี่ยน (คลิก bbox อื่น)
     const refChanged = ref !== _lastInspectorRef;
     const ocrEl = $("rpOcrText");
     if (ocrEl && (refChanged || document.activeElement !== ocrEl)) {
         ocrEl.value = state.corrections[ref] ?? item.text ?? "";
     }
 
-    // Speaker dropdown — rebuild option list ทุก update (characters เปลี่ยนได้)
-    // ถ้า ref ไม่มี speaker → default = chars[0] (เหมือน bbox popup เดิม)
-    // ไม่อย่างนั้น browser จะ pick option แรก = SPEAKER_SKIP โดยอัตโนมัติ → bug ที่ user รายงาน
     const spkEl = $("rpSpeakerSelect");
     if (spkEl) {
         const cur = state.speakerByRef[ref] || SPEAKER_AUTO;
         spkEl.innerHTML = renderSpeakerOptions()(cur);
     }
 
-    // Emotion dropdowns (primary + secondary)
     const e1El = $("rpEmotionSelect1");
     const e2El = $("rpEmotionSelect2");
     if (e1El || e2El) {
@@ -360,15 +327,13 @@ export function updateInspector() {
         }
     }
 
-    // Translation — เหมือน OCR: ref เปลี่ยน → force update แม้ trEl focused
     const trEl = $("rpTrText");
     if (refChanged || document.activeElement !== trEl) {
         trEl.value = state.translations[ref] || "";
     }
     _updateTrSourceHint(ref);
-    _lastInspectorRef = ref;   // mark — รอบหน้าจะเทียบเพื่อ detect ref change
+    _lastInspectorRef = ref;
 
-    // sync align/valign active state
     const ov = state.bboxOverrides[ref] || {};
     const hMap = { left: "rpAlignLeftBtn", center: "rpAlignCenterBtn", right: "rpAlignRightBtn" };
     const vMap = { top: "rpValignTopBtn", middle: "rpValignMiddleBtn", bottom: "rpValignBottomBtn" };
