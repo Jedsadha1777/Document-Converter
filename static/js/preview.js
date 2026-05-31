@@ -977,23 +977,36 @@ export function renderPreview() {
                     ov.w = sb.w;
                     ov.h = sb.h;
                 } else {
-                    // resize: inverse-rotate world delta → box local frame
-                    let ldx = dx, ldy = dy;
+                    // rotation-aware resize — อ้างอิง Ketchup _sideResize/_cornerResize.
+                    // เก่า apply local delta + implicit top-left anchor → center drift (box rotate รอบ center)
                     const rot = dr.rotation || 0;
-                    if (rot) {
-                        const rad = -rot * Math.PI / 180;
-                        const cos = Math.cos(rad), sin = Math.sin(rad);
-                        ldx = dx * cos - dy * sin;
-                        ldy = dx * sin + dy * cos;
-                    }
-                    let nx = sb.x, ny = sb.y, nw = sb.w, nh = sb.h;
-                    if (dr.mode.includes("w")) { nx = sb.x + ldx; nw = sb.w - ldx; }
-                    if (dr.mode.includes("e")) { nw = sb.w + ldx; }
-                    if (dr.mode.includes("n")) { ny = sb.y + ldy; nh = sb.h - ldy; }
-                    if (dr.mode.includes("s")) { nh = sb.h + ldy; }
-                    if (nw < MIN_BOX) { nx = sb.x + sb.w - MIN_BOX; nw = MIN_BOX; }
-                    if (nh < MIN_BOX) { ny = sb.y + sb.h - MIN_BOX; nh = MIN_BOX; }
-                    ov.x = nx; ov.y = ny; ov.w = nw; ov.h = nh;
+                    const rad = rot * Math.PI / 180;
+                    const ex = { x: Math.cos(rad), y: Math.sin(rad) };
+                    const ey = { x: -Math.sin(rad), y: Math.cos(rad) };
+                    const sCx = sb.x + sb.w / 2, sCy = sb.y + sb.h / 2;
+
+                    const LEFT = dr.mode.includes("w"), RIGHT = dr.mode.includes("e");
+                    const TOP = dr.mode.includes("n"), BOTTOM = dr.mode.includes("s");
+                    const aox = LEFT ? +1 : (RIGHT ? -1 : 0);
+                    const aoy = TOP ? +1 : (BOTTOM ? -1 : 0);
+
+                    const anchorX = sCx + aox * (sb.w / 2) * ex.x + aoy * (sb.h / 2) * ey.x;
+                    const anchorY = sCy + aox * (sb.w / 2) * ex.y + aoy * (sb.h / 2) * ey.y;
+
+                    const moX = (px - anchorX) * ex.x + (py - anchorY) * ex.y;
+                    const moY = (px - anchorX) * ey.x + (py - anchorY) * ey.y;
+
+                    let nw = sb.w, nh = sb.h;
+                    if (LEFT || RIGHT) nw = Math.max(-aox * moX, MIN_BOX);
+                    if (TOP || BOTTOM) nh = Math.max(-aoy * moY, MIN_BOX);
+
+                    const ncX = anchorX + (-aox) * (nw / 2) * ex.x + (-aoy) * (nh / 2) * ey.x;
+                    const ncY = anchorY + (-aox) * (nw / 2) * ex.y + (-aoy) * (nh / 2) * ey.y;
+
+                    ov.x = ncX - nw / 2;
+                    ov.y = ncY - nh / 2;
+                    ov.w = nw;
+                    ov.h = nh;
                 }
                 doDraw();
                 return;
