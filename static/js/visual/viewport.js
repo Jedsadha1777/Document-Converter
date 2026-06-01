@@ -2,11 +2,12 @@ const state = { zoom: 1, panX: 0, panY: 0 };
 const targets = new Set();
 const listeners = new Set();
 
-// minZoom = fit (zoom out กว่า fit ไม่ได้ → image ครอบ viewport เสมอ)
+// fitZoom = ขนาด fit-to-viewport (initial state ตอน fitToViewport)
+// minZoom = fit × 0.5 (zoom out ลึกกว่า fit ได้ 50% — image เล็กลงครอบกลาง viewport)
 // maxZoom = fit × 8 capped ที่ 4 (400% native — กัน 1px image zoom ทะลุจอ)
 const bounds = {
     contentW: 0, contentH: 0, viewportW: 0, viewportH: 0,
-    minZoom: 0.01, maxZoom: 4,
+    fitZoom: 1, minZoom: 0.01, maxZoom: 4,
 };
 const ABS_MIN_ZOOM = 0.01;
 const ABS_MAX_ZOOM = 4;
@@ -16,10 +17,11 @@ export const MAX_ZOOM = ABS_MAX_ZOOM;
 function _computeZoomRange() {
     const { contentW, contentH, viewportW, viewportH } = bounds;
     if (contentW <= 0 || viewportW <= 0) {
-        bounds.minZoom = ABS_MIN_ZOOM; bounds.maxZoom = ABS_MAX_ZOOM; return;
+        bounds.fitZoom = 1; bounds.minZoom = ABS_MIN_ZOOM; bounds.maxZoom = ABS_MAX_ZOOM; return;
     }
     const fit = Math.min(viewportW / contentW, viewportH / contentH);
-    bounds.minZoom = Math.max(ABS_MIN_ZOOM, fit);
+    bounds.fitZoom = fit;
+    bounds.minZoom = Math.max(ABS_MIN_ZOOM, fit * 0.5);
     bounds.maxZoom = Math.min(ABS_MAX_ZOOM, Math.max(1, fit * 8));
 }
 
@@ -93,7 +95,7 @@ export function fitToViewport(naturalW, naturalH, viewportW, viewportH) {
     bounds.viewportW = viewportW;
     bounds.viewportH = viewportH;
     _computeZoomRange();
-    state.zoom = bounds.minZoom;
+    state.zoom = bounds.fitZoom;
     state.panX = (viewportW - naturalW * state.zoom) / 2;
     state.panY = (viewportH - naturalH * state.zoom) / 2;
     _clamp();
