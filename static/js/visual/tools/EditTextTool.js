@@ -236,7 +236,7 @@ export class EditTextTool extends ITool {
 
     _computeMetrics(b, ctx2d) {
         const text = this.editingText;
-        const layout = measureTextInBox(ctx2d, text || " ", b.w, { fixedFontSize: b.fontSize });
+        const layout = measureTextInBox(ctx2d, text || " ", b.w, { fixedFontSize: b.fontSize, preserveWhitespace: true });
         if (!layout) {
             return { ascent: 0, descent: 0, lineHeight: 0, lines: [] };
         }
@@ -257,7 +257,6 @@ export class EditTextTool extends ITool {
                 endPos = startPos + ln.text.length;
                 cursor = endPos;
                 if (text[cursor] === "\n") cursor++;
-                else while (text[cursor] === " " || text[cursor] === "\t") cursor++;
             }
             linesWithPos.push({ text: ln.text, width: ln.width, startPos, endPos });
         }

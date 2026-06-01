@@ -330,6 +330,12 @@ body.app-fullscreen #compareArea {
     border-color: #93c5fd !important;
 }
 .tool-btn.active:hover { background: #bfdbfe !important; }
+.layer-btn.active {
+    background: #2563eb !important;
+    color: #fff !important;
+    border-color: #2563eb !important;
+}
+.layer-btn.active:hover { background: #1d4ed8 !important; }
 #zoomToolbar #zoomLevel {
     min-width: 52px;
     text-align: center;

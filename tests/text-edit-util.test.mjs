@@ -181,6 +181,69 @@ eq("getLineLeftX empty line center",  getLineLeftX({ text: "", width: 0 }, 100, 
 eq("getLineLeftX line wider than box (left)", getLineLeftX({ text: "long", width: 300 }, 100, 200, 4, "left"), 104);
 eq("getLineLeftX line wider than box (right)", getLineLeftX({ text: "long", width: 300 }, 100, 200, 4, "right"), -4);
 
+// ─── cursorToLineCol: gap between lines clamps to next line start (no end-of-text fallback) ───
+const gappyLines = [
+    { text: "aa", width: 16, startPos: 0, endPos: 2 },
+    { text: " ", width: 8, startPos: 3, endPos: 4 },
+    { text: " ", width: 8, startPos: 5, endPos: 6 },
+    { text: "bb", width: 16, startPos: 7, endPos: 9 },
+];
+eq("cursorToLineCol pos in gap → next line start", cursorToLineCol(2, [
+    { text: "a", width: 8, startPos: 0, endPos: 1 },
+    { text: "b", width: 8, startPos: 3, endPos: 4 },
+]), { lineIdx: 1, col: 0 });
+
+// ─── layoutEditText: pre-wrap consecutive space-only lines ───
+// Mock Pretext that preserves spaces (whiteSpace:'pre-wrap' behavior per Pretext bundle).
+const mockPreWrap = {
+    prepareWithSegments: (text) => ({ text }),
+    layoutWithLines: (prepared) => {
+        const parts = prepared.text.split("\n");
+        if (parts.length > 1 && parts[parts.length - 1] === "") parts.pop();
+        return { lines: parts.map(t => ({ text: t, width: t.length * 8 })) };
+    },
+};
+const userBugText = "aa\naaa\n \n \n \naaa\naaa";
+const userBugLayout = layoutEditText(userBugText, "10px sans", 10, 200, mockPreWrap);
+eq("user-bug layout: 7 lines, positions contiguous", userBugLayout.lines, [
+    { text: "aa",  width: 16, startPos: 0,  endPos: 2  },
+    { text: "aaa", width: 24, startPos: 3,  endPos: 6  },
+    { text: " ",   width: 8,  startPos: 7,  endPos: 8  },
+    { text: " ",   width: 8,  startPos: 9,  endPos: 10 },
+    { text: " ",   width: 8,  startPos: 11, endPos: 12 },
+    { text: "aaa", width: 24, startPos: 13, endPos: 16 },
+    { text: "aaa", width: 24, startPos: 17, endPos: 20 },
+]);
+
+// Click on middle space line (lineIdx=3), then type ' ' to make it "  ":
+// editingText becomes "aa\naaa\n \n  \n \naaa\naaa", cursor at position 11
+const insertedText = "aa\naaa\n \n  \n \naaa\naaa";
+const insertedLayout = layoutEditText(insertedText, "10px sans", 10, 200, mockPreWrap);
+eq("after-insert layout: line 3 is two-space", insertedLayout.lines, [
+    { text: "aa",  width: 16, startPos: 0,  endPos: 2  },
+    { text: "aaa", width: 24, startPos: 3,  endPos: 6  },
+    { text: " ",   width: 8,  startPos: 7,  endPos: 8  },
+    { text: "  ",  width: 16, startPos: 9,  endPos: 11 },
+    { text: " ",   width: 8,  startPos: 12, endPos: 13 },
+    { text: "aaa", width: 24, startPos: 14, endPos: 17 },
+    { text: "aaa", width: 24, startPos: 18, endPos: 21 },
+]);
+eq("after-insert cursor pos=11 → line 3 col 2 (NOT end-of-text)",
+    cursorToLineCol(11, insertedLayout.lines), { lineIdx: 3, col: 2 });
+
+// Edge: if Pretext were to collapse "  " to " " (defensive — should not jump to end)
+const collapsedLines = [
+    { text: "aa",  width: 16, startPos: 0,  endPos: 2  },
+    { text: "aaa", width: 24, startPos: 3,  endPos: 6  },
+    { text: " ",   width: 8,  startPos: 7,  endPos: 8  },
+    { text: " ",   width: 8,  startPos: 9,  endPos: 10 },
+    { text: " ",   width: 8,  startPos: 12, endPos: 13 },
+    { text: "aaa", width: 24, startPos: 14, endPos: 17 },
+    { text: "aaa", width: 24, startPos: 18, endPos: 21 },
+];
+eq("cursor in gap (collapse scenario) clamps to next line, not end-of-text",
+    cursorToLineCol(11, collapsedLines), { lineIdx: 4, col: 0 });
+
 // ─── cursor preservation across layout changes (resize simulation) ───
 // Simulates: editingText "hello world", initial wrap at narrow width gives 2 lines,
 // then resize to wider gives 1 line. cursorPosition (absolute char index) stays valid.

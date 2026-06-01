@@ -35,9 +35,14 @@ export const COLORS = {
     categoryTables:   "#dc2626",
     categoryPictures: "#059669",
     multiSelect:      "#7c3aed",  // violet — multi-select highlight
-    marquee:          "#0066cc",  // marquee border
+    marquee:          "#0066cc",  // marquee border / pen anchor + handle guide
     marqueeFill:      "rgba(0, 102, 204, 0.1)",
     overlayBg:        "#ffffff",  // bbox text overlay bg (solid — fade เฉพาะกล่อง SKIP)
+
+    // ── Pen tool guides ──
+    penPath:          "#333333",  // pen path stroke during live draw
+    penEndpoint:      "#ff6600",  // open-path endpoint marker / close hint ring
+    penEndpointBg:    "#fff0e0",  // open-path endpoint marker fill
 
     // ── Preview prompt modal (code blocks) ──
     codeBg:       "#0f172a",  // request body bg

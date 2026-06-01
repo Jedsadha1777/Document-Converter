@@ -181,20 +181,35 @@ Examples:
                 <button type="button" class="ghost tool-btn" data-tool="pan"
                         title="Pan — drag to move viewport"><span class="material-symbols-outlined">pan_tool</span></button>
                 <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
-                <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
-                <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
-                <button type="button" id="alignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
-                <button type="button" id="alignCenterBtn" class="ghost" title="กึ่งกลาง"><span class="material-symbols-outlined">format_align_center</span></button>
-                <button type="button" id="alignRightBtn" class="ghost" title="ชิดขวา"><span class="material-symbols-outlined">format_align_right</span></button>
-                <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
-                <button type="button" id="valignTopBtn" class="ghost" title="ชิดบน"><span class="material-symbols-outlined">vertical_align_top</span></button>
-                <button type="button" id="valignMiddleBtn" class="ghost" title="กลาง (แนวตั้ง)"><span class="material-symbols-outlined">vertical_align_center</span></button>
-                <button type="button" id="valignBottomBtn" class="ghost" title="ชิดล่าง"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
-                <button type="button" id="resetBboxBtn" class="ghost" title="คืนค่า bbox นี้"><span class="material-symbols-outlined">restart_alt</span>reset</button>
+                <button type="button" class="ghost layer-btn" data-layer="subtitle" title="Subtitle layer — bbox text editing">Subtitle</button>
+                <button type="button" class="ghost layer-btn" data-layer="markup" title="Markup layer — shapes annotation">Markup</button>
+                <span id="shapeTools" style="display:none; align-items:center; gap:4px;">
+                    <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
+                    <button type="button" class="ghost tool-btn" data-tool="shape-triangle" title="Triangle"><span class="material-symbols-outlined">change_history</span></button>
+                    <button type="button" class="ghost tool-btn" data-tool="shape-rect" title="Rectangle"><span class="material-symbols-outlined">rectangle</span></button>
+                    <button type="button" class="ghost tool-btn" data-tool="shape-circle" title="Circle"><span class="material-symbols-outlined">circle</span></button>
+                    <button type="button" class="ghost tool-btn" data-tool="shape-pen" title="Pen — คลิก/ลาก anchor; alt+คลิก anchor เก่า=ย้าย; คลิก anchor แรก=close; dbl-click/Enter=จบ; คลิก segment=แทรก; คลิก endpoint=ต่อ; คลิก anchor กลาง=ลบ; alt+คลิก=convert smooth/corner"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="m2 2 7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
+                </span>
+                <span id="subtitleTools" style="display:inline-flex; align-items:center; gap:4px;">
+                    <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
+                    <button type="button" id="subtitleBgToggleBtn" class="ghost active" title="พื้นหลัง subtitle on/off"><span class="material-symbols-outlined">format_color_fill</span></button>
+                    <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
+                    <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
+                    <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
+                    <button type="button" id="alignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
+                    <button type="button" id="alignCenterBtn" class="ghost" title="กึ่งกลาง"><span class="material-symbols-outlined">format_align_center</span></button>
+                    <button type="button" id="alignRightBtn" class="ghost" title="ชิดขวา"><span class="material-symbols-outlined">format_align_right</span></button>
+                    <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
+                    <button type="button" id="valignTopBtn" class="ghost" title="ชิดบน"><span class="material-symbols-outlined">vertical_align_top</span></button>
+                    <button type="button" id="valignMiddleBtn" class="ghost" title="กลาง (แนวตั้ง)"><span class="material-symbols-outlined">vertical_align_center</span></button>
+                    <button type="button" id="valignBottomBtn" class="ghost" title="ชิดล่าง"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
+                    <button type="button" id="resetBboxBtn" class="ghost" title="คืนค่า bbox นี้"><span class="material-symbols-outlined">restart_alt</span>reset</button>
+                </span>
             </div>
 
             <span class="legend">
-                <span class="legend-item" id="legendTexts"><span class="legend-swatch" style="border-color:#2563eb"></span>texts</span>
+                <button type="button" id="exportImageBtn" class="ghost" title="Save current page as PNG (native size, translations only, no frame)"><span class="material-symbols-outlined">download</span>Save image</button>
+                <button type="button" id="exportAllImagesBtn" class="ghost" title="Save all pages as PNG (one file per page)"><span class="material-symbols-outlined">folder_zip</span>Save all</button>
             </span>
         </div>
         <div id="visualWorkspace">
@@ -222,6 +237,22 @@ Examples:
             <aside id="rightPanel" aria-label="Text inspector">
                 <div id="rightPanelEmpty" class="empty" style="padding:20px 8px; font-size:12px;">
                     Click a textbox to edit.
+                </div>
+                <div id="rpMarkupPanel" style="display:none; padding:12px;">
+                    <div class="rp-section">
+                        <div class="rp-label">Markup</div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                            <label for="rpMarkupFill" style="font-size:12px;">Fill</label>
+                            <input type="color" id="rpMarkupFill" value="#dc2626" style="width:36px; height:28px; padding:0; border:1px solid #d1d5db; border-radius:4px;">
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label style="font-size:12px; display:flex; align-items:center; gap:4px;">
+                                <input type="checkbox" id="rpMarkupBorderOn"> Border
+                            </label>
+                            <input type="color" id="rpMarkupBorderColor" value="#000000" style="width:36px; height:28px; padding:0; border:1px solid #d1d5db; border-radius:4px;" disabled>
+                            <input type="number" id="rpMarkupBorderWidth" min="1" max="20" value="2" style="width:48px; padding:4px; border:1px solid #d1d5db; border-radius:4px;" disabled>
+                        </div>
+                    </div>
                 </div>
                 <div id="rightPanelContent" style="display:none;">
                     <div class="rp-section">
@@ -334,11 +365,12 @@ import { initUpload } from "/static/js/upload.js";
 import { initPasteText } from "/static/js/paste-text.js";
 import { initDetectRowMeta } from "/static/js/detect-row-meta.js";
 import { initSubTm } from "/static/js/sub-tm.js";
-import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI } from "/static/js/preview.js";
+import { renderPreview, redrawOnly, setupEditMode, clearSelectionAndUI, exportCurrentPageImage, exportAllPagesImages } from "/static/js/preview.js";
 import { renderBeforePane } from "/static/js/visual/before-pane.js";
 import { renderThumbSidebar, setActiveThumb } from "/static/js/visual/thumbnail.js";
 import { initPanZoom } from "/static/js/visual/pan-zoom.js";
 import { initToolButtons, getTool } from "/static/js/visual/tool-mode.js";
+import { initLayerButtons } from "/static/js/visual/layer-mode.js";
 import { initInspector, updateInspector } from "/static/js/visual/inspector.js";
 import * as viewport from "/static/js/visual/viewport.js";
 // side-effect imports — wire toolbar buttons (run/stop/clear/retry/preview/copy/paste/tm)
@@ -356,6 +388,7 @@ initPanZoom(document.getElementById("splitMain"), {
     shouldPan: (e) => e.button === 0 && getTool() === "pan",
 });
 initToolButtons();
+initLayerButtons();
 initInspector();
 
 // ── Zoom toolbar (fit / 100% / zoom +/-) + indicator ───────────────────
@@ -388,6 +421,9 @@ zoomLevelEl?.addEventListener("click", _fitCurrentPage);
 viewport.onChange((s) => {
     if (zoomLevelEl) zoomLevelEl.textContent = Math.round(s.zoom * 100) + "%";
 });
+
+document.getElementById("exportImageBtn")?.addEventListener("click", exportCurrentPageImage);
+document.getElementById("exportAllImagesBtn")?.addEventListener("click", exportAllPagesImages);
 
 // ── Preview mode (fullscreen, ไม่มี chrome / border / thumbnail / menu) ───────
 // scroll = page nav, arrow keys = page nav, ESC / ปุ่ม preview อีกครั้ง = exit

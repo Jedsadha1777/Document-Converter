@@ -92,6 +92,7 @@ export function renderBoxes(ctx, opts) {
                 fixedFontSize: ov.fontSize,
                 ocrFontSize,
                 fallbackFontSize,
+                preserveWhitespace: isEditing,
             });
             if (layout) {
                 overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", valign: ov.valign || "top", isTranslated: !!tr, item: it, rotation, isEditing });
@@ -107,8 +108,10 @@ export function renderBoxes(ctx, opts) {
         const ov = state.bboxOverrides[r.item.self_ref] || {};
         ctx.save();
         _applyRotation(ctx, r.x, r.y, r.w, r.h, r.rotation);
-        ctx.fillStyle = r.isEditing ? "#fff" : (ov.bgColor || r.item.bg_color || COLORS.overlayBg);
-        ctx.fillRect(r.x, r.y, r.w, r.h);
+        if (state.subtitleBgOn || r.isEditing) {
+            ctx.fillStyle = r.isEditing ? "#fff" : (ov.bgColor || r.item.bg_color || COLORS.overlayBg);
+            ctx.fillRect(r.x, r.y, r.w, r.h);
+        }
         if (!previewMode && !r.isEditing) {
             ctx.strokeStyle = r.isTranslated ? COLORS.primaryStrong : COLORS.borderMuted;
             ctx.lineWidth = 1 / z;

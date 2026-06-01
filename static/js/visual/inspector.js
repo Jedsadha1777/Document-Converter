@@ -1,6 +1,6 @@
 import { state } from "../state.js";
 import { history } from "../history.js";
-import { SetSpeakerCmd, SetEmotionCmd } from "../commands.js";
+import { SetSpeakerCmd, SetEmotionCmd, UpdateMarkupCmd } from "../commands.js";
 import { renderSpeakerOptions, getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "../characters.js";
 import { renderEmotionOptions, EMOTION_AUTO } from "../emotions.js";
 import { getImageSrc } from "./image-source.js";
@@ -100,6 +100,66 @@ export function initInspector() {
         _suppress = false;
         _updateTrSourceHint(ref);
     });
+
+    _wireMarkupControls();
+}
+
+function _wireMarkupControls() {
+    const fillEl = $("rpMarkupFill");
+    const borderOnEl = $("rpMarkupBorderOn");
+    const borderColorEl = $("rpMarkupBorderColor");
+    const borderWidthEl = $("rpMarkupBorderWidth");
+
+    const apply = (patchAfter, desc) => {
+        const id = state.markupSelection?.id;
+        if (!id) return;
+        const shape = state.markup.find(s => s.id === id);
+        if (!shape) return;
+        const before = { fillColor: shape.fillColor, strokeColor: shape.strokeColor, strokeWidth: shape.strokeWidth };
+        const after = { ...before, ...patchAfter };
+        history.exec(new UpdateMarkupCmd(id, before, after, desc));
+    };
+
+    fillEl?.addEventListener("input", () => {
+        state.markupDefaults.fillColor = fillEl.value;
+        apply({ fillColor: fillEl.value }, "Set markup fill");
+    });
+    borderOnEl?.addEventListener("change", () => {
+        if (borderOnEl.checked) {
+            apply({ strokeColor: borderColorEl?.value || "#000000", strokeWidth: parseInt(borderWidthEl?.value, 10) || 2 }, "Set markup border");
+        } else {
+            apply({ strokeColor: null, strokeWidth: 0 }, "Set markup border");
+        }
+        if (borderColorEl) borderColorEl.disabled = !borderOnEl.checked;
+        if (borderWidthEl) borderWidthEl.disabled = !borderOnEl.checked;
+    });
+    borderColorEl?.addEventListener("input", () => {
+        if (!borderOnEl?.checked) return;
+        apply({ strokeColor: borderColorEl.value }, "Set markup border");
+    });
+    borderWidthEl?.addEventListener("input", () => {
+        if (!borderOnEl?.checked) return;
+        const w = parseInt(borderWidthEl.value, 10);
+        if (!isNaN(w) && w > 0) apply({ strokeWidth: w }, "Set markup border");
+    });
+}
+
+function _syncMarkupPanel(shape) {
+    const fillEl = $("rpMarkupFill");
+    const borderOnEl = $("rpMarkupBorderOn");
+    const borderColorEl = $("rpMarkupBorderColor");
+    const borderWidthEl = $("rpMarkupBorderWidth");
+    if (fillEl) fillEl.value = shape.fillColor || "#dc2626";
+    const hasBorder = shape.strokeColor != null;
+    if (borderOnEl) borderOnEl.checked = hasBorder;
+    if (borderColorEl) {
+        borderColorEl.value = shape.strokeColor || "#000000";
+        borderColorEl.disabled = !hasBorder;
+    }
+    if (borderWidthEl) {
+        borderWidthEl.value = shape.strokeWidth || 2;
+        borderWidthEl.disabled = !hasBorder;
+    }
 }
 
 function _resolveBboxImgCoords(item) {
@@ -284,7 +344,22 @@ export function updateInspector() {
     if (_suppress) return;
     const empty = $("rightPanelEmpty");
     const content = $("rightPanelContent");
+    const markupPanel = $("rpMarkupPanel");
     if (!empty || !content) return;
+
+    const markupId = state.markupSelection?.id;
+    if (markupId) {
+        const shape = state.markup.find(s => s.id === markupId);
+        if (shape) {
+            empty.style.display = "none";
+            content.style.display = "none";
+            if (markupPanel) markupPanel.style.display = "";
+            _syncMarkupPanel(shape);
+            return;
+        }
+    }
+    if (markupPanel) markupPanel.style.display = "none";
+
     const ref = state.selection.ref;
     if (!ref || !state.lastResult) {
         empty.style.display = "";

@@ -125,9 +125,11 @@ export function measureTextInBox(ctx, text, w, opts) {
     const innerW = Math.max(w - TEXTBOX_PADDING * 2, 1);
     // collapse แค่ horizontal whitespace; เก็บ \n ไว้เพื่อให้ Pretext (whiteSpace:"pre-wrap")
     // จัดเป็น hard-break — ผู้ใช้พิมพ์ Enter ใน Translation textarea แล้วต้องขึ้นบรรทัดใหม่จริง
-    const clean = String(text || "")
-        .replace(/[ \t\f\v]+/g, " ")
-        .replace(/^[ \t]+|[ \t]+$/gm, "");
+    const clean = opts.preserveWhitespace
+        ? String(text || "")
+        : String(text || "")
+            .replace(/[ \t\f\v]+/g, " ")
+            .replace(/^[ \t]+|[ \t]+$/gm, "");
 
     const probe = ctx.measureText("M");
     let ascent, descent;

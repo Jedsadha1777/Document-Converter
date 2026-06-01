@@ -1,28 +1,43 @@
 import { state, toggleSelect, clearSelection } from "./state.js";
 import { history } from "./history.js";
-import { UpdateBboxCmd, SetSpeakerCmd, MergeBoxesCmd, CompositeCommand } from "./commands.js";
+import { UpdateBboxCmd, SetSpeakerCmd, MergeBoxesCmd, CompositeCommand, CreateMarkupCmd, DeleteMarkupCmd, UpdateMarkupCmd } from "./commands.js";
 import { escapeHtml, diffChars, renderDiffSide } from "./diff.js";
 import { getCharacters, renderSpeakerOptions, SPEAKER_SKIP, SPEAKER_AUTO } from "./characters.js";
 import { COLORS } from "./colors.js";
 import * as viewport from "./visual/viewport.js";
 import { getImageSrc } from "./visual/image-source.js";
 import { SpatialGrid } from "./visual/spatial-grid.js";
-import { getTool } from "./visual/tool-mode.js";
+import { getTool, onToolChange } from "./visual/tool-mode.js";
+import { getLayer, onLayerChange } from "./visual/layer-mode.js";
 import { updateInspector } from "./visual/inspector.js";
 import { _aabbOfRotated } from "./visual/geometry.js";
 import { SelectTool } from "./visual/tools/SelectTool.js";
 import { EditTextTool } from "./visual/tools/EditTextTool.js";
+import { ShapeTool } from "./visual/tools/ShapeTool.js";
+import { PenTool } from "./visual/tools/PenTool.js";
 import { ToolRegistry } from "./visual/tools/ToolRegistry.js";
 import { renderBoxes } from "./visual/renderers/box-renderer.js";
+import { renderMarkup } from "./visual/renderers/markup-renderer.js";
 import { drawResizeHandles, drawRotationHandle } from "./visual/renderers/handle-renderer.js";
 
 const toolRegistry = new ToolRegistry();
 toolRegistry.add(new SelectTool());
 toolRegistry.add(new EditTextTool());
+toolRegistry.add(new ShapeTool("shape-triangle", "shape-triangle"));
+toolRegistry.add(new ShapeTool("shape-rect", "shape-rect"));
+toolRegistry.add(new ShapeTool("shape-circle", "shape-circle"));
+toolRegistry.add(new PenTool());
 let currentToolId = "select";
 
-// deep clone helper สำหรับ command snapshots
+let _markupClipboard = [];
+let _markupPasteCount = 0;
+
 const _clone = (v) => v === undefined || v === null ? v : JSON.parse(JSON.stringify(v));
+
+function _newMarkupId() {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return "mk_" + crypto.randomUUID();
+    return "mk_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+}
 
 const sel = state.selection;
 
@@ -383,17 +398,19 @@ export function renderPreview() {
                 bgImg.onload = requestRedraw;
             }
 
-            // bbox stroke width — keep constant on screen (= 2 px) ผ่าน /zoom adjust
             const z = viewport.getZoom() || 1;
+            const isMarkupLayer = getLayer() === "markup";
+            renderMarkup(ctx, { pageNo, z });
+
             ctx.lineWidth = 2 / z;
             ctx.font = `${11 / z}px ui-monospace, Menlo, monospace`;
 
-            drawn = renderBoxes(ctx, {
+            drawn = isMarkupLayer ? [] : renderBoxes(ctx, {
                 items, sx, sy, pageW, pageH, z,
                 previewMode: state.previewMode,
             });
 
-            const showSelectChrome = !state.previewMode && currentToolId === "select";
+            const showSelectChrome = !state.previewMode && currentToolId === "select" && getLayer() === "subtitle";
             if (showSelectChrome && sel.refs.size) {
                 sel.refs.forEach(ref => {
                     const sd = drawn.find(d => d.item.self_ref === ref);
@@ -493,6 +510,31 @@ export function renderPreview() {
             doDraw();
         }
 
+        const _toolModeSub = onToolChange((t) => {
+            if (t === "pan") return;
+            if (currentToolId === "edit-text") return;
+            if (toolRegistry.has(t)) _useTool(t);
+        });
+        const _layerSub = onLayerChange((l) => {
+            if (l === "markup") {
+                if (sel.ref || sel.refs.size) _clearSelectionAndButton();
+            } else {
+                if (state.markupSelection.id) {
+                    state.markupSelection.id = null;
+                    state.markupSelection.ids = new Set();
+                    updateInspector();
+                }
+            }
+            if (currentToolId === "edit-text") {
+                _useTool("select");
+            } else if (l !== "markup" && currentToolId.startsWith("shape-")) {
+                _useTool("select");
+            }
+            doDraw();
+        });
+        wrap._toolModeSub = _toolModeSub;
+        wrap._layerSub = _layerSub;
+
         wrap.onmousemove = (ev) => {
             if (state.previewMode) {
                 tooltip.style.display = "none";
@@ -526,6 +568,7 @@ export function renderPreview() {
         };
 
         wrap.oncontextmenu = (ev) => {
+            ev.preventDefault();
             if (state.previewMode) return;
             if (getTool() === "pan") return;
             _curTool().onContextMenu(ev, _pos(ev), toolCtx);
@@ -546,6 +589,154 @@ export function renderPreview() {
 // canvas-only redraw ผ่าน wrap closure — กัน flicker
 export function redrawOnly() {
     return (window._previewWrap?._redraw || renderPreview)();
+}
+
+async function _exportPageBlob(page) {
+    const imgSrc = getImageSrc(page);
+    if (!imgSrc) return null;
+    const imgW = page.img_width || page.width || 1;
+    const imgH = page.img_height || page.height || 1;
+    const pageW = page.width || imgW;
+    const pageH = page.height || imgH;
+    const sx = imgW / pageW;
+    const sy = imgH / pageH;
+
+    const bgImg = await new Promise((res, rej) => {
+        const im = new Image();
+        im.crossOrigin = "anonymous";
+        im.onload = () => res(im);
+        im.onerror = () => rej(new Error("Failed to load source image"));
+        im.src = imgSrc;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = imgW;
+    canvas.height = imgH;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bgImg, 0, 0, imgW, imgH);
+
+    renderMarkup(ctx, { pageNo: page.page_no, z: 1 });
+
+    const items = (state.lastResult?.preview?.items || []).filter(it => it.page_no === page.page_no);
+    renderBoxes(ctx, { items, sx, sy, pageW, pageH, z: 1, previewMode: true });
+
+    return await new Promise(res => canvas.toBlob(res, "image/png"));
+}
+
+function _downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Export current page as PNG at native image size with translations + markup, no chrome.
+export async function exportCurrentPageImage() {
+    const lastResult = state.lastResult;
+    const pageSelect = document.getElementById("pageSelect");
+    if (!lastResult?.preview?.pages?.length) return;
+    const pageNo = parseInt(pageSelect?.value || lastResult.preview.pages[0].page_no, 10);
+    const page = lastResult.preview.pages.find(p => p.page_no === pageNo);
+    if (!page) return;
+    const blob = await _exportPageBlob(page);
+    if (blob) _downloadBlob(blob, `page-${pageNo}.png`);
+}
+
+let _CRC_TABLE = null;
+function _crc32(bytes) {
+    if (!_CRC_TABLE) {
+        _CRC_TABLE = new Uint32Array(256);
+        for (let i = 0; i < 256; i++) {
+            let c = i;
+            for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+            _CRC_TABLE[i] = c;
+        }
+    }
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) crc = (crc >>> 8) ^ _CRC_TABLE[(crc ^ bytes[i]) & 0xFF];
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+function _zipBlob(files) {
+    const enc = new TextEncoder();
+    const parts = [];
+    const centralDir = [];
+    let offset = 0;
+    for (const f of files) {
+        const name = enc.encode(f.name);
+        const data = f.data;
+        const crc = _crc32(data);
+        const lh = new ArrayBuffer(30 + name.length);
+        const ldv = new DataView(lh);
+        ldv.setUint32(0, 0x04034b50, true);
+        ldv.setUint16(4, 20, true);
+        ldv.setUint16(6, 0, true);
+        ldv.setUint16(8, 0, true);
+        ldv.setUint16(10, 0, true);
+        ldv.setUint16(12, 0, true);
+        ldv.setUint32(14, crc, true);
+        ldv.setUint32(18, data.length, true);
+        ldv.setUint32(22, data.length, true);
+        ldv.setUint16(26, name.length, true);
+        ldv.setUint16(28, 0, true);
+        new Uint8Array(lh, 30).set(name);
+        parts.push(lh, data);
+
+        const cd = new ArrayBuffer(46 + name.length);
+        const cdv = new DataView(cd);
+        cdv.setUint32(0, 0x02014b50, true);
+        cdv.setUint16(4, 20, true);
+        cdv.setUint16(6, 20, true);
+        cdv.setUint16(8, 0, true);
+        cdv.setUint16(10, 0, true);
+        cdv.setUint16(12, 0, true);
+        cdv.setUint16(14, 0, true);
+        cdv.setUint32(16, crc, true);
+        cdv.setUint32(20, data.length, true);
+        cdv.setUint32(24, data.length, true);
+        cdv.setUint16(28, name.length, true);
+        cdv.setUint16(30, 0, true);
+        cdv.setUint16(32, 0, true);
+        cdv.setUint16(34, 0, true);
+        cdv.setUint16(36, 0, true);
+        cdv.setUint32(38, 0, true);
+        cdv.setUint32(42, offset, true);
+        new Uint8Array(cd, 46).set(name);
+        centralDir.push(cd);
+        offset += lh.byteLength + data.length;
+    }
+    const cdStart = offset;
+    let cdSize = 0;
+    for (const c of centralDir) cdSize += c.byteLength;
+    const eocd = new ArrayBuffer(22);
+    const ev = new DataView(eocd);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true);
+    ev.setUint16(6, 0, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, cdSize, true);
+    ev.setUint32(16, cdStart, true);
+    ev.setUint16(20, 0, true);
+    return new Blob([...parts, ...centralDir, eocd], { type: "application/zip" });
+}
+
+export async function exportAllPagesImages() {
+    const pages = state.lastResult?.preview?.pages;
+    if (!pages?.length) return;
+    const files = [];
+    for (const page of pages) {
+        const blob = await _exportPageBlob(page);
+        if (!blob) continue;
+        const buf = await blob.arrayBuffer();
+        files.push({ name: `page-${page.page_no}.png`, data: new Uint8Array(buf) });
+    }
+    if (!files.length) return;
+    _downloadBlob(_zipBlob(files), "pages.zip");
 }
 
 // ─────────────────────────────────────────────────────────
@@ -592,9 +783,19 @@ export function setupEditMode() {
         const tag = (e.target.tagName || "").toLowerCase();
         if (tag === "input" || tag === "textarea" || e.target.isContentEditable) return;
 
-        // Delete / Backspace → SPEAKER_SKIP (no mod key — เฉพาะตอน tab visual)
         if ((e.key === "Delete" || e.key === "Backspace") && !e.metaKey && !e.ctrlKey && !e.altKey) {
             if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
+            if (getLayer() === "markup") {
+                if (getTool() !== "select") return;
+                const id = state.markupSelection?.id;
+                if (id) {
+                    e.preventDefault();
+                    history.exec(new DeleteMarkupCmd(id));
+                    state.markupSelection.id = null;
+                    state.markupSelection.ids = new Set();
+                }
+                return;
+            }
             const refs = [...sel.refs].filter(r => state.speakerByRef[r] !== SPEAKER_SKIP);
             if (!refs.length) return;
             e.preventDefault();
@@ -606,6 +807,38 @@ export function setupEditMode() {
             return;
         }
 
+        if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
+            if (getTool() !== "select") return;
+            const step = e.shiftKey ? 10 : 1;
+            const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+            const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+            if (getLayer() === "markup") {
+                const ids = [...(state.markupSelection.ids || [])];
+                const shapes = ids.map(id => state.markup.find(s => s.id === id)).filter(Boolean);
+                if (!shapes.length) return;
+                e.preventDefault();
+                const cmds = shapes.map(s => new UpdateMarkupCmd(
+                    s.id, { x: s.x, y: s.y }, { x: s.x + dx, y: s.y + dy }, "Nudge markup"
+                ));
+                const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `Nudge ${cmds.length} markup`);
+                history.exec(cmd);
+            } else {
+                const refs = [...sel.refs];
+                if (!refs.length) return;
+                e.preventDefault();
+                const drawn = window._previewWrap?._drawn || [];
+                _execMultiBbox(refs, (ref) => {
+                    const sd = drawn.find(d => d.item.self_ref === ref);
+                    if (!sd) return null;
+                    const before = _clone(state.bboxOverrides[ref]);
+                    const after = { ...(before || {}), x: sd.x + dx, y: sd.y + dy, w: sd.w, h: sd.h };
+                    return new UpdateBboxCmd(ref, before, after, "Nudge bbox");
+                }, "Nudge bbox");
+            }
+            return;
+        }
+
         const mod = e.metaKey || e.ctrlKey;
         if (!mod) return;
         if (e.key === "z" && !e.shiftKey) {
@@ -614,6 +847,41 @@ export function setupEditMode() {
         } else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
             e.preventDefault();
             history.redo();
+        } else if (e.key === "c" || e.key === "v") {
+            if (getLayer() !== "markup") return;
+            if (getTool() !== "select") return;
+            if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
+            if (e.key === "c") {
+                const ids = state.markupSelection.ids;
+                const shapes = state.markup.filter(s => ids.has(s.id));
+                if (!shapes.length) return;
+                e.preventDefault();
+                _markupClipboard = shapes.map(s => _clone(s));
+                _markupPasteCount = 0;
+            } else {
+                if (!_markupClipboard.length) return;
+                e.preventDefault();
+                _markupPasteCount++;
+                const off = 16 * _markupPasteCount;
+                const pageNo = parseInt(document.getElementById("pageSelect")?.value
+                    || state.lastResult?.preview?.pages?.[0]?.page_no || 1, 10);
+                const newIds = new Set();
+                const cmds = _markupClipboard.map(src => {
+                    const shape = _clone(src);
+                    shape.id = _newMarkupId();
+                    shape.x += off;
+                    shape.y += off;
+                    shape.pageNo = pageNo;
+                    newIds.add(shape.id);
+                    return new CreateMarkupCmd(shape);
+                });
+                const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `Paste ${cmds.length} markup`);
+                history.exec(cmd);
+                state.markupSelection.id = [...newIds].pop() || null;
+                state.markupSelection.ids = newIds;
+                updateInspector();
+                redrawOnly();
+            }
         }
     });
 
@@ -691,5 +959,12 @@ export function setupEditMode() {
             return new UpdateBboxCmd(ref, before, undefined, "Reset bbox");
         }, "Reset bbox");
         _syncAlignToolbar();
+    });
+
+    const bgToggle = document.getElementById("subtitleBgToggleBtn");
+    bgToggle?.addEventListener("click", () => {
+        state.subtitleBgOn = !state.subtitleBgOn;
+        bgToggle.classList.toggle("active", state.subtitleBgOn);
+        redrawOnly();
     });
 }

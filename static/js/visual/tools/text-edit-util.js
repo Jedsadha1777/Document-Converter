@@ -20,13 +20,7 @@ export function layoutEditText(text, font, fontSize, maxWidth, Pretext) {
         const endPos = startPos + lineText.length;
         cursor = endPos;
 
-        if (cursor < text.length) {
-            if (text[cursor] === "\n") {
-                cursor++;
-            } else {
-                while (cursor < text.length && (text[cursor] === " " || text[cursor] === "\t")) cursor++;
-            }
-        }
+        if (cursor < text.length && text[cursor] === "\n") cursor++;
 
         lines.push({ text: lineText, width: pLine.width, startPos, endPos });
     }
@@ -48,9 +42,8 @@ export function cursorToLineCol(cursorPos, layoutLines) {
     if (layoutLines.length === 0) return { lineIdx: 0, col: 0 };
     for (let i = 0; i < layoutLines.length; i++) {
         const ln = layoutLines[i];
-        if (cursorPos >= ln.startPos && cursorPos <= ln.endPos) {
-            return { lineIdx: i, col: cursorPos - ln.startPos };
-        }
+        if (cursorPos < ln.startPos) return { lineIdx: i, col: 0 };
+        if (cursorPos <= ln.endPos) return { lineIdx: i, col: cursorPos - ln.startPos };
     }
     const last = layoutLines[layoutLines.length - 1];
     return { lineIdx: layoutLines.length - 1, col: last.text.length };

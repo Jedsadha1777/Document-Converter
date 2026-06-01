@@ -84,6 +84,71 @@ export class CompositeCommand extends Command {
     undo() { for (let i = this.cmds.length - 1; i >= 0; i--) this.cmds[i].undo(); }
 }
 
+// CreateMarkupCmd — append shape; undo removes by id
+export class CreateMarkupCmd extends Command {
+    constructor(shape) {
+        super();
+        this.shape = clone(shape);
+        this.description = "Create markup";
+    }
+    do() {
+        if (!state.markup.find(s => s.id === this.shape.id)) {
+            state.markup.push(clone(this.shape));
+        }
+    }
+    undo() {
+        const i = state.markup.findIndex(s => s.id === this.shape.id);
+        if (i >= 0) state.markup.splice(i, 1);
+    }
+}
+
+// DeleteMarkupCmd — remove by id; undo re-inserts at original index
+export class DeleteMarkupCmd extends Command {
+    constructor(id) {
+        super();
+        this.id = id;
+        this.index = state.markup.findIndex(s => s.id === id);
+        this.shape = this.index >= 0 ? clone(state.markup[this.index]) : null;
+        this.description = "Delete markup";
+    }
+    do() {
+        const i = state.markup.findIndex(s => s.id === this.id);
+        if (i >= 0) state.markup.splice(i, 1);
+    }
+    undo() {
+        if (this.shape == null) return;
+        const i = Math.min(this.index, state.markup.length);
+        state.markup.splice(i, 0, clone(this.shape));
+    }
+}
+
+// UpdateMarkupCmd — drag/resize/restyle; merge consecutive ops on same (id, description)
+export class UpdateMarkupCmd extends Command {
+    constructor(id, before, after, description) {
+        super();
+        this.id = id;
+        this.before = clone(before);
+        this.after = clone(after);
+        this.description = description || "Update markup";
+    }
+    do()   { this._apply(this.after); }
+    undo() { this._apply(this.before); }
+    _apply(patch) {
+        const s = state.markup.find(x => x.id === this.id);
+        if (!s) return;
+        Object.assign(s, clone(patch));
+    }
+    merge(next) {
+        if (next instanceof UpdateMarkupCmd
+            && next.id === this.id
+            && this.description === next.description) {
+            this.after = next.after;
+            return true;
+        }
+        return false;
+    }
+}
+
 // MergeBoxesCmd — รวมหลายกล่อง: items/texts/json_text + dicts ทุกตัวที่ remap
 // snapshot ครอบทั้งหมดเพื่อให้ undo คืนสภาพได้ก้อนเดียว
 export class MergeBoxesCmd extends Command {

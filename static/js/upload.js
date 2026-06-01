@@ -15,6 +15,51 @@ import { COLORS } from "./colors.js";
 
 const { corrections, translations, speakerByRef, emotionByRef, emotion2ByRef, bboxOverrides, manualEdits, manualTranslations } = state;
 
+function _newMarkupId(i) {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return "mk_" + crypto.randomUUID();
+    return "mk_" + Date.now().toString(36) + "_" + i.toString(36);
+}
+
+function _autoCreateMarkup(lastResult) {
+    state.markup = [];
+    state.markupSelection.id = null;
+    state.markupSelection.ids = new Set();
+    if (!lastResult?.preview) return;
+    const pages = lastResult.preview.pages || [];
+    const items = lastResult.preview.items || [];
+    const pageMap = new Map(pages.map(p => [p.page_no, p]));
+    let idx = 0;
+    for (const it of items) {
+        if (!it.bbox || it.category !== "texts") continue;
+        const page = pageMap.get(it.page_no);
+        if (!page) continue;
+        const imgW = page.img_width || page.width || 1;
+        const imgH = page.img_height || page.height || 1;
+        const pageW = page.width || imgW;
+        const pageH = page.height || imgH;
+        const sx = imgW / pageW;
+        const sy = imgH / pageH;
+        const b = it.bbox;
+        const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
+        const x = b.l * sx;
+        const w = (b.r - b.l) * sx;
+        const y = isBL ? (pageH - b.t) * sy : b.t * sy;
+        const h = isBL ? (b.t - b.b) * sy : (b.b - b.t) * sy;
+        state.markup.push({
+            id: _newMarkupId(idx++),
+            type: "shape-rect",
+            x, y, w, h,
+            fillColor: it.bg_color || COLORS.overlayBg,
+            strokeColor: null,
+            strokeWidth: 0,
+            pageNo: it.page_no,
+        });
+    }
+    if (state.markup.length) {
+        state.markupDefaults.fillColor = state.markup[state.markup.length - 1].fillColor;
+    }
+}
+
 const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tiff", ".bmp", ".avif"];
 function _isImageFile(file) {
     const name = (file.name || "").toLowerCase();
@@ -189,6 +234,7 @@ export function initUpload({ onAfterConvert } = {}) {
                     });
                 }
                 state.lastResult = data;
+                _autoCreateMarkup(data);
                 output.value = data.json_text;
                 _populatePages(data.preview.pages);
                 onAfterConvert?.();
@@ -234,6 +280,7 @@ export function initUpload({ onAfterConvert } = {}) {
                 texts: combined.texts,
             }, null, 2);
             state.lastResult = combined;
+            _autoCreateMarkup(combined);
             output.value = combined.json_text;
             _populatePages(combined.preview.pages);
             onAfterConvert?.();

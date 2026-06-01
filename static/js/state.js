@@ -29,6 +29,17 @@ export const state = {
     justDragged: false,      // ตั้ง true หลัง drag จริง — กัน click trigger speaker popup
     previewMode: false,      // เต็มจอ + ซ่อน chrome — preview.js ใช้กดข้าม border stroke ตอน render
     editing: null,           // {ref, text} ระหว่าง edit-text — box-renderer ใช้ text นี้แทน state.translations[ref]
+    subtitleBgOn: true,      // toolbar toggle — false = bbox bg transparent (เห็น text บนรูปต้นฉบับ)
+
+    // ── markup layer (annotation shapes — separate from text bboxes) ──
+    markup: [],              // [{id, type, x, y, w, h, strokeColor, fillColor, strokeWidth, pageNo}]
+    markupSelection: {       // ephemeral, ไม่เข้า history
+        id: null,
+        ids: new Set(),
+    },
+    markupDefaults: {        // sticky — กล่องต่อไปจำค่าสีจากกล่องล่าสุดที่ user เปลี่ยน
+        fillColor: "#facc15",
+    },
 };
 
 // ── selection mutators ──
