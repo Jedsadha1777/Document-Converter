@@ -32,7 +32,7 @@
                 <option value="manga">Japanese Vertical (mokuro)</option>
             </select>
 
-            <label for="ocr_engine">OCR engine:</label>
+            <label for="ocr_engine" id="ocrEngineLabel">OCR engine:</label>
             <select id="ocr_engine" name="ocr_engine"
                     title="Choose the OCR backend in the docling pipeline — ocrmac is macOS-only">
                 <option value="easyocr" selected>EasyOCR (cross-platform)</option>
@@ -58,7 +58,6 @@
     </form>
 
     <div class="preview-controls" style="margin-top:8px;">
-        <button type="button" id="runCorrectBtn"><span class="material-symbols-outlined">auto_awesome</span>Correct all with LLM</button>
         <button type="button" id="runTranslateBtn"><span class="material-symbols-outlined">translate</span>Translate all</button>
         <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation"><span class="material-symbols-outlined">groups</span>Characters</button>
         <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)"><span class="material-symbols-outlined">search</span>Preview prompt</button>
@@ -155,6 +154,8 @@ Examples:
         <div class="compare-tools" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:8px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
             <button type="button" id="detectMetaCopyBtn" class="ghost" title="Build a per-row speaker+emotion detection prompt (CHARACTERS + EMOTIONS list + numbered lines) and copy to clipboard — paste into Gemini/ChatGPT/Claude">📋 Copy detect prompt</button>
             <button type="button" id="detectMetaPasteBtn" class="ghost" title="Read LLM response (JSON array with {id, speaker, emotion1, emotion2}) from clipboard and patch each row's Speaker/Emotion dropdowns">📥 Patch detected</button>
+            <span style="width:1px; height:32px; background:#d1d5db; margin:0 4px;"></span>
+            <button type="button" id="runCorrectBtn"><span class="material-symbols-outlined">auto_awesome</span>Correct all with LLM</button>
             <span id="detectMetaStatus" style="font-size:12px; color:#6b7280;"></span>
         </div>
         <div id="compareArea">
@@ -525,12 +526,22 @@ const fastCheckbox = document.getElementById("fast");
 
 // Fast mode (Apple Vision direct) มีให้ใช้เฉพาะตอนเลือก engine = ocrmac
 function syncFastVisibility() {
-    const showFast = ocrEngineSelect.value === "ocrmac";
+    const showFast = ocrEngineSelect.value === "ocrmac" && document.getElementById("lang").value !== "manga";
     fastLabel.style.display = showFast ? "" : "none";
     if (!showFast) fastCheckbox.checked = false;
 }
 ocrEngineSelect.addEventListener("change", syncFastVisibility);
 syncFastVisibility();
+
+// mokuro มี OCR engine ของตัวเอง — ซ่อน docling OCR engine dropdown
+function syncOcrEngineVisibility() {
+    const hide = document.getElementById("lang").value === "manga";
+    document.getElementById("ocrEngineLabel").style.display = hide ? "none" : "";
+    ocrEngineSelect.style.display = hide ? "none" : "";
+    syncFastVisibility();
+}
+document.getElementById("lang").addEventListener("change", syncOcrEngineVisibility);
+syncOcrEngineVisibility();
 
 // ── จำค่า dropdown/checkbox ใน localStorage ──
 const CONVERT_PREFS_KEY = "doclingConvertPrefs";
@@ -601,6 +612,7 @@ function _saveConvertPrefs() {
     } catch (_) {}
 }
 _loadConvertPrefs();
+syncOcrEngineVisibility();
 [langSelect, ocrEngineSelect, fastCheckbox,
  translateEngineSelectEl, tmPairSelectEl, contentTypeSelectEl].forEach(el =>
     el && el.addEventListener("change", _saveConvertPrefs)
