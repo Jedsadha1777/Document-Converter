@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Docling Converter</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/static/css/fonts.css">
     <link rel="stylesheet" href="/static/css/app.css">
     <script src="/static/pretext.bundle.js"></script>
 </head>
@@ -258,9 +258,23 @@ Examples:
                     <div class="rp-section">
                         <div class="rp-label">Format</div>
                         <div class="rp-toolbar">
+                            <select id="rpFontFamilySelect" class="rp-select" style="flex:1;" title="Font family">
+                                <option value="">Default</option>
+                                <option value="'Google Sans', sans-serif">Google Sans</option>
+                                <option value="'Noto Sans Thai', sans-serif">Noto Sans Thai</option>
+                            </select>
+                        </div>
+                        <div class="rp-toolbar">
+                            <button type="button" id="rpBoldBtn" class="ghost" title="Bold"><span class="material-symbols-outlined">format_bold</span></button>
+                            <button type="button" id="rpItalicBtn" class="ghost" title="Italic"><span class="material-symbols-outlined">format_italic</span></button>
+                            <button type="button" id="rpUnderlineBtn" class="ghost" title="Underline"><span class="material-symbols-outlined">format_underlined</span></button>
+                            <button type="button" id="rpStrikeBtn" class="ghost" title="Strikethrough"><span class="material-symbols-outlined">format_strikethrough</span></button>
+                        </div>
+                        <div class="rp-toolbar">
                             <button type="button" id="rpFontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
                             <button type="button" id="rpFontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
-                            <span class="rp-sep"></span>
+                        </div>
+                        <div class="rp-toolbar">
                             <button type="button" id="rpAlignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
                             <button type="button" id="rpAlignCenterBtn" class="ghost" title="กึ่งกลาง"><span class="material-symbols-outlined">format_align_center</span></button>
                             <button type="button" id="rpAlignRightBtn" class="ghost" title="ชิดขวา"><span class="material-symbols-outlined">format_align_right</span></button>

@@ -1,6 +1,6 @@
 import { ITool } from "./ITool.js";
 import { state } from "../../state.js";
-import { TEXTBOX_PADDING, TEXTBOX_FONT_FAMILY, measureTextInBox } from "../../text-layout.js";
+import { TEXTBOX_PADDING, TEXTBOX_FONT_FAMILY, measureTextInBox, buildFontString } from "../../text-layout.js";
 import { COLORS } from "../../colors.js";
 import { _hitRotatedBox, _worldToBoxLocal } from "../geometry.js";
 import { updateInspector } from "../inspector.js";
@@ -234,9 +234,14 @@ export class EditTextTool extends ITool {
         return b;
     }
 
+    _fontOpts() {
+        const ov = state.bboxOverrides[this.editingRef] || {};
+        return { fontFamily: ov.fontFamily, bold: !!ov.bold, italic: !!ov.italic };
+    }
+
     _computeMetrics(b, ctx2d) {
         const text = this.editingText;
-        const layout = measureTextInBox(ctx2d, text || " ", b.w, { fixedFontSize: b.fontSize, preserveWhitespace: true });
+        const layout = measureTextInBox(ctx2d, text || " ", b.w, { fixedFontSize: b.fontSize, preserveWhitespace: true, ...this._fontOpts() });
         if (!layout) {
             return { ascent: 0, descent: 0, lineHeight: 0, lines: [] };
         }
@@ -346,7 +351,7 @@ export class EditTextTool extends ITool {
         const align = state.bboxOverrides[this.editingRef]?.align || "left";
         const lineLeft = getLineLeftX(line, b.x, b.w, TEXTBOX_PADDING, align);
         const relX = lp.x - lineLeft;
-        m.font = `${b.fontSize}px ${TEXTBOX_FONT_FAMILY}`;
+        m.font = buildFontString(b.fontSize, this._fontOpts());
         let bestCol = 0, minD = Math.abs(relX);
         for (let i = 0; i <= line.text.length; i++) {
             const w = m.measureText(line.text.slice(0, i)).width;
@@ -585,10 +590,11 @@ export class EditTextTool extends ITool {
             canvasCtx.translate(-cx, -cy);
         }
 
-        const { lineHeight, lines } = this._computeMetrics(b, canvasCtx);
-        const align = state.bboxOverrides[this.editingRef]?.align || "left";
+        const { lineHeight, lines, ascent, descent } = this._computeMetrics(b, canvasCtx);
+        const ov = state.bboxOverrides[this.editingRef] || {};
+        const align = ov.align || "left";
         const topY = this._topY(b, lines, lineHeight);
-        canvasCtx.font = `${b.fontSize}px ${TEXTBOX_FONT_FAMILY}`;
+        canvasCtx.font = buildFontString(b.fontSize, this._fontOpts());
 
         canvasCtx.save();
         canvasCtx.beginPath();

@@ -4,6 +4,14 @@
 export const TEXTBOX_PADDING = 4;
 export const TEXTBOX_FONT_FAMILY = '-apple-system, "Helvetica Neue", "Sarabun", sans-serif';
 
+export function buildFontString(fontSize, opts) {
+    opts = opts || {};
+    const italic = opts.italic ? "italic " : "";
+    const weight = opts.bold ? "bold " : "";
+    const family = opts.fontFamily || TEXTBOX_FONT_FAMILY;
+    return `${italic}${weight}${fontSize}px ${family}`;
+}
+
 // detect locale จาก script ที่เจอใน text — ส่งให้ Pretext เลือก line-break rules ที่ถูก
 function detectLocale(text) {
     if (/[฀-๿]/.test(text)) return "th";
@@ -121,7 +129,7 @@ export function measureTextInBox(ctx, text, w, opts) {
     opts = opts || {};
     const f = opts.fixedFontSize || opts.ocrFontSize || opts.fallbackFontSize;
     if (!f || f <= 0) return null;
-    ctx.font = `${f}px ${TEXTBOX_FONT_FAMILY}`;
+    ctx.font = buildFontString(f, opts);
     const innerW = Math.max(w - TEXTBOX_PADDING * 2, 1);
     // collapse แค่ horizontal whitespace; เก็บ \n ไว้เพื่อให้ Pretext (whiteSpace:"pre-wrap")
     // จัดเป็น hard-break — ผู้ใช้พิมพ์ Enter ใน Translation textarea แล้วต้องขึ้นบรรทัดใหม่จริง

@@ -1,7 +1,7 @@
 import { state } from "../../state.js";
 import { COLORS } from "../../colors.js";
 import { SPEAKER_SKIP } from "../../characters.js";
-import { measureTextInBox, TEXTBOX_PADDING, TEXTBOX_FONT_FAMILY } from "../../text-layout.js";
+import { measureTextInBox, TEXTBOX_PADDING, TEXTBOX_FONT_FAMILY, buildFontString } from "../../text-layout.js";
 
 const CATEGORY_COLOR = {
     texts: COLORS.categoryTexts,
@@ -42,14 +42,14 @@ function _applyRotation(ctx, x, y, w, h, rotDeg) {
 
 // fallback font size = binary search ขนาดใหญ่สุดที่ text fit ใน bbox
 // (heuristic height/lines เดาผิดบ่อยตอน docling join text เป็น 1 บรรทัด → คิดว่า font ใหญ่)
-function _fallbackFontSize(ctx, text, origW, origH) {
+function _fallbackFontSize(ctx, text, origW, origH, fontOpts) {
     const innerW = Math.max(origW - 8, 1);
     const innerH = Math.max(origH - 8, 1);
     if (origW <= 8 || origH <= 8 || !text.trim()) return 14;
     let lo = 8, hi = 36;
     while (lo < hi) {
         const mid = Math.ceil((lo + hi) / 2);
-        const probe = measureTextInBox(ctx, text, origW, { fixedFontSize: mid });
+        const probe = measureTextInBox(ctx, text, origW, { fixedFontSize: mid, ...fontOpts });
         if (probe && probe.requiredH <= innerH) lo = mid;
         else hi = mid - 1;
     }
@@ -75,7 +75,8 @@ export function renderBoxes(ctx, opts) {
         const b = it._fontBbox || it.bbox || {};
         const origW = Math.abs((b.r || 0) - (b.l || 0)) * sx;
         const origH = Math.abs((b.b || 0) - (b.t || 0)) * sy;
-        const fallbackFontSize = _fallbackFontSize(ctx, it.text || "", origW, origH);
+        const fontOpts = { fontFamily: ov.fontFamily, bold: !!ov.bold, italic: !!ov.italic };
+        const fallbackFontSize = _fallbackFontSize(ctx, it.text || "", origW, origH, fontOpts);
         const ocrFontSize = it.font_size ? it.font_size * sy : 0;
         const effectiveFontSize = ov.fontSize || ocrFontSize || fallbackFontSize;
 
@@ -93,9 +94,10 @@ export function renderBoxes(ctx, opts) {
                 ocrFontSize,
                 fallbackFontSize,
                 preserveWhitespace: isEditing,
+                ...fontOpts,
             });
             if (layout) {
-                overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", valign: ov.valign || "top", isTranslated: !!tr, item: it, rotation, isEditing });
+                overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", valign: ov.valign || "top", isTranslated: !!tr, item: it, rotation, isEditing, fontOpts });
                 drawn.push({ x, y, w, h, item: it, fontSize: layout.fontSize, rotation });
                 return;
             }
@@ -129,9 +131,10 @@ export function renderBoxes(ctx, opts) {
         ctx.beginPath();
         ctx.rect(r.x, r.y, r.w, r.h);
         ctx.clip();
-        ctx.font = `${r.layout.fontSize}px ${TEXTBOX_FONT_FAMILY}`;
+        ctx.font = buildFontString(r.layout.fontSize, r.fontOpts);
         const ov = state.bboxOverrides[r.item.self_ref] || {};
-        ctx.fillStyle = ov.textColor || r.item.text_color || COLORS.text;
+        const textColor = ov.textColor || r.item.text_color || COLORS.text;
+        ctx.fillStyle = textColor;
         ctx.textBaseline = "alphabetic";
         ctx.textAlign = "left";
         const totalTextH = r.layout.lines.length * r.layout.lineHeight;
@@ -144,12 +147,36 @@ export function renderBoxes(ctx, opts) {
             topY = r.y + TEXTBOX_PADDING;
         }
         const firstBaselineY = topY + r.layout.ascent;
+        const drawUnderline = !!ov.underline;
+        const drawStrike = !!ov.strikethrough;
+        const decoLineW = Math.max(1, r.layout.fontSize / 16);
         r.layout.lines.forEach((ln, i) => {
             let lineX;
             if (r.align === "center") lineX = r.x + (r.w - ln.width) / 2;
             else if (r.align === "right") lineX = r.x + r.w - TEXTBOX_PADDING - ln.width;
             else lineX = r.x + TEXTBOX_PADDING;
-            ctx.fillText(ln.text, lineX, firstBaselineY + i * r.layout.lineHeight);
+            const by = firstBaselineY + i * r.layout.lineHeight;
+            ctx.fillText(ln.text, lineX, by);
+            if ((drawUnderline || drawStrike) && ln.width > 0) {
+                ctx.save();
+                ctx.strokeStyle = textColor;
+                ctx.lineWidth = decoLineW;
+                if (drawUnderline) {
+                    const uy = by + Math.max(2, r.layout.descent * 0.5);
+                    ctx.beginPath();
+                    ctx.moveTo(lineX, uy);
+                    ctx.lineTo(lineX + ln.width, uy);
+                    ctx.stroke();
+                }
+                if (drawStrike) {
+                    const sy_ = by - r.layout.ascent * 0.32;
+                    ctx.beginPath();
+                    ctx.moveTo(lineX, sy_);
+                    ctx.lineTo(lineX + ln.width, sy_);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
         });
         ctx.restore();
     });

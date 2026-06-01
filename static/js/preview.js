@@ -787,13 +787,14 @@ export function setupEditMode() {
             if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
             if (getLayer() === "markup") {
                 if (getTool() !== "select") return;
-                const id = state.markupSelection?.id;
-                if (id) {
-                    e.preventDefault();
-                    history.exec(new DeleteMarkupCmd(id));
-                    state.markupSelection.id = null;
-                    state.markupSelection.ids = new Set();
-                }
+                const ids = [...(state.markupSelection?.ids || [])];
+                if (!ids.length) return;
+                e.preventDefault();
+                const cmds = ids.map(id => new DeleteMarkupCmd(id));
+                const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `Delete ${cmds.length} markup`);
+                history.exec(cmd);
+                state.markupSelection.id = null;
+                state.markupSelection.ids = new Set();
                 return;
             }
             const refs = [...sel.refs].filter(r => state.speakerByRef[r] !== SPEAKER_SKIP);

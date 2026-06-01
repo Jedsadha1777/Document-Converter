@@ -1,6 +1,6 @@
 import { state } from "../state.js";
 import { history } from "../history.js";
-import { SetSpeakerCmd, SetEmotionCmd, UpdateMarkupCmd } from "../commands.js";
+import { SetSpeakerCmd, SetEmotionCmd, UpdateMarkupCmd, UpdateBboxCmd, CompositeCommand } from "../commands.js";
 import { renderSpeakerOptions, getCharacters, SPEAKER_SKIP, SPEAKER_AUTO } from "../characters.js";
 import { renderEmotionOptions, EMOTION_AUTO } from "../emotions.js";
 import { getImageSrc } from "./image-source.js";
@@ -16,8 +16,24 @@ let _lastInspectorRef = null;   // detect ref change → force update textarea �
 
 const $ = (id) => document.getElementById(id);
 
+const _cloneOv = (v) => v === undefined || v === null ? v : JSON.parse(JSON.stringify(v));
+
 function _dispatchClick(id) {
     $(id)?.click();
+}
+
+function _patchBboxOverrideForSelection(patch, desc) {
+    const refs = [...state.selection.refs];
+    if (!refs.length) return;
+    const cmds = refs.map(ref => {
+        const before = _cloneOv(state.bboxOverrides[ref]);
+        const after = { ...(before || {}), ...patch };
+        for (const k of Object.keys(after)) if (after[k] === undefined) delete after[k];
+        return new UpdateBboxCmd(ref, before, after, desc);
+    });
+    if (!cmds.length) return;
+    const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `${desc} (×${cmds.length})`);
+    history.exec(cmd);
 }
 
 export function initInspector() {
@@ -29,6 +45,36 @@ export function initInspector() {
     $("rpValignTopBtn")?.addEventListener("click", () => _dispatchClick("valignTopBtn"));
     $("rpValignMiddleBtn")?.addEventListener("click", () => _dispatchClick("valignMiddleBtn"));
     $("rpValignBottomBtn")?.addEventListener("click", () => _dispatchClick("valignBottomBtn"));
+
+    const fontFamEl = $("rpFontFamilySelect");
+    fontFamEl?.addEventListener("change", async () => {
+        const v = fontFamEl.value || undefined;
+        if (v && document.fonts?.load) {
+            const primary = v.replace(/,.*/, "").trim();
+            const sample = "AaBb1!กฎ";
+            try {
+                await Promise.all([
+                    document.fonts.load(`16px ${primary}`, sample),
+                    document.fonts.load(`bold 16px ${primary}`, sample),
+                    document.fonts.load(`italic 16px ${primary}`, sample),
+                    document.fonts.load(`bold italic 16px ${primary}`, sample),
+                ]);
+            } catch (e) {}
+        }
+        _patchBboxOverrideForSelection({ fontFamily: v, fontSize: undefined }, "Set font family");
+    });
+    const _wireToggle = (btnId, key, desc) => {
+        $(btnId)?.addEventListener("click", () => {
+            const ref = state.selection.ref;
+            if (!ref) return;
+            const cur = !!state.bboxOverrides[ref]?.[key];
+            _patchBboxOverrideForSelection({ [key]: !cur || undefined }, desc);
+        });
+    };
+    _wireToggle("rpBoldBtn", "bold", "Toggle bold");
+    _wireToggle("rpItalicBtn", "italic", "Toggle italic");
+    _wireToggle("rpUnderlineBtn", "underline", "Toggle underline");
+    _wireToggle("rpStrikeBtn", "strikethrough", "Toggle strikethrough");
 
     $("rpReOcrBtn")?.addEventListener("click", _reOcrSelected);
 
@@ -102,6 +148,19 @@ export function initInspector() {
     });
 
     _wireMarkupControls();
+    _preloadFonts();
+}
+
+function _preloadFonts() {
+    if (!document.fonts?.load) return;
+    const families = ["'Google Sans'", "'Noto Sans Thai'"];
+    const styles = ["", "bold ", "italic ", "bold italic "];
+    const sample = "AaBb1!กฎ";
+    for (const f of families) {
+        for (const s of styles) {
+            document.fonts.load(`${s}16px ${f}`, sample).catch(() => {});
+        }
+    }
 }
 
 function _wireMarkupControls() {
@@ -111,13 +170,18 @@ function _wireMarkupControls() {
     const borderWidthEl = $("rpMarkupBorderWidth");
 
     const apply = (patchAfter, desc) => {
-        const id = state.markupSelection?.id;
-        if (!id) return;
-        const shape = state.markup.find(s => s.id === id);
-        if (!shape) return;
-        const before = { fillColor: shape.fillColor, strokeColor: shape.strokeColor, strokeWidth: shape.strokeWidth };
-        const after = { ...before, ...patchAfter };
-        history.exec(new UpdateMarkupCmd(id, before, after, desc));
+        const ids = [...(state.markupSelection?.ids || [])];
+        if (!ids.length) return;
+        const cmds = ids.map(id => {
+            const shape = state.markup.find(s => s.id === id);
+            if (!shape) return null;
+            const before = { fillColor: shape.fillColor, strokeColor: shape.strokeColor, strokeWidth: shape.strokeWidth };
+            const after = { ...before, ...patchAfter };
+            return new UpdateMarkupCmd(id, before, after, desc);
+        }).filter(Boolean);
+        if (!cmds.length) return;
+        const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `${desc} (×${cmds.length})`);
+        history.exec(cmd);
     };
 
     fillEl?.addEventListener("input", () => {
@@ -347,9 +411,9 @@ export function updateInspector() {
     const markupPanel = $("rpMarkupPanel");
     if (!empty || !content) return;
 
-    const markupId = state.markupSelection?.id;
-    if (markupId) {
-        const shape = state.markup.find(s => s.id === markupId);
+    const markupIds = state.markupSelection?.ids;
+    if (markupIds?.size) {
+        const shape = state.markup.find(s => s.id === state.markupSelection.id);
         if (shape) {
             empty.style.display = "none";
             content.style.display = "none";
@@ -416,4 +480,11 @@ export function updateInspector() {
     Object.values(vMap).forEach(id => $(id)?.classList.remove("active"));
     if (hMap[ov.align]) $(hMap[ov.align])?.classList.add("active");
     if (vMap[ov.valign]) $(vMap[ov.valign])?.classList.add("active");
+
+    const fontFamEl = $("rpFontFamilySelect");
+    if (fontFamEl) fontFamEl.value = ov.fontFamily || "";
+    $("rpBoldBtn")?.classList.toggle("active", !!ov.bold);
+    $("rpItalicBtn")?.classList.toggle("active", !!ov.italic);
+    $("rpUnderlineBtn")?.classList.toggle("active", !!ov.underline);
+    $("rpStrikeBtn")?.classList.toggle("active", !!ov.strikethrough);
 }

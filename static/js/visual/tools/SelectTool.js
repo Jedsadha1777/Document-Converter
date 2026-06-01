@@ -221,7 +221,10 @@ export class SelectTool extends ITool {
 
     onPointerMove(ev, pos, ctx) {
         if (state.drag?.markupId) return this._markupPointerMove(ev, pos, ctx);
-        if (getLayer() === "markup") return this._markupHover(ev, pos, ctx);
+        if (getLayer() === "markup") {
+            if (state.marquee) return this._markupMarqueeMove(ev, pos, ctx);
+            return this._markupHover(ev, pos, ctx);
+        }
         const { wrap, canvas, tooltip, drawn, sel, doDraw } = ctx;
         const { x: px, y: py } = pos;
 
@@ -394,30 +397,35 @@ export class SelectTool extends ITool {
 
     drawOverlay(canvasCtx, opts) {
         if (getLayer() !== "markup") return;
-        const id = state.markupSelection?.id;
-        if (!id) return;
-        const shape = state.markup.find(s => s.id === id);
-        if (!shape) return;
+        const ids = state.markupSelection?.ids;
+        if (!ids?.size) return;
         const pageNo = _currentPageNo();
-        if (shape.pageNo && shape.pageNo !== pageNo) return;
         const z = opts.zoom;
-        const rot = shape.rotation || 0;
-        const box = { x: shape.x, y: shape.y, w: shape.w, h: shape.h };
-        canvasCtx.save();
-        if (rot) {
-            const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
-            canvasCtx.translate(cx, cy);
-            canvasCtx.rotate(rot * Math.PI / 180);
-            canvasCtx.translate(-cx, -cy);
+        const primaryId = state.markupSelection.id;
+        const single = ids.size === 1;
+        for (const shape of state.markup) {
+            if (!ids.has(shape.id)) continue;
+            if (shape.pageNo && shape.pageNo !== pageNo) continue;
+            const rot = shape.rotation || 0;
+            const box = { x: shape.x, y: shape.y, w: shape.w, h: shape.h };
+            canvasCtx.save();
+            if (rot) {
+                const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+                canvasCtx.translate(cx, cy);
+                canvasCtx.rotate(rot * Math.PI / 180);
+                canvasCtx.translate(-cx, -cy);
+            }
+            canvasCtx.strokeStyle = shape.id === primaryId ? COLORS.primary : COLORS.multiSelect;
+            canvasCtx.lineWidth = 2 / z;
+            canvasCtx.setLineDash([6 / z, 4 / z]);
+            canvasCtx.strokeRect(box.x, box.y, box.w, box.h);
+            canvasCtx.setLineDash([]);
+            canvasCtx.restore();
+            if (single && shape.id === primaryId) {
+                drawResizeHandles(canvasCtx, box, z, rot);
+                drawRotationHandle(canvasCtx, box, rot, z);
+            }
         }
-        canvasCtx.strokeStyle = COLORS.primary;
-        canvasCtx.lineWidth = 2 / z;
-        canvasCtx.setLineDash([6 / z, 4 / z]);
-        canvasCtx.strokeRect(box.x, box.y, box.w, box.h);
-        canvasCtx.setLineDash([]);
-        canvasCtx.restore();
-        drawResizeHandles(canvasCtx, box, z, rot);
-        drawRotationHandle(canvasCtx, box, rot, z);
     }
 
     _markupHover(ev, pos, ctx) {
@@ -454,8 +462,9 @@ export class SelectTool extends ITool {
         const { wrap, doDraw } = ctx;
         const { x: px, y: py } = pos;
         const pageNo = _currentPageNo();
-        const selId = state.markupSelection?.id;
-        if (selId) {
+        const ids = state.markupSelection.ids;
+        if (ids.size === 1) {
+            const selId = state.markupSelection.id;
             const sel = state.markup.find(s => s.id === selId);
             if (sel && (!sel.pageNo || sel.pageNo === pageNo)) {
                 const zNow = viewport.getZoom();
@@ -498,22 +507,73 @@ export class SelectTool extends ITool {
         }
         if (hit) {
             ev.preventDefault();
-            state.markupSelection.id = hit.id;
-            state.markupSelection.ids = new Set([hit.id]);
-            state.drag = {
-                markupId: hit.id,
-                mode: "move",
-                startX: px, startY: py,
-                startShape: _clone(hit),
-                moved: false,
-            };
-            wrap.classList.add("dragging");
+            if (ev.shiftKey) {
+                if (ids.has(hit.id)) {
+                    ids.delete(hit.id);
+                    if (state.markupSelection.id === hit.id) {
+                        state.markupSelection.id = [...ids].pop() || null;
+                    }
+                } else {
+                    ids.add(hit.id);
+                    state.markupSelection.id = hit.id;
+                }
+            } else {
+                state.markupSelection.id = hit.id;
+                state.markupSelection.ids = new Set([hit.id]);
+                state.drag = {
+                    markupId: hit.id,
+                    mode: "move",
+                    startX: px, startY: py,
+                    startShape: _clone(hit),
+                    moved: false,
+                };
+                wrap.classList.add("dragging");
+            }
         } else {
-            state.markupSelection.id = null;
-            state.markupSelection.ids = new Set();
+            if (!ev.shiftKey) {
+                state.markupSelection.id = null;
+                state.markupSelection.ids = new Set();
+            }
+            state.marquee = {
+                startX: px, startY: py,
+                endX: px, endY: py,
+                additive: ev.shiftKey,
+                initialSelection: new Set(state.markupSelection.ids),
+                markupMode: true,
+            };
         }
         ctx.helpers.updateInspector();
         doDraw();
+    }
+
+    _markupMarqueeMove(ev, pos, ctx) {
+        const mq = state.marquee;
+        if (!mq) return;
+        mq.endX = pos.x;
+        mq.endY = pos.y;
+        const x1 = Math.min(mq.startX, mq.endX);
+        const y1 = Math.min(mq.startY, mq.endY);
+        const x2 = Math.max(mq.startX, mq.endX);
+        const y2 = Math.max(mq.startY, mq.endY);
+        const pageNo = _currentPageNo();
+        const ids = state.markupSelection.ids;
+        for (const s of state.markup) {
+            if (s.pageNo && s.pageNo !== pageNo) continue;
+            const aabb = _aabbOfRotated({ x: s.x, y: s.y, w: s.w, h: s.h }, s.rotation || 0);
+            const inside = aabb.x < x2 && aabb.x + aabb.w > x1 && aabb.y < y2 && aabb.y + aabb.h > y1;
+            const wasInitial = mq.initialSelection.has(s.id);
+            if (inside && !ids.has(s.id)) {
+                ids.add(s.id);
+                state.markupSelection.id = s.id;
+            } else if (!inside && ids.has(s.id) && !wasInitial) {
+                ids.delete(s.id);
+                if (state.markupSelection.id === s.id) {
+                    state.markupSelection.id = [...ids].pop() || null;
+                }
+            }
+        }
+        ctx.helpers.updateInspector();
+        ctx.doDraw();
     }
 
     _markupPointerMove(ev, pos, ctx) {
