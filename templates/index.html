@@ -58,7 +58,6 @@
     </form>
 
     <div class="preview-controls" style="margin-top:8px;">
-        <button type="button" id="runTranslateBtn"><span class="material-symbols-outlined">translate</span>Translate all</button>
         <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation"><span class="material-symbols-outlined">groups</span>Characters</button>
         <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)"><span class="material-symbols-outlined">search</span>Preview prompt</button>
         <button type="button" id="copyPromptBtn" class="ghost" title="Build the prompt for the whole table and copy to clipboard (1-click)"><span class="material-symbols-outlined">content_copy</span>Copy prompt</button>
@@ -71,6 +70,8 @@
                 Gemini{% if gemini_available %} ({{ gemini_model }}){% else %} — set GEMINI_API_KEY in .env{% endif %}
             </option>
         </select>
+        <button type="button" id="retryFailedBtn" class="ghost" disabled
+                title="Retry only failed rows at batch/2"><span class="material-symbols-outlined">replay</span>retry fail</button>
         <label id="batchSizeLabel" style="font-size:12px; color:#374151; display:inline-flex; align-items:center; gap:4px;"
                title="Texts per LLM call — 0 = entire file in 1 call; larger = faster but higher parse-fail risk">
             batch:
@@ -79,9 +80,8 @@
                    style="width:54px; padding:4px 6px; border-radius:6px; border:1px solid #d1d5db;">
             <span style="color:#9ca3af; font-size:11px;">(0=entire file)</span>
         </label>
-        <button type="button" id="retryFailedBtn" class="ghost" disabled
-                title="Retry only failed rows at batch/2"><span class="material-symbols-outlined">replay</span>retry fail</button>
-        <a href="/apple-translate-setup" target="_blank" style="font-size:12px; color:#2563eb;">setup Apple →</a>
+        <button type="button" id="runTranslateBtn"><span class="material-symbols-outlined">translate</span>Translate all</button>
+        <a href="/apple-translate-setup" id="setupAppleLink" target="_blank" style="font-size:12px; color:#2563eb;">setup Apple →</a>
         <button type="button" id="stopCorrectBtn" class="ghost" disabled><span class="material-symbols-outlined">stop</span>Stop</button>
         <button type="button" id="exportCsvBtn" class="ghost" title="Export the compare table as CSV (#, Speaker, OCR, Corrected, Translation)"><span class="material-symbols-outlined">download</span>Export CSV</button>
         <button type="button" id="clearCorrectBtn" class="ghost">Clear</button>

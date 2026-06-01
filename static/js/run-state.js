@@ -98,7 +98,10 @@ export function syncBatchVisibility() {
     const eng = runDom.translateEngineSel.value;
     const supportsBatch = (eng === "qwen" || eng === "gemini");
     runDom.batchSizeLabel.style.display = supportsBatch ? "inline-flex" : "none";
-    runDom.retryFailedBtn.style.display = supportsBatch ? "" : "none";
+    const isApple = eng === "apple";
+    runDom.retryFailedBtn.style.display = isApple ? "" : "none";
+    const setupApple = document.getElementById("setupAppleLink");
+    if (setupApple) setupApple.style.display = isApple ? "" : "none";
     if (eng === "qwen") {
         runDom.engineHint.textContent = "qwen2.5:1.5b via Ollama";
     } else if (eng === "gemini") {
