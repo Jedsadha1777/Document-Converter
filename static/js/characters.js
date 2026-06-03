@@ -156,7 +156,7 @@ function _buildDetectionPrompt() {
         "gender / age = keep the enum values in English (they are fixed UI options, not translated).\n\n" +
         limitLine +
         "For each character, return:\n" +
-        '  name (as in text or descriptive label — keep original script if a name),\n' +
+        '  name (Keep original script/label AND append Thai translation or Thai descriptive label in parentheses, e.g., "John (จอห์น)" or "Narrator (ผู้บรรยาย)"),\n' +
         '  gender ("female" / "male" / "other" / "" if unclear) — English enum, do NOT translate,\n' +
         '  age ("child" / "teen" / "adult" / "middle" / "senior" / "" if unclear) — English enum, do NOT translate,\n' +
         `  persona (1-2 sentence description IN ${personaLang} — speech pattern / role / personality).\n\n` +
