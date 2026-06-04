@@ -7,10 +7,11 @@ import { COLORS } from "./colors.js";
 import * as viewport from "./visual/viewport.js";
 import { getImageSrc } from "./visual/image-source.js";
 import { SpatialGrid } from "./visual/spatial-grid.js";
-import { getTool, onToolChange } from "./visual/tool-mode.js";
+import { getTool, onToolChange, setTool } from "./visual/tool-mode.js";
 import { getLayer, onLayerChange } from "./visual/layer-mode.js";
 import { updateInspector } from "./visual/inspector.js";
 import { _aabbOfRotated } from "./visual/geometry.js";
+import { ITool } from "./visual/tools/ITool.js";
 import { SelectTool } from "./visual/tools/SelectTool.js";
 import { EditTextTool } from "./visual/tools/EditTextTool.js";
 import { ShapeTool } from "./visual/tools/ShapeTool.js";
@@ -20,6 +21,71 @@ import { renderBoxes } from "./visual/renderers/box-renderer.js";
 import { renderMarkup } from "./visual/renderers/markup-renderer.js";
 import { drawResizeHandles, drawRotationHandle } from "./visual/renderers/handle-renderer.js";
 
+class AddTextboxTool extends ITool {
+    constructor() {
+        super("add-textbox", "Add textbox", { cursor: "crosshair" });
+        this.isDrawing = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.preview = null;
+    }
+    activate(ctx) {
+        if (ctx?.wrap) ctx.wrap.style.cursor = "crosshair";
+    }
+    deactivate(ctx) {
+        this.isDrawing = false;
+        this.preview = null;
+        if (ctx?.wrap) ctx.wrap.style.cursor = "default";
+    }
+    onPointerDown(ev, pos, ctx) {
+        if (ev.button !== 0) return;
+        ev.preventDefault();
+        this.isDrawing = true;
+        this.startX = pos.x;
+        this.startY = pos.y;
+        this.preview = { x: pos.x, y: pos.y, w: 0, h: 0 };
+    }
+    onPointerMove(ev, pos, ctx) {
+        if (!this.isDrawing) return;
+        this.preview = { x: this.startX, y: this.startY, w: pos.x - this.startX, h: pos.y - this.startY };
+        ctx.doDraw();
+    }
+    onPointerUp(ev, pos, ctx) {
+        if (!this.isDrawing) return;
+        this.isDrawing = false;
+        const w = pos.x - this.startX;
+        const h = pos.y - this.startY;
+        this.preview = null;
+        const MIN = 5;
+        if (Math.abs(w) >= MIN && Math.abs(h) >= MIN) {
+            const x = Math.min(this.startX, this.startX + w);
+            const y = Math.min(this.startY, this.startY + h);
+            _commitNewTextboxFromImageRect(x, y, Math.abs(w), Math.abs(h));
+        } else {
+            ctx.doDraw();
+        }
+        setTool("select");
+    }
+    drawOverlay(canvasCtx, opts) {
+        if (!this.preview) return;
+        const { x, y, w, h } = this.preview;
+        const nx = Math.min(x, x + w);
+        const ny = Math.min(y, y + h);
+        const nw = Math.abs(w);
+        const nh = Math.abs(h);
+        const z = opts.zoom || 1;
+        canvasCtx.save();
+        canvasCtx.strokeStyle = COLORS.primary;
+        canvasCtx.fillStyle = COLORS.marqueeFill;
+        canvasCtx.lineWidth = 2 / z;
+        canvasCtx.setLineDash([6 / z, 4 / z]);
+        canvasCtx.fillRect(nx, ny, nw, nh);
+        canvasCtx.strokeRect(nx, ny, nw, nh);
+        canvasCtx.setLineDash([]);
+        canvasCtx.restore();
+    }
+}
+
 const toolRegistry = new ToolRegistry();
 toolRegistry.add(new SelectTool());
 toolRegistry.add(new EditTextTool());
@@ -27,6 +93,7 @@ toolRegistry.add(new ShapeTool("shape-triangle", "shape-triangle"));
 toolRegistry.add(new ShapeTool("shape-rect", "shape-rect"));
 toolRegistry.add(new ShapeTool("shape-circle", "shape-circle"));
 toolRegistry.add(new PenTool());
+toolRegistry.add(new AddTextboxTool());
 let currentToolId = "select";
 
 let _markupClipboard = [];
@@ -269,6 +336,151 @@ export function mergeSelectedBoxes() {
     _clearSelectionAndButton();
     renderPreview();
     window.buildCompareTable?.(true);
+}
+
+function _commitNewTextboxFromImageRect(imgX, imgY, imgW, imgH) {
+    const lastResult = state.lastResult;
+    if (!lastResult?.preview?.pages?.length) return;
+    const pageSelectEl = document.getElementById("pageSelect");
+    const pageNo = parseInt(pageSelectEl?.value || lastResult.preview.pages[0].page_no, 10);
+    const page = lastResult.preview.pages.find(p => p.page_no === pageNo);
+    if (!page) return;
+    const pageW = page.width || page.img_width || 1;
+    const pageH = page.height || page.img_height || 1;
+    const imageW = page.img_width || pageW;
+    const imageH = page.img_height || pageH;
+    const sx = imageW / pageW;
+    const sy = imageH / pageH;
+    const newBbox = {
+        l: imgX / sx,
+        r: (imgX + imgW) / sx,
+        t: imgY / sy,
+        b: (imgY + imgH) / sy,
+        coord_origin: "TOPLEFT",
+    };
+    _addTextboxCore(pageNo, pageW, pageH, newBbox);
+}
+
+function _addTextboxCore(pageNo, pageW, pageH, newBbox) {
+    const lastResult = state.lastResult;
+    if (!lastResult?.preview?.pages?.length) return;
+
+    const newCx = (newBbox.l + newBbox.r) / 2;
+    const newCy = (newBbox.t + newBbox.b) / 2;
+
+    const before = _mergeSnapshot();
+
+    // BBox center normalized to TOPLEFT page-y → proximity calc กับ items ที่อาจมี coord_origin ต่างกัน
+    const _centerOf = (b) => {
+        if (!b) return null;
+        const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
+        return {
+            x: (b.l + b.r) / 2,
+            y: isBL ? pageH - (b.t + b.b) / 2 : (b.t + b.b) / 2,
+        };
+    };
+
+    const items = lastResult.preview.items;
+    const texts = Array.isArray(lastResult.texts) ? lastResult.texts : [];
+
+    let bestRef = null;
+    let bestDist = Infinity;
+    for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        if (it.page_no !== pageNo || !it.bbox) continue;
+        const c = _centerOf(it.bbox);
+        if (!c) continue;
+        const dx = c.x - newCx;
+        const dy = c.y - newCy;
+        const d = dx * dx + dy * dy;
+        if (d < bestDist) {
+            bestDist = d;
+            bestRef = it.self_ref;
+        }
+    }
+
+    let insertItemIdx = items.length;
+    let insertTextIdx = texts.length;
+    if (bestRef) {
+        const ii = items.findIndex(it => it.self_ref === bestRef);
+        if (ii >= 0) insertItemIdx = ii + 1;
+        const ti = texts.findIndex(t => t.self_ref === bestRef);
+        if (ti >= 0) insertTextIdx = ti + 1;
+    }
+
+    const nearest = bestRef ? items.find(it => it.self_ref === bestRef) : null;
+    const nearestFontSize = nearest?.font_size;
+
+    const tempRef = "#/texts/__new__";
+    const newItem = {
+        self_ref: tempRef,
+        category: "texts",
+        text: "",
+        bbox: { ...newBbox },
+        page_no: pageNo,
+    };
+    if (typeof nearestFontSize === "number" && nearestFontSize > 0) {
+        newItem.font_size = nearestFontSize;
+    }
+    items.splice(insertItemIdx, 0, newItem);
+    texts.splice(insertTextIdx, 0, {
+        self_ref: tempRef,
+        text: "",
+        prov: [{ page_no: pageNo, bbox: { ...newBbox }, charspan: [0, 0] }],
+    });
+
+    const refMap = new Map();
+    texts.forEach((t, idx) => {
+        const oldRef = t.self_ref;
+        const newRef = `#/texts/${idx}`;
+        if (oldRef !== newRef) refMap.set(oldRef, newRef);
+        t.self_ref = newRef;
+    });
+    items.forEach(it => {
+        const nr = refMap.get(it.self_ref);
+        if (nr) it.self_ref = nr;
+    });
+
+    const _remapDict = (d) => {
+        const nd = {};
+        Object.keys(d).forEach(k => {
+            const nk = refMap.get(k);
+            nd[nk !== undefined ? nk : k] = d[k];
+        });
+        Object.keys(d).forEach(k => delete d[k]);
+        Object.assign(d, nd);
+    };
+    const _remapSet = (s) => {
+        const ns = new Set();
+        s.forEach(k => {
+            const nk = refMap.get(k);
+            ns.add(nk !== undefined ? nk : k);
+        });
+        s.clear();
+        ns.forEach(v => s.add(v));
+    };
+    _remapDict(state.corrections);
+    _remapDict(state.translations);
+    _remapDict(state.bboxOverrides);
+    _remapDict(state.speakerByRef);
+    _remapDict(state.emotionByRef);
+    _remapDict(state.emotion2ByRef);
+    _remapSet(state.manualEdits);
+    _remapSet(state.manualTranslations);
+
+    const output = document.getElementById("output");
+    try {
+        const j = JSON.parse(output.value || "{}");
+        j.texts = texts.map(t => ({ ...t }));
+        const out = JSON.stringify(j, null, 2);
+        output.value = out;
+        lastResult.json_text = out;
+    } catch (e) {
+        console.warn("[addTextbox] JSON sync failed", e);
+    }
+
+    const after = _mergeSnapshot();
+    history.exec(new MergeBoxesCmd(before, after, "Add textbox"));
 }
 
 // cleanup ของ wrap รอบที่แล้ว — เรียกก่อน mount ใหม่ ไม่งั้น ResizeObserver,
@@ -943,6 +1155,7 @@ export function setupEditMode() {
         _syncAlignToolbar();
     }
 
+    document.getElementById("addTextboxBtn")?.addEventListener("click", () => setTool("add-textbox"));
     fontInc.addEventListener("click", () => _adjustFont(+2));
     fontDec.addEventListener("click", () => _adjustFont(-2));
     alignL.addEventListener("click",  () => _setAlign("left"));

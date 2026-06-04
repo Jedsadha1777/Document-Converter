@@ -152,11 +152,11 @@ export class UpdateMarkupCmd extends Command {
 // MergeBoxesCmd — รวมหลายกล่อง: items/texts/json_text + dicts ทุกตัวที่ remap
 // snapshot ครอบทั้งหมดเพื่อให้ undo คืนสภาพได้ก้อนเดียว
 export class MergeBoxesCmd extends Command {
-    constructor(beforeSnap, afterSnap) {
+    constructor(beforeSnap, afterSnap, description) {
         super();
         this.before = beforeSnap;
         this.after = afterSnap;
-        this.description = "Merge boxes";
+        this.description = description || "Merge boxes";
     }
     do()   { this._apply(this.after); }
     undo() { this._apply(this.before); }

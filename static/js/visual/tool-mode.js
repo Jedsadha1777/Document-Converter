@@ -1,4 +1,4 @@
-const VALID_TOOLS = ["select", "pan", "shape-triangle", "shape-rect", "shape-circle", "shape-pen"];
+const VALID_TOOLS = ["select", "pan", "shape-triangle", "shape-rect", "shape-circle", "shape-pen", "add-textbox"];
 let _tool = "select";
 const _listeners = new Set();
 

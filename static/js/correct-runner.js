@@ -12,9 +12,7 @@ import {
     updateRetryButton,
 } from "./run-state.js";
 
-const { corrections, translations, manualEdits, manualTranslations } = state;
-
-const clearCorrectBtn = document.getElementById("clearCorrectBtn");
+const { corrections } = state;
 
 // ── DOM helpers ──
 function _applyCorrectResult(row, orig, corrected) {
@@ -256,15 +254,3 @@ runDom.stopCorrectBtn.addEventListener("click", () => {
     runDom.stopCorrectBtn.disabled = true;
 });
 
-clearCorrectBtn.addEventListener("click", () => {
-    Object.keys(corrections).forEach(k => delete corrections[k]);
-    Object.keys(translations).forEach(k => delete translations[k]);
-    manualEdits.clear();
-    manualTranslations.clear();
-    // clear retry state — fail indices ของ run เก่าใช้ไม่ได้แล้วเพราะ result ถูกล้างไปด้วย
-    runState.lastFailedIndexes = [];
-    runState.lastAttempt = 0;
-    buildCompareTable(true);
-    updateRetryButton();
-    if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
-});

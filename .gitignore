@@ -53,3 +53,7 @@ test_files/
 .env.*
 !.env.example
 secrets.json
+
+# local-only directories
+skills/
+reference/

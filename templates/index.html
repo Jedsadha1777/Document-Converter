@@ -19,7 +19,7 @@
         <div class="controls">
             <label for="file">File:</label>
             <input type="file" id="file" name="file" multiple required
-                   title="เลือกได้หลายไฟล์พร้อมกัน — จะ OCR ทีละไฟล์แล้วรวม pages/texts">
+                   title="Select multiple files at once — OCR per file then merge pages/texts">
             <span id="fileCount" style="font-size:12px; color:#6b7280;"></span>
             <button type="button" id="pasteTextBtn" class="ghost" title="Paste plain text instead of uploading — each line becomes a row in the Compare table"><span class="material-symbols-outlined">edit_note</span>Paste text</button>
 
@@ -46,12 +46,12 @@
                 <input type="checkbox" id="fast"> <span class="material-symbols-outlined">bolt</span>Fast (skip layout/table)
             </label>
 
-            <label for="pages" title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages. ถ้าเลือกหลายไฟล์ — ใช้ range เดียวกันกับทุกไฟล์">
+            <label for="pages" title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages. Multi-file: same range applies to all files">
                 Pages:
             </label>
             <input type="text" id="pages" name="pages" placeholder="all"
                    style="width:110px; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px;"
-                   title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages. ถ้าเลือกหลายไฟล์ — ใช้ range เดียวกันกับทุกไฟล์">
+                   title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages. Multi-file: same range applies to all files">
 
             <button type="submit" id="submitBtn">Convert to JSON</button>
         </div>
@@ -84,7 +84,6 @@
         <button type="button" id="runTranslateBtn"><span class="material-symbols-outlined">translate</span>Translate all</button>
         <button type="button" id="stopCorrectBtn" class="ghost" disabled><span class="material-symbols-outlined">stop</span>Stop</button>
         <button type="button" id="exportCsvBtn" class="ghost" title="Export the compare table as CSV (#, Speaker, OCR, Corrected, Translation)"><span class="material-symbols-outlined">download</span>Export CSV</button>
-        <button type="button" id="clearCorrectBtn" class="ghost">Clear</button>
         <span id="correctProgress" style="color:#6b7280; font-size:13px;"></span>
         <span id="engineHint" style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b via Ollama</span>
     </div>
@@ -101,14 +100,14 @@
             <span style="color:#d1d5db; padding:0 4px;">│</span>
             <strong>Type:</strong>
             <select id="contentType" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;"
-                    title="Content type ─ ปรับ prompt style + TM domain filter ตามชนิดเอกสาร">
+                    title="Content type — adjust prompt style + TM domain filter per document type">
                 <!-- options populated by JS based on TM pair selection -->
             </select>
             <label>final_k:
                 <input type="number" id="tmFinalK" min="1" max="200" value="20"
                        style="width:60px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;">
             </label>
-            <label title="ตัด match ที่ score ต่ำกว่าค่านี้ — 0 = ไม่ filter, 0.85 = strict near-exact (default)">min_score:
+            <label title="Drop matches below this score — 0 = no filter, 0.85 = strict near-exact (default)">min_score:
                 <input type="number" id="tmMinScore" min="0" max="2" step="0.05" value="0.85"
                        style="width:60px; padding:4px 6px; border:1px solid #d1d5db; border-radius:4px; margin-left:4px;">
             </label>
@@ -170,9 +169,9 @@ Examples:
             <select id="pageSelect"></select>
 
             <button type="button" id="editModeBtn" class="ghost" style="margin-left:6px; display:none;"
-                    title="โหมดแก้กล่อง overlay — ลาก/resize ได้, ปรับ font/align">✏️ Edit</button>
+                    title="Edit overlay bbox mode — drag/resize, adjust font/align">✏️ Edit</button>
             <button type="button" id="mergeSelectedBtn" class="ghost" style="display:none; margin-left:6px;"
-                    title="รวมกล่องที่เลือก (shift+คลิกเพิ่ม)"><span class="material-symbols-outlined">merge</span>Merge (<span id="mergeCount">0</span>)</button>
+                    title="Merge selected boxes (shift+click to add)"><span class="material-symbols-outlined">merge</span>Merge (<span id="mergeCount">0</span>)</button>
             <div id="editToolbar" style="display:inline-flex; margin-left:6px; gap:4px; align-items:center;">
                 <button type="button" id="undoBtn" class="ghost" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined">undo</span>Undo</button>
                 <button type="button" id="redoBtn" class="ghost" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined">redo</span>Redo</button>
@@ -189,22 +188,23 @@ Examples:
                     <button type="button" class="ghost tool-btn" data-tool="shape-triangle" title="Triangle"><span class="material-symbols-outlined">change_history</span></button>
                     <button type="button" class="ghost tool-btn" data-tool="shape-rect" title="Rectangle"><span class="material-symbols-outlined">rectangle</span></button>
                     <button type="button" class="ghost tool-btn" data-tool="shape-circle" title="Circle"><span class="material-symbols-outlined">circle</span></button>
-                    <button type="button" class="ghost tool-btn" data-tool="shape-pen" title="Pen — คลิก/ลาก anchor; alt+คลิก anchor เก่า=ย้าย; คลิก anchor แรก=close; dbl-click/Enter=จบ; คลิก segment=แทรก; คลิก endpoint=ต่อ; คลิก anchor กลาง=ลบ; alt+คลิก=convert smooth/corner"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="m2 2 7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
+                    <button type="button" class="ghost tool-btn" data-tool="shape-pen" title="Pen — click/drag anchor; alt+click existing anchor=move; click first anchor=close; dbl-click/Enter=finish; click segment=insert; click endpoint=resume; click interior anchor=delete; alt+click=convert smooth/corner"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="m2 2 7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></button>
                 </span>
                 <span id="subtitleTools" style="display:inline-flex; align-items:center; gap:4px;">
                     <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
-                    <button type="button" id="subtitleBgToggleBtn" class="ghost active" title="พื้นหลัง subtitle on/off"><span class="material-symbols-outlined">format_color_fill</span></button>
+                    <button type="button" id="subtitleBgToggleBtn" class="ghost active" title="Subtitle background on/off"><span class="material-symbols-outlined">format_color_fill</span></button>
                     <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
-                    <button type="button" id="fontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
-                    <button type="button" id="fontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
-                    <button type="button" id="alignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
-                    <button type="button" id="alignCenterBtn" class="ghost" title="กึ่งกลาง"><span class="material-symbols-outlined">format_align_center</span></button>
-                    <button type="button" id="alignRightBtn" class="ghost" title="ชิดขวา"><span class="material-symbols-outlined">format_align_right</span></button>
+                    <button type="button" id="addTextboxBtn" class="ghost" title="Add new textbox — wrap text that OCR missed"><span class="material-symbols-outlined">text_fields</span></button>
+                    <button type="button" id="fontDecBtn" class="ghost" title="Decrease font size"><span class="material-symbols-outlined">text_decrease</span></button>
+                    <button type="button" id="fontIncBtn" class="ghost" title="Increase font size"><span class="material-symbols-outlined">text_increase</span></button>
+                    <button type="button" id="alignLeftBtn" class="ghost" title="Align left"><span class="material-symbols-outlined">format_align_left</span></button>
+                    <button type="button" id="alignCenterBtn" class="ghost" title="Center"><span class="material-symbols-outlined">format_align_center</span></button>
+                    <button type="button" id="alignRightBtn" class="ghost" title="Align right"><span class="material-symbols-outlined">format_align_right</span></button>
                     <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
-                    <button type="button" id="valignTopBtn" class="ghost" title="ชิดบน"><span class="material-symbols-outlined">vertical_align_top</span></button>
-                    <button type="button" id="valignMiddleBtn" class="ghost" title="กลาง (แนวตั้ง)"><span class="material-symbols-outlined">vertical_align_center</span></button>
-                    <button type="button" id="valignBottomBtn" class="ghost" title="ชิดล่าง"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
-                    <button type="button" id="resetBboxBtn" class="ghost" title="คืนค่า bbox นี้"><span class="material-symbols-outlined">restart_alt</span>reset</button>
+                    <button type="button" id="valignTopBtn" class="ghost" title="Align top"><span class="material-symbols-outlined">vertical_align_top</span></button>
+                    <button type="button" id="valignMiddleBtn" class="ghost" title="Middle (vertical)"><span class="material-symbols-outlined">vertical_align_center</span></button>
+                    <button type="button" id="valignBottomBtn" class="ghost" title="Align bottom"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
+                    <button type="button" id="resetBboxBtn" class="ghost" title="Reset this bbox"><span class="material-symbols-outlined">restart_alt</span>reset</button>
                 </span>
             </div>
 
@@ -272,24 +272,24 @@ Examples:
                             <button type="button" id="rpStrikeBtn" class="ghost" title="Strikethrough"><span class="material-symbols-outlined">format_strikethrough</span></button>
                         </div>
                         <div class="rp-toolbar">
-                            <button type="button" id="rpFontDecBtn" class="ghost" title="ลดขนาดฟอนต์"><span class="material-symbols-outlined">text_decrease</span></button>
-                            <button type="button" id="rpFontIncBtn" class="ghost" title="เพิ่มขนาดฟอนต์"><span class="material-symbols-outlined">text_increase</span></button>
+                            <button type="button" id="rpFontDecBtn" class="ghost" title="Decrease font size"><span class="material-symbols-outlined">text_decrease</span></button>
+                            <button type="button" id="rpFontIncBtn" class="ghost" title="Increase font size"><span class="material-symbols-outlined">text_increase</span></button>
                         </div>
                         <div class="rp-toolbar">
-                            <button type="button" id="rpAlignLeftBtn" class="ghost" title="ชิดซ้าย"><span class="material-symbols-outlined">format_align_left</span></button>
-                            <button type="button" id="rpAlignCenterBtn" class="ghost" title="กึ่งกลาง"><span class="material-symbols-outlined">format_align_center</span></button>
-                            <button type="button" id="rpAlignRightBtn" class="ghost" title="ชิดขวา"><span class="material-symbols-outlined">format_align_right</span></button>
+                            <button type="button" id="rpAlignLeftBtn" class="ghost" title="Align left"><span class="material-symbols-outlined">format_align_left</span></button>
+                            <button type="button" id="rpAlignCenterBtn" class="ghost" title="Center"><span class="material-symbols-outlined">format_align_center</span></button>
+                            <button type="button" id="rpAlignRightBtn" class="ghost" title="Align right"><span class="material-symbols-outlined">format_align_right</span></button>
                             <span class="rp-sep"></span>
-                            <button type="button" id="rpValignTopBtn" class="ghost" title="ชิดบน"><span class="material-symbols-outlined">vertical_align_top</span></button>
-                            <button type="button" id="rpValignMiddleBtn" class="ghost" title="กลาง"><span class="material-symbols-outlined">vertical_align_center</span></button>
-                            <button type="button" id="rpValignBottomBtn" class="ghost" title="ชิดล่าง"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
+                            <button type="button" id="rpValignTopBtn" class="ghost" title="Align top"><span class="material-symbols-outlined">vertical_align_top</span></button>
+                            <button type="button" id="rpValignMiddleBtn" class="ghost" title="Middle"><span class="material-symbols-outlined">vertical_align_center</span></button>
+                            <button type="button" id="rpValignBottomBtn" class="ghost" title="Align bottom"><span class="material-symbols-outlined">vertical_align_bottom</span></button>
                         </div>
                     </div>
                     <div class="rp-section">
                         <div class="rp-label" style="display:flex; align-items:center; justify-content:space-between;">
                             <span>OCR text</span>
                             <button type="button" id="rpReOcrBtn" class="ghost" style="font-size:11px; padding:2px 6px;"
-                                    title="Re-OCR เฉพาะกล่องนี้ — crop รูป (รวม rotation) แล้วส่งผ่าน OCR engine ที่เลือกตอน upload">
+                                    title="Re-OCR this box only — crop image (with rotation) and send through OCR engine selected at upload">
                                 <span class="material-symbols-outlined" style="font-size:14px;">refresh</span>Re-OCR
                             </button>
                         </div>
