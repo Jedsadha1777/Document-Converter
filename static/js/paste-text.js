@@ -23,6 +23,7 @@ function _openModal() {
                 <div class="modal-foot" style="margin-top:10px;">
                     <span id="pasteTextHint" style="font-size:12px; color:#6b7280;"></span>
                     <div style="display:flex; gap:6px;">
+                        <button type="button" id="pasteTextClearBtn" class="ghost">Clear</button>
                         <button type="button" id="pasteTextCancelBtn" class="ghost">Cancel</button>
                         <button type="button" id="pasteTextApplyBtn">Apply</button>
                     </div>
@@ -33,6 +34,11 @@ function _openModal() {
         _modal.addEventListener("click", (e) => { if (e.target === _modal) _closeModal(); });
         document.getElementById("pasteTextCancelBtn").addEventListener("click", _closeModal);
         document.getElementById("pasteTextApplyBtn").addEventListener("click", _apply);
+        document.getElementById("pasteTextClearBtn").addEventListener("click", () => {
+            const ta = document.getElementById("pasteTextInput");
+            if (ta) { ta.value = ""; ta.focus(); }
+            _updateHint();
+        });
         document.getElementById("pasteTextInput").addEventListener("input", _updateHint);
     }
     _modal.classList.add("show");

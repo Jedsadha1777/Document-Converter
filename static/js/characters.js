@@ -251,7 +251,7 @@ function _openModal() {
         _modal = document.createElement("div");
         _modal.className = "modal-backdrop";
         _modal.innerHTML = `
-            <div class="modal-card" role="dialog">
+            <div class="modal-card chars" role="dialog">
                 <h2><span class="material-symbols-outlined">groups</span>Characters / Speaker Persona</h2>
                 <div style="font-size:13px; color:${COLORS.textMuted}; margin-bottom:8px;">
                     Set the persona for each character — when a speaker is chosen in the Compare table,

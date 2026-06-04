@@ -537,6 +537,7 @@ table.compare td.col-translated:focus {
 
 /* Preview prompt modal — payload inspector + manual paste */
 .modal-card.preview { max-width: 900px; max-height: 90vh; }
+.modal-card.chars { max-width: 95vw; width: auto; }
 .preview-meta {
     font-size: 12px;
     color: #374151;
