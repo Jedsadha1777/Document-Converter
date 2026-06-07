@@ -989,13 +989,13 @@ export function setupEditMode() {
     redoBtn?.addEventListener("click", () => history.redo());
 
     // ⌘Z / Ctrl+Z = undo, ⌘⇧Z / Ctrl+Y = redo
-    // Delete / Backspace = mark selected bbox(es) as "Don't translate" (SPEAKER_SKIP)
-    // Skip ถ้า focus อยู่ใน input/textarea/cell — เพื่อไม่ชนกับ text editing
+    // Delete = mark selected bbox(es) as "Don't translate" (SPEAKER_SKIP) / delete markup
+    // (Backspace ไม่ trigger — user ไม่เคยสั่ง, เพราะ accidental press ทำ overlay หายดู buggy)
     document.addEventListener("keydown", (e) => {
         const tag = (e.target.tagName || "").toLowerCase();
         if (tag === "input" || tag === "textarea" || e.target.isContentEditable) return;
 
-        if ((e.key === "Delete" || e.key === "Backspace") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (e.key === "Delete" && !e.metaKey && !e.ctrlKey && !e.altKey) {
             if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
             if (getLayer() === "markup") {
                 if (getTool() !== "select") return;

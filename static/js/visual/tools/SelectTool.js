@@ -1,7 +1,7 @@
 import { ITool } from "./ITool.js";
 import { state } from "../../state.js";
 import { history } from "../../history.js";
-import { UpdateBboxCmd, UpdateMarkupCmd, DeleteMarkupCmd } from "../../commands.js";
+import { UpdateBboxCmd, UpdateMarkupCmd, DeleteMarkupCmd, CompositeCommand } from "../../commands.js";
 import { getLayer } from "../layer-mode.js";
 import { COLORS } from "../../colors.js";
 import * as viewport from "../viewport.js";
@@ -196,14 +196,31 @@ export class SelectTool extends ITool {
         if (hit) {
             ev.preventDefault();
             ev.stopPropagation();
-            ctx.helpers.toggleSelectAndButton(hit.item.self_ref, ev.shiftKey);
+            const hitRef = hit.item.self_ref;
+            // คลิกบนกล่องที่อยู่ใน multi-select แล้ว + ไม่กด shift → preserve multi (จะ drag ทุกตัว)
+            // คลิกบนกล่องอื่น → reset เป็น single (toggleSelectAndButton จัดให้)
+            const preserveMulti = !ev.shiftKey && sel.refs.has(hitRef) && sel.refs.size > 1;
+            if (!preserveMulti) {
+                ctx.helpers.toggleSelectAndButton(hitRef, ev.shiftKey);
+            }
             if (!ev.shiftKey && sel.ref) {
+                // capture start positions ของทุก ref ที่ select อยู่ → ใช้ apply dx/dy พร้อมกัน
+                const startBoxes = new Map();
+                const beforeOvs = new Map();
+                for (const r of sel.refs) {
+                    const d = drawn.find(dd => dd.item?.self_ref === r);
+                    if (!d) continue;
+                    startBoxes.set(r, { x: d.x, y: d.y, w: d.w, h: d.h, rotation: d.rotation || 0 });
+                    beforeOvs.set(r, _clone(state.bboxOverrides[r]));
+                }
+                const primary = startBoxes.get(sel.ref) || { x: hit.x, y: hit.y, w: hit.w, h: hit.h, rotation: hit.rotation || 0 };
                 state.drag = {
                     ref: sel.ref, mode: "move",
                     startX: px, startY: py,
-                    startBox: { x: hit.x, y: hit.y, w: hit.w, h: hit.h },
-                    rotation: hit.rotation || 0,
-                    beforeOv: _clone(state.bboxOverrides[sel.ref]),
+                    startBox: primary,
+                    rotation: primary.rotation,
+                    beforeOv: beforeOvs.get(sel.ref),
+                    startBoxes, beforeOvs,
                 };
                 wrap.classList.add("dragging");
             }
@@ -292,6 +309,7 @@ export class SelectTool extends ITool {
             }
 
             if (dr.mode === "move") {
+                // snap candidates ดูจาก primary moving bbox; ทุกตัวที่ select เลื่อนเท่ากัน
                 const movingBbox = { x: sb.x + dx, y: sb.y + dy, width: sb.w, height: sb.h };
                 const selectedRefs = ctx.sel.refs;
                 const others = [];
@@ -302,10 +320,14 @@ export class SelectTool extends ITool {
                 }
                 const threshold = SMART_GUIDE_THRESHOLD_PX / (viewport.getZoom() || 1);
                 const g = ev.shiftKey ? { dx: 0, dy: 0, guides: [] } : computeGuides(movingBbox, others, threshold);
-                ov.x = sb.x + dx + g.dx;
-                ov.y = sb.y + dy + g.dy;
-                ov.w = sb.w;
-                ov.h = sb.h;
+                const startBoxes = dr.startBoxes || new Map([[dr.ref, sb]]);
+                for (const [r, sbR] of startBoxes) {
+                    const ovr = state.bboxOverrides[r] = state.bboxOverrides[r] || {};
+                    ovr.x = sbR.x + dx + g.dx;
+                    ovr.y = sbR.y + dy + g.dy;
+                    ovr.w = sbR.w;
+                    ovr.h = sbR.h;
+                }
                 this.activeGuides = g.guides;
             } else {
                 // anchor opposite local edge/corner ใน world — box rotate รอบ center, implicit top-left anchor → drift
@@ -397,10 +419,17 @@ export class SelectTool extends ITool {
         const dr = state.drag;
         if (dr) {
             if (dr.moved) {
-                const afterOv = _clone(state.bboxOverrides[dr.ref]);
                 const desc = dr.mode === "rotate" ? "Rotate bbox"
                     : (dr.mode === "move" ? "Move bbox" : "Resize bbox");
-                history.exec(new UpdateBboxCmd(dr.ref, dr.beforeOv, afterOv, desc));
+                // move แบบ multi: commit ทุก ref ใน composite. mode อื่น (rotate/resize) = primary เดียว
+                const beforeOvs = (dr.mode === "move" && dr.beforeOvs) ? dr.beforeOvs : new Map([[dr.ref, dr.beforeOv]]);
+                const cmds = [];
+                for (const [r, before] of beforeOvs) {
+                    const after = _clone(state.bboxOverrides[r]);
+                    cmds.push(new UpdateBboxCmd(r, before, after, desc));
+                }
+                const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `${desc} (×${cmds.length})`);
+                history.exec(cmd);
             }
             if (dr.mode === "rotate") _hideRotateBadge();
             state.drag = null;
@@ -562,13 +591,26 @@ export class SelectTool extends ITool {
                     state.markupSelection.id = hit.id;
                 }
             } else {
-                state.markupSelection.id = hit.id;
-                state.markupSelection.ids = new Set([hit.id]);
+                // คลิกบน shape ที่อยู่ใน multi-select แล้ว → preserve. คลิกตัวอื่น → reset เป็น single
+                const preserveMulti = ids.has(hit.id) && ids.size > 1;
+                if (!preserveMulti) {
+                    state.markupSelection.id = hit.id;
+                    state.markupSelection.ids = new Set([hit.id]);
+                } else {
+                    state.markupSelection.id = hit.id;
+                }
+                // capture start ของทุก shape ที่ select อยู่
+                const startShapes = new Map();
+                for (const id of state.markupSelection.ids) {
+                    const s = state.markup.find(x => x.id === id);
+                    if (s) startShapes.set(id, _clone(s));
+                }
                 state.drag = {
                     markupId: hit.id,
                     mode: "move",
                     startX: px, startY: py,
-                    startShape: _clone(hit),
+                    startShape: startShapes.get(hit.id) || _clone(hit),
+                    startShapes,
                     moved: false,
                 };
                 wrap.classList.add("dragging");
@@ -659,8 +701,13 @@ export class SelectTool extends ITool {
             }
             const threshold = SMART_GUIDE_THRESHOLD_PX / (viewport.getZoom() || 1);
             const g = ev.shiftKey ? { dx: 0, dy: 0, guides: [] } : computeGuides(movingBbox, others, threshold);
-            shape.x = sb.x + dx + g.dx;
-            shape.y = sb.y + dy + g.dy;
+            const startShapes = dr.startShapes || new Map([[dr.markupId, sb]]);
+            for (const [id, sbS] of startShapes) {
+                const s = state.markup.find(x => x.id === id);
+                if (!s) continue;
+                s.x = sbS.x + dx + g.dx;
+                s.y = sbS.y + dy + g.dy;
+            }
             this.activeGuides = g.guides;
         } else {
             const rot = dr.rotation || 0;
@@ -700,13 +747,21 @@ export class SelectTool extends ITool {
         const dr = state.drag;
         if (!dr || !dr.markupId) return;
         if (dr.moved) {
-            const shape = state.markup.find(s => s.id === dr.markupId);
-            if (shape) {
+            const desc = dr.mode === "rotate" ? "Rotate markup"
+                : (dr.mode === "move" ? "Move markup" : "Resize markup");
+            // move แบบ multi: snapshot after ของทุก shape, restore start, exec composite
+            const startShapes = (dr.mode === "move" && dr.startShapes) ? dr.startShapes : new Map([[dr.markupId, dr.startShape]]);
+            const cmds = [];
+            for (const [id, before] of startShapes) {
+                const shape = state.markup.find(s => s.id === id);
+                if (!shape) continue;
                 const after = _clone(shape);
-                Object.assign(shape, dr.startShape);
-                const desc = dr.mode === "rotate" ? "Rotate markup"
-                    : (dr.mode === "move" ? "Move markup" : "Resize markup");
-                history.exec(new UpdateMarkupCmd(dr.markupId, dr.startShape, after, desc));
+                Object.assign(shape, before);
+                cmds.push(new UpdateMarkupCmd(id, before, after, desc));
+            }
+            if (cmds.length) {
+                const cmd = cmds.length === 1 ? cmds[0] : new CompositeCommand(cmds, `${desc} (×${cmds.length})`);
+                history.exec(cmd);
             }
         }
         if (dr.mode === "rotate") _hideRotateBadge();

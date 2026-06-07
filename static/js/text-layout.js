@@ -166,7 +166,10 @@ export function measureTextInBox(ctx, text, w, opts) {
             descent = Math.max(descent, Math.ceil(m.actualBoundingBoxDescent));
         }
     }
-    const lineHeight = ascent + descent;
+    // line height: ใช้ pixel override ถ้ามี (อิสระจาก font size), ไม่งั้น ascent+descent ตาม font metrics
+    const lineHeight = (opts.lineHeight && opts.lineHeight > 0)
+        ? Math.ceil(opts.lineHeight)
+        : ascent + descent;
     const requiredH = Math.ceil(lines.length * lineHeight + TEXTBOX_PADDING * 2);
     return { fontSize: f, ascent, descent, lineHeight, lines, requiredH };
 }

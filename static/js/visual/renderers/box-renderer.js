@@ -96,12 +96,13 @@ export function renderBoxes(ctx, opts) {
                 fixedFontSize: ov.fontSize,
                 ocrFontSize,
                 fallbackFontSize,
+                lineHeight: ov.lineHeight,
                 preserveWhitespace: isEditing,
                 ...fontOpts,
             });
             if (layout) {
                 overlayRenders.push({ x, y, w, h, tr: overlayText, layout, align: ov.align || "left", valign: ov.valign || "top", isTranslated: !!tr, item: it, rotation, isEditing, fontOpts });
-                drawn.push({ x, y, w, h, item: it, fontSize: layout.fontSize, rotation });
+                drawn.push({ x, y, w, h, item: it, fontSize: layout.fontSize, lineHeight: layout.lineHeight, rotation });
                 return;
             }
         }

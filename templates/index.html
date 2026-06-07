@@ -294,6 +294,42 @@ Examples:
                                     <li data-v="72"  style="padding:4px 10px; cursor:pointer;">72</li>
                                 </ul>
                             </div>
+                            <label for="rpLineHeightInput" style="font-size:11px; color:#6b7280; padding:0 4px;">Line</label>
+                            <div id="rpLineHeightCombo" style="position:relative; display:inline-flex; align-items:stretch; border:1px solid #d1d5db; border-radius:6px; background:#fff; overflow:visible;">
+                                <input type="text" id="rpLineHeightInput" inputmode="decimal" placeholder="—"
+                                    style="width:48px; padding:4px 6px; border:none; outline:none; font-size:12px; font-family:inherit; background:transparent;"
+                                    title="Line-height multiplier — type or pick (× font size)">
+                                <button type="button" id="rpLineHeightArrowBtn"
+                                    style="border:none; border-left:1px solid #e5e7eb; background:transparent; padding:0 2px; cursor:pointer; display:flex; align-items:center;"
+                                    title="Pick a preset line-height"><span class="material-symbols-outlined" style="font-size:18px; color:#6b7280;">arrow_drop_down</span></button>
+                                <ul id="rpLineHeightList" role="listbox" style="display:none; position:absolute; top:100%; left:-1px; right:-1px; margin:2px 0 0; padding:4px 0; list-style:none; background:#fff; border:1px solid #d1d5db; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.08); max-height:240px; overflow:auto; z-index:100; font-size:12px;">
+                                    <li data-v="12"  style="padding:4px 10px; cursor:pointer;">12</li>
+                                    <li data-v="14"  style="padding:4px 10px; cursor:pointer;">14</li>
+                                    <li data-v="16"  style="padding:4px 10px; cursor:pointer;">16</li>
+                                    <li data-v="18"  style="padding:4px 10px; cursor:pointer;">18</li>
+                                    <li data-v="20"  style="padding:4px 10px; cursor:pointer;">20</li>
+                                    <li data-v="24"  style="padding:4px 10px; cursor:pointer;">24</li>
+                                    <li data-v="28"  style="padding:4px 10px; cursor:pointer;">28</li>
+                                    <li data-v="32"  style="padding:4px 10px; cursor:pointer;">32</li>
+                                    <li data-v="36"  style="padding:4px 10px; cursor:pointer;">36</li>
+                                    <li data-v="48"  style="padding:4px 10px; cursor:pointer;">48</li>
+                                    <li data-v="60"  style="padding:4px 10px; cursor:pointer;">60</li>
+                                    <li data-v="72"  style="padding:4px 10px; cursor:pointer;">72</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="rp-toolbar">
+                            <label for="rpTextColor" style="font-size:11px; color:#6b7280; padding:0 4px;" title="Text color">A</label>
+                            <input type="color" id="rpTextColor" value="#000000"
+                                style="width:32px; height:24px; padding:0; border:1px solid #d1d5db; border-radius:4px; cursor:pointer; background:#fff;"
+                                title="Text color">
+                            <label for="rpBgColor" style="font-size:11px; color:#6b7280; padding:0 4px;" title="Background color">BG</label>
+                            <input type="color" id="rpBgColor" value="#ffffff"
+                                style="width:32px; height:24px; padding:0; border:1px solid #d1d5db; border-radius:4px; cursor:pointer; background:#fff;"
+                                title="Background color">
+                            <button type="button" id="rpResetColorsBtn" class="ghost"
+                                style="padding:2px 6px; font-size:14px;"
+                                title="Reset to OCR-detected colors"><span class="material-symbols-outlined" style="font-size:16px;">restart_alt</span></button>
                         </div>
                         <div class="rp-toolbar">
                             <button type="button" id="rpAlignLeftBtn" class="ghost" title="Align left"><span class="material-symbols-outlined">format_align_left</span></button>
