@@ -40,17 +40,20 @@ function _applyRotation(ctx, x, y, w, h, rotDeg) {
     ctx.translate(-cx, -cy);
 }
 
-// fallback font size = binary search ขนาดใหญ่สุดที่ text fit ใน bbox
-// (heuristic height/lines เดาผิดบ่อยตอน docling join text เป็น 1 บรรทัด → คิดว่า font ใหญ่)
+// font size จาก OCR bbox: ใช้ bbox height ÷ 1.2 (line-height factor) เป็นค่าเริ่มต้น
+// — ถ้า text ยาวเกินกว่าจะ fit ความกว้างกล่อง → shrink ลงจนพอดี (ไม่ใช่ binary search blind จาก 8)
 function _fallbackFontSize(ctx, text, origW, origH, fontOpts) {
     const innerW = Math.max(origW - 8, 1);
     const innerH = Math.max(origH - 8, 1);
     if (origW <= 8 || origH <= 8 || !text.trim()) return 14;
-    let lo = 8, hi = 36;
+    const target = Math.max(6, Math.floor(origH / 1.2));
+    const probe = measureTextInBox(ctx, text, origW, { fixedFontSize: target, ...fontOpts });
+    if (probe && probe.requiredH <= innerH) return target;
+    let lo = 8, hi = target - 1;
     while (lo < hi) {
         const mid = Math.ceil((lo + hi) / 2);
-        const probe = measureTextInBox(ctx, text, origW, { fixedFontSize: mid, ...fontOpts });
-        if (probe && probe.requiredH <= innerH) lo = mid;
+        const p = measureTextInBox(ctx, text, origW, { fixedFontSize: mid, ...fontOpts });
+        if (p && p.requiredH <= innerH) lo = mid;
         else hi = mid - 1;
     }
     return lo;

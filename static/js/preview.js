@@ -1111,9 +1111,8 @@ export function setupEditMode() {
         redrawOnly();
     }
 
-    // A+/A- — delta = ±2 screen px. Base = rendered fontSize (= ที่ user เห็น) เสมอ,
-    // ไม่ใช้ override เก่าซึ่งอาจ stale. step ใน screen-space → render ใน world (หาร zoom).
-    // Bounds: min absolute 3 world (ไม่ติด zoom กัน clamp clash min>max), max = 70% bbox h.
+    // A+/A- — delta ±2 screen px → world (หาร zoom). Base = override ก่อน, fallback rendered,
+    // สุดท้าย 14. ไม่ clamp ด้วย bbox — user จัดเองได้ แม้ทะลุกล่อง.
     function _adjustFont(delta) {
         const refs = [...sel.refs];
         if (!refs.length) return;
@@ -1123,13 +1122,8 @@ export function setupEditMode() {
             const before = _clone(state.bboxOverrides[ref]);
             const cur = before || {};
             const selDrawn = (window._previewWrap?._drawn || []).find(d => d.item.self_ref === ref);
-            // base = ขนาด font ที่ user เห็นจริง (selDrawn.fontSize = render result)
-            // — ใช้แทน override เก่า เพื่อให้ +/- เริ่มจาก "what's focused" ตลอด
-            const curSize = selDrawn?.fontSize
-                || cur.fontSize
-                || 14;
-            const bboxMax = selDrawn ? Math.max(8, selDrawn.h * 0.7) : 200;
-            const next = Math.max(3, Math.min(bboxMax, curSize + worldDelta));
+            const curSize = cur.fontSize ?? selDrawn?.fontSize ?? 14;
+            const next = Math.max(3, Math.min(200, curSize + worldDelta));
             const after = { ...cur, fontSize: Math.round(next * 100) / 100 };
             return new UpdateBboxCmd(ref, before, after, "Adjust font");
         }, "Adjust font");

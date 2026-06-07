@@ -37,8 +37,7 @@ function _patchBboxOverrideForSelection(patch, desc) {
 }
 
 export function initInspector() {
-    $("rpFontDecBtn")?.addEventListener("click", () => _dispatchClick("fontDecBtn"));
-    $("rpFontIncBtn")?.addEventListener("click", () => _dispatchClick("fontIncBtn"));
+    _wireFontSizeInput();
     $("rpAlignLeftBtn")?.addEventListener("click", () => _dispatchClick("alignLeftBtn"));
     $("rpAlignCenterBtn")?.addEventListener("click", () => _dispatchClick("alignCenterBtn"));
     $("rpAlignRightBtn")?.addEventListener("click", () => _dispatchClick("alignRightBtn"));
@@ -149,6 +148,83 @@ export function initInspector() {
 
     _wireMarkupControls();
     _preloadFonts();
+}
+
+function _commitFontSize(raw) {
+    const v = parseFloat(String(raw).trim());
+    if (!isFinite(v) || v < 3 || v > 200) return false;
+    const rounded = Math.round(v * 100) / 100;
+    _patchBboxOverrideForSelection({ fontSize: rounded }, "Set font size");
+    return true;
+}
+
+function _wireFontSizeInput() {
+    const el = $("rpFontSizeInput");
+    if (!el) return;
+    const commit = () => {
+        const ok = _commitFontSize(el.value);
+        if (!ok) _syncFontSizeInput();
+    };
+    el.addEventListener("change", commit);
+    el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); commit(); el.blur(); }
+        else if (e.key === "Escape") { e.preventDefault(); _syncFontSizeInput(); el.blur(); }
+    });
+
+    const combo = $("rpFontSizeCombo");
+    const arrow = $("rpFontSizeArrowBtn");
+    const list = $("rpFontSizeList");
+    if (!combo || !arrow || !list) return;
+    const close = () => { list.style.display = "none"; };
+    const open  = () => {
+        list.style.display = "block";
+        const cur = String(parseFloat(el.value) || "");
+        for (const li of list.querySelectorAll("li")) li.style.background = "";
+        const match = list.querySelector(`li[data-v="${cur}"]`);
+        if (match) {
+            match.style.background = "#dbeafe";
+            match.scrollIntoView({ block: "nearest" });
+        }
+    };
+    arrow.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (list.style.display === "block") close();
+        else open();
+    });
+    list.addEventListener("mousedown", (e) => {
+        const li = e.target.closest("li[data-v]");
+        if (!li) return;
+        e.preventDefault();   // กัน input เสีย focus ก่อน commit (Safari)
+        el.value = li.dataset.v;
+        commit();
+        close();
+    });
+    list.addEventListener("mouseover", (e) => {
+        const li = e.target.closest("li[data-v]");
+        if (!li) return;
+        for (const x of list.querySelectorAll("li")) x.style.background = "";
+        li.style.background = "#f3f4f6";
+    });
+    document.addEventListener("click", (e) => {
+        if (!combo.contains(e.target)) close();
+    });
+}
+
+function _syncFontSizeInput() {
+    const el = $("rpFontSizeInput");
+    if (!el || document.activeElement === el) return;
+    const refs = [...(state.selection?.refs || [])];
+    if (!refs.length) { el.value = ""; return; }
+    const sizes = refs.map(ref => {
+        const ov = state.bboxOverrides[ref];
+        if (ov?.fontSize != null) return ov.fontSize;
+        const drawn = (window._previewWrap?._drawn || []).find(d => d.item?.self_ref === ref);
+        return drawn?.fontSize ?? null;
+    });
+    const first = sizes[0];
+    const uniform = sizes.every(s => s != null && Math.abs(s - first) < 0.01);
+    el.value = uniform && first != null ? String(Math.round(first * 10) / 10) : "";
 }
 
 function _preloadFonts() {
@@ -487,4 +563,5 @@ export function updateInspector() {
     $("rpItalicBtn")?.classList.toggle("active", !!ov.italic);
     $("rpUnderlineBtn")?.classList.toggle("active", !!ov.underline);
     $("rpStrikeBtn")?.classList.toggle("active", !!ov.strikethrough);
+    _syncFontSizeInput();
 }

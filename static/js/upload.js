@@ -89,6 +89,10 @@ async function _convertOneFile(file) {
         setStatus(data.error || `Error: ${file.name}`, "error");
         return null;
     }
+    // FE ส่ง type=texts แล้ว — docling ยัง detect pictures/tables ติดมา → strip ออก
+    if (data.preview?.items) {
+        data.preview.items = data.preview.items.filter(it => it.category === "texts");
+    }
     return data;
 }
 

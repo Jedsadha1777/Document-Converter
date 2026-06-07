@@ -267,8 +267,33 @@ Examples:
                             <button type="button" id="rpStrikeBtn" class="ghost" title="Strikethrough"><span class="material-symbols-outlined">format_strikethrough</span></button>
                         </div>
                         <div class="rp-toolbar">
-                            <button type="button" id="rpFontDecBtn" class="ghost" title="Decrease font size"><span class="material-symbols-outlined">text_decrease</span></button>
-                            <button type="button" id="rpFontIncBtn" class="ghost" title="Increase font size"><span class="material-symbols-outlined">text_increase</span></button>
+                            <label for="rpFontSizeInput" style="font-size:11px; color:#6b7280; padding:0 4px;">Size</label>
+                            <div id="rpFontSizeCombo" style="position:relative; display:inline-flex; align-items:stretch; border:1px solid #d1d5db; border-radius:6px; background:#fff; overflow:visible;">
+                                <input type="text" id="rpFontSizeInput" inputmode="decimal" placeholder="—"
+                                    style="width:48px; padding:4px 6px; border:none; outline:none; font-size:12px; font-family:inherit; background:transparent;"
+                                    title="Font size — type or pick">
+                                <button type="button" id="rpFontSizeArrowBtn"
+                                    style="border:none; border-left:1px solid #e5e7eb; background:transparent; padding:0 2px; cursor:pointer; display:flex; align-items:center;"
+                                    title="Pick a preset size"><span class="material-symbols-outlined" style="font-size:18px; color:#6b7280;">arrow_drop_down</span></button>
+                                <ul id="rpFontSizeList" role="listbox" style="display:none; position:absolute; top:100%; left:-1px; right:-1px; margin:2px 0 0; padding:4px 0; list-style:none; background:#fff; border:1px solid #d1d5db; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.08); max-height:240px; overflow:auto; z-index:100; font-size:12px;">
+                                    <li data-v="8"   style="padding:4px 10px; cursor:pointer;">8</li>
+                                    <li data-v="9"   style="padding:4px 10px; cursor:pointer;">9</li>
+                                    <li data-v="10"  style="padding:4px 10px; cursor:pointer;">10</li>
+                                    <li data-v="11"  style="padding:4px 10px; cursor:pointer;">11</li>
+                                    <li data-v="12"  style="padding:4px 10px; cursor:pointer;">12</li>
+                                    <li data-v="14"  style="padding:4px 10px; cursor:pointer;">14</li>
+                                    <li data-v="16"  style="padding:4px 10px; cursor:pointer;">16</li>
+                                    <li data-v="18"  style="padding:4px 10px; cursor:pointer;">18</li>
+                                    <li data-v="20"  style="padding:4px 10px; cursor:pointer;">20</li>
+                                    <li data-v="22"  style="padding:4px 10px; cursor:pointer;">22</li>
+                                    <li data-v="24"  style="padding:4px 10px; cursor:pointer;">24</li>
+                                    <li data-v="26"  style="padding:4px 10px; cursor:pointer;">26</li>
+                                    <li data-v="28"  style="padding:4px 10px; cursor:pointer;">28</li>
+                                    <li data-v="36"  style="padding:4px 10px; cursor:pointer;">36</li>
+                                    <li data-v="48"  style="padding:4px 10px; cursor:pointer;">48</li>
+                                    <li data-v="72"  style="padding:4px 10px; cursor:pointer;">72</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="rp-toolbar">
                             <button type="button" id="rpAlignLeftBtn" class="ghost" title="Align left"><span class="material-symbols-outlined">format_align_left</span></button>

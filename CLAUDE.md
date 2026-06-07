@@ -1,5 +1,27 @@
 # Hard rules
 
+## Skills check — mandatory BEFORE any action
+
+Before responding to any request that involves action (code edit, file write, command run, design proposal, bug fix), you MUST:
+
+1. **List files under `skills/`** (project root). Identify which ones might apply:
+   - `using-superpowers` — read FIRST (how to find/use skills)
+   - `systematic-debugging` — ANY bug / unexpected behavior / "doesn't work" report
+   - `verification-before-completion` — before claiming "fixed" / "done" / "should work"
+   - `brainstorming` — "what should we do" / open-ended design questions
+   - `writing-plans` + `executing-plans` — multi-step work
+   - `test-driven-development` — adding features with clear behavior to test
+   - `using-git-worktrees`, `dispatching-parallel-agents`, etc. — when topic matches
+2. **Read** the relevant skill file(s) end-to-end with the Read tool (NOT skim).
+3. **Announce**: "Read skills [X, Y, …] — applying [process]".
+4. **Follow** the skill's process literally — checklist phases, iron laws, red flags.
+
+Failing to do this step = override the user. If you catch yourself mid-action without having done it, STOP, revert, start over with the check.
+
+**This is non-negotiable.** Locked. Even for "simple" / "obvious" fixes. Track record shows skipping = thrashing fixes that introduce new bugs (3+ rounds on UI work that should have been one).
+
+Even if a skill seems redundant with what you already know — read it. Knowing the concept ≠ using the skill.
+
 ## Memory check — mandatory before any non-trivial action
 
 Before proposing a solution, editing a file, or running a non-read-only command, you MUST:
