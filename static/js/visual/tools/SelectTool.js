@@ -10,11 +10,13 @@ import {
 } from "../geometry.js";
 import { drawResizeHandles, drawRotationHandle } from "../renderers/handle-renderer.js";
 import { samplePenShape } from "./ShapeTool.js";
+import { computeGuides } from "../utils/smart-guides.js";
 
 const DRAG_THRESHOLD = 4;
 const MIN_BOX = 12;
 const ROT_ZERO_SNAP_DEG = 3;
 const ROT_SHIFT_STEP_DEG = 15;
+const SMART_GUIDE_THRESHOLD_PX = 6;   // screen-px tolerance for snap detection
 
 const RESIZE_CURSOR = {
     n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
@@ -138,6 +140,7 @@ function _hideRotateBadge() {
 export class SelectTool extends ITool {
     constructor() {
         super("select", "Select", { cursor: "default" });
+        this.activeGuides = [];
     }
 
     onPointerDown(ev, pos, ctx) {
@@ -289,10 +292,21 @@ export class SelectTool extends ITool {
             }
 
             if (dr.mode === "move") {
-                ov.x = sb.x + dx;
-                ov.y = sb.y + dy;
+                const movingBbox = { x: sb.x + dx, y: sb.y + dy, width: sb.w, height: sb.h };
+                const selectedRefs = ctx.sel.refs;
+                const others = [];
+                for (const d of ctx.drawn) {
+                    if (!d.item?.self_ref) continue;
+                    if (selectedRefs.has(d.item.self_ref)) continue;
+                    others.push({ x: d.x, y: d.y, width: d.w, height: d.h });
+                }
+                const threshold = SMART_GUIDE_THRESHOLD_PX / (viewport.getZoom() || 1);
+                const g = ev.shiftKey ? { dx: 0, dy: 0, guides: [] } : computeGuides(movingBbox, others, threshold);
+                ov.x = sb.x + dx + g.dx;
+                ov.y = sb.y + dy + g.dy;
                 ov.w = sb.w;
                 ov.h = sb.h;
+                this.activeGuides = g.guides;
             } else {
                 // anchor opposite local edge/corner ใน world — box rotate รอบ center, implicit top-left anchor → drift
                 const rot = dr.rotation || 0;
@@ -391,16 +405,46 @@ export class SelectTool extends ITool {
             if (dr.mode === "rotate") _hideRotateBadge();
             state.drag = null;
             wrap.classList.remove("dragging");
+            this.activeGuides = [];
             doDraw();
         }
     }
 
     drawOverlay(canvasCtx, opts) {
+        const z = opts.zoom;
+
+        // Smart guides — render เสมอ ถ้ามี active (layer ใดก็ตาม) — ลบเองตอน pointer up
+        if (this.activeGuides?.length) {
+            canvasCtx.save();
+            canvasCtx.strokeStyle = COLORS.primary || "#2563eb";
+            canvasCtx.lineWidth = 1 / z;
+            canvasCtx.setLineDash([]);
+            for (const g of this.activeGuides) {
+                if (g.kind === "absoluteCenter") {
+                    const r = 6 / z;
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(g.x - r, g.y); canvasCtx.lineTo(g.x + r, g.y);
+                    canvasCtx.moveTo(g.x, g.y - r); canvasCtx.lineTo(g.x, g.y + r);
+                    canvasCtx.stroke();
+                    continue;
+                }
+                canvasCtx.beginPath();
+                if (g.axis === "x") {
+                    canvasCtx.moveTo(g.position, g.min);
+                    canvasCtx.lineTo(g.position, g.max);
+                } else {
+                    canvasCtx.moveTo(g.min, g.position);
+                    canvasCtx.lineTo(g.max, g.position);
+                }
+                canvasCtx.stroke();
+            }
+            canvasCtx.restore();
+        }
+
         if (getLayer() !== "markup") return;
         const ids = state.markupSelection?.ids;
         if (!ids?.size) return;
         const pageNo = _currentPageNo();
-        const z = opts.zoom;
         const primaryId = state.markupSelection.id;
         const single = ids.size === 1;
         for (const shape of state.markup) {
@@ -604,8 +648,20 @@ export class SelectTool extends ITool {
         }
 
         if (dr.mode === "move") {
-            shape.x = sb.x + dx;
-            shape.y = sb.y + dy;
+            const movingBbox = { x: sb.x + dx, y: sb.y + dy, width: sb.w, height: sb.h };
+            const pageNo = _currentPageNo();
+            const selectedIds = state.markupSelection.ids || new Set();
+            const others = [];
+            for (const s of state.markup) {
+                if (selectedIds.has(s.id)) continue;
+                if (s.pageNo && s.pageNo !== pageNo) continue;
+                others.push({ x: s.x, y: s.y, width: s.w, height: s.h });
+            }
+            const threshold = SMART_GUIDE_THRESHOLD_PX / (viewport.getZoom() || 1);
+            const g = ev.shiftKey ? { dx: 0, dy: 0, guides: [] } : computeGuides(movingBbox, others, threshold);
+            shape.x = sb.x + dx + g.dx;
+            shape.y = sb.y + dy + g.dy;
+            this.activeGuides = g.guides;
         } else {
             const rot = dr.rotation || 0;
             const rad = rot * Math.PI / 180;
@@ -656,6 +712,7 @@ export class SelectTool extends ITool {
         if (dr.mode === "rotate") _hideRotateBadge();
         state.drag = null;
         wrap.classList.remove("dragging");
+        this.activeGuides = [];
         doDraw();
     }
 }
