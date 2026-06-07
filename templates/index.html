@@ -41,11 +41,6 @@
                 </option>
             </select>
 
-            <label id="fastLabel" style="display:none;"
-                   title="Skip docling layout/table; use Apple Vision directly — ~10× faster but no table/figure detection">
-                <input type="checkbox" id="fast"> <span class="material-symbols-outlined">bolt</span>Fast (skip layout/table)
-            </label>
-
             <label for="pages" title="PDF/DOCX/PPTX only. Examples: 1-3  |  1,3,5  |  2-4,7  |  blank=all pages. Multi-file: same range applies to all files">
                 Pages:
             </label>
@@ -151,10 +146,10 @@ Examples:
     <!-- Compare tab -->
     <div class="tab-panel" id="panel-compare">
         <div class="compare-tools" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:8px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
-            <button type="button" id="detectMetaCopyBtn" class="ghost" title="Build a per-row speaker+emotion detection prompt (CHARACTERS + EMOTIONS list + numbered lines) and copy to clipboard — paste into Gemini/ChatGPT/Claude">📋 Copy detect prompt</button>
-            <button type="button" id="detectMetaPasteBtn" class="ghost" title="Read LLM response (JSON array with {id, speaker, emotion1, emotion2}) from clipboard and patch each row's Speaker/Emotion dropdowns">📥 Patch detected</button>
+            <button type="button" id="detectMetaCopyBtn" class="ghost" title="Build a per-row speaker+emotion detection prompt (CHARACTERS + EMOTIONS list + numbered lines) and copy to clipboard — paste into Gemini/ChatGPT/Claude"><span class="material-symbols-outlined">content_copy</span>Copy detect prompt</button>
+            <button type="button" id="detectMetaPasteBtn" class="ghost" title="Read LLM response (JSON array with {id, speaker, emotion1, emotion2}) from clipboard and patch each row's Speaker/Emotion dropdowns"><span class="material-symbols-outlined">content_paste</span>Patch detected</button>
             <span style="width:1px; height:32px; background:#d1d5db; margin:0 4px;"></span>
-            <button type="button" id="runCorrectBtn"><span class="material-symbols-outlined">auto_awesome</span>Correct all with LLM</button>
+            <button type="button" id="runCorrectBtn" class="ghost">Correct all with LLM</button>
             <span id="detectMetaStatus" style="font-size:12px; color:#6b7280;"></span>
         </div>
         <div id="compareArea">
@@ -521,24 +516,11 @@ const selectedRefs = state.selection.refs;
 const output = document.getElementById("output");
 const pageSelect = document.getElementById("pageSelect");
 const ocrEngineSelect = document.getElementById("ocr_engine");
-const fastLabel = document.getElementById("fastLabel");
-const fastCheckbox = document.getElementById("fast");
-
-// Fast mode (Apple Vision direct) มีให้ใช้เฉพาะตอนเลือก engine = ocrmac
-function syncFastVisibility() {
-    const showFast = ocrEngineSelect.value === "ocrmac" && document.getElementById("lang").value !== "manga";
-    fastLabel.style.display = showFast ? "" : "none";
-    if (!showFast) fastCheckbox.checked = false;
-}
-ocrEngineSelect.addEventListener("change", syncFastVisibility);
-syncFastVisibility();
-
 // mokuro มี OCR engine ของตัวเอง — ซ่อน docling OCR engine dropdown
 function syncOcrEngineVisibility() {
     const hide = document.getElementById("lang").value === "manga";
     document.getElementById("ocrEngineLabel").style.display = hide ? "none" : "";
     ocrEngineSelect.style.display = hide ? "none" : "";
-    syncFastVisibility();
 }
 document.getElementById("lang").addEventListener("change", syncOcrEngineVisibility);
 syncOcrEngineVisibility();
@@ -594,7 +576,6 @@ function _loadConvertPrefs() {
         _setSelectIfOption(tmPairSelectEl, p.tm_pair);
         // populate type AFTER tm pair restored (type list ขึ้นกับ pair)
         populateContentTypes(tmPairSelectEl.value, p.content_type);
-        if (typeof p.fast === "boolean") fastCheckbox.checked = p.fast;
     } catch (_) {
         populateContentTypes(tmPairSelectEl.value);
     }
@@ -607,13 +588,12 @@ function _saveConvertPrefs() {
             translate_engine: translateEngineSelectEl?.value || null,
             tm_pair: tmPairSelectEl?.value || null,
             content_type: contentTypeSelectEl?.value || null,
-            fast: fastCheckbox.checked,
         }));
     } catch (_) {}
 }
 _loadConvertPrefs();
 syncOcrEngineVisibility();
-[langSelect, ocrEngineSelect, fastCheckbox,
+[langSelect, ocrEngineSelect,
  translateEngineSelectEl, tmPairSelectEl, contentTypeSelectEl].forEach(el =>
     el && el.addEventListener("change", _saveConvertPrefs)
 );

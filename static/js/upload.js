@@ -73,7 +73,6 @@ async function _convertOneFile(file) {
     fd.append("type", "texts");
     fd.append("lang", document.getElementById("lang").value);
     fd.append("ocr_engine", document.getElementById("ocr_engine").value);
-    fd.append("fast", document.getElementById("fast").checked ? "1" : "0");
     fd.append("pages", document.getElementById("pages").value.trim());
     // image upload: client มี blob อยู่แล้ว → บอก server ไม่ต้องส่ง base64 กลับ
     if (_isImageFile(file)) fd.append("skip_image_data", "1");

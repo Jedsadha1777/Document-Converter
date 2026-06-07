@@ -72,10 +72,10 @@ async function _copyDetectPrompt(btn) {
     }
     try {
         await navigator.clipboard.writeText(p);
-        const orig = btn.textContent;
-        btn.textContent = "✓ Copied — paste into Gemini";
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<span class="material-symbols-outlined">check</span>Copied — paste into Gemini`;
         if (statusEl) statusEl.textContent = `prompt length: ${p.length} chars`;
-        setTimeout(() => { btn.textContent = orig; }, 2000);
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
     } catch (e) {
         if (statusEl) statusEl.textContent = "Copy failed: " + e.message;
     }
@@ -120,17 +120,17 @@ async function _patchDetected() {
 
     // direct mutate (ไม่ใช้ history เพื่อกัน N undo entries) — buildCompareTable rebuild ตอนจบ
     let nSpeaker = 0, nEmotion1 = 0, nEmotion2 = 0, nSkipped = 0;
+    const badSpeakers = [];
+    const badEmotions = [];
     data.forEach(d => {
         const id = parseInt(d.id, 10);
         if (!Number.isFinite(id) || id < 1 || id > rows.length) { nSkipped++; return; }
         const ref = rows[id - 1].dataset.ref;
         if (!ref) { nSkipped++; return; }
 
-        // speaker: ต้อง valid id หรือ "" (clear)
         if (d.speaker !== undefined) {
             const sp = String(d.speaker || "").trim();
             if (!sp) {
-                // ค่าว่าง → ลบ → fallback กลับเป็น AUTO
                 if (state.speakerByRef[ref] !== undefined) {
                     delete state.speakerByRef[ref];
                     nSpeaker++;
@@ -140,10 +140,10 @@ async function _patchDetected() {
                     state.speakerByRef[ref] = sp;
                     nSpeaker++;
                 }
+            } else {
+                badSpeakers.push({ id, value: sp });
             }
-            // ถ้าไม่ valid (id ไม่อยู่ใน characters) → skip ไม่ patch
         }
-        // emotion1: ต้องอยู่ใน list หรือ ""
         if (d.emotion1 !== undefined) {
             const e1 = String(d.emotion1 || "").trim();
             if (!e1) {
@@ -156,9 +156,10 @@ async function _patchDetected() {
                     state.emotionByRef[ref] = e1;
                     nEmotion1++;
                 }
+            } else {
+                badEmotions.push({ id, slot: 1, value: e1 });
             }
         }
-        // emotion2: เหมือน emotion1 — รองรับ "" (no secondary)
         if (d.emotion2 !== undefined) {
             const e2 = String(d.emotion2 || "").trim();
             if (!e2) {
@@ -171,13 +172,25 @@ async function _patchDetected() {
                     state.emotion2ByRef[ref] = e2;
                     nEmotion2++;
                 }
+            } else {
+                badEmotions.push({ id, slot: 2, value: e2 });
             }
         }
     });
 
     buildCompareTable(true);
     if (statusEl) {
-        statusEl.textContent = `✓ patched ${data.length} row(s) — speaker:${nSpeaker} emo1:${nEmotion1} emo2:${nEmotion2}${nSkipped ? ` skipped:${nSkipped}` : ""}`;
+        const parts = [`patched ${data.length} row(s)`, `speaker:${nSpeaker}`, `emo1:${nEmotion1}`, `emo2:${nEmotion2}`];
+        if (nSkipped) parts.push(`skipped:${nSkipped}`);
+        if (badSpeakers.length) parts.push(`⚠ bad speaker:${badSpeakers.length}`);
+        if (badEmotions.length) parts.push(`⚠ bad emotion:${badEmotions.length}`);
+        statusEl.textContent = "✓ " + parts.join(" — ");
+        statusEl.title = [
+            badSpeakers.length ? "Invalid speaker IDs (not in character list):\n" + badSpeakers.map(b => `  row ${b.id} → speaker="${b.value}"`).join("\n") : "",
+            badEmotions.length ? "Invalid emotions (not in emotion list):\n" + badEmotions.map(b => `  row ${b.id} → emotion${b.slot}="${b.value}"`).join("\n") : "",
+        ].filter(Boolean).join("\n\n");
+        if (badSpeakers.length) console.warn("[detect] invalid speaker IDs:", badSpeakers);
+        if (badEmotions.length) console.warn("[detect] invalid emotions:", badEmotions);
     }
 }
 

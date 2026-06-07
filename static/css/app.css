@@ -71,19 +71,39 @@ button:disabled { background: #9ca3af; border-color: #9ca3af; cursor: not-allowe
 .status.error { background: #fef2f2; color: #b91c1c; }
 .status.success { background: #ecfdf5; color: #047857; }
 
-.tabs { display: flex; gap: 4px; border-bottom: 2px solid #e5e7eb; margin: 18px 0 12px; }
+.tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #dee2e6;
+    margin: 18px 0 12px;
+}
 .tab {
-    padding: 9px 16px;
-    border: none;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
     background: none;
-    font-weight: 600;
-    color: #6b7280;
+    font-weight: 500;
+    color: #0d6efd;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
+    margin-bottom: -1px;
     font-size: 14px;
 }
-.tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+.tab:hover:not(.active),
+.tab:focus:not(.active) {
+    background-color: #f8f9fa;
+    color: #0a58ca;
+    border-color: #e9ecef #e9ecef #dee2e6;
+    isolation: isolate;
+}
+.tab.active {
+    color: #495057;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+.tab.active:hover,
+.tab.active:focus {
+    border-color: #dee2e6 #dee2e6 #fff;
+}
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
