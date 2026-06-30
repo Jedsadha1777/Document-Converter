@@ -509,6 +509,8 @@ function _changePageDelta(delta) {
     if (newIdx === idx) return;
     sel.value = opts[newIdx].value;
     sel.dispatchEvent(new Event("change"));
+    renderBeforePane();
+    setActiveThumb(parseInt(sel.value, 10));
 }
 function _setPreviewBtnIcon(active) {
     const icon = previewModeBtn?.querySelector(".material-symbols-outlined");
