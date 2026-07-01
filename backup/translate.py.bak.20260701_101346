@@ -1367,11 +1367,7 @@ _GEMINI_RESPONSE_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "id": {"type": "integer"},
-                    "text": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Complete translation of the entire input item — every sentence, full length. Never empty, never shortened.",
-                    },
+                    "text": {"type": "string"},
                 },
                 "required": ["id", "text"],
             },
