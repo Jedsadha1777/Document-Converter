@@ -995,21 +995,6 @@ export function setupEditMode() {
         const tag = (e.target.tagName || "").toLowerCase();
         if (tag === "input" || tag === "textarea" || e.target.isContentEditable) return;
 
-        if (e.key === "Escape" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-            if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
-            if (state.previewMode) return;
-            // shape/pen ใช้ Esc ยกเลิกการวาดของตัวเอง — อย่าแย่ง
-            if (getTool().startsWith("shape-")) return;
-            const hasMarkupSel = state.markupSelection?.id || (state.markupSelection?.ids?.size || 0) > 0;
-            if (!sel.refs.size && !hasMarkupSel) return;
-            e.preventDefault();
-            state.markupSelection.id = null;
-            state.markupSelection.ids = new Set();
-            _clearSelectionAndButton();
-            window._previewWrap?._redraw?.();
-            return;
-        }
-
         if (e.key === "Delete" && !e.metaKey && !e.ctrlKey && !e.altKey) {
             if (document.querySelector(".tab.active")?.dataset.tab !== "visual") return;
             if (getLayer() === "markup") {
