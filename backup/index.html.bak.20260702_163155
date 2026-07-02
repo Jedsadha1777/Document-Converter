@@ -724,15 +724,9 @@ document.querySelectorAll(".tab").forEach(btn => {
         document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
         _applyFullscreenForTab(btn.dataset.tab);
         if (btn.dataset.tab === "visual") {
-            if (window._previewWrap) {
-                // mount อยู่แล้ว — redraw เบาพอ (อ่าน state ล่าสุดเอง) ไม่ rebuild จน viewport/selection หลุด
-                redrawOnly();
-                window._beforePaneRedraw?.();
-            } else {
-                renderThumbSidebar(window._onThumbClickPage);
-                renderBeforePane();
-                renderPreview();
-            }
+            renderThumbSidebar(window._onThumbClickPage);
+            renderBeforePane();
+            renderPreview();
         }
         if (btn.dataset.tab === "compare") buildCompareTable();
     });

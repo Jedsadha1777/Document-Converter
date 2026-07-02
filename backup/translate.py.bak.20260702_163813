@@ -525,45 +525,19 @@ TRANSLATE_STYLE_PROMPTS = {
         "- Preserve manga prosody: exclamations, sentence fragments, expressive phrasing —\n"
         "  do NOT formalize the text into prose.\n"
     ),
-    "tutorial_jp_th": _jp_th_tutorial.PROMPT,
-    "tutorial_generic": (
-        "\n\n═══ CONTENT TYPE: TUTORIAL (instructional / how-to / manual) ═══\n"
-        "- Imperative voice — direct commands in the target language ('Click', 'Select', 'Save').\n"
-        "- NO casual/chat particles or softeners — formal manual register only.\n"
-        "- Keep technical terms, brand and product names per the GLOSSARY; do not invent translations.\n"
-        "- UI STRINGS (button/menu/label names, often quoted):\n"
-        "  if listed in GLOSSARY → copy the GLOSSARY spelling verbatim\n"
-        "  if the real UI is in English → keep English in quotes: the \"Save\" button\n"
-        "  otherwise → translate into the target language\n"
-        "- Keep step numbering exactly as the source — never merge or reorder steps.\n"
-    ),
-    "product_catalog_en_vn": _en_vn_product_catalog.PROMPT,
-    "product_catalog_generic": (
-        "\n\n═══ CONTENT TYPE: PRODUCT CATALOG (e-commerce / spec sheet) ═══\n"
-        "- Concise noun-phrase style — no chat particles, no conversational fillers.\n"
-        "- Keep brand names, model numbers, SKUs, and units EXACTLY as in the source.\n"
-        "- Specs/dimensions: copy every number and unit verbatim.\n"
-        "- Marketing copy: translate persuasively but factually — do not add claims.\n"
-        "- Keep technical terms per the GLOSSARY.\n"
-    ),
+    "tutorial": _jp_th_tutorial.PROMPT,
+    "product_catalog": _en_vn_product_catalog.PROMPT,
 }
 
 
-def _resolve_style_block(content_type: str | None, target: str = "th",
-                         source: str | None = None) -> str:
+def _resolve_style_block(content_type: str | None, target: str = "th") -> str:
     """Map content_type → style overlay block. None/unknown → empty.
-    dispatch ตามคู่ภาษา: ไฟล์เฉพาะคู่ใช้เมื่อ source/target ตรงเท่านั้น มิฉะนั้น generic
-    (กันกติกาญี่ปุ่นหลุดเข้า prompt คู่ en และ starter glossary เวียดนามหลุดเข้าคู่อื่น)"""
+    manga_novel = target-aware: th → Thai-particle version, อื่น → language-neutral version
+    (กัน Thai particles leak เข้า en/vi output ตอน user เลือก manga_novel กับ target อื่น)"""
     if not content_type:
         return ""
     if content_type == "manga_novel":
         key = "manga_novel_th" if target == "th" else "manga_novel_generic"
-        return TRANSLATE_STYLE_PROMPTS.get(key, "")
-    if content_type == "tutorial":
-        key = "tutorial_jp_th" if (source, target) == ("ja", "th") else "tutorial_generic"
-        return TRANSLATE_STYLE_PROMPTS.get(key, "")
-    if content_type == "product_catalog":
-        key = "product_catalog_en_vn" if (source, target) == ("en", "vi") else "product_catalog_generic"
         return TRANSLATE_STYLE_PROMPTS.get(key, "")
     return TRANSLATE_STYLE_PROMPTS.get(content_type, "")
 
@@ -1198,7 +1172,7 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
     # target ส่งให้ characters section เพื่อ gate Thai-specific particle/pronoun rules
     # (ห้าม leak เข้า en/vi output)
     chars_section = _build_characters_section(characters, target)
-    style_block = _resolve_style_block(content_type, target, source)
+    style_block = _resolve_style_block(content_type, target)
     # narration_rule = per-line auto-rule (speaker tag present → dialogue, absent → narration)
     # ใส่เฉพาะ manga_novel ที่มี dialogue+narration ปนกัน. target-dispatch กัน Thai examples
     # leak เข้า output ภาษาอื่น (en/vi) ตอน user เลือก manga_novel นอก target=th
