@@ -15,6 +15,8 @@ import numpy as np
 # ก็ยัง <1s — vectorized SIMD ยังทำงานได้)
 faiss.omp_set_num_threads(1)
 
+from prompts.sections import TM_RULES_INTRO
+
 from config import (
     OLLAMA_MODEL_EMBED,
     OLLAMA_URL,
@@ -661,13 +663,7 @@ def _format_rules(hits: list[dict]) -> str:
     """Glossary-style lines for the system prompt: source → target, prefixed with a brief intro."""
     if not hits:
         return ""
-    lines = [
-        "Use these reference translations from the project Translation Memory as guidance. "
-        "Preserve terminology, capitalization, and phrasing where the source matches; adapt "
-        "wording when context differs. Do not copy a target verbatim if the source is only "
-        "loosely related.",
-        "",
-    ]
+    lines = [TM_RULES_INTRO, ""]
     for h in hits:
         src = _WHITESPACE_RE.sub(" ", h["source"]).strip()
         tgt = _WHITESPACE_RE.sub(" ", h["target"]).strip()

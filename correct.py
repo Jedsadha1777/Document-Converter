@@ -12,6 +12,7 @@ from config import (
     TRANSLATE_BATCH_TIMEOUT,
     GEMINI_TIMEOUT,
 )
+from prompts.sections import build_batch_schema
 from translate import (
     _GEMINI_RESPONSE_SCHEMA,
     _build_batch_user_msg,
@@ -429,22 +430,7 @@ def apply_correction_to_doc(doc_dict: dict, preview: dict):
 def _build_correct_batch_system_prompt(combined_text: str, n: int,
                                         custom_rules: str | None) -> str:
     base = pick_prompt(combined_text)
-    schema_instruction = (
-        f"\n\nBATCH MODE: You will correct exactly {n} numbered items.\n"
-        f"OUTPUT (JSON ONLY — no prose, no markdown):\n"
-        f'{{"items": [\n'
-        f'  {{"id": 1, "text": "<corrected version of input [1]>"}},\n'
-        f'  {{"id": 2, "text": "<corrected version of input [2]>"}},\n'
-        f"  ...\n"
-        f'  {{"id": {n}, "text": "<corrected version of input [{n}]>"}}\n'
-        f"]}}\n"
-        f"RULES:\n"
-        f'- "items" array must contain EXACTLY {n} elements.\n'
-        f'- IDs 1..{n} in ascending order, no skips, no duplicates.\n'
-        f"- For each item, apply the correction rules to the text after [N].\n"
-        f"- If no correction is needed, output the text unchanged.\n"
-        f"- NEVER translate. NEVER paraphrase. Only fix character-level OCR errors.\n"
-    )
+    schema_instruction = build_batch_schema(n, mode="correct")
     rules_section = ""
     if custom_rules and custom_rules.strip():
         rules_section = (
