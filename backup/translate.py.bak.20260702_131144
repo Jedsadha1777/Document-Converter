@@ -21,9 +21,6 @@ from prompts.en_vn import (
     product_catalog as _en_vn_product_catalog,
 )
 from prompts.en_th import base as _en_th_base
-from prompts.jp_th import qa_check as _jp_th_qa
-from prompts.en_th import qa_check as _en_th_qa
-from prompts.en_vn import qa_check as _en_vn_qa
 
 from config import (
     APPLE_MIN_INPUT_CHARS,
@@ -471,46 +468,6 @@ def _resolve_prompt(source: str | None, target: str) -> str:
     return TRANSLATE_PROMPTS.get(target, TRANSLATE_PROMPTS["th"])
 
 
-def _fill_prompt_slots(prompt: str, has_characters: bool = False,
-                       has_glossary: bool = False) -> str:
-    """เติม slot {{CHARACTER_PROFILES}}/{{GLOSSARY}} ของ pair prompt (v2).
-    str.replace ตามที่ไฟล์ prompt กำหนด — .format ชนวงเล็บปีกกาใน JSON examples.
-    ข้อมูลจริงถูก append เป็น section ท้าย prompt (positional override)
-    จึงเติมเป็น pointer/'(none)' แทนการซ้ำเนื้อหา"""
-    chars_fill = ("(see the CHARACTER PROFILES section near the end of this prompt)"
-                  if has_characters else "(none — use default style rules)")
-    gloss_fill = ("(see the PROJECT-SPECIFIC RULES section below)"
-                  if has_glossary else "(none)")
-    return (prompt.replace("{{CHARACTER_PROFILES}}", chars_fill)
-                  .replace("{{GLOSSARY}}", gloss_fill))
-
-
-_PAIR_QA_MODULES = {
-    ("ja", "th"): _jp_th_qa,
-    ("en", "th"): _en_th_qa,
-    ("en", "vi"): _en_vn_qa,
-}
-
-
-def _run_pair_qa(source: str | None, target: str, src_text: str, out_text: str,
-                 forbid_final_particles: bool = False) -> dict | None:
-    """deterministic validator ต่อคู่ภาษา — {'errors','warnings'} หรือ None ถ้าไม่มี validator
-    validator พังห้ามทำการแปลพัง → exception กลืนเป็น None"""
-    mod = _PAIR_QA_MODULES.get((source, target))
-    if mod is None:
-        return None
-    try:
-        if mod is _en_th_qa:
-            return mod.check(src_text, out_text, source_lang="en")
-        if mod is _en_vn_qa:
-            return mod.check(src_text, out_text, source_lang="en", target_lang="vi",
-                             forbid_final_particles=forbid_final_particles)
-        return mod.check(src_text, out_text)
-    except Exception as e:
-        print(f"[qa_check] validator error ({source}->{target}): {e}", flush=True)
-        return None
-
-
 # content-type style overlays — layer บน pair prompt, เลือกผ่าน content_type payload
 # manga_novel: target-aware (Thai version mentions ค่ะ/ครับ; non-Thai version stays language-neutral)
 # ดู _resolve_style_block สำหรับ dispatch ที่แท้จริง
@@ -570,7 +527,7 @@ def translate_text(text: str, target: str = "th",
         return "", None
     text_protected, mapping = _protect_segments(text)
     source = _detect_source_language(text)
-    prompt = _fill_prompt_slots(_resolve_prompt(source, target))
+    prompt = _resolve_prompt(source, target)
     # PROTECTED TOKENS — บังคับ LLM รักษา X9990X placeholder (URL/HTML/email mask)
     # ใส่เฉพาะตอนมี placeholder จริง (กัน prompt บวมเมื่อไม่จำเป็น)
     protected_hint = ""
@@ -631,23 +588,6 @@ def translate_text(text: str, target: str = "th",
         out = out or text_protected
         out = _join_lines(out)
         out = _normalize_numerals(out)
-        # ตรวจก่อน restore — เทียบกับ text_protected ฝั่งเดียวกัน กัน false positive
-        # จาก URL/email ที่ถูก restore กลับ
-        qa = _run_pair_qa(source, target, text_protected, out)
-        if qa and qa["errors"]:
-            print(f"[translate] qa_check failed: {qa['errors']} — retry", flush=True)
-            qa_mod = _PAIR_QA_MODULES[(source, target)]
-            retry_out = _call_ollama_translate(
-                text_protected,
-                prompt_factual + "\n\n" + qa_mod.retry_message(qa["errors"]),
-                timeout,
-            )
-            retry_out = _normalize_numerals(_join_lines(retry_out or ""))
-            qa2 = _run_pair_qa(source, target, text_protected, retry_out)
-            if retry_out and qa2 is not None and len(qa2["errors"]) < len(qa["errors"]):
-                out = retry_out
-            else:
-                print("[translate] qa retry not better, keeping first output", flush=True)
         out = _restore_segments(out, mapping)
         if _digits_changed(text, out):
             print(f"[translate] digit mismatch: orig={text!r} out={out!r} — retry", flush=True)
@@ -1319,7 +1259,6 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
         "  input:  「詳細は X9990X を見て」\n"
         "  output: 'ดูรายละเอียดที่ X9990X'  (ไม่ใช่ 'ดูรายละเอียดที่ X 9990 X' / 'ดูรายละเอียดที่ X9990' / 'ดูรายละเอียด')\n"
     )
-    base_prompt = _fill_prompt_slots(base_prompt, bool(chars_section), bool(rules_section))
     # Order: base → style → narration → rules → chars → schema → protected → factual
     # — chars หลัง rules: positional override (LLM ตีความ section ล่างชนะเมื่อ conflict กับ section บน)
     #   เลย apply character voice ทับ TM rules ได้ตรงตาม PRECEDENCE ที่เขียนไว้
@@ -1330,9 +1269,7 @@ def _build_batch_system_prompt(target: str, n: int, custom_rules: str | None,
 
 
 def _post_process_batch(texts: list[str], parsed: list[str | None],
-                        per_item: list[dict], target: str,
-                        source: str | None = None,
-                        content_type: str | None = None
+                        per_item: list[dict], target: str
                         ) -> tuple[list[str], list[str | None]]:
     translations: list[str] = []
     errors: list[str | None] = []
@@ -1362,13 +1299,6 @@ def _post_process_batch(texts: list[str], parsed: list[str | None],
                 warnings.append("foreign_script")
             if _digits_changed(original, t):
                 warnings.append("digit_mismatch")
-            if original.strip():
-                # qa marker ต้องเป็นตัวท้ายสุดของ warnings — build_qa_retry_message
-                # ตัด string จากตำแหน่ง "qa: " ถึงจบ
-                qa = _run_pair_qa(source, target, _join_lines(original), t,
-                                  forbid_final_particles=(content_type == "product_catalog"))
-                if qa and qa["errors"]:
-                    warnings.append("qa: " + " | ".join(qa["errors"]))
 
             translations.append(t)
             errors.append(", ".join(warnings) if warnings else None)
@@ -1425,9 +1355,7 @@ def _translate_batch_qwen(texts: list[str], target: str,
         # → ต้นฉบับญี่ปุ่นหลุดเข้า translations[ref] ปลอมเป็นคำแปล
         return [""] * n, [str(e)] * n
 
-    return _post_process_batch(texts, parsed, per_item, target,
-                               source=_detect_source_language(texts),
-                               content_type=content_type)
+    return _post_process_batch(texts, parsed, per_item, target)
 
 
 _GEMINI_RESPONSE_SCHEMA = {
@@ -1497,9 +1425,7 @@ def _translate_batch_gemini(texts: list[str], target: str,
         # empty (ไม่ใช่ original) → frontend retry ได้ ไม่หลุดเป็น success(warning)
         return [""] * n, [f"gemini: {e}"] * n
 
-    return _post_process_batch(texts, parsed, per_item, target,
-                               source=_detect_source_language(texts),
-                               content_type=content_type)
+    return _post_process_batch(texts, parsed, per_item, target)
 
 
 def _extract_json_payload(raw: str) -> str:
@@ -1553,7 +1479,6 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
                        id_start: int = 1,
                        ids: list[int] | None = None,
                        emotions: list[str | None] | None = None,
-                       content_type: str | None = None,
                        ) -> tuple[list[str], list[str | None]]:
     """Parse manual response — apply ignore SKIP / empty source.
     ids: explicit list (override id_start) — รองรับ slice ไม่ติดกัน"""
@@ -1578,9 +1503,7 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
     _, per_item = _build_batch_user_msg(texts, eff_speakers, id_start=id_start, ids=ids, emotions=emo_list)
 
     parsed = _parse_batch_json(raw_response, n, id_start=id_start, ids=ids)
-    sub_t, sub_e = _post_process_batch(list(texts), parsed, per_item, target,
-                                       source=_detect_source_language(texts),
-                                       content_type=content_type)
+    sub_t, sub_e = _post_process_batch(list(texts), parsed, per_item, target)
 
     for i in range(n):
         if sp_list[i] == SPEAKER_SKIP:
@@ -1592,31 +1515,6 @@ def apply_manual_batch(texts: list[str], target: str, raw_response: str,
         translations[i] = sub_t[i]
         errors[i] = sub_e[i]
     return translations, errors
-
-
-def build_qa_retry_message(ids: list[int], errors: list[str | None],
-                           total: int) -> str | None:
-    """รวม qa error รายบรรทัดเป็นข้อความ follow-up ให้ user วางต่อในแชท LLM เดิม
-    (manual flow retry ในตัวไม่ได้) — อาศัยว่า qa marker เป็น warning ตัวท้ายสุดเสมอ"""
-    items = []
-    for i, err in enumerate(errors):
-        if not err:
-            continue
-        pos = err.find("qa: ")
-        if pos == -1:
-            continue
-        item_id = ids[i] if i < len(ids) else i + 1
-        items.append(f"- id {item_id}: {err[pos + 4:]}")
-    if not items:
-        return None
-    return (
-        "Some translated items violated ABSOLUTE rules from my first message:\n"
-        + "\n".join(items)
-        + f"\n\nRe-output the COMPLETE JSON with ALL {total} items — same ids, same schema, "
-        "same order — correcting the flagged items and keeping the rest unchanged.\n"
-        "All rules from my first message (CHARACTER PROFILES, PROJECT-SPECIFIC RULES, "
-        "GLOSSARY, LINE PARITY, NUMBERS) still apply."
-    )
 
 
 def translate_batch(texts: list[str], target: str = "th",

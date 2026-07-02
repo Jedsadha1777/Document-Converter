@@ -54,12 +54,6 @@ function _ensureModal() {
         } catch (_) {}
     });
     document.getElementById("previewApplyManualBtn").addEventListener("click", applyManualResponse);
-    document.getElementById("previewQaRetryCopyBtn").addEventListener("click", async () => {
-        try {
-            await navigator.clipboard.writeText(document.getElementById("previewQaRetryText").value);
-            _flashBtn(document.getElementById("previewQaRetryCopyBtn"), "Copied", 1500);
-        } catch (_) {}
-    });
 
     const reloadFromInputs = () => {
         const size = parseInt(document.getElementById("previewChunkSize").value, 10);
@@ -240,13 +234,6 @@ async function applyManualResponse() {
         if (skip) parts.push(`skipped ${skip}`);
         if (notInResp) parts.push(`not in response ${notInResp}`);
         status.textContent = parts.join(", ");
-        const qaBox = document.getElementById("previewQaRetry");
-        if (data.qa_retry_message) {
-            document.getElementById("previewQaRetryText").value = data.qa_retry_message;
-            qaBox.style.display = "";
-        } else {
-            qaBox.style.display = "none";
-        }
         if (document.querySelector(".tab.active").dataset.tab === "visual") renderPreview();
     } catch (e) {
         status.style.color = COLORS.error;

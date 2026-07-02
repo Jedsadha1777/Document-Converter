@@ -47,7 +47,7 @@
         </div>
     </form>
 
-    <div class="preview-controls">
+    <div class="preview-controls" style="margin-top:8px;">
         <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation"><span class="material-symbols-outlined">groups</span>Characters</button>
         <button type="button" id="copyPromptBtn" class="ghost" title="Build the prompt for the whole table and copy to clipboard (1-click)"><span class="material-symbols-outlined">content_copy</span>Copy prompt</button>
         <button type="button" id="pastePromptBtn" class="ghost" title="Read LLM response from clipboard and apply to table (1-click — must Copy prompt first)"><span class="material-symbols-outlined">content_paste</span>Paste LLM response</button>
@@ -170,8 +170,8 @@ Examples:
             <button type="button" id="mergeSelectedBtn" class="ghost" style="display:none; margin-left:6px;"
                     title="Merge selected boxes (shift+click to add)"><span class="material-symbols-outlined">merge</span>Merge (<span id="mergeCount">0</span>)</button>
             <div id="editToolbar" style="display:inline-flex; margin-left:6px; gap:4px; align-items:center;">
-                <button type="button" id="undoBtn" class="ghost" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined">undo</span></button>
-                <button type="button" id="redoBtn" class="ghost" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined">redo</span></button>
+                <button type="button" id="undoBtn" class="ghost" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined">undo</span>Undo</button>
+                <button type="button" id="redoBtn" class="ghost" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined">redo</span>Redo</button>
                 <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
                 <button type="button" class="ghost tool-btn" data-tool="select"
                         title="Select — click bbox / drag handles"><span class="material-symbols-outlined">arrow_selector_tool</span></button>
@@ -212,7 +212,7 @@ Examples:
         </div>
         <div id="visualWorkspace">
             <aside id="thumbSidebar">
-                <div class="empty" id="thumbEmpty" style="padding:20px 8px;">No pages yet</div>
+                <div class="empty" id="thumbEmpty" style="padding:20px 8px; font-size:11px;">No pages yet</div>
             </aside>
             <main id="splitMain">
                 <!-- Zoom toolbar (lower-right) — fit/100%/zoom-/zoom+, indicator -->
@@ -228,13 +228,12 @@ Examples:
                 <div id="beforePane" class="split-pane scroll-fallback">
                     <div class="empty">Upload a file to see the original image.</div>
                 </div>
-                <div id="splitDivider" title="Drag to resize panes"></div>
                 <div id="previewArea" class="split-pane scroll-fallback">
                     <div class="empty">Upload a file to see the preview.</div>
                 </div>
             </main>
             <aside id="rightPanel" aria-label="Text inspector">
-                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px;">
+                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px; font-size:12px;">
                     Click a textbox to edit.
                 </div>
                 <div id="rpMarkupPanel" style="display:none; padding:12px;">
@@ -477,37 +476,6 @@ const rulesModal = document.getElementById("rulesModal");
 document.getElementById("rulesBtn").addEventListener("click", () => rulesModal.classList.add("show"));
 document.getElementById("rulesCloseBtn").addEventListener("click", () => rulesModal.classList.remove("show"));
 rulesModal.addEventListener("click", (e) => { if (e.target === rulesModal) rulesModal.classList.remove("show"); });
-
-const splitMainEl = document.getElementById("splitMain");
-const splitDivider = document.getElementById("splitDivider");
-splitDivider.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    splitDivider.classList.add("dragging");
-    document.body.style.cursor = "col-resize";
-    const ghost = document.createElement("div");
-    ghost.className = "split-ghost";
-    splitMainEl.appendChild(ghost);
-    let pct = null;
-    const place = (ev) => {
-        const r = splitMainEl.getBoundingClientRect();
-        pct = Math.min(80, Math.max(20, ((ev.clientX - r.left) / r.width) * 100));
-        ghost.style.left = `${pct}%`;
-    };
-    place(e);
-    const onMove = (ev) => place(ev);
-    const onUp = () => {
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onUp);
-        splitDivider.classList.remove("dragging");
-        document.body.style.cursor = "";
-        ghost.remove();
-        // ห้ามยิง window resize ตรงนี้ — compare.js จะ renderPreview() ทั้ง pane แล้ว zoom reset
-        if (pct !== null) splitMainEl.style.gridTemplateColumns = `${pct}% 6px 1fr`;
-    };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-});
 
 // ── Zoom toolbar (fit / 100% / zoom +/-) + indicator ───────────────────
 const zoomLevelEl = document.getElementById("zoomLevel");

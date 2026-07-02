@@ -57,7 +57,7 @@ export function renderSpeakerOptions() {
     return (selectedId) => {
         const autoSel = selectedId === SPEAKER_AUTO ? " selected" : "";
         const skipSel = selectedId === SPEAKER_SKIP ? " selected" : "";
-        const autoOpt = `<option value="${SPEAKER_AUTO}"${autoSel}>Auto (LLM picks)</option>`;
+        const autoOpt = `<option value="${SPEAKER_AUTO}"${autoSel}>🤖 Auto (LLM picks)</option>`;
         const skipOpt = `<option value="${SPEAKER_SKIP}"${skipSel}>🚫 Don't translate</option>`;
         const charOpts = _characters.map(c => {
             const sel = c.id === selectedId ? " selected" : "";

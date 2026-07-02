@@ -214,8 +214,6 @@ export function initUpload({ onAfterConvert } = {}) {
         _resetDocumentState();
         pageSelect.innerHTML = "";
         previewArea.innerHTML = '<div class="empty">Processing...</div>';
-        renderBeforePane();
-        renderThumbSidebar();
         resetCompareUI();
 
         try {

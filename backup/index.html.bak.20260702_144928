@@ -212,7 +212,7 @@ Examples:
         </div>
         <div id="visualWorkspace">
             <aside id="thumbSidebar">
-                <div class="empty" id="thumbEmpty" style="padding:20px 8px;">No pages yet</div>
+                <div class="empty" id="thumbEmpty" style="padding:20px 8px; font-size:11px;">No pages yet</div>
             </aside>
             <main id="splitMain">
                 <!-- Zoom toolbar (lower-right) — fit/100%/zoom-/zoom+, indicator -->
@@ -234,7 +234,7 @@ Examples:
                 </div>
             </main>
             <aside id="rightPanel" aria-label="Text inspector">
-                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px;">
+                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px; font-size:12px;">
                     Click a textbox to edit.
                 </div>
                 <div id="rpMarkupPanel" style="display:none; padding:12px;">
@@ -485,25 +485,17 @@ splitDivider.addEventListener("mousedown", (e) => {
     e.stopPropagation();
     splitDivider.classList.add("dragging");
     document.body.style.cursor = "col-resize";
-    const ghost = document.createElement("div");
-    ghost.className = "split-ghost";
-    splitMainEl.appendChild(ghost);
-    let pct = null;
-    const place = (ev) => {
+    const onMove = (ev) => {
         const r = splitMainEl.getBoundingClientRect();
-        pct = Math.min(80, Math.max(20, ((ev.clientX - r.left) / r.width) * 100));
-        ghost.style.left = `${pct}%`;
+        const pct = Math.min(80, Math.max(20, ((ev.clientX - r.left) / r.width) * 100));
+        splitMainEl.style.gridTemplateColumns = `${pct}% 6px 1fr`;
     };
-    place(e);
-    const onMove = (ev) => place(ev);
     const onUp = () => {
         document.removeEventListener("mousemove", onMove);
         document.removeEventListener("mouseup", onUp);
         splitDivider.classList.remove("dragging");
         document.body.style.cursor = "";
-        ghost.remove();
-        // ห้ามยิง window resize ตรงนี้ — compare.js จะ renderPreview() ทั้ง pane แล้ว zoom reset
-        if (pct !== null) splitMainEl.style.gridTemplateColumns = `${pct}% 6px 1fr`;
+        window.dispatchEvent(new Event("resize"));
     };
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);

@@ -47,13 +47,12 @@
         </div>
     </form>
 
-    <div class="preview-controls">
+    <div class="preview-controls" style="margin-top:8px;">
         <button type="button" id="charsBtn" class="ghost" title="Configure characters for persona-aware translation"><span class="material-symbols-outlined">groups</span>Characters</button>
         <button type="button" id="copyPromptBtn" class="ghost" title="Build the prompt for the whole table and copy to clipboard (1-click)"><span class="material-symbols-outlined">content_copy</span>Copy prompt</button>
         <button type="button" id="pastePromptBtn" class="ghost" title="Read LLM response from clipboard and apply to table (1-click — must Copy prompt first)"><span class="material-symbols-outlined">content_paste</span>Paste LLM response</button>
         <button type="button" id="previewPromptBtn" class="ghost" title="View the prompt that would be sent to the LLM (no API call)"><span class="material-symbols-outlined">search</span>Preview prompt</button>
-        <button type="button" id="rulesBtn" class="ghost" title="Additional translation rules (optional) — TM pair, content type, glossary, custom rules"><span class="material-symbols-outlined">edit_note</span>Rules</button>
-        <select id="translateEngine">
+        <select id="translateEngine" style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db;">
             <option value="qwen" selected>Qwen 1.5B</option>
             <option value="apple">Apple Translate</option>
             <option value="nllb">NLLB-200 (local)</option>
@@ -79,9 +78,8 @@
         <span id="engineHint" style="margin-left:auto; font-size:12px; color:#6b7280;">qwen2.5:1.5b via Ollama</span>
     </div>
 
-    <div id="rulesModal" class="modal-backdrop">
-    <div class="modal-card rules" role="dialog">
-        <h2><span class="material-symbols-outlined">edit_note</span>Additional translation rules (optional)</h2>
+    <details id="customRulesBox" style="margin-bottom:10px; padding:6px 10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
+        <summary style="cursor:pointer; font-size:13px; color:#374151;"><span class="material-symbols-outlined">edit_note</span>Additional translation rules (optional)</summary>
         <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:12px; color:#374151;">
             <strong>TM:</strong>
             <select id="tmPair" style="padding:4px 6px; border:1px solid #d1d5db; border-radius:4px;">
@@ -114,7 +112,7 @@
                     title="Work-specific glossary by category — appended to custom rules at translate time">📚 Sub-TM</button>
             <span style="color:#9ca3af;">appended to custom rules at translate time</span>
         </div>
-        <textarea id="customRules" rows="14"
+        <textarea id="customRules" rows="4"
             style="width:100%; margin-top:8px; padding:8px 10px; font-family:inherit;
                    font-size:13px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;"
             placeholder="Document-specific rules — sent to the LLM with the system prompt for every batch.
@@ -123,14 +121,9 @@ Examples:
 - Keep brand names (Microsoft, Google) in English
 - Use a formal tone
 - Glossary: API → API, framework → framework"></textarea>
-        <div class="modal-foot">
-            <span></span>
-            <button type="button" id="rulesCloseBtn">Close</button>
-        </div>
-    </div>
-    </div>
+    </details>
 
-    <div id="status" class="statusbar"></div>
+    <div id="status" class="status"></div>
 
     <div class="tabs">
         <button type="button" class="tab active" data-tab="visual">Visual Preview</button>
@@ -170,8 +163,8 @@ Examples:
             <button type="button" id="mergeSelectedBtn" class="ghost" style="display:none; margin-left:6px;"
                     title="Merge selected boxes (shift+click to add)"><span class="material-symbols-outlined">merge</span>Merge (<span id="mergeCount">0</span>)</button>
             <div id="editToolbar" style="display:inline-flex; margin-left:6px; gap:4px; align-items:center;">
-                <button type="button" id="undoBtn" class="ghost" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined">undo</span></button>
-                <button type="button" id="redoBtn" class="ghost" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined">redo</span></button>
+                <button type="button" id="undoBtn" class="ghost" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined">undo</span>Undo</button>
+                <button type="button" id="redoBtn" class="ghost" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined">redo</span>Redo</button>
                 <span style="width:1px; height:18px; background:#d1d5db; margin:0 4px;"></span>
                 <button type="button" class="ghost tool-btn" data-tool="select"
                         title="Select — click bbox / drag handles"><span class="material-symbols-outlined">arrow_selector_tool</span></button>
@@ -212,7 +205,7 @@ Examples:
         </div>
         <div id="visualWorkspace">
             <aside id="thumbSidebar">
-                <div class="empty" id="thumbEmpty" style="padding:20px 8px;">No pages yet</div>
+                <div class="empty" id="thumbEmpty" style="padding:20px 8px; font-size:11px;">No pages yet</div>
             </aside>
             <main id="splitMain">
                 <!-- Zoom toolbar (lower-right) — fit/100%/zoom-/zoom+, indicator -->
@@ -228,13 +221,12 @@ Examples:
                 <div id="beforePane" class="split-pane scroll-fallback">
                     <div class="empty">Upload a file to see the original image.</div>
                 </div>
-                <div id="splitDivider" title="Drag to resize panes"></div>
                 <div id="previewArea" class="split-pane scroll-fallback">
                     <div class="empty">Upload a file to see the preview.</div>
                 </div>
             </main>
             <aside id="rightPanel" aria-label="Text inspector">
-                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px;">
+                <div id="rightPanelEmpty" class="empty" style="padding:20px 8px; font-size:12px;">
                     Click a textbox to edit.
                 </div>
                 <div id="rpMarkupPanel" style="display:none; padding:12px;">
@@ -472,42 +464,6 @@ initPanZoom(document.getElementById("splitMain"), {
 initToolButtons();
 initLayerButtons();
 initInspector();
-
-const rulesModal = document.getElementById("rulesModal");
-document.getElementById("rulesBtn").addEventListener("click", () => rulesModal.classList.add("show"));
-document.getElementById("rulesCloseBtn").addEventListener("click", () => rulesModal.classList.remove("show"));
-rulesModal.addEventListener("click", (e) => { if (e.target === rulesModal) rulesModal.classList.remove("show"); });
-
-const splitMainEl = document.getElementById("splitMain");
-const splitDivider = document.getElementById("splitDivider");
-splitDivider.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    splitDivider.classList.add("dragging");
-    document.body.style.cursor = "col-resize";
-    const ghost = document.createElement("div");
-    ghost.className = "split-ghost";
-    splitMainEl.appendChild(ghost);
-    let pct = null;
-    const place = (ev) => {
-        const r = splitMainEl.getBoundingClientRect();
-        pct = Math.min(80, Math.max(20, ((ev.clientX - r.left) / r.width) * 100));
-        ghost.style.left = `${pct}%`;
-    };
-    place(e);
-    const onMove = (ev) => place(ev);
-    const onUp = () => {
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onUp);
-        splitDivider.classList.remove("dragging");
-        document.body.style.cursor = "";
-        ghost.remove();
-        // ห้ามยิง window resize ตรงนี้ — compare.js จะ renderPreview() ทั้ง pane แล้ว zoom reset
-        if (pct !== null) splitMainEl.style.gridTemplateColumns = `${pct}% 6px 1fr`;
-    };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-});
 
 // ── Zoom toolbar (fit / 100% / zoom +/-) + indicator ───────────────────
 const zoomLevelEl = document.getElementById("zoomLevel");

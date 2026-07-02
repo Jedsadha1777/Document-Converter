@@ -482,6 +482,7 @@ body.preview-mode #previewArea { border: none; border-radius: 0; }
 .canvas-wrap {
     position: relative;
     display: inline-block;
+    background: #f9fafb;
 }
 .canvas-wrap canvas {
     display: block;

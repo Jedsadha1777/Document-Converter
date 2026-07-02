@@ -1,16 +1,18 @@
-// Status bar helpers — แสดงข้อความสั้นๆ ใน #status (success/error/info)
-// kind: "success" | "error" | "info" — match กับ CSS .status.show.{kind}
+// Status bar helpers — progress line ใน #status
+// kind: "success" | "error" | "info" — match กับ CSS .statusbar.show.{kind}
 
 export function setStatus(msg, kind) {
     const el = document.getElementById("status");
     if (!el) return;
-    el.textContent = msg;
-    el.className = "status show " + (kind || "");
+    el.textContent = kind === "error" ? msg : "";
+    el.title = msg || "";
+    el.className = "statusbar show " + (kind || "info");
 }
 
 export function clearStatus() {
     const el = document.getElementById("status");
     if (!el) return;
-    el.className = "status";
+    el.className = "statusbar";
     el.textContent = "";
+    el.title = "";
 }

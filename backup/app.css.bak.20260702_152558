@@ -248,12 +248,6 @@ body.app-fullscreen #compareArea {
     overflow: auto;
     min-height: 0;
 }
-#compareArea .empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
 .tab-panel#panel-visual.active {
     display: flex;
     flex-direction: column;
@@ -482,6 +476,7 @@ body.preview-mode #previewArea { border: none; border-radius: 0; }
 .canvas-wrap {
     position: relative;
     display: inline-block;
+    background: #f9fafb;
 }
 .canvas-wrap canvas {
     display: block;
@@ -542,7 +537,6 @@ table.compare {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
-    table-layout: fixed;
 }
 table.compare th, table.compare td {
     border: 1px solid #e5e7eb;
@@ -556,10 +550,8 @@ table.compare th {
     position: sticky;
     top: 0;
 }
-table.compare td.col-no, table.compare th.col-no { width: 36px; }
-table.compare td.col-no { color: #9ca3af; text-align: right; }
+table.compare td.col-no { width: 36px; color: #9ca3af; text-align: right; }
 table.compare td.col-speaker, table.compare th.col-speaker { width: 110px; padding: 4px 6px; }
-table.compare td.col-emotion, table.compare th.col-emotion { width: 120px; padding: 4px 6px; }
 table.compare select.speaker-select {
     width: 100%; font-size: 12px; padding: 4px 6px;
     border: 1px solid #d1d5db; border-radius: 4px; background: #fff;
@@ -602,7 +594,7 @@ table.compare select.speaker-select {
 }
 .char-row button.del-char:hover { background: #fca5a5; }
 .char-default { background: #ecfdf5 !important; }
-table.compare td.col-text { white-space: pre-wrap; word-break: normal; overflow-wrap: break-word; }
+table.compare td.col-text { white-space: pre-wrap; word-break: normal; overflow-wrap: normal; }
 table.compare tr.same td.col-corrected { color: #9ca3af; }
 table.compare td.col-corrected.pending,
 table.compare td.col-translated.pending { color: #9ca3af; font-style: italic; }

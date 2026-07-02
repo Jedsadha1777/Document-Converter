@@ -53,7 +53,7 @@ export function renderEmotionOptions(target, allowEmpty = false) {
     const list = getEmotionList(target);
     return (selected) => {
         const autoSel = selected === EMOTION_AUTO || (!selected && !allowEmpty) ? " selected" : "";
-        const autoOpt = `<option value="${EMOTION_AUTO}"${autoSel}>Auto</option>`;
+        const autoOpt = `<option value="${EMOTION_AUTO}"${autoSel}>🤖 Auto</option>`;
         const emptySel = !selected && allowEmpty ? " selected" : "";
         const emptyOpt = allowEmpty ? `<option value=""${emptySel}>—</option>` : "";
         const opts = list.map(e => {

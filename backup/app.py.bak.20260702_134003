@@ -62,7 +62,6 @@ from translate import (
     _translate_temp_for_attempt,
     apple_translate_text,
     apply_manual_batch,
-    build_qa_retry_message,
     nllb_translate_text,
     translate_batch,
     translate_text,
@@ -360,20 +359,16 @@ def translate_batch_apply_manual():
             return jsonify({"error": "raw_response is empty"}), 400
 
         ids_arg = [int(x) for x in ids_payload] if ids_payload else None
-        content_type = payload.get("content_type") or None
         translations, errors = apply_manual_batch(
             texts, target, raw_response,
             speakers=speakers, characters=characters,
             id_start=id_start, ids=ids_arg, emotions=emotions,
-            content_type=content_type,
         )
-        ids_for_msg = ids_arg if ids_arg else [id_start + i for i in range(len(texts))]
         return jsonify({
             "translated": translations,
             "errors": errors,
             "target": target,
             "batch_size": len(texts),
-            "qa_retry_message": build_qa_retry_message(ids_for_msg, errors, len(texts)),
         })
     except Exception as exc:
         import traceback

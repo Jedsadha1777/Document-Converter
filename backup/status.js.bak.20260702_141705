@@ -1,0 +1,20 @@
+// Status bar — เส้น progress บางแบบ YouTube ใน #status
+// kind: "info" = กำลังโหลด (เส้นวิ่ง) | "success" = เส้นเขียวเต็มแล้วจางหาย
+//       | "error" = เส้นแดง + ข้อความ (ข้อความ error ต้องมองเห็น ไม่งั้นวินิจฉัยไม่ได้)
+// ข้อความ info/success ยังอ่านได้ผ่าน title (hover)
+
+export function setStatus(msg, kind) {
+    const el = document.getElementById("status");
+    if (!el) return;
+    el.textContent = kind === "error" ? msg : "";
+    el.title = msg || "";
+    el.className = "statusbar show " + (kind || "info");
+}
+
+export function clearStatus() {
+    const el = document.getElementById("status");
+    if (!el) return;
+    el.className = "statusbar";
+    el.textContent = "";
+    el.title = "";
+}
