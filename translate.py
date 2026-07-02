@@ -23,6 +23,7 @@ from prompts.en_vn import (
 from prompts.en_th import base as _en_th_base
 from prompts.th_en import base as _th_en_base
 from prompts import universal as _universal
+from prompts import generic_styles as _generic_styles
 from prompts.jp_th import qa_check as _jp_th_qa
 from prompts.en_th import qa_check as _en_th_qa
 from prompts.en_vn import qa_check as _en_vn_qa
@@ -322,36 +323,11 @@ def _run_pair_qa(source: str | None, target: str, src_text: str, out_text: str,
 # ดู _resolve_style_block สำหรับ dispatch ที่แท้จริง
 TRANSLATE_STYLE_PROMPTS = {
     "manga_novel_th": _jp_th_manga_novel.PROMPT,
-    "manga_novel_generic": (
-        "\n\n═══ CONTENT TYPE: MANGA / NOVEL (dialogue + narration mixed) ═══\n"
-        "- Conversational register — character voice follows the speaker's profile (gender/age/persona)\n"
-        "- Use sentence-final particles/register that are natural to the TARGET language only.\n"
-        "  ⚠ Do NOT import Thai particles (ค่ะ/ครับ/นะ/จ้ะ) or Japanese honorifics (san/chan/kun)\n"
-        "  into the output — every register cue must belong to the target language.\n"
-        "- Preserve manga prosody: exclamations, sentence fragments, expressive phrasing —\n"
-        "  do NOT formalize the text into prose.\n"
-    ),
+    "manga_novel_generic":  _generic_styles.MANGA_NOVEL,
     "tutorial_jp_th": _jp_th_tutorial.PROMPT,
-    "tutorial_generic": (
-        "\n\n═══ CONTENT TYPE: TUTORIAL (instructional / how-to / manual) ═══\n"
-        "- Imperative voice — direct commands in the target language ('Click', 'Select', 'Save').\n"
-        "- NO casual/chat particles or softeners — formal manual register only.\n"
-        "- Keep technical terms, brand and product names per the GLOSSARY; do not invent translations.\n"
-        "- UI STRINGS (button/menu/label names, often quoted):\n"
-        "  if listed in GLOSSARY → copy the GLOSSARY spelling verbatim\n"
-        "  if the real UI is in English → keep English in quotes: the \"Save\" button\n"
-        "  otherwise → translate into the target language\n"
-        "- Keep step numbering exactly as the source — never merge or reorder steps.\n"
-    ),
+    "tutorial_generic":  _generic_styles.TUTORIAL,
     "product_catalog_en_vn": _en_vn_product_catalog.PROMPT,
-    "product_catalog_generic": (
-        "\n\n═══ CONTENT TYPE: PRODUCT CATALOG (e-commerce / spec sheet) ═══\n"
-        "- Concise noun-phrase style — no chat particles, no conversational fillers.\n"
-        "- Keep brand names, model numbers, SKUs, and units EXACTLY as in the source.\n"
-        "- Specs/dimensions: copy every number and unit verbatim.\n"
-        "- Marketing copy: translate persuasively but factually — do not add claims.\n"
-        "- Keep technical terms per the GLOSSARY.\n"
-    ),
+    "product_catalog_generic":  _generic_styles.PRODUCT_CATALOG,
 }
 
 
