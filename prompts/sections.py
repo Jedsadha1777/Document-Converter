@@ -28,7 +28,7 @@ NARRATION_RULE_TH = (
                 "    Neutral/Calm (เฉยๆ/สบาย/จริงจัง)\n"
                 "      → plain register, no emotional marker, no playful particle\n"
                 "    Sad/Regret (เศร้า/ผิดหวัง/เหนื่อย/เบื่อ/สงสาร)\n"
-                "      → soft tone, particle 'หรอก'/'นะ', sighs, trail-off '...' OK\n"
+                "      → soft tone, particle 'หรอก', sighs, trail-off '...' OK ('นะ' ต้องมี ね/よ ใน source)\n"
                 "    Anger/Disgust (โกรธ/หงุดหงิด/รังเกียจ/เกลียด/ดูถูก)\n"
                 "      → terse, no polite particle, rough male persona อาจ 'ว่ะ/โว้ย'; spit-tone\n"
                 "    Fear/Surprise (กลัว/ตกใจ/กังวล/ผวา)\n"

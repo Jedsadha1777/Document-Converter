@@ -94,7 +94,7 @@ RULES — STRICTLY FOLLOWED:
     source มี だよ/よ (plain) → 'ล่ะ / แหละ / ไง / นะ' (assertive casual, ไม่มี ครับ/ค่ะ)
     source มี の (อธิบาย/feminine, plain) → 'น่ะ / อ่ะ' ได้
     source มี です/ます ล้วน (ไม่มี ね/よ) → ใส่ 'ครับ/ค่ะ' ได้ แต่ห้ามเติม 'นะ'
-    source ลงท้ายแบบ plain (だ/る/た/ない/dictionary form/ตัดเปล่า) → ห้ามใส่ polite particle
+    source ลงท้ายแบบ plain (だ/る/た/ない/dictionary form/ตัดเปล่า) → ห้ามใส่ polite particle (รวม 'นะ')
     source เป็น คำสั่ง/อุทาน/internal thought/fragment → ห้ามใส่ polite particle
   QUESTIONS — map ตามระดับ:
     ですか / ますか → '...ไหมครับ/คะ' / '...หรือเปล่าครับ/คะ'

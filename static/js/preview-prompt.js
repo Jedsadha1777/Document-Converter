@@ -15,6 +15,7 @@ const { corrections, speakerByRef, emotionByRef, emotion2ByRef } = state;
 
 const previewPromptBtn = document.getElementById("previewPromptBtn");
 const copyPromptBtn = document.getElementById("copyPromptBtn");
+const downloadPromptBtn = document.getElementById("downloadPromptBtn");
 const pastePromptBtn = document.getElementById("pastePromptBtn");
 
 let previewModal = null;
@@ -353,14 +354,16 @@ async function fetchPreview(chunkSize, chunkIdx, mode) {
 
 previewPromptBtn.addEventListener("click", () => fetchPreview());
 
-// ── One-click Copy prompt / Paste LLM response ──
+// ── One-click Copy prompt / Download prompt / Paste LLM response ──
 
-async function copyPromptOneClick() {
+// build prompt ของทั้ง table ผ่าน /translate-batch/preview
+// คืน { data, nRows } หรือ null (แจ้ง error บน UI เองแล้ว)
+async function _buildFullTablePrompt() {
     const compareArea = document.getElementById("compareArea");
     const rows = Array.from(compareArea.querySelectorAll("tbody tr"));
-    if (!rows.length) { alert("No rows in the table — upload a file first"); return; }
+    if (!rows.length) { alert("No rows in the table — upload a file first"); return null; }
     const target = getTranslateTarget();
-    if (!target) { alert("Select a TM pair first — target language is derived from it."); return; }
+    if (!target) { alert("Select a TM pair first — target language is derived from it."); return null; }
     const engine = runDom.translateEngineSel.value;
     // Sub-TM block อยู่ใน textarea (visible) → strip markers ก่อนส่ง backend
     const userRules = (runDom.customRulesEl.value || "").trim();
@@ -386,7 +389,7 @@ async function copyPromptOneClick() {
         emotionArr.push(combineEmotion(emotionByRef[ref], emotion2ByRef[ref]));
         idsArr.push(i + 1);
     });
-    if (!texts.length) { alert("Nothing to translate — all rows are SKIP or empty"); return; }
+    if (!texts.length) { alert("Nothing to translate — all rows are SKIP or empty"); return null; }
 
     runDom.correctProgress.textContent = "⏳ Building prompt...";
     try {
@@ -404,16 +407,45 @@ async function copyPromptOneClick() {
             }),
         });
         const data = await res.json();
-        if (data.error) { runDom.correctProgress.textContent = "Error: " + data.error; return; }
+        if (data.error) { runDom.correctProgress.textContent = "Error: " + data.error; return null; }
+        return { data, nRows: rows.length };
+    } catch (e) {
+        runDom.correctProgress.textContent = "Error: " + e.message;
+        return null;
+    }
+}
+
+async function copyPromptOneClick() {
+    const built = await _buildFullTablePrompt();
+    if (!built) return;
+    try {
         // copy RAW text (newline จริง) สำหรับ paste Gemini web UI
         // ไม่ใช้ JSON.stringify(request_body) เพราะจะ escape \n เป็น literal "\\n" → web UI อ่านไม่ออก
-        const raw = [data.system_prompt || "", data.user_message || ""].filter(Boolean).join("\n\n");
+        const raw = [built.data.system_prompt || "", built.data.user_message || ""].filter(Boolean).join("\n\n");
         await navigator.clipboard.writeText(raw);
-        runDom.correctProgress.textContent = `✓ Copied prompt (${rows.length} rows) → paste into LLM`;
+        runDom.correctProgress.textContent = `✓ Copied prompt (${built.nRows} rows) → paste into LLM`;
         _flashBtn(copyPromptBtn, "Copied");
     } catch (e) {
         runDom.correctProgress.textContent = "Error: " + e.message;
     }
+}
+
+async function downloadPromptOneClick() {
+    const built = await _buildFullTablePrompt();
+    if (!built) return;
+    // โหลด request_body = JSON payload ที่ยิงเข้า LLM endpoint จริง (system+user ครบ)
+    const json = JSON.stringify(built.data.request_body || {}, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `prompt_${built.data.engine}_${built.data.target}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    runDom.correctProgress.textContent = `✓ Downloaded prompt JSON (${built.nRows} rows)`;
+    _flashBtn(downloadPromptBtn, "Downloaded");
 }
 
 async function pastePromptOneClick() {
@@ -501,4 +533,5 @@ async function pastePromptOneClick() {
 }
 
 copyPromptBtn.addEventListener("click", copyPromptOneClick);
+downloadPromptBtn.addEventListener("click", downloadPromptOneClick);
 pastePromptBtn.addEventListener("click", pastePromptOneClick);
