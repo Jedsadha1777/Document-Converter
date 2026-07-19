@@ -48,15 +48,29 @@ function _buildDetectPrompt() {
     const emoList = emotions.join(", ");
     const corpus = rows.map(r => `[${r.idx}] ${r.text}`).join("\n");
 
+    // rules ตามภาษาปลายทาง — ห้าม lock ไทย: ตัวอย่าง layered ต้องเป็นคำจาก list ของ target นั้น
+    const layeredEx = { th: "ดีใจ+เขิน", vi: "vui vẻ+ngại" }[target] || "happy+shy";
+    const rules = target === "th"
+        ? (
+            "- speaker: ใช้ character id จาก CHARACTERS list (ถ้าไม่แน่ใจ/narration → \"\")\n" +
+            "- emotion1: primary emotion จาก EMOTIONS list เท่านั้น (ถ้าไม่ระบุ → \"\")\n" +
+            "- emotion2: secondary emotion จาก EMOTIONS list เท่านั้น ถ้าเป็น layered อารมณ์ (เช่น ดีใจ+เขิน) — ปกติ \"\"\n" +
+            "- ไม่มีคำใน list ที่ตรง → ใช้คำใกล้สุดใน list หรือ \"\" — ห้ามสร้างคำนอก list เด็ดขาด\n" +
+            "- ห้ามแปลคำ/ปรับ id — output value ตามที่อยู่ใน list เท่านั้น\n"
+        )
+        : (
+            "- speaker: use a character id from the CHARACTERS list (unsure/narration → \"\")\n" +
+            "- emotion1: primary emotion — a word from the EMOTIONS list ONLY (unspecified → \"\")\n" +
+            `- emotion2: secondary emotion — a word from the EMOTIONS list ONLY, when feelings are layered (e.g., ${layeredEx}) — usually ""\n` +
+            "- no exact match in the list → pick the closest word in the list or \"\" — NEVER invent a word outside the list\n" +
+            "- never translate list words or alter ids — output values exactly as they appear in the list\n"
+        );
+
     return (
         "Identify SPEAKER + EMOTION for each numbered line below.\n" +
         "Output ONLY a JSON array — no markdown fences, no explanation:\n" +
         '[{"id":1, "speaker":"<character_id_or_empty>", "emotion1":"<primary_or_empty>", "emotion2":"<secondary_or_empty>"}, ...]\n\n' +
-        "Rules:\n" +
-        "- speaker: ใช้ character id จาก CHARACTERS list (ถ้าไม่แน่ใจ/narration → \"\")\n" +
-        "- emotion1: primary emotion จาก EMOTIONS list ตามภาษา target (ถ้าไม่ระบุ → \"\")\n" +
-        "- emotion2: secondary emotion ถ้าเป็น layered อารมณ์ (เช่น ดีใจ+เขิน) — ปกติ \"\"\n" +
-        "- ห้ามแปลคำ/ปรับ id — output value ตามที่อยู่ใน list เท่านั้น\n\n" +
+        "Rules:\n" + rules + "\n" +
         "CHARACTERS:\n" + charList + "\n\n" +
         `EMOTIONS (target=${target}, use ONLY these target-language words):\n  ${emoList}\n\n` +
         "LINES:\n" + corpus

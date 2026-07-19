@@ -101,6 +101,9 @@ def build_batch_schema(n: int, ids_to_use: list[int] | None = None,
             f'- Each element has "id" (integer {first}..{last}) and "text" (the translation).\n'
             f"- IDs must be {first} through {last} in ascending order, no skips, no duplicates.\n"
             f"- Each text is the translation of the input line with the same number.\n"
+            f"- NEVER merge lines: if a sentence continues across input lines, translate each\n"
+            f"  line's own fragment under its own id. A non-empty input line must NEVER get an\n"
+            f"  empty text, and its content must NEVER move to a neighboring id.\n"
         )
     ids_str = ", ".join(str(x) for x in ids_to_use)
     return (
@@ -111,6 +114,9 @@ def build_batch_schema(n: int, ids_to_use: list[int] | None = None,
             f'- "items" array must contain EXACTLY {n} elements.\n'
             f'- IDs MUST be exactly: {ids_str} (matching the [N] markers in input — preserve any gaps).\n'
             f"- Each text is the translation of the input line with the same id.\n"
+            f"- NEVER merge lines: if a sentence continues across input lines, translate each\n"
+            f"  line's own fragment under its own id. A non-empty input line must NEVER get an\n"
+            f"  empty text, and its content must NEVER move to a neighboring id.\n"
         )
 
 

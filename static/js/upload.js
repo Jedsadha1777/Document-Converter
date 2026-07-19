@@ -154,9 +154,10 @@ function _onClickPage(pageNo) {
     import("./visual/thumbnail.js").then(m => m.setActiveThumb(pageNo));
 }
 
-// ล้าง state document ทั้งหมด — เรียกตอนเริ่ม upload ใหม่
-function _resetDocumentState() {
+// ล้าง state document ทั้งหมด — เรียกตอนเริ่ม upload ใหม่ (paste-text.js ใช้ร่วมด้วย)
+export function resetDocumentState() {
     state.lastResult = null;
+    state.ocrMeta = null;
     Object.keys(corrections).forEach(k => delete corrections[k]);
     Object.keys(translations).forEach(k => delete translations[k]);
     Object.keys(speakerByRef).forEach(k => delete speakerByRef[k]);
@@ -211,7 +212,7 @@ export function initUpload({ onAfterConvert } = {}) {
         submitBtn.textContent = "Processing...";
         setStatus(files.length > 1 ? `Converting ${files.length} files...` : "Converting document...", "info");
         output.value = "";
-        _resetDocumentState();
+        resetDocumentState();
         pageSelect.innerHTML = "";
         previewArea.innerHTML = '<div class="empty">Processing...</div>';
         renderBeforePane();
@@ -239,6 +240,7 @@ export function initUpload({ onAfterConvert } = {}) {
                     });
                 }
                 state.lastResult = data;
+                if (data.ocr_engine) state.ocrMeta = { engine: data.ocr_engine, lang: data.ocr_lang };
                 _autoCreateMarkup(data);
                 output.value = data.json_text;
                 _populatePages(data.preview.pages);
@@ -265,6 +267,7 @@ export function initUpload({ onAfterConvert } = {}) {
                 const textOffset = combined.texts.length;
                 const data = await _convertOneFile(file);
                 if (!data) { errors.push(file.name); continue; }
+                if (data.ocr_engine) state.ocrMeta = { engine: data.ocr_engine, lang: data.ocr_lang };
                 _mergeFileResult(combined, data, pageOffset, textOffset, file.name);
                 // multi-image batch รับเฉพาะ image — แต่ละไฟล์ใช้ blob URL ของตัวเอง
                 if (_isImageFile(file) && data.doc_id) {

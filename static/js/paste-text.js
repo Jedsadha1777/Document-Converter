@@ -3,7 +3,11 @@
 // build synthetic state.lastResult schema ขั้นต่ำให้ buildCompareTable ใช้ได้
 
 import { state } from "./state.js";
-import { buildCompareTable } from "./compare.js";
+import { buildCompareTable, resetCompareUI } from "./compare.js";
+import { resetDocumentState } from "./upload.js";
+import { renderPreview } from "./preview.js";
+import { renderBeforePane } from "./visual/before-pane.js";
+import { renderThumbSidebar } from "./visual/thumbnail.js";
 
 let _modal = null;
 
@@ -64,6 +68,12 @@ function _apply() {
         alert("Paste at least one non-empty line of text first");
         return;
     }
+    // ล้างเอกสารเก่าให้ครบเส้นทางเดียวกับ upload ใหม่ (overrides, clientImages, history, selection)
+    resetDocumentState();
+    state.markup = [];
+    state.markupSelection.id = null;
+    state.markupSelection.ids = new Set();
+
     // build synthetic state.lastResult ขั้นต่ำให้ compare.js / runner ใช้ได้
     // self_ref ตามรูปแบบของ docling — "#/texts/N"
     const texts = lines.map((text, i) => ({
@@ -76,16 +86,14 @@ function _apply() {
         preview: { pages: [], items: texts.map(t => ({ ...t, bbox: [0, 0, 0, 0] })) },
         json_text: JSON.stringify({ texts }, null, 2),
     };
-    // reset per-doc overrides — ต้อง clear in-place (delete keys) เพราะ compare.js destructure
-    // reference ตอน import → ถ้า reassign state.X = {} compare จะยังเห็น object ตัวเก่า
-    Object.keys(state.bboxOverrides).forEach(k => delete state.bboxOverrides[k]);
-    Object.keys(state.speakerByRef).forEach(k => delete state.speakerByRef[k]);
-    Object.keys(state.emotionByRef).forEach(k => delete state.emotionByRef[k]);
-    Object.keys(state.emotion2ByRef).forEach(k => delete state.emotion2ByRef[k]);
-    Object.keys(state.corrections).forEach(k => delete state.corrections[k]);
-    Object.keys(state.translations).forEach(k => delete state.translations[k]);
-    state.manualEdits.clear();
-    state.manualTranslations.clear();
+
+    // re-render pane รูปทั้งหมด — pages ว่างแล้ว placeholder จะแทนรูปเอกสารเก่า
+    const pageSelect = document.getElementById("pageSelect");
+    if (pageSelect) pageSelect.innerHTML = "";
+    renderPreview();
+    renderBeforePane();
+    renderThumbSidebar();
+    resetCompareUI();
 
     _closeModal();
     // switch ไปยัง Compare tab + force rebuild

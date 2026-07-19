@@ -4,6 +4,7 @@
 export const state = {
     // ── document data (มาจาก /convert) ──
     lastResult: null,
+    ocrMeta: null,          // {engine, lang} ที่ใช้จริงตอน convert — Re-OCR ใช้ค่านี้แทน dropdown ปัจจุบัน
 
     // ── image source map: "docId/pageNo" → blob URL (client-uploaded image) ──
     // ใช้แทน base64 จาก server เมื่อ user upload image (ตัด round-trip)

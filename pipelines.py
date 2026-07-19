@@ -1,4 +1,5 @@
-"""OCR pipelines: docling (default) + manga (mokuro) + fast (ocrmac direct)"""
+"""OCR pipelines: docling (default) + manga (mokuro) + fast (ocrmac direct)
++ hybrid (tesseract layout + manga_ocr recognition)"""
 import base64
 import io
 from pathlib import Path
@@ -498,6 +499,156 @@ def run_manga_pipeline(path: Path, filename: str, skip_image_data: bool = False)
 
     doc_dict = {
         "schema_name": "MangaPageOcr",
+        "version": "1.0",
+        "name": Path(filename).stem,
+        "img_width": img_w,
+        "img_height": img_h,
+        "texts": texts,
+    }
+    preview = {
+        "pages": [{"page_no": 1, "width": img_w, "height": img_h,
+                   "img_width": img_w, "img_height": img_h, "image": image_data}],
+        "items": items,
+    }
+    return doc_dict, preview
+
+
+# ── hybrid mode (tesseract layout + manga_ocr recognition) ──
+# สำหรับนิตยสาร/นิยายญี่ปุ่นแนวตั้ง: mokuro เรียง block ทั้งหน้าไม่ได้ แต่ tesseract
+# (jpn_vert) จัด layout+ลำดับอ่านได้ดี ส่วน manga_ocr อ่านแถบคอลัมน์เดี่ยวแม่นกว่า
+# tesseract มาก → ใช้จุดแข็งคนละตัว
+
+
+def _tesseract_layout_lines(pil: Image.Image) -> list[dict]:
+    """เรียก tesseract TSV → line boxes (level 4) เรียงตามลำดับอ่านของ layout analyzer
+    คืน [{block, par, l, t, w, h}] — สำหรับ jpn_vert หนึ่ง line = หนึ่งคอลัมน์"""
+    import csv
+    import io as _io
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+
+    if not shutil.which("tesseract"):
+        raise RuntimeError(
+            "hybrid mode ต้องมี tesseract + ภาษา jpn/jpn_vert: "
+            "brew install tesseract tesseract-lang"
+        )
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+        pil.save(tmp.name, format="PNG")
+        tmp_path = tmp.name
+    try:
+        r = subprocess.run(
+            ["tesseract", tmp_path, "stdout", "tsv", "--psm", "3", "-l", "jpn+jpn_vert"],
+            capture_output=True, text=True, timeout=300,
+        )
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+    if r.returncode != 0:
+        raise RuntimeError(f"tesseract failed: {(r.stderr or '')[:300]}")
+    lines = []
+    for row in csv.DictReader(_io.StringIO(r.stdout), delimiter="\t"):
+        if row.get("level") != "4":
+            continue
+        w, h = int(row["width"]), int(row["height"])
+        if w < 8 or h < 8:
+            continue
+        lines.append({
+            "block": int(row["block_num"]), "par": int(row["par_num"]),
+            "l": int(row["left"]), "t": int(row["top"]), "w": w, "h": h,
+        })
+    return lines
+
+
+def hybrid_ocr_image(pil: Image.Image) -> list[dict]:
+    """OCR ทั้งภาพแบบ hybrid → paragraphs ตามลำดับอ่าน
+    คืน [{box: [x1,y1,x2,y2], lines: [str,...], vertical: bool}]"""
+    mocr = get_manga_ocr_model_only()
+    paras: list[dict] = []
+    cur_key = None
+    cur = None
+    for ln in _tesseract_layout_lines(pil):
+        x1 = max(0, ln["l"] - 4)
+        y1 = max(0, ln["t"] - 4)
+        x2 = min(pil.width, ln["l"] + ln["w"] + 4)
+        y2 = min(pil.height, ln["t"] + ln["h"] + 4)
+        text = (mocr(pil.crop((x1, y1, x2, y2))) or "").strip()
+        if not text:
+            continue
+        key = (ln["block"], ln["par"])
+        if key != cur_key or cur is None:
+            cur = {"box": [x1, y1, x2, y2], "lines": [], "_n_vert": 0, "_n": 0, "_sizes": []}
+            paras.append(cur)
+            cur_key = key
+        cur["lines"].append(text)
+        b = cur["box"]
+        cur["box"] = [min(b[0], x1), min(b[1], y1), max(b[2], x2), max(b[3], y2)]
+        cur["_n"] += 1
+        if ln["h"] > ln["w"]:
+            cur["_n_vert"] += 1
+        # ขนาดตัวอักษร ≈ ความกว้างคอลัมน์ (แนวตั้ง) / ความสูงบรรทัด (แนวนอน)
+        # นับเฉพาะกล่องที่เป็นแถบผอมจริง — กล่องเกือบจัตุรัสคือ region ที่ tesseract
+        # ตีเป็นบรรทัดผิด ขนาดใช้ไม่ได้ (จะได้ font ยักษ์)
+        if min(ln["w"], ln["h"]) < 0.5 * max(ln["w"], ln["h"]):
+            cur["_sizes"].append(float(min(ln["w"], ln["h"])))
+    for p in paras:
+        p["vertical"] = p["_n"] > 0 and p["_n_vert"] * 2 >= p["_n"]
+        sizes = sorted(p["_sizes"])
+        p["font_size"] = sizes[len(sizes) // 2] if sizes else 0.0
+        del p["_n_vert"], p["_n"], p["_sizes"]
+    return paras
+
+
+def run_hybrid_pipeline(path: Path, filename: str, skip_image_data: bool = False):
+    """แทนที่ docling/mokuro สำหรับนิตยสาร/นิยายญี่ปุ่นแนวตั้ง — output schema เดียวกับ
+    run_manga_pipeline (bbox pixel TOPLEFT 1:1 กับไฟล์ต้นฉบับ)"""
+    with Image.open(path) as _src:
+        pil = _src.convert("RGB")
+    img_w, img_h = pil.size
+    image_data = None
+    if not skip_image_data:
+        buf = io.BytesIO()
+        pil.save(buf, format="PNG", optimize=True)
+        image_data = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
+    texts = []
+    items = []
+    for i, pr in enumerate(hybrid_ocr_image(pil)):
+        x1, y1, x2, y2 = pr["box"]
+        text = "\n".join(pr["lines"])
+        bbox_dict = {
+            "l": float(x1), "t": float(y1),
+            "r": float(x2), "b": float(y2),
+            "coord_origin": "TOPLEFT",
+        }
+        texts.append({
+            "self_ref": f"#/texts/{i}",
+            "label": "text",
+            "vertical": pr["vertical"],
+            "font_size": pr["font_size"],
+            "bbox": bbox_dict,
+            "text": text,
+        })
+        item = {
+            "self_ref": f"#/texts/{i}",
+            "category": "texts",
+            "label": "text",
+            "text": text,
+            "page_no": 1,
+            "font_size": pr["font_size"],
+            "bbox": bbox_dict,
+        }
+        tc, bgc = _sample_text_bg_colors(pil, x1, y1, x2, y2)
+        if tc and bgc:
+            item["text_color"] = tc
+            item["bg_color"] = bgc
+        items.append(item)
+
+    doc_dict = {
+        "schema_name": "HybridTesseractMangaOcr",
         "version": "1.0",
         "name": Path(filename).stem,
         "img_width": img_w,

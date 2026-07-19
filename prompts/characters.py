@@ -5,7 +5,7 @@ target='th' → Thai particle/pronoun rules (gate ห้าม leak เข้า
 
 _AGE_PRONOUN_MAP = {
     "child":  "self pronoun: 'หนู' (F) / 'ผม' (M) / ชื่อเล่น; address others: 'พี่' / 'ลุง/ป้า'",
-    "teen":   "self pronoun: 'เรา' / 'หนู' (F) / 'ผม' (M) / ชื่อเล่น; address others: 'พี่' / 'เพื่อน'",
+    "teen":   "self pronoun: 'เรา' / 'ผม' (M) / ชื่อเล่น ('หนู' (F) เฉพาะประโยคที่พูดกับผู้ใหญ่/คนสนิท — ห้ามใช้เป็น default); address others: 'พี่' / 'เพื่อน'",
     "adult":  "self pronoun: 'ผม' (M) / 'ฉัน' / 'ดิฉัน' (formal F); address others: 'คุณ' / 'พี่' / 'น้อง'",
     "middle": "self pronoun: 'น้า/อา/ลุง' (M) / 'ป้า' (F); address others: 'ลูก' / 'หลาน' / 'น้อง'",
     "senior": "self pronoun: 'ตา/ปู่' (M) / 'ยาย/ย่า' (F); address others: 'ลูก' / 'หลาน' / 'หนู'",
@@ -157,7 +157,7 @@ def _build_characters_section(characters: list[dict] | None, target: str = "th")
         lines.append("  age=unspecified: default safe = 'ฉัน' (F) / 'ผม' (M)")
         lines.append("")
         lines.append("WARNINGS — สรรพนามที่เลือกผิดบ่อย:")
-        lines.append("  'หนู' = default ของ เด็ก/วัยรุ่น; adult/middle (female) ใช้ได้ในบริบทนอบน้อม (กับเจ้านาย/ลูกค้า/ผู้ใหญ่อายุมากกว่ามาก) — ไม่ใช่ default ของ adult ทั่วไป")
+        lines.append("  'หนู' = default เฉพาะเด็ก (child); teen ใช้เฉพาะประโยคที่พูดกับผู้ใหญ่/คนสนิท — ไม่ใช่ default ของ teen; adult/middle (female) เฉพาะบริบทนอบน้อม (เจ้านาย/ลูกค้า/ผู้ใหญ่อายุมากกว่ามาก)")
         lines.append("  'กู/มึง' = สนิทมาก (เพื่อนสนิท ห้องนอน เพื่อนเก่า) ใช้ได้ทั้ง teen/adult — ห้ามใช้กับคนแปลกหน้า/บริบทเป็นทางการ/ผู้อาวุโส")
         lines.append("  'เธอ/นาย' = casual กันเอง (เพื่อนหรือแฟน) — 'เธอ' มักคู่กับ 'เค้า' (self), 'นาย' มักคู่กับ 'เรา' (self)")
         lines.append("  'ป้า/ยาย/ลุง/ตา' = middle/senior เท่านั้น — ห้ามใช้กับ child/teen/adult")

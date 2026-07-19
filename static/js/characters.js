@@ -135,6 +135,13 @@ const _PERSONA_LANG_BY_PAIR = {
     "en-vn": "Vietnamese (Tiếng Việt)",
 };
 
+// ตัวอย่าง name label ตามภาษาปลายทาง — กัน Thai lock เวลา target ไม่ใช่ไทย
+const _NAME_EXAMPLE_BY_PAIR = {
+    "jp-th": '"John (จอห์น)" or "Narrator (ผู้บรรยาย)"',
+    "en-th": '"John (จอห์น)" or "Narrator (ผู้บรรยาย)"',
+    "en-vn": '"Narrator (Người kể chuyện)"',
+};
+
 function _buildDetectionPrompt() {
     const texts = _collectOcrCorpus();
     if (!texts.length) return null;
@@ -143,6 +150,7 @@ function _buildDetectionPrompt() {
     const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 0;
     const tmPair = document.getElementById("tmPair")?.value || "";
     const personaLang = _PERSONA_LANG_BY_PAIR[tmPair] || "the target translation language";
+    const nameEx = _NAME_EXAMPLE_BY_PAIR[tmPair] || '"Narrator (a label in the target language)"';
     // hard cap — บังคับให้ LLM ไม่เดาเกินจำนวนที่ user ตั้ง
     const limitLine = limit
         ? `LIMIT: return AT MOST ${limit} characters — pick the most important / most frequently appearing speakers. If more exist, prefer named recurring characters over one-off side characters.\n\n`
@@ -156,7 +164,7 @@ function _buildDetectionPrompt() {
         "gender / age = keep the enum values in English (they are fixed UI options, not translated).\n\n" +
         limitLine +
         "For each character, return:\n" +
-        '  name (Keep original script/label AND append Thai translation or Thai descriptive label in parentheses, e.g., "John (จอห์น)" or "Narrator (ผู้บรรยาย)"),\n' +
+        `  name (Keep original script/label AND append translation or descriptive label in ${personaLang} in parentheses, e.g., ${nameEx}),\n` +
         '  gender ("female" / "male" / "other" / "" if unclear) — English enum, do NOT translate,\n' +
         '  age ("child" / "teen" / "adult" / "middle" / "senior" / "" if unclear) — English enum, do NOT translate,\n' +
         `  persona (1-2 sentence description IN ${personaLang} — speech pattern / role / personality).\n\n` +

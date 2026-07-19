@@ -412,29 +412,34 @@ function _syncMarkupPanel(shape) {
 }
 
 function _resolveBboxImgCoords(item) {
+    // Re-OCR = อ่านพื้นที่ที่ "กล่องปัจจุบัน" ครอบเสมอ — ขยาย/ย้ายกล่องเพื่อเก็บข้อความ
+    // ที่ OCR ตกหล่นได้โดยตรง (กล่องคือตัวกำหนดพื้นที่ ไม่มีโหมดซ่อน)
+    // พิกัดคืนเป็นหน่วย page (space ของ bbox จาก OCR) — crop ค่อยแปลงเป็น px ด้วยขนาดรูปจริง
+    // override อยู่ใน space img_width ของ renderer → หารกลับเป็นหน่วย page ก่อนใช้
     const b = item.bbox || {};
+    const page = (state.lastResult?.preview?.pages || []).find(p => p.page_no === item.page_no);
+    const imgW = page?.img_width || page?.width || 1;
+    const imgH = page?.img_height || page?.height || 1;
+    const pageW = page?.width || imgW;
+    const pageH = page?.height || imgH;
+    const sxr = imgW / pageW;
+    const syr = imgH / pageH;
     const isBL = (b.coord_origin || "").toUpperCase() === "BOTTOMLEFT";
-    let x = b.l, y, w = b.r - b.l, h;
-    if (isBL) {
-        const page = (state.lastResult?.preview?.pages || []).find(p => p.page_no === item.page_no);
-        const pageH = page?.img_height || page?.height || 0;
-        y = pageH - b.t;
-        h = b.t - b.b;
-    } else {
-        y = b.t;
-        h = b.b - b.t;
-    }
+    let x = b.l;
+    let w = b.r - b.l;
+    let y = isBL ? (pageH - b.t) : b.t;
+    let h = isBL ? (b.t - b.b) : (b.b - b.t);
     const ov = state.bboxOverrides[item.self_ref] || {};
-    if (typeof ov.x === "number") x = ov.x;
-    if (typeof ov.y === "number") y = ov.y;
-    if (typeof ov.w === "number") w = ov.w;
-    if (typeof ov.h === "number") h = ov.h;
+    if (typeof ov.x === "number") x = ov.x / sxr;
+    if (typeof ov.y === "number") y = ov.y / syr;
+    if (typeof ov.w === "number") w = ov.w / sxr;
+    if (typeof ov.h === "number") h = ov.h / syr;
     const rotation = (typeof ov.rotation === "number") ? ov.rotation : 0;
-    return { x, y, w, h, rotation };
+    return { x, y, w, h, pageW, pageH, rotation };
 }
 
 async function _cropBboxToPngBlob(item) {
-    const { x, y, w, h, rotation } = _resolveBboxImgCoords(item);
+    const { x, y, w, h, pageW, pageH, rotation } = _resolveBboxImgCoords(item);
     if (w <= 0 || h <= 0) throw new Error("bbox มีขนาด ≤ 0 ไม่ valid");
     const page = (state.lastResult?.preview?.pages || []).find(p => p.page_no === item.page_no);
     if (!page) throw new Error(`page ${item.page_no} หาไม่เจอ`);
@@ -449,14 +454,19 @@ async function _cropBboxToPngBlob(item) {
         im.src = src;
     });
 
+    // scale จากขนาดรูปที่โหลดได้จริง — source เป็นได้ทั้ง blob ไฟล์ต้นฉบับ (1x) และ
+    // page image จาก server (images_scale 2x); ใช้ img_width ที่ report ตรง ๆ ไม่ได้
+    const kx = img.naturalWidth / pageW;
+    const ky = img.naturalHeight / pageH;
+    const px = x * kx, py = y * ky, pw = w * kx, ph = h * ky;
     const canvas = document.createElement("canvas");
-    canvas.width = Math.round(w);
-    canvas.height = Math.round(h);
+    canvas.width = Math.max(1, Math.round(pw));
+    canvas.height = Math.max(1, Math.round(ph));
     const ctx = canvas.getContext("2d");
     // de-rotate: bbox center → origin, rotate -θ, origin → canvas center
-    ctx.translate(w / 2, h / 2);
+    ctx.translate(pw / 2, ph / 2);
     ctx.rotate(-rotation * Math.PI / 180);
-    ctx.translate(-(x + w / 2), -(y + h / 2));
+    ctx.translate(-(px + pw / 2), -(py + ph / 2));
     ctx.drawImage(img, 0, 0);
     return await new Promise(res => canvas.toBlob(res, "image/png"));
 }
@@ -474,8 +484,9 @@ async function _reOcrSelected() {
         if (statusEl) statusEl.textContent = "หา item ใน lastResult ไม่เจอ";
         return;
     }
-    const lang = document.getElementById("lang")?.value || "auto";
-    const engine = document.getElementById("ocr_engine")?.value || "easyocr";
+    // engine/lang ที่ใช้จริงตอน convert — dropdown เป็นแค่ fallback (user อาจเปลี่ยนหลัง upload)
+    const lang = state.ocrMeta?.lang || document.getElementById("lang")?.value || "auto";
+    const engine = state.ocrMeta?.engine || document.getElementById("ocr_engine")?.value || "easyocr";
 
     if (btn) btn.disabled = true;
     if (statusEl) statusEl.textContent = "cropping…";
@@ -499,7 +510,11 @@ async function _reOcrSelected() {
         if (ocrEl) ocrEl.value = text || (item.text || "");
         window.buildCompareTable?.(true);
         window._previewWrap?._redraw?.();
-        if (statusEl) statusEl.textContent = `✓ ${data.engine_used || "ok"} — ${text.length} chars`;
+        const edgeTh = { top: "บน", bottom: "ล่าง", left: "ซ้าย", right: "ขวา" };
+        const cutWarn = (data.cut_edges || []).length
+            ? ` ⚠ กล่องตัดตัวอักษรขอบ${data.cut_edges.map(e => edgeTh[e] || e).join("/")} — ขยับ/ขยายกล่องแล้ว OCR ใหม่`
+            : "";
+        if (statusEl) statusEl.textContent = `✓ ${data.engine_used || "ok"} — ${text.length} chars${cutWarn}`;
     } catch (e) {
         if (statusEl) statusEl.textContent = "error: " + e.message;
     } finally {

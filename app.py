@@ -30,6 +30,7 @@ from config import (
     GEMINI_MODEL,
     MIN_FREE_RAM_GB,
     OCR_ENGINES,
+    OCRMAC_LANG_PRESETS,
     OLLAMA_MODEL_TRANSLATE,
     OLLAMA_URL,
     EMOTION_AUTO,
@@ -50,9 +51,12 @@ from pipelines import (
     filter_pages,
     flatten_xlsx_cells_to_texts,
     get_converter,
+    get_manga_ocr,
     get_manga_ocr_model_only,
     parse_page_spec,
+    hybrid_ocr_image,
     run_fast_pipeline,
+    run_hybrid_pipeline,
     run_manga_pipeline,
 )
 from translate import (
@@ -470,6 +474,29 @@ def tm_suggest():
         return jsonify({"error": f"tm.suggest: {exc}"}), 500
 
 
+def _detect_cut_edges(img):
+    """ตรวจหมึกชนขอบ crop — ขอบไหนมีหมึกแปลว่ากล่องตัดกลางตัวอักษร
+    (โมเดล OCR จะเดาเติม/duplicate เอง — UI ต้องเตือนให้ user ขยับกล่องแทน)"""
+    import numpy as np
+    g = np.asarray(img.convert("L"))
+    h, w = g.shape
+    if h < 8 or w < 8:
+        return []
+    band = 3
+    th = 0.02
+    dark = g < 128
+    edges = []
+    if dark[:band, :].mean() > th:
+        edges.append("top")
+    if dark[-band:, :].mean() > th:
+        edges.append("bottom")
+    if dark[:, :band].mean() > th:
+        edges.append("left")
+    if dark[:, -band:].mean() > th:
+        edges.append("right")
+    return edges
+
+
 @app.route("/ocr-bbox", methods=["POST"])
 def ocr_bbox():
     """Re-OCR เฉพาะ bbox ที่ user เลือก — รับ PNG cropped (+ de-rotated ฝั่ง client)
@@ -486,10 +513,62 @@ def ocr_bbox():
     except Exception as exc:
         return jsonify({"error": f"cannot read image: {exc}"}), 400
 
+    cut_edges = _detect_cut_edges(img)
+
+    def _resp(text, engine_used):
+        return jsonify({"text": (text or "").strip(), "engine_used": engine_used,
+                        "cut_edges": cut_edges})
+
     try:
-        if lang == "manga":
+        if lang == "hybrid":
+            # โหมด hybrid: แถบแคบ → โมเดลตรง (เร็ว+เป๊ะ); crop ใหญ่ → tesseract จัด
+            # layout/ลำดับ แล้ว manga_ocr อ่านทีละแถบ (ตัวเดียวกับตอน convert)
+            w_px, h_px = img.size
+            if min(w_px, h_px) <= 150:
+                text = get_manga_ocr_model_only()(img)
+                return _resp(text, "manga_ocr")
+            paras = hybrid_ocr_image(img)
+            text = "\n".join("\n".join(p["lines"]) for p in paras)
+            if text.strip():
+                n_strips = sum(len(p["lines"]) for p in paras)
+                return _resp(text, f"hybrid({n_strips} strips)")
             text = get_manga_ocr_model_only()(img)
-            return jsonify({"text": (text or "").strip(), "engine_used": "manga_ocr"})
+            return _resp(text, "manga_ocr")
+
+        if lang == "manga":
+            # route ตามขนาด crop (วัดผลจริง):
+            #   แถบแคบ (คอลัมน์เดี่ยว/บอลลูน) → โมเดลตรง อ่านเป๊ะ — detector บน crop เล็กแตก block เพี้ยน
+            #   กล่องใหญ่หลายคอลัมน์ → MangaPageOcr — โมเดลตรง hallucinate กับข้อความยาว
+            #   (บีบ input เหลือ 224x224 ออกแบบมาอ่านบอลลูนสั้น)
+            w_px, h_px = img.size
+            if min(w_px, h_px) <= 150:
+                text = get_manga_ocr_model_only()(img)
+                return _resp(text, "manga_ocr")
+            import tempfile, os
+            # ขอบขาวช่วย detector + เรียง block ตามลำดับอ่านแนวตั้ง ขวา→ซ้าย บน→ล่าง
+            padded = Image.new("RGB", (w_px + 32, h_px + 32), "white")
+            padded.paste(img, (16, 16))
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                padded.save(tmp.name, format="PNG")
+                tmp_path = tmp.name
+            try:
+                res = get_manga_ocr()(tmp_path)
+                blocks = res.get("blocks", [])
+
+                def _read_order(blk):
+                    x1, y1, x2, y2 = blk["box"]
+                    return (-(x1 + x2) / 2, (y1 + y2) / 2)
+
+                text = "\n".join(line for blk in sorted(blocks, key=_read_order)
+                                 for line in (blk.get("lines") or []) if line)
+                if text.strip():
+                    return _resp(text, f"manga_ocr({len(blocks)} blocks)")
+            finally:
+                try: os.unlink(tmp_path)
+                except OSError: pass
+            # detector ไม่เจออะไรเลย → โมเดลตรงเป็นไพ่สุดท้าย
+            text = get_manga_ocr_model_only()(img)
+            return _resp(text, "manga_ocr")
 
         if engine == "ocrmac" and OCRMAC_AVAILABLE:
             import tempfile, os
@@ -497,13 +576,14 @@ def ocr_bbox():
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
                 img.save(tmp.name, format="PNG")
                 tmp_path = tmp.name
+            langs = OCRMAC_LANG_PRESETS.get(lang, OCRMAC_LANG_PRESETS["auto"])
             try:
-                annotations = _ocrmac.OCR(tmp_path).recognize()
+                annotations = _ocrmac.OCR(tmp_path, language_preference=langs).recognize()
                 text = " ".join(a[0] for a in (annotations or []) if a and a[0])
             finally:
                 try: os.unlink(tmp_path)
                 except OSError: pass
-            return jsonify({"text": text.strip(), "engine_used": "ocrmac"})
+            return _resp(text, "ocrmac")
 
         # default: EasyOCR
         import easyocr
@@ -512,7 +592,7 @@ def ocr_bbox():
         langs = lang_map.get(lang, ["th", "en"])
         reader = easyocr.Reader(langs, gpu=False, verbose=False)
         lines = reader.readtext(np.array(img), detail=0, paragraph=False)
-        return jsonify({"text": " ".join(lines).strip(), "engine_used": f"easyocr({'+'.join(langs)})"})
+        return _resp(" ".join(lines), f"easyocr({'+'.join(langs)})")
     except Exception as exc:
         import traceback
         traceback.print_exc()
@@ -562,8 +642,8 @@ def convert():
 
     page_range = (min(selected_pages), max(selected_pages)) if selected_pages else None
     pages_warning = None
-    if selected_pages and (fast or lang == "manga"):
-        pages_warning = "page selection ignored (fast/manga modes are single-page)"
+    if selected_pages and (fast or lang in ("manga", "hybrid")):
+        pages_warning = "page selection ignored (fast/manga/hybrid modes are single-page)"
         selected_pages = None
         page_range = None
 
@@ -595,6 +675,9 @@ def convert():
             elif lang == "manga":
                 doc_dict, preview = run_manga_pipeline(path, filename,
                                                       skip_image_data=skip_image_data)
+            elif lang == "hybrid":
+                doc_dict, preview = run_hybrid_pipeline(path, filename,
+                                                       skip_image_data=skip_image_data)
             else:
                 # Retry ladder: 2.0 → 1.5 → 1.0 → 0.75 → 0.5 (เริ่ม 144 DPI, ย่อลงเมื่อ OOM)
                 # หมายเหตุ: ถ้า process ถูก Windows kill จาก native bad_alloc จะ catch ไม่ได้
@@ -631,7 +714,8 @@ def convert():
         "preview": preview,
         "texts": doc_dict.get("texts", []),
         "correction": correction_info,
-        "ocr_engine": ocr_engine,
+        "ocr_engine": ("ocrmac" if fast else ocr_engine),
+        "ocr_lang": lang,
         "engine_fallback": engine_fallback,
         "doc_id": doc_id,
     }

@@ -133,7 +133,8 @@ RULES — STRICTLY FOLLOWED:
       でござる (samurai/archaic) → 'ขอรับ' / กลิ่นโบราณ 'แล' หรือละไว้
   (2) อ่าน PRONOUN ในต้นฉบับ — บ่งบอกระดับและ gender:
       わたくし > わたし / 私 → formal → 'ดิฉัน / ผม / ฉัน' (formal)
-      あたし → casual feminine → 'ฉัน' (default; 'หนู' เฉพาะถ้า age=child/teen)
+      あたし → casual feminine → 'ฉัน' (default; 'หนู' เฉพาะ age=child
+          หรือ teen เฉพาะประโยคที่พูดกับผู้ใหญ่ — teen คุยกับเพื่อน/บรรยายในใจ ใช้ 'เรา/ฉัน')
       僕 → polite masculine → 'ผม'
       俺 → DEFAULT 'ฉัน' — ใช้ 'กู' เฉพาะเมื่อ persona rough/นักเลง
           หรือคู่กับ てめえ/ぞ/ぜ/ฉากด่าทอ-ต่อสู้

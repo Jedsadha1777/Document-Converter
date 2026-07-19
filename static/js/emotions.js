@@ -23,7 +23,7 @@ const EMOTIONS_BY_TARGET = {
         // fear / surprise
         "กลัว","ตกใจ","กังวล","ผวา",
         // uncertainty / social
-        "อิจฉา","ประชด","ลังเล","สงสัย","งง","เขิน","อาย"
+        "อิจฉา","ประชด","ลังเล","สงสัย","งง","เขิน","อาย","อ้อนวอน","ยอมรับ"
     ],
     "vi": [
         "vui vẻ","hào hứng","buồn cười","tự hào","yêu","hy vọng","tự tin","sung sướng",
@@ -31,7 +31,7 @@ const EMOTIONS_BY_TARGET = {
         "buồn","thất vọng","mệt","chán","thương hại",
         "giận","khó chịu","ghê tởm","ghét","khinh thường",
         "sợ","ngạc nhiên","lo lắng","hoảng",
-        "ghen tị","mỉa mai","do dự","nghi ngờ","bối rối","ngại","xấu hổ"
+        "ghen tị","mỉa mai","do dự","nghi ngờ","bối rối","ngại","xấu hổ","van xin","chấp nhận"
     ],
     "_default": [
         "happy","excited","amused","proud","love","hopeful","confident","delighted",
@@ -39,7 +39,7 @@ const EMOTIONS_BY_TARGET = {
         "sad","disappointed","tired","bored","sympathetic",
         "angry","frustrated","disgusted","hate","contempt",
         "afraid","surprised","worried","panicked",
-        "jealous","sarcastic","hesitant","suspicious","confused","shy","embarrassed"
+        "jealous","sarcastic","hesitant","suspicious","confused","shy","embarrassed","pleading","accepting"
     ],
 };
 
