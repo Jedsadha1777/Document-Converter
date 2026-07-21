@@ -3,13 +3,31 @@ target='th' → Thai particle/pronoun rules (gate ห้าม leak เข้า
 ย้ายมาจาก translate.py ทั้ง function — ห้ามแก้ข้อความโดยไม่รัน tests/test_prompt_snapshots.py"""
 
 
-_AGE_PRONOUN_MAP = {
+_AGE_PRONOUN_MAP_TH = {
     "child":  "self pronoun: 'หนู' (F) / 'ผม' (M) / ชื่อเล่น; address others: 'พี่' / 'ลุง/ป้า'",
     "teen":   "self pronoun: 'เรา' / 'ผม' (M) / ชื่อเล่น ('หนู' (F) เฉพาะประโยคที่พูดกับผู้ใหญ่/คนสนิท — ห้ามใช้เป็น default); address others: 'พี่' / 'เพื่อน'",
     "adult":  "self pronoun: 'ผม' (M) / 'ฉัน' / 'ดิฉัน' (formal F); address others: 'คุณ' / 'พี่' / 'น้อง'",
     "middle": "self pronoun: 'น้า/อา/ลุง' (M) / 'ป้า' (F); address others: 'ลูก' / 'หลาน' / 'น้อง'",
     "senior": "self pronoun: 'ตา/ปู่' (M) / 'ยาย/ย่า' (F); address others: 'ลูก' / 'หลาน' / 'หนู'",
 }
+
+
+# Vietnamese kinship pronouns เป็น RELATIVE ต่อคู่สนทนา (ใครแก่กว่า/ลำดับญาติ) ไม่ใช่อายุผู้พูดฝ่ายเดียว
+# เดาลำดับผิด = หยาบทันที → ทุก entry ระบุคู่ listener และมี unknown-listener fallback ใน rule กลาง
+_AGE_PRONOUN_MAP_VI = {
+    "child":  "self pronoun: 'con' (to parents) / 'cháu' (to non-family adults/elders) / 'em' (to older kids) / 'tớ'/'mình' (to peers) / own name (childish-cute) — NEVER 'tôi'; address others: 'cậu'/'bạn' (peers), 'anh/chị' (older kids), 'cô/chú/bác' (adults), 'ông/bà' (elderly), 'thầy' (M teacher)/'cô' (F teacher, self 'em'/'con')",
+    "teen":   "self pronoun: 'tớ'/'mình' (peers) / 'tao' (rough, close friends only) / 'em' (to older/teachers) / 'anh' (M)/'chị' (F) (to younger kids/siblings) / 'con'/'cháu' (to adults/elders) / own name (cute, esp. girls); address others: 'cậu'/'bạn' (peers), 'mày' (rough, pairs 'tao'), 'anh/chị' (slightly older), 'em' (younger), 'cô/chú/bác' (parent-age adults), 'ông/bà' (elderly), 'thầy' (M teacher)/'cô' (F teacher, self 'em')",
+    "adult":  "self pronoun: 'anh' (M)/'chị' (F) (to younger), 'em' (only to slightly older, anh/chị range), 'cháu'/'con' (to parent-age 'cô/chú/bác' and elderly 'ông/bà'), 'tớ'/'mình' (close friends), 'tao' (hostile/very close, pairs 'mày'), 'tôi' (strangers/formal only); address others: 'em' (younger), 'anh/chị' (older or polite peer), 'cậu'/'bạn' (close friends), 'mày' (rough, pairs 'tao'), 'cô/chú/bác' (parent-age), 'ông/bà' (elderly)",
+    "middle": "self pronoun: 'bố' (M)/'mẹ' (F) (to own children; Southern 'ba/má'), 'chú' (M)/'cô' (F)/'bác' (M/F, older-leaning) (to other people's kids/young people), 'anh' (M)/'chị' (F) (to peers and younger adults addressed as 'em'), 'em' (to older), 'tôi' (formal); address others: 'con' (own children), 'cháu' (other people's kids/teens — NOT own children), 'em' (younger adults), 'anh/chị' (peers), 'ông/bà' (elders)",
+    "senior": "self pronoun: 'ông' (M)/'bà' (F) (to young people/grandkids), 'bố/mẹ' (to own children, even adult ones), 'bác' (to younger adults), 'tôi' (formal); address others: 'cháu' (young people/grandkids), 'con' (own children), 'anh/chị' (junior adults), 'ông/bà' (fellow elderly)",
+}
+
+_VI_RELATIVE_RULE = (
+    "PRONOUNS ARE RELATIVE — pick by the speaker-listener relationship in each scene, not by "
+    "the speaker's age alone; if the listener's relative age/kinship is UNKNOWN: self 'tôi' "
+    "(or drop the pronoun — Vietnamese allows it), address 'bạn' or the listener's name — "
+    "NEVER 'mày/tao', never seniority-asserting terms; a wrong guess reads as instant rudeness"
+)
 
 
 def _infer_persona_text_th(gender: str, age: str) -> str:
@@ -50,9 +68,43 @@ def _infer_persona_text_th(gender: str, age: str) -> str:
             "ใช้มั่วกับตัวละครผู้ใหญ่ ห้าม inherit"
         )
 
-    if a in _AGE_PRONOUN_MAP:
-        parts.append(_AGE_PRONOUN_MAP[a])
+    if a in _AGE_PRONOUN_MAP_TH:
+        parts.append(_AGE_PRONOUN_MAP_TH[a])
 
+    return "; ".join(parts)
+
+
+def _infer_persona_text_vi(gender: str, age: str) -> str:
+    """auto-infer persona สำหรับ target=vi — gender อยู่ในคู่ kinship pronoun ไม่ใช่ particle
+    ปิดท้ายด้วย relative rule เสมอ (กันเดาลำดับอาวุโสผิดแล้วหยาบ)"""
+    parts = []
+    g = (gender or "").lower()
+    a = (age or "").lower()
+
+    if g == "female":
+        parts.append("FEMININE voice")
+        parts.append(
+            "gender lives in the kinship pronoun pair, not particles: self 'chị/cô/bà' when "
+            "older than the listener, 'em' when younger or to boyfriend/husband; casual girls "
+            "may self-refer by own name; no female sentence-final particle exists — never invent one"
+        )
+    elif g == "male":
+        parts.append("MASCULINE voice")
+        parts.append(
+            "self 'anh/chú/ông' when older than the listener ('bác' is M/F, not male-only), "
+            "'em' when younger; 'anh' to girlfriend/wife; rough 'tao–mày' marks closeness "
+            "or aggression, not maleness"
+        )
+    else:
+        parts.append(
+            "neutral voice — self 'tôi'/'mình'/'tớ' or own name; address 'bạn'/'cậu' or name; "
+            "avoid committing to anh/chị/cô/chú until gender is known"
+        )
+
+    if a in _AGE_PRONOUN_MAP_VI:
+        parts.append(_AGE_PRONOUN_MAP_VI[a])
+
+    parts.append(_VI_RELATIVE_RULE)
     return "; ".join(parts)
 
 
@@ -77,9 +129,11 @@ def _infer_persona_text_generic(gender: str, age: str) -> str:
 
 
 def _infer_persona_text(gender: str, age: str, target: str = "th") -> str:
-    """dispatch ตาม target — Thai มี TM-aware suppression, ภาษาอื่นใช้ generic"""
+    """dispatch ตาม target — Thai มี TM-aware suppression, Vietnamese มี kinship map, อื่นใช้ generic"""
     if target == "th":
         return _infer_persona_text_th(gender, age)
+    if target == "vi":
+        return _infer_persona_text_vi(gender, age)
     return _infer_persona_text_generic(gender, age)
 
 
@@ -169,17 +223,61 @@ def _build_characters_section(characters: list[dict] | None, target: str = "th")
         lines.append("CONSISTENCY: ห้ามใช้ 'ค่ะ/ครับ' ปนกันในตัวละครเดียว เลือกตาม gender ตลอด.")
         lines.append("Two characters with different gender MUST sound different.")
         lines.append("")
-    else:
-        # non-Thai target — ไม่ emit Thai particle/pronoun guidance (กัน leak สาดเข้าภาษาอื่น)
+    elif target == "vi":
+        # Vietnamese kinship-pronoun system — relative ต่อคู่สนทนา ห้ามยึดอายุผู้พูดฝ่ายเดียว
         lines.append("(e.g., a rough character may use slang or shortened greetings; follow the persona.)")
         lines.append("")
-        lines.append("VOICE INFERENCE — ถ้าไม่มี personality ระบุ ให้อนุมานจาก gender + age + name")
-        lines.append("ใช้สำนวน/register ที่เหมาะกับ gender + age ในภาษาเป้าหมายเอง.")
-        lines.append("⚠ DO NOT import Thai sentence-final particles (ค่ะ/ครับ/นะคะ/หนู/ป้า/ลุง)")
-        lines.append("  หรือ Japanese honorifics (san/chan/kun) เข้า output — register ทุกอย่าง")
-        lines.append("  ต้องเป็นของภาษาเป้าหมายเท่านั้น")
+        lines.append("VOICE INFERENCE — if no personality is given, infer it from gender + age + name.")
         lines.append("")
-        lines.append("CONSISTENCY: ตัวละครต่าง gender ต้องฟังต่างกันด้วยวิธีของภาษาเป้าหมาย.")
+        lines.append("⚠ PRONOUNS ARE RELATIVE: Vietnamese pronouns encode the speaker-listener")
+        lines.append("relationship (relative age / kinship), NOT the speaker's age alone — re-derive the")
+        lines.append("pair for every scene partner. If the listener's relative age/kinship is UNKNOWN:")
+        lines.append("self 'tôi' (or drop the pronoun — Vietnamese allows it), address 'bạn' or name —")
+        lines.append("NEVER 'mày/tao', never seniority-asserting terms. A wrong guess reads as rude.")
+        lines.append("")
+        lines.append("AGE RANGE → typical self/address pronouns (pick per listener):")
+        for k, rng in (("child", "0-12"), ("teen", "13-22"), ("adult", "23-39"),
+                       ("middle", "40-59"), ("senior", "60+")):
+            lines.append(f"  age={k} ({rng}): {_AGE_PRONOUN_MAP_VI[k]}")
+        lines.append("  age=unspecified: default safe = 'tôi' (self) / 'bạn' or name (address)")
+        lines.append("")
+        lines.append("Politeness: 'ạ' (sentence-final) / 'dạ'/'vâng' (reply-initial) mark respect toward")
+        lines.append("elders/superiors — add ONLY when the source line is explicitly polite (formal")
+        lines.append("register/honorifics); never upgrade a casual, blunt, or rude line. Omitting 'ạ'")
+        lines.append("where the source is blunt is correct, not an error.")
+        lines.append("")
+        lines.append("WARNINGS — คู่ pronoun ที่พังบ่อย:")
+        lines.append("  'mày/tao' = very close same-age friends or open hostility ONLY (any age for fights) —")
+        lines.append("    never toward elders/strangers; misuse reads as a vulgar insult.")
+        lines.append("  Pairs must mirror: A calls B 'em' → B addresses A 'anh/chị' (A's gender) AND")
+        lines.append("    self-refers 'em'; 'cháu' pairs with 'ông/bà/cô/chú/bác', 'tớ' with 'cậu'.")
+        lines.append("  Children never self-refer 'tôi'; don't default to 'tôi' in casual dialogue —")
+        lines.append("    stiff/cold; acquainted characters use kinship terms or 'tớ/mình'.")
+        lines.append("  Vietnamese drops pronouns freely in casual speech — don't force one into every line.")
+        lines.append("  'anh/chú/ông' = male, 'chị/cô/bà' = female, each encodes relative age — verify both.")
+        lines.append("    EXCEPTION: romantic couples always pair 'anh' (M) – 'em' regardless of real age.")
+        lines.append("  Keep each speaker→listener pronoun pair CONSISTENT across the scene; change only")
+        lines.append("    if the relationship visibly shifts.")
+        lines.append("")
+        lines.append("⚠ DO NOT import Thai particles (ค่ะ/ครับ) or Japanese honorifics (san/chan/kun)")
+        lines.append("  into the output — every register cue must come from Vietnamese only.")
+        lines.append("")
+        lines.append("CONSISTENCY: characters of different gender must sound different — through their")
+        lines.append("kinship pronoun pairs, not invented particles.")
+        lines.append("")
+    else:
+        # non-Thai target — ไม่ emit Thai particle/pronoun guidance (กัน leak สาดเข้าภาษาอื่น)
+        # meta-text ต้องเป็น English — คำไทยเหลือได้เฉพาะในฐานะ token ต้องห้าม
+        lines.append("(e.g., a rough character may use slang or shortened greetings; follow the persona.)")
+        lines.append("")
+        lines.append("VOICE INFERENCE — if no personality is given, infer it from gender + age + name.")
+        lines.append("Use phrasing/register that fits the gender + age in the target language itself.")
+        lines.append("⚠ DO NOT import Thai sentence-final particles (ค่ะ/ครับ/นะคะ/หนู/ป้า/ลุง)")
+        lines.append("  or Japanese honorifics (san/chan/kun) into the output — every register cue")
+        lines.append("  must come from the target language only.")
+        lines.append("")
+        lines.append("CONSISTENCY: characters of different gender must sound different — use the")
+        lines.append("target language's own devices.")
         lines.append("")
 
     for c in characters:
