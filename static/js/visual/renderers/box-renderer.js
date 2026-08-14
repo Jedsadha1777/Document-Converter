@@ -45,8 +45,10 @@ function _applyRotation(ctx, x, y, w, h, rotDeg) {
 function _fallbackFontSize(ctx, text, origW, origH, fontOpts) {
     const innerW = Math.max(origW - 8, 1);
     const innerH = Math.max(origH - 8, 1);
-    if (origW <= 8 || origH <= 8 || !text.trim()) return 14;
+    if (origW <= 8 || origH <= 8) return 14;
     const target = Math.max(6, Math.floor(origH / 1.2));
+    // ข้อความว่าง (เช่น textbox ที่ user เพิ่งเพิ่ม ยังไม่พิมพ์) → ใช้ขนาดตามความสูงกล่อง
+    if (!text.trim()) return target;
     const probe = measureTextInBox(ctx, text, origW, { fixedFontSize: target, ...fontOpts });
     if (probe && probe.requiredH <= innerH) return target;
     let lo = 8, hi = target - 1;
@@ -75,16 +77,18 @@ export function renderBoxes(ctx, opts) {
         const ov = state.bboxOverrides[it.self_ref] || {};
         const isSkip = it.self_ref && state.speakerByRef[it.self_ref] === SPEAKER_SKIP;
 
+        const isEditing = state.editing && state.editing.ref === it.self_ref;
+        const overlayText = isEditing ? state.editing.text : (tr || corr || (it.text || ""));
+
         const b = it._fontBbox || it.bbox || {};
         const origW = Math.abs((b.r || 0) - (b.l || 0)) * sx;
         const origH = Math.abs((b.b || 0) - (b.t || 0)) * sy;
         const fontOpts = { fontFamily: ov.fontFamily, bold: !!ov.bold, italic: !!ov.italic };
-        const fallbackFontSize = _fallbackFontSize(ctx, it.text || "", origW, origH, fontOpts);
+        // fallback วัดจากข้อความที่แสดงจริง (tr/corr/editing) — textbox ที่ user เพิ่มเอง
+        // it.text ว่างตลอด แต่ข้อความที่พิมพ์อยู่ใน corrections/translations
+        const fallbackFontSize = _fallbackFontSize(ctx, overlayText || "", origW, origH, fontOpts);
         const ocrFontSize = it.font_size ? it.font_size * sy : 0;
         const effectiveFontSize = ov.fontSize || ocrFontSize || fallbackFontSize;
-
-        const isEditing = state.editing && state.editing.ref === it.self_ref;
-        const overlayText = isEditing ? state.editing.text : (tr || corr || (it.text || ""));
         const rotation = (typeof ov.rotation === "number") ? ov.rotation : 0;
         if (isSkip && !isEditing) {
             drawn.push({ x, y, w, h, item: it, fontSize: effectiveFontSize, rotation });

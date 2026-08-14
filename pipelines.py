@@ -198,13 +198,13 @@ def _bbox_dict(bbox):
 def _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px):
     """Sample (text_color, bg_color) hex strings จาก bbox ใน pil_img.
     pixel coords TOPLEFT, integer ๆ. ใช้ PIL quantize (C-fast, ไม่ต้อง numpy):
-      1. Crop bbox region
-      2. Thumbnail ลง 64px max (ลด noise + speed สำหรับกล่องใหญ่)
-      3. quantize เป็น 4 colors → palette แยก {text, bg, anti-alias edges}
-      4. เลือก darkest = text, lightest = bg (extreme — ตัด edge/anti-alias ทิ้ง)
+      bg:   วงแหวนรอบนอกกล่อง (แทบไม่มีหมึก) → dominant cluster = สีพื้นจริง
+            — กันเคสตัวหนังสือหนาที่หมึกเป็นเสียงข้างมากภายในกล่อง แล้ว bg/text สลับกัน
+      text: quantize ภายในกล่องเป็น 8 colors → เลือก cluster ที่ contrast สูงสุดเทียบ bg
+      fallback: วงแหวนเล็กเกิน (กล่องเต็มภาพ) → dominant cluster ภายในกล่องแบบเดิม
     คืน (None, None) ถ้า bbox เล็กเกินไป/นอก image.
 
-    Note: ใช้ quantize=4 ไม่ใช่ 2 เพราะ 2 จะ average edge pixels เข้ากับ text →
+    Note: ใช้ quantize=8 ไม่ใช่ 2-4 เพราะค่าน้อยจะ average edge pixels เข้ากับ text →
     ตัวอักษรดำจริง ๆ ถูกสุ่มเป็น #4f4f4f (เทา) แทน → contrast หลุด overlay อ่านลำบาก"""
     if pil_img is None:
         return None, None
@@ -218,26 +218,60 @@ def _sample_text_bg_colors(pil_img, l_px, t_px, r_px, b_px):
     if (r - l) < 4 or (b - t) < 4:
         return None, None
     try:
+        # ── bg จากวงแหวนรอบนอกกล่อง ──
+        RING = 4
+        el, et = max(0, l - RING), max(0, t - RING)
+        er, eb = min(img_w, r + RING), min(img_h, b + RING)
+        strips = [
+            (el, et, er, t),   # top (รวมมุม)
+            (el, b, er, eb),   # bottom (รวมมุม)
+            (el, t, l, b),     # left
+            (r, t, er, b),     # right
+        ]
+        ring_pixels = []
+        for sl, st, sr, sb in strips:
+            if sr - sl <= 0 or sb - st <= 0:
+                continue
+            sc = pil_img.crop((sl, st, sr, sb)).convert("RGB")
+            if max(sc.size) > 64:
+                sc.thumbnail((64, 64), Image.Resampling.NEAREST)
+            ring_pixels.extend(sc.getdata())
+        bg_rgb = None
+        if len(ring_pixels) >= 16:
+            ring_img = Image.new("RGB", (len(ring_pixels), 1))
+            ring_img.putdata(ring_pixels)
+            rq = ring_img.quantize(colors=4, method=Image.Quantize.MEDIANCUT)
+            rpal = rq.getpalette() or []
+            rcounts = rq.getcolors() or []
+            if rcounts and len(rpal) >= 3:
+                rcounts.sort(key=lambda x: -x[0])
+                ri = rcounts[0][1]
+                if ri * 3 + 2 < len(rpal):
+                    bg_rgb = (rpal[ri*3], rpal[ri*3+1], rpal[ri*3+2])
+
+        # ── interior quantize: หา text color (+ bg fallback ถ้าวงแหวนใช้ไม่ได้) ──
         crop = pil_img.crop((l, t, r, b)).convert("RGB")
         if max(crop.size) > 64:
             crop.thumbnail((64, 64), Image.Resampling.NEAREST)
-        # quantize=8 (ไม่ใช่ 4) — แยก anti-alias edge ออกจาก text core
-        # เคส 4 colors: edge pixels ถูก average เข้า text cluster → text ออกมาเทา (#4f4f4f)
-        # เคส 8 colors: edge แยก cluster ของตัวเอง → text core สี เข้มจริง อยู่อีก cluster
         q = crop.quantize(colors=8, method=Image.Quantize.MEDIANCUT)
         pal = q.getpalette() or []
         # palette length ขึ้นอยู่กับจำนวนสีจริงในภาพ (อาจน้อยกว่า 8 colors × 3 = 24)
         n_colors = len(pal) // 3
-        if n_colors < 2:
+        if n_colors < (1 if bg_rgb is not None else 2):
             return None, None
         colors = [(pal[i*3], pal[i*3+1], pal[i*3+2]) for i in range(n_colors)]
         counts = q.getcolors() or []   # [(count, palette_idx), ...]
         if not counts:
             return None, None
-        # bg = cluster ที่ครอบคลุมพื้นที่เยอะที่สุด
         counts.sort(key=lambda x: -x[0])
-        bg_idx = counts[0][1]
-        bg_rgb = colors[bg_idx]
+        if bg_rgb is None:
+            # fallback เดิม: bg = cluster ภายในที่ครอบคลุมพื้นที่เยอะที่สุด
+            bg_idx = counts[0][1]
+            bg_rgb = colors[bg_idx]
+        else:
+            # bg มาจากวงแหวน — interior ทุก cluster เป็น text candidate ได้
+            # (cluster ที่สีใกล้ bg ได้ score ต่ำเองตาม dist²)
+            bg_idx = None
         # text = cluster ที่ทั้ง "contrast สูง" + "มี pixel จริง ๆ ไม่ใช่ noise"
         # score = dist² × √count → balance ห่างจาก bg กับปริมาณ pixel
         # ไม่ใช้ threshold cutoff เพราะ text core บางทีมีแค่ 0.05% ของ total (anti-alias eats rest)
